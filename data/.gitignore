@@ -1,0 +1,21 @@
+# Node-RED generated files
+.config*.json*
+.flows.json.backup
+.npm/
+.sessions.json
+*.backup
+
+# Flow manager generated files
+flow-manager-cfg.json
+flow-manager-nodes-order.json
+config-nodes.json
+
+# Credentials (should never be committed)
+*_cred.json
+.credentials.json
+
+# Dependencies
+node_modules/
+lib/
+package-lock.json
+

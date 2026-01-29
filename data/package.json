@@ -1,0 +1,7 @@
+{
+    "name": "Parat-Bridge",
+    "description": "The node-red project of Parat-Bridge by ParatAI",
+    "dependencies": {
+        "node-red-contrib-flow-manager": "~0.7.4"
+    }
+}

@@ -1,0 +1,12 @@
+# The DOCKERFILE creates the container for deployment.
+# Use the docker-compose-yml to modify the local docker environment.
+
+
+# Defult node-red image, newest version per 28.01.2026 (make sure version is the same in DOCKERFILE)
+FROM nodered/node-red:4.1.4-22
+
+COPY flows/ /data/flows/
+COPY settings.js /data/settings.js
+COPY package.json /data/package.json
+
+RUN npm install --prefix /data

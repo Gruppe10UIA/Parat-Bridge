@@ -1,0 +1,10 @@
+# This file only configures the container for development, DOCKERFILE is used for deploment.
+# If you intent do commit changes here, make sure to also make the same changes in the DOCKERFILE
+
+services:
+  node-red:
+    image: nodered/node-red:4.1.4-22 # Defult node-red image, newest version per 28.01.2026 (make sure version is the same in DOCKERFILE)
+    ports:
+      - "1880:1880" # Dafult ports for a node red project
+    volumes: # syncing local files to container files
+      - ./data:/data
