@@ -4,7 +4,7 @@
 .npm/
 .sessions.json
 *.backup
-.flows.json 
+flows.json
 
 # Flow manager generated files
 flow-manager-cfg.json
