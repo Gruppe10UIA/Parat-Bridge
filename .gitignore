@@ -4,6 +4,7 @@
 .npm/
 .sessions.json
 *.backup
+.flows.json 
 
 # Flow manager generated files
 flow-manager-cfg.json
@@ -17,5 +18,3 @@ config-nodes.json
 # Dependencies
 node_modules/
 lib/
-package-lock.json
-
