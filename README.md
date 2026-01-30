@@ -2,9 +2,9 @@
 
 A Node-RED based integration platform developed by ParatAI.
 
-## Overview
+## Description
 
-Parat-Bridge connects systems and automates data processing using Node-RED's visual flow-based programming environment.
+Parat-Bridge description here
 
 ## Quick Start
 
