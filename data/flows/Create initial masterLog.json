@@ -12,9 +12,7 @@
     "type": "link in",
     "z": "ac954d2933f37bfb",
     "name": "create initial master log",
-    "links": [
-      "b1dc35b3c0e2159a"
-    ],
+    "links": [],
     "x": 225,
     "y": 380,
     "wires": [
