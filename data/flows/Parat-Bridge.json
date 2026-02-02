@@ -598,7 +598,7 @@
     "id": "34eccc01caf3fe3d",
     "type": "debug",
     "z": "84d1a0de660abb59",
-    "name": "debug 10",
+    "name": "Get WaSOS Chat Debug",
     "active": true,
     "tosidebar": true,
     "console": false,
@@ -607,7 +607,7 @@
     "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 1100,
+    "x": 1110,
     "y": 1160,
     "wires": []
   },
@@ -615,15 +615,16 @@
     "id": "875b76d12ca8aab8",
     "type": "debug",
     "z": "84d1a0de660abb59",
-    "name": "debug 9",
+    "name": "JSON Debug",
     "active": true,
     "tosidebar": true,
     "console": false,
     "tostatus": false,
-    "complete": "false",
+    "complete": "payload",
+    "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 1240,
+    "x": 1210,
     "y": 1320,
     "wires": []
   },
@@ -794,17 +795,6 @@
     ]
   },
   {
-    "id": "f32a3d06d43af0cd",
-    "type": "subflow:20ed9a1c977de445",
-    "z": "84d1a0de660abb59",
-    "name": "",
-    "x": 370,
-    "y": 1660,
-    "wires": [
-      []
-    ]
-  },
-  {
     "id": "5ee46511a8896d6c",
     "type": "inject",
     "z": "84d1a0de660abb59",
@@ -903,7 +893,8 @@
     "y": 1420,
     "wires": [
       [
-        "942938d9e0a5b58b"
+        "942938d9e0a5b58b",
+        "4d658fe94a8f420e"
       ]
     ]
   },
@@ -922,7 +913,114 @@
     "x": 1290,
     "y": 1420,
     "wires": [
-      []
+      [
+        "f741e9168976e284"
+      ]
+    ]
+  },
+  {
+    "id": "f741e9168976e284",
+    "type": "function",
+    "z": "84d1a0de660abb59",
+    "name": "Filter System And Echo Messages",
+    "func": "const entry = msg.payload;\n\n// Skip if entry has the WaSOS label (prevents echo loop)\nconst WASOS_LABEL_ID = \"8d8f4cd8-c57c-4ddd-861c-f515237c75d1\";\nif (entry.labels && entry.labels.some(label => label.id === WASOS_LABEL_ID)) {\n    return null; // Skip this entry\n}\n\n// Skip system messages (no labels or system-generated text)\nif (!entry.labels || entry.labels.length === 0) {\n    // Additional check: skip if text contains system patterns\n    if (entry.text.includes('har endret status') ||\n        entry.text.includes('Loggen') ||\n        entry.text.includes('er opprettet')) {\n        return null;\n    }\n}\n\n// Skip if no author name\nif (!entry.loggedByFullName) {\n    return null;\n}\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 1520,
+    "y": 1420,
+    "wires": [
+      [
+        "3d9b87133341d3f2",
+        "cd853bf53c7bb90f"
+      ]
+    ]
+  },
+  {
+    "id": "3d9b87133341d3f2",
+    "type": "function",
+    "z": "84d1a0de660abb59",
+    "name": "Map Rayvn Entry To WaSOS",
+    "func": "const entry = msg.payload;\n\n// Get the configured chatroom name\nconst chatroomName = flow.get('wasosChatroomName');\n\nif (!chatroomName) {\n    node.error('Chatroom not configured. Please submit WaSOS configuration first.');\n    return null;\n}\n\n// Format message for WaSOS\nmsg.message = `[Rayvn - ${entry.loggedByFullName}] ${entry.text}`;\nmsg.callsign = \"Rayvn Bridge\";\nmsg.group = chatroomName; // Add this line!\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 1820,
+    "y": 1420,
+    "wires": [
+      [
+        "b6f5d9597e6fc9c8"
+      ]
+    ]
+  },
+  {
+    "id": "4d658fe94a8f420e",
+    "type": "debug",
+    "z": "84d1a0de660abb59",
+    "name": "Filter Rayvn Debug",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1330,
+    "y": 1500,
+    "wires": []
+  },
+  {
+    "id": "cd853bf53c7bb90f",
+    "type": "debug",
+    "z": "84d1a0de660abb59",
+    "name": "System/Echo Debug",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1800,
+    "y": 1340,
+    "wires": []
+  },
+  {
+    "id": "95efed32efa8171f",
+    "type": "debug",
+    "z": "84d1a0de660abb59",
+    "name": "WaSOS Chat Output Debug",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 2300,
+    "y": 1340,
+    "wires": []
+  },
+  {
+    "id": "b6f5d9597e6fc9c8",
+    "type": "subflow:20ed9a1c977de445",
+    "z": "84d1a0de660abb59",
+    "name": "",
+    "x": 2050,
+    "y": 1420,
+    "wires": [
+      [
+        "95efed32efa8171f"
+      ]
     ]
   }
 ]
