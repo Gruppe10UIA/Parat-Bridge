@@ -892,7 +892,7 @@
     "type": "function",
     "z": "84d1a0de660abb59",
     "name": "Filter New Rayvn Entries",
-    "func": "\nreturn msg;",
+    "func": "const entries = msg.payload || [];\n\n// Nothing to do\nif (!Array.isArray(entries) || entries.length === 0) {\n    msg.payload = [];\n    return msg;\n}\n\n// Sort oldest -> newest\nentries.sort((a, b) => {\n    return a.timeCreated - b.timeCreated;\n});\n\n// Track last forwarded entry per log\nconst logId = flow.get('rayvnLogId') || 'default';\nconst key = `lastForwardedRayvnEntry_${logId}`;\n\nconst lastId = flow.get(key);\n\n// First run: set cursor but don't forward history\nif (!lastId) {\n    const latest = entries[entries.length - 1];\n    flow.set(key, latest.id);\n    msg.payload = [];\n    return msg;\n}\n\n// Collect entries after lastId\nconst newEntries = [];\nlet seen = false;\n\nfor (const entry of entries) {\n    if (seen) newEntries.push(entry);\n    if (entry.id === lastId) seen = true;\n}\n\n// If lastId not found, forward only latest\nif (!seen) {\n    const latest = entries[entries.length - 1];\n    flow.set(key, latest.id);\n    msg.payload = [latest];\n    return msg;\n}\n\n// Update cursor to newest forwarded\nif (newEntries.length > 0) {\n    flow.set(key, newEntries[newEntries.length - 1].id);\n}\n\nmsg.payload = newEntries;\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -900,6 +900,26 @@
     "finalize": "",
     "libs": [],
     "x": 1090,
+    "y": 1420,
+    "wires": [
+      [
+        "942938d9e0a5b58b"
+      ]
+    ]
+  },
+  {
+    "id": "942938d9e0a5b58b",
+    "type": "split",
+    "z": "84d1a0de660abb59",
+    "name": "",
+    "splt": "\\n",
+    "spltType": "str",
+    "arraySplt": 1,
+    "arraySpltType": "len",
+    "stream": false,
+    "addname": "",
+    "property": "payload",
+    "x": 1290,
     "y": 1420,
     "wires": [
       []
