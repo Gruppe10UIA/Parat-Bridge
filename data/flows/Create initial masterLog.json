@@ -1,0 +1,109 @@
+[
+  {
+    "id": "ac954d2933f37bfb",
+    "type": "tab",
+    "label": "Create initial masterLog",
+    "disabled": false,
+    "info": "This flow is created to take\nan initall get log/entries from\nrayvn to create the inital masterLog",
+    "env": []
+  },
+  {
+    "id": "1679c03e2d722705",
+    "type": "link in",
+    "z": "ac954d2933f37bfb",
+    "name": "link in 1",
+    "links": [
+      "1cea6db9494f4771"
+    ],
+    "x": 225,
+    "y": 380,
+    "wires": [
+      [
+        "fd9a6df1266f338f"
+      ]
+    ]
+  },
+  {
+    "id": "45bd77074150c7e3",
+    "type": "function",
+    "z": "ac954d2933f37bfb",
+    "name": "function 1",
+    "func": "let rawLog = msg.payload\n\nmsg.payload = rawLog.map(({ \n  id,\n  text,\n  timeCreated,\n  loggedByFullName\n  }) => ({\n  id,\n  text,\n  timeCreated,\n  loggedByFullName,\n  client: \"rayvn\"  // Added to every entry\n}));\n\nglobal.set(\"masterLog\", msg.payload);\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 800,
+    "y": 380,
+    "wires": [
+      [
+        "aa3086af730870d0"
+      ]
+    ]
+  },
+  {
+    "id": "aa3086af730870d0",
+    "type": "debug",
+    "z": "ac954d2933f37bfb",
+    "name": "debug 2",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "false",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1000,
+    "y": 280,
+    "wires": []
+  },
+  {
+    "id": "fd9a6df1266f338f",
+    "type": "http request",
+    "z": "ac954d2933f37bfb",
+    "name": "get rayvn logs",
+    "method": "GET",
+    "ret": "txt",
+    "paytoqs": "ignore",
+    "url": "https://api.rayvn.global/logs/851213f8-cf3c-4a2b-90bb-98167c93623c/entries",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [
+      {
+        "keyType": "Authorization",
+        "keyValue": "",
+        "valueType": "other",
+        "valueValue": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhdXRoMHw2OTI1OTlhNjBhOWYxMDUzZWQwNmNlODAiLCJhdWQiOiJzMmxVMlgwT3RSOUxmbEdsWGFvaFJTSFptTGJDV3EwRSIsImFwaVRva2VuSWQiOiIzZjQ3N2UwYi1lODg1LTQ2MjUtOWFiNy00NjdhMmNlY2FlZGYiLCJhcGlVcmwiOiJodHRwczovL25vLTEucmF5dm4uZ2xvYmFsLyIsImlzcyI6InJheXZuLmV1LmF1dGgwLmNvbSIsInRlbmFudElkIjoiVEVTVFVJQTlmZjkxYWI4NjQ4YjQwZmRiODhhYzI2ODI3ZTU3YmZjIiwicHJvamVjdCI6eyJpZCI6ImY0YTFkZDM1LWM0ZDItNDdjOC05OTU5LTg0ZWMwMDFhMzIwMCIsIm5hbWUiOiJURVNUIFVJQSJ9LCJ1c2VyIjp7InJvbGVzIjpbIlJPTEVfQ1VTVE9NRVJfQURNSU4iXSwibmFtZSI6IktyaXN0aWFuIE5pZWxzZW4iLCJpZCI6IjUzNzgwODc3LWZiMjUtNGM3MC1iZDUxLWE0MGY3OTYwMzI3MiJ9LCJpYXQiOjE3NzAwMzM2NjI5NjUsImdyb3VwIjp7ImlkIjoiZDM0Y2JhMzMtOGMyZC00OTU0LWFmZWUtODMxOThhNTJiMDg5IiwibmFtZSI6IlRFU1QgVUlBIn19.UkSSl06mN4Z5G6kCqCtgUEKsbnJGo2CLwIDTHZ7aBo0"
+      }
+    ],
+    "x": 420,
+    "y": 380,
+    "wires": [
+      [
+        "5818e50f425b734e"
+      ]
+    ]
+  },
+  {
+    "id": "5818e50f425b734e",
+    "type": "json",
+    "z": "ac954d2933f37bfb",
+    "name": "",
+    "property": "payload",
+    "action": "",
+    "pretty": false,
+    "x": 620,
+    "y": 380,
+    "wires": [
+      [
+        "45bd77074150c7e3"
+      ]
+    ]
+  }
+]
