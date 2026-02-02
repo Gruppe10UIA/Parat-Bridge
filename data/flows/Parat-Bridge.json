@@ -504,14 +504,14 @@
     "id": "3dd695e0c2037eed",
     "type": "inject",
     "z": "84d1a0de660abb59",
-    "name": "",
+    "name": "WaSOS Poll",
     "props": [],
     "repeat": "",
     "crontab": "",
     "once": false,
     "onceDelay": "5",
     "topic": "",
-    "x": 130,
+    "x": 150,
     "y": 1240,
     "wires": [
       [
@@ -545,8 +545,8 @@
     "from": "",
     "to": "",
     "reg": false,
-    "x": 290,
-    "y": 1140,
+    "x": 370,
+    "y": 1160,
     "wires": [
       []
     ]
@@ -555,7 +555,7 @@
     "id": "e650d743f11e0dcd",
     "type": "http request",
     "z": "84d1a0de660abb59",
-    "name": "Get Chat Messages",
+    "name": "Get WaSOS Chat Messages",
     "method": "GET",
     "ret": "txt",
     "paytoqs": "ignore",
@@ -567,7 +567,7 @@
     "authType": "",
     "senderr": false,
     "headers": [],
-    "x": 500,
+    "x": 840,
     "y": 1240,
     "wires": [
       [
@@ -585,7 +585,7 @@
     "property": "payload",
     "action": "",
     "pretty": true,
-    "x": 670,
+    "x": 1050,
     "y": 1240,
     "wires": [
       [
@@ -607,8 +607,8 @@
     "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 700,
-    "y": 1300,
+    "x": 1100,
+    "y": 1160,
     "wires": []
   },
   {
@@ -623,15 +623,15 @@
     "complete": "false",
     "statusVal": "",
     "statusType": "auto",
-    "x": 860,
-    "y": 1240,
+    "x": 1240,
+    "y": 1320,
     "wires": []
   },
   {
     "id": "ed97fedee99c4e36",
     "type": "function",
     "z": "84d1a0de660abb59",
-    "name": "Filter New Messages",
+    "name": "Filter New WaSOS Messages",
     "func": "const body = msg.payload || {};\nconst messages = Array.isArray(body.messages) ? body.messages : [];\n\n// Nothing to do\nif (messages.length === 0) {\n    msg.payload = [];\n    return msg;\n}\n\n// Sort oldest -> newest using numeric timestamps (avoids TS complaining)\nmessages.sort((a, b) => {\n    const ta = new Date(a.createdAt).getTime();\n    const tb = new Date(b.createdAt).getTime();\n    return ta - tb;\n});\n\n// Track last forwarded per room\nconst roomId = String(messages[0].roomId || \"default\");\nconst key = `lastForwardedId_${roomId}`;\n\nconst lastId = flow.get(key);\n\n// First run: set cursor but don't forward history\nif (!lastId) {\n    const latest = messages[messages.length - 1];\n    flow.set(key, latest.id);\n    msg.payload = [];\n    return msg;\n}\n\n// Collect messages after lastId\nconst newMessages = [];\nlet seen = false;\n\nfor (const m of messages) {\n    if (seen) newMessages.push(m);\n    if (m.id === lastId) seen = true;\n}\n\n// If lastId not found, forward only latest (prevents spam)\nif (!seen) {\n    const latest = messages[messages.length - 1];\n    flow.set(key, latest.id);\n    msg.payload = [latest];\n    return msg;\n}\n\n// Update cursor to newest forwarded\nif (newMessages.length > 0) {\n    flow.set(key, newMessages[newMessages.length - 1].id);\n}\n\nmsg.payload = newMessages;\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
@@ -639,8 +639,8 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 980,
-    "y": 1200,
+    "x": 1260,
+    "y": 1240,
     "wires": [
       [
         "7a4799537296aaf8"
@@ -659,8 +659,8 @@
     "stream": false,
     "addname": "",
     "property": "payload",
-    "x": 1170,
-    "y": 1200,
+    "x": 1470,
+    "y": 1240,
     "wires": [
       [
         "c0bcd6e3558a869c"
@@ -679,8 +679,8 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 1340,
-    "y": 1200,
+    "x": 1640,
+    "y": 1240,
     "wires": [
       [
         "edcc87d1f40195de"
@@ -703,8 +703,8 @@
     "authType": "",
     "senderr": false,
     "headers": [],
-    "x": 1580,
-    "y": 1200,
+    "x": 1880,
+    "y": 1240,
     "wires": [
       []
     ]
@@ -714,15 +714,15 @@
     "type": "function",
     "z": "84d1a0de660abb59",
     "name": "Headers function",
-    "func": "let wasosApiKey = flow.get('wasos_apikey');\nlet chatroomUrl = flow.get('wasosChatroomUrl');\n\nif (!wasosApiKey || !chatroomUrl) {\n    node.error('WaSOS not configured. Please submit WaSOS configuration first.');\n    return null;\n}\n\nmsg.headers = {\n    'x-api-key': wasosApiKey\n};\nmsg.url = chatroomUrl + '?limit=1';\n\nreturn msg;",
+    "func": "let wasosApiKey = flow.get('wasos_apikey');\nlet chatroomUrl = flow.get('wasosChatroomUrl');\n\nif (!wasosApiKey || !chatroomUrl) {\n    node.error('WaSOS not configured. Please submit WaSOS configuration first.');\n    return null;\n}\n\nmsg.headers = {\n    'x-api-key': wasosApiKey\n};\nmsg.url = chatroomUrl + '?limit=50';\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 510,
-    "y": 1360,
+    "x": 590,
+    "y": 1240,
     "wires": [
       [
         "e650d743f11e0dcd"
@@ -785,12 +785,124 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 180,
-    "y": 1380,
+    "x": 360,
+    "y": 1240,
     "wires": [
       [
         "dc29199ca671794a"
       ]
+    ]
+  },
+  {
+    "id": "f32a3d06d43af0cd",
+    "type": "subflow:20ed9a1c977de445",
+    "z": "84d1a0de660abb59",
+    "name": "",
+    "x": 370,
+    "y": 1660,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "5ee46511a8896d6c",
+    "type": "inject",
+    "z": "84d1a0de660abb59",
+    "name": "Rayvn Poll",
+    "props": [],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 140,
+    "y": 1420,
+    "wires": [
+      [
+        "63ecfb0d9d64a98a"
+      ]
+    ]
+  },
+  {
+    "id": "63ecfb0d9d64a98a",
+    "type": "function",
+    "z": "84d1a0de660abb59",
+    "name": "Configuration check",
+    "func": "let wasosApiKey = flow.get('wasos_apikey');\nlet rayvnConfig = flow.get('rayvnConfig') || {};\nlet rayvnLogId = flow.get('rayvnLogId');\n\nif (!wasosApiKey || !rayvnConfig.apiKey || !rayvnLogId) {\n    node.warn('Systemene er ikke fullstendig konfigurert for Rayvn → WaSOS.');\n    return null;\n}\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 340,
+    "y": 1420,
+    "wires": [
+      [
+        "8a17e2fc97c6b763"
+      ]
+    ]
+  },
+  {
+    "id": "8a17e2fc97c6b763",
+    "type": "function",
+    "z": "84d1a0de660abb59",
+    "name": "Build Rayvn Entry Request",
+    "func": "const rayvnConfig = flow.get('rayvnConfig') || {};\nconst logId = flow.get('rayvnLogId');\n\nif (!rayvnConfig.apiKey || !logId) {\n    node.error('Rayvn not configured.');\n    return null;\n}\n\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + rayvnConfig.apiKey\n};\n\nmsg.url = `https://api.rayvn.global/logs/${logId}/entries`;\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 600,
+    "y": 1420,
+    "wires": [
+      [
+        "ebd7c13e74b9eb35"
+      ]
+    ]
+  },
+  {
+    "id": "ebd7c13e74b9eb35",
+    "type": "http request",
+    "z": "84d1a0de660abb59",
+    "name": "Get Rayvn Entries",
+    "method": "GET",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 850,
+    "y": 1420,
+    "wires": [
+      [
+        "7562297c82e829b4"
+      ]
+    ]
+  },
+  {
+    "id": "7562297c82e829b4",
+    "type": "function",
+    "z": "84d1a0de660abb59",
+    "name": "Filter New Rayvn Entries",
+    "func": "\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 1090,
+    "y": 1420,
+    "wires": [
+      []
     ]
   }
 ]
