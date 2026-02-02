@@ -11,9 +11,9 @@
     "id": "1679c03e2d722705",
     "type": "link in",
     "z": "ac954d2933f37bfb",
-    "name": "link in 1",
+    "name": "create initial master log",
     "links": [
-      "1cea6db9494f4771"
+      "b1dc35b3c0e2159a"
     ],
     "x": 225,
     "y": 380,
