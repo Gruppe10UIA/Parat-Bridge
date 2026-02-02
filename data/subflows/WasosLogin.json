@@ -1,0 +1,116 @@
+[
+  {
+    "id": "80f93fa22c15ece3",
+    "type": "subflow",
+    "name": "WasosLogin",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 100,
+        "y": 80,
+        "wires": [
+          {
+            "id": "481267d96889460a"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 820,
+        "y": 80,
+        "wires": [
+          {
+            "id": "ebec1bfad607a0c8",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [
+      {
+        "name": "url",
+        "type": "env",
+        "value": "url"
+      },
+      {
+        "name": "username",
+        "type": "env",
+        "value": "username"
+      },
+      {
+        "name": "password",
+        "type": "env",
+        "value": "password"
+      }
+    ],
+    "meta": {
+      "module": "WasosLogin"
+    },
+    "color": "#87A980",
+    "icon": "font-awesome/fa-won"
+  },
+  {
+    "id": "289d03d3b8475ebf",
+    "type": "http request",
+    "z": "80f93fa22c15ece3",
+    "name": "Request API key",
+    "method": "POST",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "basic",
+    "senderr": false,
+    "headers": [],
+    "x": 450,
+    "y": 80,
+    "wires": [
+      [
+        "ebec1bfad607a0c8"
+      ]
+    ]
+  },
+  {
+    "id": "481267d96889460a",
+    "type": "function",
+    "z": "80f93fa22c15ece3",
+    "name": "Config",
+    "func": "\nflow.set(\"$parent.wasos_url\", (msg.url || env.get(\"url\")))\n\nmsg.url =  flow.get(\"$parent.wasos_url\") + \"/apisec/login\"\n\nlet user = msg.username || env.get(\"username\");\nlet pass = msg.password || env.get(\"password\");\nlet auth = Buffer.from(user + \":\" + pass).toString('base64');\n\nmsg.headers = msg.headers || {};\nmsg.headers['Authorization'] = \"Basic \" + auth;\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 230,
+    "y": 80,
+    "wires": [
+      [
+        "289d03d3b8475ebf"
+      ]
+    ]
+  },
+  {
+    "id": "ebec1bfad607a0c8",
+    "type": "function",
+    "z": "80f93fa22c15ece3",
+    "name": "Set wasos_apikey",
+    "func": "flow.set(\"$parent.wasos_apikey\", msg.payload.nonce)\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 670,
+    "y": 80,
+    "wires": [
+      []
+    ]
+  }
+]
