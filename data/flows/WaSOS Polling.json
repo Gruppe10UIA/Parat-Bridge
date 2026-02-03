@@ -34,16 +34,16 @@
     "z": "559975c27e81a86b",
     "name": "WaSOS Poll",
     "props": [],
-    "repeat": "",
+    "repeat": "30",
     "crontab": "",
-    "once": false,
-    "onceDelay": "5",
+    "once": true,
+    "onceDelay": "0.1",
     "topic": "",
     "x": 110,
     "y": 240,
     "wires": [
       [
-        "c062940d577a1a8a"
+        "fdd7a50e1cc3e466"
       ]
     ]
   },
@@ -107,7 +107,7 @@
     "wires": [
       [
         "875b76d12ca8aab8",
-        "ed97fedee99c4e36"
+        "f9ffbb86741c7b93"
       ]
     ],
     "info": "(JSON Node)\n\nKonverterer tekstresponsen fra WaSOS API til JSON-objekt. \nGjør dataene tilgjengelige som JavaScript-objekter for videre behandling i flyten."
@@ -252,5 +252,113 @@
       ]
     ],
     "info": "(Function Node)\n\nFjerner meldinger som kom fra Rayvn for å unngå echo-loop. \nSjekker om callsign eller username er \"Rayvn\", eller om innholdet starter med \"[Rayvn -\". \nDette sikrer at kun ekte WaSOS-chatmeldinger forwardes til Rayvn."
+  },
+  {
+    "id": "fdd7a50e1cc3e466",
+    "type": "function",
+    "z": "559975c27e81a86b",
+    "name": "Polling Check",
+    "func": "// Check if polling is enabled\nconst pollingActive = global.get('pollingActive') || false;\n\nif (!pollingActive) {\n    // Silently stop the flow when polling is disabled\n    return null;\n}\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 200,
+    "y": 360,
+    "wires": [
+      [
+        "c062940d577a1a8a"
+      ]
+    ]
+  },
+  {
+    "id": "f9ffbb86741c7b93",
+    "type": "function",
+    "z": "559975c27e81a86b",
+    "name": "Update WaSOS Status: Success",
+    "func": "// Update status to connected\nglobal.set('wasosPollingStatus', 'connected');\nglobal.set('lastWasosPoll', new Date().toLocaleString('no-NO'));\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 1120,
+    "y": 400,
+    "wires": [
+      [
+        "ed97fedee99c4e36"
+      ]
+    ]
+  },
+  {
+    "id": "94859cf92759c23c",
+    "type": "function",
+    "z": "559975c27e81a86b",
+    "name": "Update WaSOS Status: Error",
+    "func": "global.set('wasosPollingStatus', 'error');\n\nnode.warn('WaSOS polling error: ' + (msg.error?.message || 'Unknown error'));\n\nmsg.payload = {\n    error: true,\n    message: msg.error?.message || 'Unknown error',\n    timestamp: new Date().toLocaleString('no-NO')\n};\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 1160,
+    "y": 480,
+    "wires": [
+      [
+        "8f37a2b4bbc60e28"
+      ]
+    ]
+  },
+  {
+    "id": "831e2bf1011b9522",
+    "type": "catch",
+    "z": "559975c27e81a86b",
+    "name": "WaSOS Error Handler",
+    "scope": [
+      "dc29199ca671794a",
+      "e650d743f11e0dcd",
+      "e74e6f2761d0df3c",
+      "c062940d577a1a8a",
+      "3dd695e0c2037eed",
+      "34eccc01caf3fe3d",
+      "875b76d12ca8aab8",
+      "ed97fedee99c4e36",
+      "7a4799537296aaf8",
+      "c0bcd6e3558a869c",
+      "edcc87d1f40195de",
+      "ae7acc03165ff62c",
+      "fdd7a50e1cc3e466",
+      "f9ffbb86741c7b93",
+      "94859cf92759c23c"
+    ],
+    "uncaught": false,
+    "x": 860,
+    "y": 480,
+    "wires": [
+      [
+        "94859cf92759c23c"
+      ]
+    ]
+  },
+  {
+    "id": "8f37a2b4bbc60e28",
+    "type": "debug",
+    "z": "559975c27e81a86b",
+    "name": "WaSOS Error Debug",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1420,
+    "y": 480,
+    "wires": []
   }
 ]

@@ -533,8 +533,8 @@
     "from": "",
     "to": "",
     "reg": false,
-    "x": 370,
-    "y": 1160,
+    "x": 710,
+    "y": 1360,
     "wires": [
       []
     ]
@@ -584,5 +584,184 @@
       ]
     ],
     "info": "(Function Node)\n\nFinner riktig logg-ID fra Rayvn-responsen basert på logg-navnet brukeren skrev inn. \nGjør case-insensitive matching av logg-navn. \nHåndterer tre scenarioer: ingen match (feil), \nflere matches (feil - krever admin), \neller én match (suksess). \nVed suksess lagres logg-ID i global variabel rayvnLogId og viser suksessmelding med navn og ID."
+  },
+  {
+    "id": "ee7a52abf719c684",
+    "type": "inject",
+    "z": "84d1a0de660abb59",
+    "name": "Initialize and Deploy",
+    "props": [],
+    "repeat": "",
+    "crontab": "",
+    "once": true,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 220,
+    "y": 840,
+    "wires": [
+      [
+        "2274b3432e0fa5f0"
+      ]
+    ]
+  },
+  {
+    "id": "2274b3432e0fa5f0",
+    "type": "function",
+    "z": "84d1a0de660abb59",
+    "name": "Polling Variables Init",
+    "func": "// Initialize polling state variables\nglobal.set('pollingActive', false);\nglobal.set('wasosPollingStatus', 'stopped');\nglobal.set('rayvnPollingStatus', 'stopped');\n\n// Optional: Initialize timestamp trackers\nglobal.set('lastWasosPoll', null);\nglobal.set('lastRayvnPoll', null);\n\nnode.warn('Polling variables initialized');\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 460,
+    "y": 840,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "1736acb2a6121997",
+    "type": "ui-switch",
+    "z": "84d1a0de660abb59",
+    "name": "Polling Control",
+    "label": "Start/Stopp Polling",
+    "group": "fa5d87e96bbd8e4f",
+    "order": 1,
+    "width": 0,
+    "height": 0,
+    "passthru": false,
+    "decouple": false,
+    "topic": "topic",
+    "topicType": "msg",
+    "style": "",
+    "className": "",
+    "layout": "row-left",
+    "clickableArea": "switch",
+    "onvalue": "true",
+    "onvalueType": "bool",
+    "onicon": "",
+    "oncolor": "",
+    "offvalue": "false",
+    "offvalueType": "bool",
+    "officon": "",
+    "offcolor": "",
+    "x": 180,
+    "y": 1140,
+    "wires": [
+      [
+        "bc029d122ab22970"
+      ]
+    ]
+  },
+  {
+    "id": "bc029d122ab22970",
+    "type": "function",
+    "z": "84d1a0de660abb59",
+    "name": "Global Variable Controls",
+    "func": "// Function node: \"Set Polling State\"\nconst pollingActive = msg.payload;\nglobal.set('pollingActive', pollingActive);\n\nmsg.payload = {\n    active: pollingActive,\n    timestamp: new Date().toLocaleString('no-NO')\n};\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 410,
+    "y": 1140,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "0219c516cabe3b5d",
+    "type": "ui-text",
+    "z": "84d1a0de660abb59",
+    "group": "fa5d87e96bbd8e4f",
+    "order": 3,
+    "width": 0,
+    "height": 0,
+    "name": "WaSOS Status Display",
+    "label": "WaSOS Status:",
+    "format": "{{msg.payload}}",
+    "layout": "row-left",
+    "style": false,
+    "font": "",
+    "fontSize": 16,
+    "color": "#717171",
+    "wrapText": false,
+    "className": "",
+    "value": "payload",
+    "valueType": "msg",
+    "x": 660,
+    "y": 980,
+    "wires": []
+  },
+  {
+    "id": "5212a8f38e766361",
+    "type": "ui-text",
+    "z": "84d1a0de660abb59",
+    "group": "fa5d87e96bbd8e4f",
+    "order": 2,
+    "width": 0,
+    "height": 0,
+    "name": "Rayvn Status Display",
+    "label": "Rayvn Status:",
+    "format": "{{msg.payload}}",
+    "layout": "row-left",
+    "style": false,
+    "font": "",
+    "fontSize": 16,
+    "color": "#717171",
+    "wrapText": false,
+    "className": "",
+    "value": "payload",
+    "valueType": "msg",
+    "x": 660,
+    "y": 1060,
+    "wires": []
+  },
+  {
+    "id": "99508d7f22038385",
+    "type": "inject",
+    "z": "84d1a0de660abb59",
+    "name": "Status Refresh",
+    "props": [],
+    "repeat": "5",
+    "crontab": "",
+    "once": true,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 200,
+    "y": 1020,
+    "wires": [
+      [
+        "2ccd580e66c41c17"
+      ]
+    ]
+  },
+  {
+    "id": "2ccd580e66c41c17",
+    "type": "function",
+    "z": "84d1a0de660abb59",
+    "name": "Read Status Variables",
+    "func": "const wasosStatus = global.get('wasosPollingStatus') || 'stopped';\nconst rayvnStatus = global.get('rayvnPollingStatus') || 'stopped';\nconst pollingActive = global.get('pollingActive') || false;\nconst lastWasosPoll = global.get('lastWasosPoll') || 'Aldri';\nconst lastRayvnPoll = global.get('lastRayvnPoll') || 'Aldri';\n\nfunction formatStatus(status, lastPoll, active) {\n    if (!active) {\n        return '⏸️ Stoppet';\n    }\n\n    switch (status) {\n        case 'connected':\n            return `✅ Tilkoblet (${lastPoll})`;\n        case 'error':\n            return `❌ Feil (${lastPoll})`;\n        case 'stopped':\n            return '⏸️ Stoppet';\n        case 'not configured':\n            return '⚙️ Ikke konfigurert';\n        default:\n            return '⏳ Venter...';\n    }\n}\n\nreturn [\n    { payload: formatStatus(wasosStatus, lastWasosPoll, pollingActive) },\n    { payload: formatStatus(rayvnStatus, lastRayvnPoll, pollingActive) }\n];",
+    "outputs": 2,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 420,
+    "y": 1020,
+    "wires": [
+      [
+        "0219c516cabe3b5d"
+      ],
+      [
+        "5212a8f38e766361"
+      ]
+    ]
   }
 ]

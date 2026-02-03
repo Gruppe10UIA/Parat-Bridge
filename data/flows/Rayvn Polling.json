@@ -69,8 +69,8 @@
     "y": 220,
     "wires": [
       [
-        "942938d9e0a5b58b",
-        "4d658fe94a8f420e"
+        "4d658fe94a8f420e",
+        "6138474b08635037"
       ]
     ],
     "info": "(Function Node)\n\nDenne filtrerer ut kun nye log entries som ikke er sendt til WaSOS fra før.\nBruker global variabel lastForwardedRayvnEntry_{logId} som peker.\nVed første kjøring lagres kun siste melding uten å forwarde (unngår å sende gammel historikk). \nSorterer meldinger i fra eldst til nyest, og oppdaterer pekeren etter hver kjøring. "
@@ -252,17 +252,125 @@
     "z": "fdea0898d1f24630",
     "name": "Rayvn Poll",
     "props": [],
-    "repeat": "",
+    "repeat": "30",
     "crontab": "",
-    "once": false,
+    "once": true,
     "onceDelay": 0.1,
     "topic": "",
-    "x": 100,
+    "x": 90,
     "y": 220,
+    "wires": [
+      [
+        "0eef78e2e9ec62bd"
+      ]
+    ]
+  },
+  {
+    "id": "0eef78e2e9ec62bd",
+    "type": "function",
+    "z": "fdea0898d1f24630",
+    "name": "Polling Check",
+    "func": "// Check if polling is enabled\nconst pollingActive = global.get('pollingActive') || false;\n\nif (!pollingActive) {\n    // Silently stop the flow when polling is disabled\n    return null;\n}\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 180,
+    "y": 340,
     "wires": [
       [
         "63ecfb0d9d64a98a"
       ]
     ]
+  },
+  {
+    "id": "6138474b08635037",
+    "type": "function",
+    "z": "fdea0898d1f24630",
+    "name": "Update Rayvn Status: Success",
+    "func": "// Update status to connected\nglobal.set('rayvnPollingStatus', 'connected');\nglobal.set('lastRayvnPoll', new Date().toLocaleString('no-NO'));\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 1190,
+    "y": 120,
+    "wires": [
+      [
+        "942938d9e0a5b58b"
+      ]
+    ]
+  },
+  {
+    "id": "52df469afe3718a5",
+    "type": "catch",
+    "z": "fdea0898d1f24630",
+    "name": "Rayvn Error Handler",
+    "scope": [
+      "8a17e2fc97c6b763",
+      "ebd7c13e74b9eb35",
+      "7562297c82e829b4",
+      "942938d9e0a5b58b",
+      "4d658fe94a8f420e",
+      "f741e9168976e284",
+      "3d9b87133341d3f2",
+      "cd853bf53c7bb90f",
+      "b29dbac857794926",
+      "95efed32efa8171f",
+      "e991511e54283c22",
+      "63ecfb0d9d64a98a",
+      "5ee46511a8896d6c",
+      "0eef78e2e9ec62bd",
+      "6138474b08635037"
+    ],
+    "uncaught": false,
+    "x": 930,
+    "y": 380,
+    "wires": [
+      [
+        "c1c1ca387a777a00"
+      ]
+    ]
+  },
+  {
+    "id": "c1c1ca387a777a00",
+    "type": "function",
+    "z": "fdea0898d1f24630",
+    "name": "Update Rayvn Status: Error",
+    "func": "// Update status to error\nglobal.set('rayvnPollingStatus', 'error');\n\nnode.warn('Rayvn polling error: ' + (msg.error?.message || 'Unknown error'));\n\nmsg.payload = {\n    error: true,\n    message: msg.error?.message || 'Unknown error',\n    timestamp: new Date().toLocaleString('no-NO')\n};\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 1180,
+    "y": 380,
+    "wires": [
+      [
+        "fd4542c06716e125"
+      ]
+    ]
+  },
+  {
+    "id": "fd4542c06716e125",
+    "type": "debug",
+    "z": "fdea0898d1f24630",
+    "name": "Rayvn Error Debug",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1430,
+    "y": 380,
+    "wires": []
   }
 ]
