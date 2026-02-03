@@ -264,7 +264,8 @@
     "libs": [],
     "x": 430,
     "y": 130,
-    "wires": []
+    "wires": [],
+    "info": "(Function Node)\n\nLagrer Rayvn-konfigurasjon i global variabel rayvnConfig som et objekt. \nHåndterer både API-nøkkel (rayvn_api_key topic) og logg-navn (log_name topic). \nOppdaterer eksisterende config uten å overskrive andre felter."
   },
   {
     "id": "549385311d02d888",
@@ -280,7 +281,8 @@
     "libs": [],
     "x": 480,
     "y": 380,
-    "wires": []
+    "wires": [],
+    "info": "(Function Node)\n\nLagrer WaSOS-konfigurasjon (brukernavn og chatroom) i global variabel wasosConfig. \nHåndterer IKKE passord permanent av sikkerhetshensyn, \npassord sendes kun videre i msg for umiddelbar bruk. \nOppdaterer eksisterende config uten å overskrive andre felter."
   },
   {
     "id": "9d0f53d836574646",
@@ -301,7 +303,8 @@
         "8cd401886d4dce2c",
         "2065d5042251827f"
       ]
-    ]
+    ],
+    "info": "(Function Node)\n\nValiderer at både API-nøkkel og logg-navn er fylt ut. \nHvis noe mangler, returner feilmelding. \nHvis OK, bygger HTTP-forespørsel til Rayvn API (/logs endpoint) med Authorization Bearer token, \nfor å hente liste over tilgjengelige logger. \nSender config videre i msg for senere bruk."
   },
   {
     "id": "7c8cdc4d2d8e2acb",
@@ -325,7 +328,8 @@
       [
         "b86b3a69a6a4d5ab"
       ]
-    ]
+    ],
+    "info": "(Function Node)\n\nValiderer at brukernavn, passord og chatroom er fylt ut. \nHvis noe mangler, returner feilmelding (output 1). \nHvis OK, bygger melding for WasosLogin subflow med URL, brukernavn og passord. \nBygger og lagrer chatroom URL (wasosChatroomUrl) og navn (wasosChatroomName) i globale variabler. \nSletter midlertidig passord etter bruk. \nSender til output 2 for login-prosess."
   },
   {
     "id": "3adc3b7f0d67c9de",
@@ -424,7 +428,8 @@
         "b1a4d943b8d31c8d",
         "3dc9d5c2fc2783d0"
       ]
-    ]
+    ],
+    "info": "(Subflow Node)\n\nKjører WaSOS innloggingsprosessen med oppgitte credentials. \nReturnerer nonce (API-nøkkel) som lagres i wasos_apikey av subflowet. \nDette er den faktiske autentiseringen mot WaSOS-systemet.\n\nDenne noden abstraherer bort følgende flyt:\n\nConfig (Function Node - inne i subflow)\nForbereder WaSOS login-forespørsel. \nLagrer base URL i global variabel wasos_url, \nbygger login endpoint (/apisec/login), \nog lager Basic Authentication header fra brukernavn og passord (Base64-encoded). \nHenter verdier enten fra msg eller environment variabler.\n\nRequest API key (HTTP Request Node - inne i subflow)\nSender POST-forespørsel til WaSOS login endpoint med Basic Auth. \nReturnerer en nonce (API-nøkkel) som brukes til autentisering i alle videre API-kall.\n\nSet wasos_apikey (Function Node - inne i subflow)\nLagrer den mottatte nonce fra WaSOS login som global variabel wasos_apikey. Denne brukes som x-api-key header i alle påfølgende WaSOS API-forespørsler."
   },
   {
     "id": "b1a4d943b8d31c8d",
@@ -478,7 +483,8 @@
       [
         "549385311d02d888"
       ]
-    ]
+    ],
+    "info": "(Function Node)\n\nLagrer passordet midlertidig i global variabel temp_password. \nDette er en sikkerhetsmekanisme - passordet slettes umiddelbart etter bruk i login-prosessen, \nslik at det ikke ligger permanent i global context."
   },
   {
     "id": "3dc9d5c2fc2783d0",
@@ -498,7 +504,8 @@
       [
         "c8cf2212e8e95c77"
       ]
-    ]
+    ],
+    "info": "(Function Node)\n\nGenererer brukervennlig melding basert på login-resultat. \nSjekker om nonce finnes i responsen:\nHvis ja, vis suksessmelding med chatroom-navn (grønn). \nHvis nei, vis feilmelding om å sjekke credentials (rød)."
   },
   {
     "id": "c7dced5a40b10296",
@@ -554,7 +561,8 @@
       [
         "360ab27a8945585e"
       ]
-    ]
+    ],
+    "info": "(HTTP Request Node)\n\nHenter alle logger fra Rayvn API som brukeren har tilgang til. \nReturnerer liste over logger som brukes til å finne riktig log ID basert på det oppgitte logg-navnet."
   },
   {
     "id": "360ab27a8945585e",
@@ -574,6 +582,7 @@
       [
         "3adc3b7f0d67c9de"
       ]
-    ]
+    ],
+    "info": "(Function Node)\n\nFinner riktig logg-ID fra Rayvn-responsen basert på logg-navnet brukeren skrev inn. \nGjør case-insensitive matching av logg-navn. \nHåndterer tre scenarioer: ingen match (feil), \nflere matches (feil - krever admin), \neller én match (suksess). \nVed suksess lagres logg-ID i global variabel rayvnLogId og viser suksessmelding med navn og ID."
   }
 ]
