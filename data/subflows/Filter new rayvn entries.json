@@ -1,0 +1,92 @@
+[
+  {
+    "id": "0047704f35a57b0c",
+    "type": "subflow",
+    "name": "Filter new rayvn entries",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 100,
+        "y": 320,
+        "wires": [
+          {
+            "id": "1bb4b5ee32a3022c"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 920,
+        "y": 320,
+        "wires": [
+          {
+            "id": "8ab7e4f646f60aa0",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#DDAA99"
+  },
+  {
+    "id": "1bb4b5ee32a3022c",
+    "type": "function",
+    "z": "0047704f35a57b0c",
+    "name": "Filter by time",
+    "func": "let data = msg.payload\n\nlet filtered = data.filter(\n    entry => entry.timeCreated > global.get(\"lastRayvnEntryTimeStamp\")\n    )\n\nmsg.payload = filtered\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 390,
+    "y": 320,
+    "wires": [
+      [
+        "8ab7e4f646f60aa0"
+      ]
+    ]
+  },
+  {
+    "id": "8ab7e4f646f60aa0",
+    "type": "function",
+    "z": "0047704f35a57b0c",
+    "name": "filter by label",
+    "func": "let data = msg.payload\n\n// warning hardcoded label\nconst labelName = \"WaSOS\";\n\nconst filtered = data.filter(\n    entry => entry.labels.some(label => label.name === labelName)\n);\n\nmsg.payload = filtered\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 600,
+    "y": 320,
+    "wires": [
+      [
+        "7301360cdbff0d83"
+      ]
+    ]
+  },
+  {
+    "id": "7301360cdbff0d83",
+    "type": "debug",
+    "z": "0047704f35a57b0c",
+    "name": "rayvn filtered entries",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1000,
+    "y": 260,
+    "wires": []
+  }
+]

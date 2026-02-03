@@ -1,0 +1,53 @@
+[
+  {
+    "id": "9ee8527d12b415b0",
+    "type": "subflow",
+    "name": "Bridge log ->  Wasos log",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 300,
+        "y": 320,
+        "wires": [
+          {
+            "id": "2d74543c86e88e55"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 900,
+        "y": 320,
+        "wires": [
+          {
+            "id": "2d74543c86e88e55",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#DDAA99"
+  },
+  {
+    "id": "2d74543c86e88e55",
+    "type": "function",
+    "z": "9ee8527d12b415b0",
+    "name": "map Parat log to Wasos chat",
+    "func": "let rawLog = msg.payload;\n\nmsg.payload = rawLog.map(({ \n    text,\n    timeCreated,\n    loggedByFullName,\n    client\n}) => ({\n    content: text || \"\",\n    callsign: `[${client}] ${loggedByFullName}` || \"Unknown\",\n    createdAt: new Date(timeCreated).toISOString(),\n    location: false,\n    replyMessageId: null,\n    files: []\n}));\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 570,
+    "y": 320,
+    "wires": [
+      []
+    ]
+  }
+]

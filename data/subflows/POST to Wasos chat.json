@@ -1,0 +1,67 @@
+[
+  {
+    "id": "209f3c980818c499",
+    "type": "subflow",
+    "name": "POST to Wasos chat",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 320,
+        "y": 360,
+        "wires": [
+          {
+            "id": "41621a8a87543cf1"
+          }
+        ]
+      }
+    ],
+    "out": [],
+    "env": [],
+    "meta": {},
+    "color": "#AAAA66",
+    "icon": "font-awesome/fa-send"
+  },
+  {
+    "id": "41621a8a87543cf1",
+    "type": "http request",
+    "z": "209f3c980818c499",
+    "name": "Simple Chat Message To WaSOS",
+    "method": "POST",
+    "ret": "txt",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 560,
+    "y": 360,
+    "wires": [
+      [
+        "c80cdddcb40c9aab"
+      ]
+    ],
+    "info": "(HTTP Request Node)\n\nSender meldingen til WaSOS chat API med POST-forespørsel. \nDette er det steget som leverer Rayvn-meldingen inn i WaSOS-chatten."
+  },
+  {
+    "id": "c80cdddcb40c9aab",
+    "type": "debug",
+    "z": "209f3c980818c499",
+    "name": "WaSOS Chat Output Debug",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 980,
+    "y": 360,
+    "wires": []
+  }
+]

@@ -1,0 +1,31 @@
+[
+  {
+    "id": "2e632affbd071524",
+    "type": "subflow",
+    "name": "log queue (empty)",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 380,
+        "y": 260,
+        "wires": []
+      }
+    ],
+    "out": [
+      {
+        "x": 820,
+        "y": 260,
+        "wires": [
+          {
+            "id": "2e632affbd071524",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#DDAA99"
+  }
+]

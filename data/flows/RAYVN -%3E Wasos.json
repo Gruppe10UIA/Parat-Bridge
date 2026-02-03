@@ -2,100 +2,10 @@
   {
     "id": "fdea0898d1f24630",
     "type": "tab",
-    "label": "Rayvn Polling",
+    "label": "RAYVN -> Wasos",
     "disabled": false,
     "info": "",
     "env": []
-  },
-  {
-    "id": "8a17e2fc97c6b763",
-    "type": "function",
-    "z": "fdea0898d1f24630",
-    "name": "Build Rayvn Entry Request",
-    "func": "const rayvnConfig = global.get('rayvnConfig') || {};\nconst logId = global.get('rayvnLogId');\n\nif (!rayvnConfig.apiKey || !logId) {\n    node.error('Rayvn not configured.');\n    return null;\n}\n\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + rayvnConfig.apiKey\n};\n\nmsg.url = `https://api.rayvn.global/logs/${logId}/entries`;\n\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 560,
-    "y": 220,
-    "wires": [
-      [
-        "ebd7c13e74b9eb35"
-      ]
-    ],
-    "info": "(Function Node)\n\nDenne noden bygger en HTTP-forespørsel for å hente logg-innlegg i fra Rayvn.\n\nDen setter Authorization header med Bearer token fra rayvnConfig.apiKey\nog bygger URL til /logs/{logId}/entries endepunktet."
-  },
-  {
-    "id": "ebd7c13e74b9eb35",
-    "type": "http request",
-    "z": "fdea0898d1f24630",
-    "name": "Get Rayvn Entries",
-    "method": "GET",
-    "ret": "obj",
-    "paytoqs": "ignore",
-    "url": "",
-    "tls": "",
-    "persist": false,
-    "proxy": "",
-    "insecureHTTPParser": false,
-    "authType": "",
-    "senderr": false,
-    "headers": [],
-    "x": 810,
-    "y": 220,
-    "wires": [
-      [
-        "7562297c82e829b4",
-        "1bb4b5ee32a3022c"
-      ]
-    ],
-    "info": "(HTTP Request Node)\n\nHenter alle logginnlegg fra Rayvn API med GET-forespørsel. \nReturnerer en array med entries som behandles videre i flyten."
-  },
-  {
-    "id": "7562297c82e829b4",
-    "type": "function",
-    "z": "fdea0898d1f24630",
-    "name": "Filter New Rayvn Entries",
-    "func": "const entries = msg.payload || [];\n\n// Nothing to do\nif (!Array.isArray(entries) || entries.length === 0) {\n    msg.payload = [];\n    return msg;\n}\n\n// Sort oldest to newest\nentries.sort((a, b) => {\n    return a.timeCreated - b.timeCreated;\n});\n\n// Track last forwarded entry per log\nconst logId = global.get('rayvnLogId') || 'default';\nconst key = `lastForwardedRayvnEntry_${logId}`;\n\nconst lastId = global.get(key);\n\n// First run: set cursor but don't forward history\nif (!lastId) {\n    const latest = entries[entries.length - 1];\n    global.set(key, latest.id);\n    msg.payload = [];\n    return msg;\n}\n\n// Collect entries after lastId\nconst newEntries = [];\nlet seen = false;\n\nfor (const entry of entries) {\n    if (seen) newEntries.push(entry);\n    if (entry.id === lastId) seen = true;\n}\n\n// If lastId not found, forward only latest\nif (!seen) {\n    const latest = entries[entries.length - 1];\n    global.set(key, latest.id);\n    msg.payload = [latest];\n    return msg;\n}\n\n// Update cursor to newest forwarded\nif (newEntries.length > 0) {\n    global.set(key, newEntries[newEntries.length - 1].id);\n}\n\nmsg.payload = newEntries;\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 1050,
-    "y": 220,
-    "wires": [
-      [
-        "942938d9e0a5b58b",
-        "4d658fe94a8f420e"
-      ]
-    ],
-    "info": "(Function Node)\n\nDenne filtrerer ut kun nye log entries som ikke er sendt til WaSOS fra før.\nBruker global variabel lastForwardedRayvnEntry_{logId} som peker.\nVed første kjøring lagres kun siste melding uten å forwarde (unngår å sende gammel historikk). \nSorterer meldinger i fra eldst til nyest, og oppdaterer pekeren etter hver kjøring. "
-  },
-  {
-    "id": "942938d9e0a5b58b",
-    "type": "split",
-    "z": "fdea0898d1f24630",
-    "name": "",
-    "splt": "\\n",
-    "spltType": "str",
-    "arraySplt": 1,
-    "arraySpltType": "len",
-    "stream": false,
-    "addname": "",
-    "property": "payload",
-    "x": 1250,
-    "y": 220,
-    "wires": [
-      [
-        "f741e9168976e284"
-      ]
-    ],
-    "info": "(Split Node)\n\nDeler opp array av nye Rayvn-meldinger til individuelle meldinger. \nHver melding sendes som egen msg.payload videre i flyten, \nslik at vi kan behandle og sende dem én om gangen til WaSOS."
   },
   {
     "id": "4d658fe94a8f420e",
@@ -110,8 +20,8 @@
     "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 1290,
-    "y": 300,
+    "x": 1650,
+    "y": 340,
     "wires": []
   },
   {
@@ -227,28 +137,127 @@
     "wires": []
   },
   {
-    "id": "63ecfb0d9d64a98a",
+    "id": "7562297c82e829b4",
     "type": "function",
     "z": "fdea0898d1f24630",
-    "name": "Configuration check",
-    "func": "let wasosApiKey = global.get('wasos_apikey');\nlet rayvnConfig = global.get('rayvnConfig') || {};\nlet rayvnLogId = global.get('rayvnLogId');\n\nif (!wasosApiKey || !rayvnConfig.apiKey || !rayvnLogId) {\n    node.warn('Systemene er ikke fullstendig konfigurert for Rayvn → WaSOS.');\n    return null;\n}\n\nreturn msg;",
+    "d": true,
+    "name": "Filter New Rayvn Entries",
+    "func": "const entries = msg.payload || [];\n\n// Nothing to do\nif (!Array.isArray(entries) || entries.length === 0) {\n    msg.payload = [];\n    return msg;\n}\n\n// Sort oldest to newest\nentries.sort((a, b) => {\n    return a.timeCreated - b.timeCreated;\n});\n\n// Track last forwarded entry per log\nconst logId = global.get('rayvnLogId') || 'default';\nconst key = `lastForwardedRayvnEntry_${logId}`;\n\nconst lastId = global.get(key);\n\n// First run: set cursor but don't forward history\nif (!lastId) {\n    const latest = entries[entries.length - 1];\n    global.set(key, latest.id);\n    msg.payload = [];\n    return msg;\n}\n\n// Collect entries after lastId\nconst newEntries = [];\nlet seen = false;\n\nfor (const entry of entries) {\n    if (seen) newEntries.push(entry);\n    if (entry.id === lastId) seen = true;\n}\n\n// If lastId not found, forward only latest\nif (!seen) {\n    const latest = entries[entries.length - 1];\n    global.set(key, latest.id);\n    msg.payload = [latest];\n    return msg;\n}\n\n// Update cursor to newest forwarded\nif (newEntries.length > 0) {\n    global.set(key, newEntries[newEntries.length - 1].id);\n}\n\nmsg.payload = newEntries;\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 300,
-    "y": 220,
+    "x": 1070,
+    "y": 520,
     "wires": [
-      [
-        "8a17e2fc97c6b763"
-      ]
+      []
     ],
-    "info": "(Function Node)\n\nDenne noden validerer de nødvendige globale variablene som er konfigurert.\n(wasos_apikey, rayvnConfig, rayvnLogId)\n\nDen stopper flyten dersom noe mangler.\nDette sikrer at vi ikke prøver å kommunisere med API uten gyldig konfigurasjon."
+    "info": "(Function Node)\n\nDenne filtrerer ut kun nye log entries som ikke er sendt til WaSOS fra før.\nBruker global variabel lastForwardedRayvnEntry_{logId} som peker.\nVed første kjøring lagres kun siste melding uten å forwarde (unngår å sende gammel historikk). \nSorterer meldinger i fra eldst til nyest, og oppdaterer pekeren etter hver kjøring. "
   },
   {
-    "id": "5ee46511a8896d6c",
+    "id": "94b2e009834e7457",
+    "type": "subflow:0047704f35a57b0c",
+    "z": "fdea0898d1f24630",
+    "name": "",
+    "x": 500,
+    "y": 300,
+    "wires": [
+      [
+        "336a09e1fa63bcb2"
+      ]
+    ]
+  },
+  {
+    "id": "336a09e1fa63bcb2",
+    "type": "subflow:e56a9c672a5eb8f6",
+    "z": "fdea0898d1f24630",
+    "name": "",
+    "x": 790,
+    "y": 300,
+    "wires": [
+      [
+        "edcb8d65c7a805ec",
+        "e8f453cb650cc177"
+      ]
+    ]
+  },
+  {
+    "id": "edcb8d65c7a805ec",
+    "type": "subflow:fe9d5f6f9c2bdb16",
+    "z": "fdea0898d1f24630",
+    "name": "",
+    "x": 1130,
+    "y": 300,
+    "wires": []
+  },
+  {
+    "id": "e0ea47ed88577046",
+    "type": "subflow:1c21db2b0b16a979",
+    "z": "fdea0898d1f24630",
+    "name": "",
+    "x": 220,
+    "y": 300,
+    "wires": [
+      [
+        "94b2e009834e7457"
+      ]
+    ]
+  },
+  {
+    "id": "e8f453cb650cc177",
+    "type": "subflow:2e632affbd071524",
+    "z": "fdea0898d1f24630",
+    "name": "",
+    "x": 230,
+    "y": 380,
+    "wires": [
+      [
+        "d9951ddcbdc5971e"
+      ]
+    ]
+  },
+  {
+    "id": "d9951ddcbdc5971e",
+    "type": "subflow:9ee8527d12b415b0",
+    "z": "fdea0898d1f24630",
+    "name": "",
+    "x": 500,
+    "y": 380,
+    "wires": [
+      [
+        "abe5d62bc9ae2a47"
+      ]
+    ]
+  },
+  {
+    "id": "7cddce93b0c1de1d",
+    "type": "subflow:209f3c980818c499",
+    "z": "fdea0898d1f24630",
+    "name": "",
+    "x": 870,
+    "y": 380,
+    "wires": []
+  },
+  {
+    "id": "abe5d62bc9ae2a47",
+    "type": "debug",
+    "z": "fdea0898d1f24630",
+    "name": "debug 3",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "false",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 740,
+    "y": 500,
+    "wires": []
+  },
+  {
+    "id": "7cf86c57d5f2eac6",
     "type": "inject",
     "z": "fdea0898d1f24630",
     "name": "Rayvn Poll",
@@ -258,30 +267,12 @@
     "once": false,
     "onceDelay": 0.1,
     "topic": "",
-    "x": 100,
+    "x": 200,
     "y": 220,
     "wires": [
       [
-        "63ecfb0d9d64a98a"
+        "e0ea47ed88577046"
       ]
-    ]
-  },
-  {
-    "id": "1bb4b5ee32a3022c",
-    "type": "function",
-    "z": "fdea0898d1f24630",
-    "name": "function 2",
-    "func": "\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 970,
-    "y": 460,
-    "wires": [
-      []
     ]
   }
 ]

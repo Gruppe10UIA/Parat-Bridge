@@ -1,0 +1,81 @@
+[
+  {
+    "id": "fe9d5f6f9c2bdb16",
+    "type": "subflow",
+    "name": "Append entry to masterLog",
+    "info": "This is a reusable subflow, that adds\nformatted log entries to the masterLog",
+    "category": "",
+    "in": [
+      {
+        "x": 180,
+        "y": 260,
+        "wires": [
+          {
+            "id": "ef866edea2a4e295"
+          }
+        ]
+      }
+    ],
+    "out": [],
+    "env": [],
+    "meta": {},
+    "color": "#DDAA99"
+  },
+  {
+    "id": "41c1c734ed1adaed",
+    "type": "function",
+    "z": "fe9d5f6f9c2bdb16",
+    "name": "append new entries",
+    "func": "const masterLog = global.get(\"masterLog\") || [];\nconst newEntries = msg.payload;\n\nglobal.set(\"masterLog\", masterLog.concat(newEntries));\n\nmsg.payload = newEntries;\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 690,
+    "y": 260,
+    "wires": [
+      [
+        "33a0b6eee51a333a"
+      ]
+    ]
+  },
+  {
+    "id": "ef866edea2a4e295",
+    "type": "function",
+    "z": "fe9d5f6f9c2bdb16",
+    "name": "remove duplicate entries",
+    "func": "const masterLog = global.get(\"masterLog\") || [];\nconst existingIds = new Set(masterLog.map(entry => entry.id));\n\nmsg.payload = msg.payload.filter(entry => !existingIds.has(entry.id));\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 410,
+    "y": 260,
+    "wires": [
+      [
+        "41c1c734ed1adaed"
+      ]
+    ]
+  },
+  {
+    "id": "33a0b6eee51a333a",
+    "type": "debug",
+    "z": "fe9d5f6f9c2bdb16",
+    "name": "debug entries added to masterLog",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 930,
+    "y": 180,
+    "wires": []
+  }
+]

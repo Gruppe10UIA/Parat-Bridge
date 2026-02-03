@@ -10,7 +10,7 @@
     "id": "a5b51da0c7e1d994",
     "type": "ui-text-input",
     "z": "84d1a0de660abb59",
-    "group": "ui_group_rayvn",
+    "group": "795340daa931f30d",
     "name": "Rayvn API Key",
     "label": "Legg til Rayvn API-nøkkel*",
     "order": 1,
@@ -43,7 +43,7 @@
     "id": "6f445177895a1a04",
     "type": "ui-text-input",
     "z": "84d1a0de660abb59",
-    "group": "ui_group_rayvn",
+    "group": "795340daa931f30d",
     "name": "Log Name",
     "label": "Legg til Logg-navn*",
     "order": 2,
@@ -76,7 +76,7 @@
     "id": "17809f04eab0bb49",
     "type": "ui-button",
     "z": "84d1a0de660abb59",
-    "group": "ui_group_rayvn",
+    "group": "795340daa931f30d",
     "name": "Submit Rayvn",
     "label": "Legg til",
     "order": 3,
@@ -115,7 +115,7 @@
     "id": "9304e0516f1ff4da",
     "type": "ui-text-input",
     "z": "84d1a0de660abb59",
-    "group": "ui_group_wasos",
+    "group": "795340daa931f30d",
     "name": "WaSOS Username",
     "label": "Skriv ditt WaSOS brukernavn*",
     "order": 1,
@@ -149,7 +149,7 @@
     "id": "6b0203d409053d87",
     "type": "ui-text-input",
     "z": "84d1a0de660abb59",
-    "group": "ui_group_wasos",
+    "group": "795340daa931f30d",
     "name": "WaSOS Password",
     "label": "Skriv ditt WaSOS passord*",
     "order": 2,
@@ -182,7 +182,7 @@
     "id": "6c7bcaa2787de40f",
     "type": "ui-text-input",
     "z": "84d1a0de660abb59",
-    "group": "ui_group_wasos",
+    "group": "795340daa931f30d",
     "name": "Chatroom Name",
     "label": "Legg til passende chatrom*",
     "order": 3,
@@ -215,7 +215,7 @@
     "id": "b0a191c90970bf62",
     "type": "ui-button",
     "z": "84d1a0de660abb59",
-    "group": "ui_group_wasos",
+    "group": "795340daa931f30d",
     "name": "Submit WaSOS",
     "label": "Legg til",
     "order": 4,
@@ -444,8 +444,8 @@
     "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 1090,
-    "y": 1040,
+    "x": 850,
+    "y": 660,
     "wires": []
   },
   {
@@ -506,38 +506,6 @@
       ]
     ],
     "info": "(Function Node)\n\nGenererer brukervennlig melding basert på login-resultat. \nSjekker om nonce finnes i responsen:\nHvis ja, vis suksessmelding med chatroom-navn (grønn). \nHvis nei, vis feilmelding om å sjekke credentials (rød)."
-  },
-  {
-    "id": "c7dced5a40b10296",
-    "type": "change",
-    "z": "84d1a0de660abb59",
-    "name": "GAMMEL: Headers Node",
-    "rules": [
-      {
-        "t": "set",
-        "p": "headers.x-api-key",
-        "pt": "msg",
-        "to": "apikey",
-        "tot": "flow"
-      },
-      {
-        "t": "set",
-        "p": "url",
-        "pt": "msg",
-        "to": "https://dev.wasos.no/api/chat/messages/46204-Rayvn?limit=1",
-        "tot": "str"
-      }
-    ],
-    "action": "",
-    "property": "",
-    "from": "",
-    "to": "",
-    "reg": false,
-    "x": 370,
-    "y": 1160,
-    "wires": [
-      []
-    ]
   },
   {
     "id": "2065d5042251827f",
