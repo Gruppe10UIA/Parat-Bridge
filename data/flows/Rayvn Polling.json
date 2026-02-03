@@ -48,7 +48,8 @@
     "y": 220,
     "wires": [
       [
-        "7562297c82e829b4"
+        "7562297c82e829b4",
+        "1bb4b5ee32a3022c"
       ]
     ],
     "info": "(HTTP Request Node)\n\nHenter alle logginnlegg fra Rayvn API med GET-forespørsel. \nReturnerer en array med entries som behandles videre i flyten."
@@ -263,6 +264,24 @@
       [
         "63ecfb0d9d64a98a"
       ]
+    ]
+  },
+  {
+    "id": "1bb4b5ee32a3022c",
+    "type": "function",
+    "z": "fdea0898d1f24630",
+    "name": "function 2",
+    "func": "\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 970,
+    "y": 460,
+    "wires": [
+      []
     ]
   }
 ]

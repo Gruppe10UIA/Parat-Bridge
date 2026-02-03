@@ -335,7 +335,7 @@
     "id": "3adc3b7f0d67c9de",
     "type": "ui-notification",
     "z": "84d1a0de660abb59",
-    "ui": "ui_base",
+    "ui": "33875ee0eafd8d63",
     "position": "bottom left",
     "colorDefault": false,
     "color": "#ff2600",
@@ -357,7 +357,7 @@
     "id": "c8cf2212e8e95c77",
     "type": "ui-notification",
     "z": "84d1a0de660abb59",
-    "ui": "ui_base",
+    "ui": "33875ee0eafd8d63",
     "position": "bottom left",
     "colorDefault": false,
     "color": "#ff2600",
@@ -398,7 +398,7 @@
     "z": "84d1a0de660abb59",
     "group": "",
     "page": "",
-    "ui": "ui_base",
+    "ui": "33875ee0eafd8d63",
     "name": "",
     "order": 0,
     "width": 0,
@@ -580,9 +580,23 @@
     "y": 120,
     "wires": [
       [
-        "3adc3b7f0d67c9de"
+        "3adc3b7f0d67c9de",
+        "b0d28ced526a64e0"
       ]
     ],
     "info": "(Function Node)\n\nFinner riktig logg-ID fra Rayvn-responsen basert på logg-navnet brukeren skrev inn. \nGjør case-insensitive matching av logg-navn. \nHåndterer tre scenarioer: ingen match (feil), \nflere matches (feil - krever admin), \neller én match (suksess). \nVed suksess lagres logg-ID i global variabel rayvnLogId og viser suksessmelding med navn og ID."
+  },
+  {
+    "id": "b0d28ced526a64e0",
+    "type": "link out",
+    "z": "84d1a0de660abb59",
+    "name": "rayvn conneced",
+    "mode": "link",
+    "links": [
+      "1679c03e2d722705"
+    ],
+    "x": 1025,
+    "y": 240,
+    "wires": []
   }
 ]
