@@ -1,0 +1,272 @@
+[
+  {
+    "id": "20ed9a1c977de445",
+    "type": "subflow",
+    "name": "WasosChat",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 80,
+        "y": 60,
+        "wires": [
+          {
+            "id": "b89e3bb6c9c17938"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 980,
+        "y": 440,
+        "wires": [
+          {
+            "id": "b8d5030dcc293cf9",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [
+      {
+        "name": "message",
+        "type": "str",
+        "value": ""
+      },
+      {
+        "name": "latitude",
+        "type": "num",
+        "value": ""
+      },
+      {
+        "name": "longitude",
+        "type": "num",
+        "value": ""
+      },
+      {
+        "name": "image_file",
+        "type": "str",
+        "value": ""
+      }
+    ],
+    "meta": {},
+    "color": "#87A980",
+    "icon": "font-awesome/fa-won"
+  },
+  {
+    "id": "b8d5030dcc293cf9",
+    "type": "http request",
+    "z": "20ed9a1c977de445",
+    "name": "Post chat message",
+    "method": "POST",
+    "ret": "txt",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 850,
+    "y": 240,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "7cb85bca671bd22c",
+    "type": "function",
+    "z": "20ed9a1c977de445",
+    "name": "BuildSimpleChat",
+    "func": "const payload = {\n    \"content\": msg.message,\n    \"isLocation\": false,\n    \"callsign\": msg.callsign || \"\",\n    \"replyMessageId\": null,\n    \"files\": []\n};\n\nmsg.payload = JSON.stringify(payload);  // Manually stringify!\n\nmsg.headers = msg.headers || {};\nmsg.headers['Content-Type'] = 'application/json';\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 590,
+    "y": 220,
+    "wires": [
+      [
+        "b8d5030dcc293cf9",
+        "92e5faa33cd5b3d6"
+      ]
+    ]
+  },
+  {
+    "id": "1398c632b8fcc9b7",
+    "type": "function",
+    "z": "20ed9a1c977de445",
+    "name": "BuildMapChat",
+    "func": "var geolocation = {\n    \"type\": \"Feature\",\n        \"geometry\": {\n        \"type\": \"Point\",\n            \"coordinates\": [\n                msg.latitude,\n                msg.longitude,\n            ]\n    },\n    \"properties\": {\n        \"name\": \"MapReference\"\n    }\n}\n\n\nmsg.payload = {\n    \"content\": JSON.stringify(geolocation),\n    \"isLocation\": true,\n    \"callsign\": msg.callsign || \"\",\n    \"replyMessageId\": null,\n    \"files\": []\n};\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 580,
+    "y": 140,
+    "wires": [
+      [
+        "b8d5030dcc293cf9"
+      ]
+    ]
+  },
+  {
+    "id": "c5b08727ccec1e53",
+    "type": "switch",
+    "z": "20ed9a1c977de445",
+    "name": "Has Geo",
+    "property": "latitude",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "nnull"
+      },
+      {
+        "t": "else"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 2,
+    "x": 380,
+    "y": 180,
+    "wires": [
+      [
+        "1398c632b8fcc9b7"
+      ],
+      [
+        "7cb85bca671bd22c"
+      ]
+    ]
+  },
+  {
+    "id": "64c6b59eec88e730",
+    "type": "function",
+    "z": "20ed9a1c977de445",
+    "name": "Build image chat msg",
+    "func": "// msg.payload currently holds the binary buffer from the file in node\nvar fileBuffer = Array.from(msg.payload);\n\nmsg.payload = {\n    \"content\": msg.message || \"\",\n    \"isLocation\": false,\n    \"callsign\": msg.callsign || \"\",\n    \"replyMessageId\": null,\n    \"files\": [\n        {\n            \"filename\": msg.image_file,\n            \"extension\": \"jpeg\",\n            \"filetype\": \"image/jpeg\",\n            \"blob\": fileBuffer\n        }\n    ]\n};\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 600,
+    "y": 320,
+    "wires": [
+      [
+        "b8d5030dcc293cf9"
+      ]
+    ]
+  },
+  {
+    "id": "d039a239ec3cdafc",
+    "type": "file in",
+    "z": "20ed9a1c977de445",
+    "name": "",
+    "filename": "image_file",
+    "filenameType": "msg",
+    "format": "",
+    "chunk": false,
+    "sendError": false,
+    "encoding": "binary",
+    "allProps": false,
+    "x": 380,
+    "y": 320,
+    "wires": [
+      [
+        "64c6b59eec88e730"
+      ]
+    ]
+  },
+  {
+    "id": "9c61a17ddb48d3fe",
+    "type": "switch",
+    "z": "20ed9a1c977de445",
+    "name": "Has Files?",
+    "property": "image_file",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "null"
+      },
+      {
+        "t": "else"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 2,
+    "x": 170,
+    "y": 260,
+    "wires": [
+      [
+        "c5b08727ccec1e53"
+      ],
+      [
+        "d039a239ec3cdafc"
+      ]
+    ]
+  },
+  {
+    "id": "b89e3bb6c9c17938",
+    "type": "function",
+    "z": "20ed9a1c977de445",
+    "name": "Set url and x-api-key",
+    "func": "var url = msg.url || flow.get(\"$parent.wasos_url\") + \"/api/chat/messages\"\nvar group = msg.group || env.get(\"group\") || flow.get(\"$parent.wasos_group\")\nmsg.url = url + \"/api/chat/messages/\" + group\n\nvar apikey = msg.api_key || flow.get(\"$parent.wasos_apikey\")\nmsg.headers = msg.headers || {};\nmsg.headers['x-api-key'] = apikey\nmsg.headers['Content-Type'] = 'application/json';\n\n// CLEAN UP old HTTP properties that might interfere\ndelete msg.statusCode;\ndelete msg.responseUrl;\ndelete msg.redirectList;\ndelete msg.retry;\ndelete msg.responseCookies;\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 240,
+    "y": 60,
+    "wires": [
+      [
+        "a09cfcf3335d2c02",
+        "9c61a17ddb48d3fe"
+      ]
+    ]
+  },
+  {
+    "id": "a09cfcf3335d2c02",
+    "type": "debug",
+    "z": "20ed9a1c977de445",
+    "name": "debug 8",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 500,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "92e5faa33cd5b3d6",
+    "type": "debug",
+    "z": "20ed9a1c977de445",
+    "name": "debug 11",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "false",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 850,
+    "y": 140,
+    "wires": []
+  }
+]

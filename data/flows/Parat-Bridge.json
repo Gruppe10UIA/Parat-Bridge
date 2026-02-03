@@ -255,7 +255,7 @@
     "type": "function",
     "z": "84d1a0de660abb59",
     "name": "Store Rayvn Config",
-    "func": "let rayvnConfig = flow.get('rayvnConfig') || {};\n\nif (msg.topic === 'rayvn_api_key') {\n    rayvnConfig.apiKey = msg.payload;\n} else if (msg.topic === 'log_name') {\n    rayvnConfig.logName = msg.payload;\n}\n\nflow.set('rayvnConfig', rayvnConfig);\n\nreturn null;",
+    "func": "let rayvnConfig = global.get('rayvnConfig') || {};\n\nif (msg.topic === 'rayvn_api_key') {\n    rayvnConfig.apiKey = msg.payload;\n} else if (msg.topic === 'log_name') {\n    rayvnConfig.logName = msg.payload;\n}\n\nglobal.set('rayvnConfig', rayvnConfig);\n\nreturn null;",
     "outputs": 0,
     "timeout": "",
     "noerr": 0,
@@ -264,14 +264,15 @@
     "libs": [],
     "x": 430,
     "y": 130,
-    "wires": []
+    "wires": [],
+    "info": "(Function Node)\n\nLagrer Rayvn-konfigurasjon i global variabel rayvnConfig som et objekt. \nHåndterer både API-nøkkel (rayvn_api_key topic) og logg-navn (log_name topic). \nOppdaterer eksisterende config uten å overskrive andre felter."
   },
   {
     "id": "549385311d02d888",
     "type": "function",
     "z": "84d1a0de660abb59",
     "name": "Store WaSOS Config",
-    "func": "let wasosConfig = flow.get('wasosConfig') || {};\n\nif (msg.topic === 'wasos_username') {\n    wasosConfig.username = msg.payload;\n} else if (msg.topic === 'wasos_password') {\n    // IKKE lagre passordet - sett det bare på meldingen\n    msg.password = msg.payload;\n    return msg;  // Send direkte til neste node\n} else if (msg.topic === 'chatroom_name') {\n    wasosConfig.chatroom = msg.payload;\n}\n\nflow.set('wasosConfig', wasosConfig);\n\nreturn null;",
+    "func": "let wasosConfig = global.get('wasosConfig') || {};\n\nif (msg.topic === 'wasos_username') {\n    wasosConfig.username = msg.payload;\n} else if (msg.topic === 'wasos_password') {\n    // IKKE lagre passordet - sett det bare på meldingen\n    msg.password = msg.payload;\n    return msg;  // Send direkte til neste node\n} else if (msg.topic === 'chatroom_name') {\n    wasosConfig.chatroom = msg.payload;\n}\n\nglobal.set('wasosConfig', wasosConfig);\n\nreturn null;",
     "outputs": 0,
     "timeout": "",
     "noerr": 0,
@@ -280,14 +281,15 @@
     "libs": [],
     "x": 480,
     "y": 380,
-    "wires": []
+    "wires": [],
+    "info": "(Function Node)\n\nLagrer WaSOS-konfigurasjon (brukernavn og chatroom) i global variabel wasosConfig. \nHåndterer IKKE passord permanent av sikkerhetshensyn, \npassord sendes kun videre i msg for umiddelbar bruk. \nOppdaterer eksisterende config uten å overskrive andre felter."
   },
   {
     "id": "9d0f53d836574646",
     "type": "function",
     "z": "84d1a0de660abb59",
     "name": "Process Rayvn Submit",
-    "func": "let rayvnConfig = flow.get('rayvnConfig') || {};\n\nnode.warn('Retrieved Rayvn config: ' + JSON.stringify({ ...rayvnConfig, apiKey: '***' }));\n\nif (!rayvnConfig.apiKey || !rayvnConfig.logName) {\n    node.warn('Missing required Rayvn fields');\n    msg.payload = 'Vennligst fyll ut alle påkrevde Rayvn-felt.';\n    msg.topic = 'Error';\n    msg.color = '#F44336';\n    return msg;\n}\n\n// Prepare to fetch logs from Rayvn\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + rayvnConfig.apiKey\n};\nmsg.url = \"https://api.rayvn.global/logs\";\nmsg.rayvnConfig = rayvnConfig; // Pass config along\n\nreturn msg;",
+    "func": "let rayvnConfig = global.get('rayvnConfig') || {};\n\nnode.warn('Retrieved Rayvn config: ' + JSON.stringify({ ...rayvnConfig, apiKey: '***' }));\n\nif (!rayvnConfig.apiKey || !rayvnConfig.logName) {\n    node.warn('Missing required Rayvn fields');\n    msg.payload = 'Vennligst fyll ut alle påkrevde Rayvn-felt.';\n    msg.topic = 'Error';\n    msg.color = '#F44336';\n    return msg;\n}\n\n// Prepare to fetch logs from Rayvn\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + rayvnConfig.apiKey\n};\nmsg.url = \"https://api.rayvn.global/logs\";\nmsg.rayvnConfig = rayvnConfig; // Pass config along\n\nreturn msg;",
     "outputs": 1,
     "timeout": "",
     "noerr": 0,
@@ -301,14 +303,15 @@
         "8cd401886d4dce2c",
         "2065d5042251827f"
       ]
-    ]
+    ],
+    "info": "(Function Node)\n\nValiderer at både API-nøkkel og logg-navn er fylt ut. \nHvis noe mangler, returner feilmelding. \nHvis OK, bygger HTTP-forespørsel til Rayvn API (/logs endpoint) med Authorization Bearer token, \nfor å hente liste over tilgjengelige logger. \nSender config videre i msg for senere bruk."
   },
   {
     "id": "7c8cdc4d2d8e2acb",
     "type": "function",
     "z": "84d1a0de660abb59",
     "name": "Process WaSOS Submit",
-    "func": "let wasosConfig = flow.get('wasosConfig') || {};\nlet password = flow.get('temp_password');  // Hent midlertidig passord\n\nnode.warn('Retrieved config (no password): ' + JSON.stringify(wasosConfig));\n\nif (!wasosConfig.username || !password || !wasosConfig.chatroom) {\n    node.warn('Missing required WaSOS fields');\n    msg.payload = 'Vennligst fyll ut alle påkrevde WaSOS-felt.';\n    msg.topic = 'Error';\n    msg.color = '#F44336';\n    return [msg, null];\n}\n\nconst wasosBaseUrl = \"https://dev.wasos.no\";\n\nmsg.username = wasosConfig.username;\nmsg.password = password;\nmsg.url = wasosBaseUrl;\n\n// Slett midlertidig passord etter bruk\nflow.set('temp_password', null);\n\nconst chatroomUrl = `${wasosBaseUrl}/api/chat/messages/${wasosConfig.chatroom}`;\nflow.set('wasosChatroomUrl', chatroomUrl);\nflow.set('wasosChatroomName', wasosConfig.chatroom);\n\nmsg.payload = `WaSOS-konfigurasjon lagret! Chatrom: ${wasosConfig.chatroom}`;\nmsg.topic = 'Success';\nmsg.color = '#4CAF50';\n\nreturn [null, msg];",
+    "func": "let wasosConfig = global.get('wasosConfig') || {};\nlet password = global.get('temp_password');  // Hent midlertidig passord\n\nnode.warn('Retrieved config (no password): ' + JSON.stringify(wasosConfig));\n\nif (!wasosConfig.username || !password || !wasosConfig.chatroom) {\n    node.warn('Missing required WaSOS fields');\n    msg.payload = 'Vennligst fyll ut alle påkrevde WaSOS-felt.';\n    msg.topic = 'Error';\n    msg.color = '#F44336';\n    return [msg, null];\n}\n\nconst wasosBaseUrl = \"https://dev.wasos.no\";\n\nmsg.username = wasosConfig.username;\nmsg.password = password;\nmsg.url = wasosBaseUrl;\n\n// Slett midlertidig passord etter bruk\nglobal.set('temp_password', null);\n\nconst chatroomUrl = `${wasosBaseUrl}/api/chat/messages/${wasosConfig.chatroom}`;\nglobal.set('wasosChatroomUrl', chatroomUrl);\nglobal.set('wasosChatroomName', wasosConfig.chatroom);\n\nmsg.payload = `WaSOS-konfigurasjon lagret! Chatrom: ${wasosConfig.chatroom}`;\nmsg.topic = 'Success';\nmsg.color = '#4CAF50';\n\nreturn [null, msg];",
     "outputs": 2,
     "timeout": "",
     "noerr": 0,
@@ -325,7 +328,8 @@
       [
         "b86b3a69a6a4d5ab"
       ]
-    ]
+    ],
+    "info": "(Function Node)\n\nValiderer at brukernavn, passord og chatroom er fylt ut. \nHvis noe mangler, returner feilmelding (output 1). \nHvis OK, bygger melding for WasosLogin subflow med URL, brukernavn og passord. \nBygger og lagrer chatroom URL (wasosChatroomUrl) og navn (wasosChatroomName) i globale variabler. \nSletter midlertidig passord etter bruk. \nSender til output 2 for login-prosess."
   },
   {
     "id": "3adc3b7f0d67c9de",
@@ -424,7 +428,8 @@
         "b1a4d943b8d31c8d",
         "3dc9d5c2fc2783d0"
       ]
-    ]
+    ],
+    "info": "(Subflow Node)\n\nKjører WaSOS innloggingsprosessen med oppgitte credentials. \nReturnerer nonce (API-nøkkel) som lagres i wasos_apikey av subflowet. \nDette er den faktiske autentiseringen mot WaSOS-systemet.\n\nDenne noden abstraherer bort følgende flyt:\n\nConfig (Function Node - inne i subflow)\nForbereder WaSOS login-forespørsel. \nLagrer base URL i global variabel wasos_url, \nbygger login endpoint (/apisec/login), \nog lager Basic Authentication header fra brukernavn og passord (Base64-encoded). \nHenter verdier enten fra msg eller environment variabler.\n\nRequest API key (HTTP Request Node - inne i subflow)\nSender POST-forespørsel til WaSOS login endpoint med Basic Auth. \nReturnerer en nonce (API-nøkkel) som brukes til autentisering i alle videre API-kall.\n\nSet wasos_apikey (Function Node - inne i subflow)\nLagrer den mottatte nonce fra WaSOS login som global variabel wasos_apikey. Denne brukes som x-api-key header i alle påfølgende WaSOS API-forespørsler."
   },
   {
     "id": "b1a4d943b8d31c8d",
@@ -465,7 +470,7 @@
     "type": "function",
     "z": "84d1a0de660abb59",
     "name": "Password Temp Storage",
-    "func": "flow.set('temp_password', msg.payload);\nmsg.topic = 'wasos_password';\nreturn msg;",
+    "func": "global.set('temp_password', msg.payload);\nmsg.topic = 'wasos_password';\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -478,14 +483,15 @@
       [
         "549385311d02d888"
       ]
-    ]
+    ],
+    "info": "(Function Node)\n\nLagrer passordet midlertidig i global variabel temp_password. \nDette er en sikkerhetsmekanisme - passordet slettes umiddelbart etter bruk i login-prosessen, \nslik at det ikke ligger permanent i global context."
   },
   {
     "id": "3dc9d5c2fc2783d0",
     "type": "function",
     "z": "84d1a0de660abb59",
     "name": "WaSOS Login Success Message",
-    "func": "let chatroom = flow.get('wasosChatroomName');\n\nif (msg.payload && msg.payload.nonce) {\n    // Login vellykket\n    msg.payload = `WaSOS-tilkobling vellykket! Chatrom: ${chatroom}`;\n    msg.color = '#4CAF50';\n} else {\n    // Login feilet\n    msg.payload = 'WaSOS-tilkobling feilet. Sjekk brukernavn og passord.';\n    msg.color = '#F44336';\n}\n\nreturn msg;",
+    "func": "let chatroom = global.get('wasosChatroomName');\n\nif (msg.payload && msg.payload.nonce) {\n    // Login vellykket\n    msg.payload = `WaSOS-tilkobling vellykket! Chatrom: ${chatroom}`;\n    msg.color = '#4CAF50';\n} else {\n    // Login feilet\n    msg.payload = 'WaSOS-tilkobling feilet. Sjekk brukernavn og passord.';\n    msg.color = '#F44336';\n}\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -498,26 +504,8 @@
       [
         "c8cf2212e8e95c77"
       ]
-    ]
-  },
-  {
-    "id": "3dd695e0c2037eed",
-    "type": "inject",
-    "z": "84d1a0de660abb59",
-    "name": "",
-    "props": [],
-    "repeat": "",
-    "crontab": "",
-    "once": false,
-    "onceDelay": "5",
-    "topic": "",
-    "x": 130,
-    "y": 1240,
-    "wires": [
-      [
-        "c062940d577a1a8a"
-      ]
-    ]
+    ],
+    "info": "(Function Node)\n\nGenererer brukervennlig melding basert på login-resultat. \nSjekker om nonce finnes i responsen:\nHvis ja, vis suksessmelding med chatroom-navn (grønn). \nHvis nei, vis feilmelding om å sjekke credentials (rød)."
   },
   {
     "id": "c7dced5a40b10296",
@@ -545,188 +533,10 @@
     "from": "",
     "to": "",
     "reg": false,
-    "x": 290,
-    "y": 1140,
+    "x": 370,
+    "y": 1160,
     "wires": [
       []
-    ]
-  },
-  {
-    "id": "e650d743f11e0dcd",
-    "type": "http request",
-    "z": "84d1a0de660abb59",
-    "name": "Get Chat Messages",
-    "method": "GET",
-    "ret": "txt",
-    "paytoqs": "ignore",
-    "url": "",
-    "tls": "",
-    "persist": false,
-    "proxy": "",
-    "insecureHTTPParser": false,
-    "authType": "",
-    "senderr": false,
-    "headers": [],
-    "x": 500,
-    "y": 1240,
-    "wires": [
-      [
-        "e74e6f2761d0df3c",
-        "34eccc01caf3fe3d"
-      ]
-    ],
-    "info": "Hent en liste over chat grupper somb brukeren har tilgang til.\n\nBruk \"id\" i URL når du skal poste nye meldinger til chat\n"
-  },
-  {
-    "id": "e74e6f2761d0df3c",
-    "type": "json",
-    "z": "84d1a0de660abb59",
-    "name": "",
-    "property": "payload",
-    "action": "",
-    "pretty": true,
-    "x": 670,
-    "y": 1240,
-    "wires": [
-      [
-        "875b76d12ca8aab8",
-        "ed97fedee99c4e36"
-      ]
-    ]
-  },
-  {
-    "id": "34eccc01caf3fe3d",
-    "type": "debug",
-    "z": "84d1a0de660abb59",
-    "name": "debug 10",
-    "active": true,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 700,
-    "y": 1300,
-    "wires": []
-  },
-  {
-    "id": "875b76d12ca8aab8",
-    "type": "debug",
-    "z": "84d1a0de660abb59",
-    "name": "debug 9",
-    "active": true,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "false",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 860,
-    "y": 1240,
-    "wires": []
-  },
-  {
-    "id": "ed97fedee99c4e36",
-    "type": "function",
-    "z": "84d1a0de660abb59",
-    "name": "Filter New Messages",
-    "func": "const body = msg.payload || {};\nconst messages = Array.isArray(body.messages) ? body.messages : [];\n\n// Nothing to do\nif (messages.length === 0) {\n    msg.payload = [];\n    return msg;\n}\n\n// Sort oldest -> newest using numeric timestamps (avoids TS complaining)\nmessages.sort((a, b) => {\n    const ta = new Date(a.createdAt).getTime();\n    const tb = new Date(b.createdAt).getTime();\n    return ta - tb;\n});\n\n// Track last forwarded per room\nconst roomId = String(messages[0].roomId || \"default\");\nconst key = `lastForwardedId_${roomId}`;\n\nconst lastId = flow.get(key);\n\n// First run: set cursor but don't forward history\nif (!lastId) {\n    const latest = messages[messages.length - 1];\n    flow.set(key, latest.id);\n    msg.payload = [];\n    return msg;\n}\n\n// Collect messages after lastId\nconst newMessages = [];\nlet seen = false;\n\nfor (const m of messages) {\n    if (seen) newMessages.push(m);\n    if (m.id === lastId) seen = true;\n}\n\n// If lastId not found, forward only latest (prevents spam)\nif (!seen) {\n    const latest = messages[messages.length - 1];\n    flow.set(key, latest.id);\n    msg.payload = [latest];\n    return msg;\n}\n\n// Update cursor to newest forwarded\nif (newMessages.length > 0) {\n    flow.set(key, newMessages[newMessages.length - 1].id);\n}\n\nmsg.payload = newMessages;\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 980,
-    "y": 1200,
-    "wires": [
-      [
-        "7a4799537296aaf8"
-      ]
-    ]
-  },
-  {
-    "id": "7a4799537296aaf8",
-    "type": "split",
-    "z": "84d1a0de660abb59",
-    "name": "",
-    "splt": "\\n",
-    "spltType": "str",
-    "arraySplt": 1,
-    "arraySpltType": "len",
-    "stream": false,
-    "addname": "",
-    "property": "payload",
-    "x": 1170,
-    "y": 1200,
-    "wires": [
-      [
-        "c0bcd6e3558a869c"
-      ]
-    ]
-  },
-  {
-    "id": "c0bcd6e3558a869c",
-    "type": "function",
-    "z": "84d1a0de660abb59",
-    "name": "Map To Rayvn",
-    "func": "const rayvnConfig = flow.get('rayvnConfig') || {};\nconst logId = flow.get('rayvnLogId');\n\n// Validation\nif (!rayvnConfig.apiKey || !logId) {\n    node.error('Rayvn not configured. Please submit Rayvn configuration first.');\n    return null;\n}\n\nconst m = msg.payload; // one chat message after Split\n\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + rayvnConfig.apiKey,\n    \"Content-Type\": \"application/json\",\n    \"Accept\": \"application/json\"\n};\n\nmsg.url = `https://api.rayvn.global/logs/${logId}/entry`;\n\n// Put the chat content into Rayvn entry text\nmsg.payload = {\n    text: `[${m.username}] ${m.content}`,\n    keyEvent: false,\n    releasedInfo: false,\n    labels: [\n        { id: \"8d8f4cd8-c57c-4ddd-861c-f515237c75d1\" }\n    ]\n};\n\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 1340,
-    "y": 1200,
-    "wires": [
-      [
-        "edcc87d1f40195de"
-      ]
-    ]
-  },
-  {
-    "id": "edcc87d1f40195de",
-    "type": "http request",
-    "z": "84d1a0de660abb59",
-    "name": "POST To Rayvn Entry Point",
-    "method": "POST",
-    "ret": "txt",
-    "paytoqs": "ignore",
-    "url": "",
-    "tls": "",
-    "persist": false,
-    "proxy": "",
-    "insecureHTTPParser": false,
-    "authType": "",
-    "senderr": false,
-    "headers": [],
-    "x": 1580,
-    "y": 1200,
-    "wires": [
-      []
-    ]
-  },
-  {
-    "id": "dc29199ca671794a",
-    "type": "function",
-    "z": "84d1a0de660abb59",
-    "name": "Headers function",
-    "func": "let wasosApiKey = flow.get('wasos_apikey');\nlet chatroomUrl = flow.get('wasosChatroomUrl');\n\nif (!wasosApiKey || !chatroomUrl) {\n    node.error('WaSOS not configured. Please submit WaSOS configuration first.');\n    return null;\n}\n\nmsg.headers = {\n    'x-api-key': wasosApiKey\n};\nmsg.url = chatroomUrl + '?limit=1';\n\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 510,
-    "y": 1360,
-    "wires": [
-      [
-        "e650d743f11e0dcd"
-      ]
     ]
   },
   {
@@ -751,14 +561,15 @@
       [
         "360ab27a8945585e"
       ]
-    ]
+    ],
+    "info": "(HTTP Request Node)\n\nHenter alle logger fra Rayvn API som brukeren har tilgang til. \nReturnerer liste over logger som brukes til å finne riktig log ID basert på det oppgitte logg-navnet."
   },
   {
     "id": "360ab27a8945585e",
     "type": "function",
     "z": "84d1a0de660abb59",
     "name": "Resolve Log ID",
-    "func": "const rayvnConfig = msg.rayvnConfig;\nconst logName = rayvnConfig.logName.trim();\n\ntry {\n    const logs = JSON.parse(msg.payload);\n\n    // Find matching logs (case-insensitive exact match)\n    const matches = logs.filter(log =>\n        log.name.toLowerCase() === logName.toLowerCase()\n    );\n\n    if (matches.length === 0) {\n        msg.payload = `Logg '${logName}' ble ikke funnet i Rayvn.`;\n        msg.topic = 'Error';\n        msg.color = '#F44336';\n        return msg;\n    }\n\n    if (matches.length > 1) {\n        // Multiple logs with same name - need user to choose\n        msg.payload = `Fant ${matches.length} logger med navn '${logName}'. Vennligst kontakt administrator.`;\n        msg.topic = 'Error';\n        msg.color = '#F44336';\n        return msg;\n    }\n\n    // Success! Store the log ID\n    const logId = matches[0].id;\n    flow.set('rayvnLogId', logId);\n\n    msg.payload = `Rayvn-konfigurasjon lagret! Logg: ${logName} (ID: ${logId})`;\n    msg.topic = 'Success';\n    msg.color = '#4CAF50';\n\n    return msg;\n\n} catch (e) {\n    msg.payload = 'Feil ved henting av Rayvn-logger: ' + e.message;\n    msg.topic = 'Error';\n    msg.color = '#F44336';\n    return msg;\n}",
+    "func": "const rayvnConfig = msg.rayvnConfig;\nconst logName = rayvnConfig.logName.trim();\n\ntry {\n    const logs = JSON.parse(msg.payload);\n\n    // Find matching logs (case-insensitive exact match)\n    const matches = logs.filter(log =>\n        log.name.toLowerCase() === logName.toLowerCase()\n    );\n\n    if (matches.length === 0) {\n        msg.payload = `Logg '${logName}' ble ikke funnet i Rayvn.`;\n        msg.topic = 'Error';\n        msg.color = '#F44336';\n        return msg;\n    }\n\n    if (matches.length > 1) {\n        // Multiple logs with same name - need user to choose\n        msg.payload = `Fant ${matches.length} logger med navn '${logName}'. Vennligst kontakt administrator.`;\n        msg.topic = 'Error';\n        msg.color = '#F44336';\n        return msg;\n    }\n\n    // Success! Store the log ID\n    const logId = matches[0].id;\n    global.set('rayvnLogId', logId);\n\n    msg.payload = `Rayvn-konfigurasjon lagret! Logg: ${logName} (ID: ${logId})`;\n    msg.topic = 'Success';\n    msg.color = '#4CAF50';\n\n    return msg;\n\n} catch (e) {\n    msg.payload = 'Feil ved henting av Rayvn-logger: ' + e.message;\n    msg.topic = 'Error';\n    msg.color = '#F44336';\n    return msg;\n}",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -771,26 +582,7 @@
       [
         "3adc3b7f0d67c9de"
       ]
-    ]
-  },
-  {
-    "id": "c062940d577a1a8a",
-    "type": "function",
-    "z": "84d1a0de660abb59",
-    "name": "Configuration check",
-    "func": "let wasosApiKey = flow.get('wasos_apikey');\nlet rayvnConfig = flow.get('rayvnConfig') || {};\nlet rayvnLogId = flow.get('rayvnLogId');\n\nif (!wasosApiKey || !rayvnConfig.apiKey || !rayvnLogId) {\n    node.warn('Systemene er ikke fullstendig konfigurert. Vennligst fullfør både WaSOS- og Rayvn-konfigurasjon.');\n    return null;\n}\n\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 180,
-    "y": 1380,
-    "wires": [
-      [
-        "dc29199ca671794a"
-      ]
-    ]
+    ],
+    "info": "(Function Node)\n\nFinner riktig logg-ID fra Rayvn-responsen basert på logg-navnet brukeren skrev inn. \nGjør case-insensitive matching av logg-navn. \nHåndterer tre scenarioer: ingen match (feil), \nflere matches (feil - krever admin), \neller én match (suksess). \nVed suksess lagres logg-ID i global variabel rayvnLogId og viser suksessmelding med navn og ID."
   }
 ]

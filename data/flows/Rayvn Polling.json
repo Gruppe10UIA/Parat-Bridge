@@ -1,0 +1,268 @@
+[
+  {
+    "id": "fdea0898d1f24630",
+    "type": "tab",
+    "label": "Rayvn Polling",
+    "disabled": false,
+    "info": "",
+    "env": []
+  },
+  {
+    "id": "8a17e2fc97c6b763",
+    "type": "function",
+    "z": "fdea0898d1f24630",
+    "name": "Build Rayvn Entry Request",
+    "func": "const rayvnConfig = global.get('rayvnConfig') || {};\nconst logId = global.get('rayvnLogId');\n\nif (!rayvnConfig.apiKey || !logId) {\n    node.error('Rayvn not configured.');\n    return null;\n}\n\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + rayvnConfig.apiKey\n};\n\nmsg.url = `https://api.rayvn.global/logs/${logId}/entries`;\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 560,
+    "y": 220,
+    "wires": [
+      [
+        "ebd7c13e74b9eb35"
+      ]
+    ],
+    "info": "(Function Node)\n\nDenne noden bygger en HTTP-forespørsel for å hente logg-innlegg i fra Rayvn.\n\nDen setter Authorization header med Bearer token fra rayvnConfig.apiKey\nog bygger URL til /logs/{logId}/entries endepunktet."
+  },
+  {
+    "id": "ebd7c13e74b9eb35",
+    "type": "http request",
+    "z": "fdea0898d1f24630",
+    "name": "Get Rayvn Entries",
+    "method": "GET",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 810,
+    "y": 220,
+    "wires": [
+      [
+        "7562297c82e829b4"
+      ]
+    ],
+    "info": "(HTTP Request Node)\n\nHenter alle logginnlegg fra Rayvn API med GET-forespørsel. \nReturnerer en array med entries som behandles videre i flyten."
+  },
+  {
+    "id": "7562297c82e829b4",
+    "type": "function",
+    "z": "fdea0898d1f24630",
+    "name": "Filter New Rayvn Entries",
+    "func": "const entries = msg.payload || [];\n\n// Nothing to do\nif (!Array.isArray(entries) || entries.length === 0) {\n    msg.payload = [];\n    return msg;\n}\n\n// Sort oldest to newest\nentries.sort((a, b) => {\n    return a.timeCreated - b.timeCreated;\n});\n\n// Track last forwarded entry per log\nconst logId = global.get('rayvnLogId') || 'default';\nconst key = `lastForwardedRayvnEntry_${logId}`;\n\nconst lastId = global.get(key);\n\n// First run: set cursor but don't forward history\nif (!lastId) {\n    const latest = entries[entries.length - 1];\n    global.set(key, latest.id);\n    msg.payload = [];\n    return msg;\n}\n\n// Collect entries after lastId\nconst newEntries = [];\nlet seen = false;\n\nfor (const entry of entries) {\n    if (seen) newEntries.push(entry);\n    if (entry.id === lastId) seen = true;\n}\n\n// If lastId not found, forward only latest\nif (!seen) {\n    const latest = entries[entries.length - 1];\n    global.set(key, latest.id);\n    msg.payload = [latest];\n    return msg;\n}\n\n// Update cursor to newest forwarded\nif (newEntries.length > 0) {\n    global.set(key, newEntries[newEntries.length - 1].id);\n}\n\nmsg.payload = newEntries;\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 1050,
+    "y": 220,
+    "wires": [
+      [
+        "942938d9e0a5b58b",
+        "4d658fe94a8f420e"
+      ]
+    ],
+    "info": "(Function Node)\n\nDenne filtrerer ut kun nye log entries som ikke er sendt til WaSOS fra før.\nBruker global variabel lastForwardedRayvnEntry_{logId} som peker.\nVed første kjøring lagres kun siste melding uten å forwarde (unngår å sende gammel historikk). \nSorterer meldinger i fra eldst til nyest, og oppdaterer pekeren etter hver kjøring. "
+  },
+  {
+    "id": "942938d9e0a5b58b",
+    "type": "split",
+    "z": "fdea0898d1f24630",
+    "name": "",
+    "splt": "\\n",
+    "spltType": "str",
+    "arraySplt": 1,
+    "arraySpltType": "len",
+    "stream": false,
+    "addname": "",
+    "property": "payload",
+    "x": 1250,
+    "y": 220,
+    "wires": [
+      [
+        "f741e9168976e284"
+      ]
+    ],
+    "info": "(Split Node)\n\nDeler opp array av nye Rayvn-meldinger til individuelle meldinger. \nHver melding sendes som egen msg.payload videre i flyten, \nslik at vi kan behandle og sende dem én om gangen til WaSOS."
+  },
+  {
+    "id": "4d658fe94a8f420e",
+    "type": "debug",
+    "z": "fdea0898d1f24630",
+    "name": "Filter Rayvn Debug",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1290,
+    "y": 300,
+    "wires": []
+  },
+  {
+    "id": "f741e9168976e284",
+    "type": "function",
+    "z": "fdea0898d1f24630",
+    "name": "Filter System And Echo Messages",
+    "func": "const entry = msg.payload;\n\n// Skip if entry has the WaSOS label (prevents echo loop)\nconst WASOS_LABEL_ID = \"8d8f4cd8-c57c-4ddd-861c-f515237c75d1\";\nif (entry.labels && entry.labels.some(label => label.id === WASOS_LABEL_ID)) {\n    return null; // Skip this entry\n}\n\n// Skip system messages (no labels or system-generated text)\nif (!entry.labels || entry.labels.length === 0) {\n    // Additional check: skip if text contains system patterns\n    if (entry.text.includes('har endret status') ||\n        entry.text.includes('Loggen') ||\n        entry.text.includes('er opprettet')) {\n        return null;\n    }\n}\n\n// Skip if no author name (Kan fjernes ved skalering)\nif (!entry.loggedByFullName) {\n    return null;\n}\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 1480,
+    "y": 220,
+    "wires": [
+      [
+        "3d9b87133341d3f2",
+        "cd853bf53c7bb90f"
+      ]
+    ],
+    "info": "(Function Node)\n\nFjerner meldinger som ikke skal forwardes til WaSOS:\n\nMeldinger med WaSOS-label(tagger i Rayvn UI), \nfor å unngå echo-loop når meldinger kommer tilbake fra WaSOS\n\nPr. nå: ingen systemmeldinger uten forfatter eller med systembeskjeder (statusendringer, opprettelse av logger)\nKun genuine brukermeldinger fra Rayvn går videre."
+  },
+  {
+    "id": "3d9b87133341d3f2",
+    "type": "function",
+    "z": "fdea0898d1f24630",
+    "name": "Map Rayvn Entry To WaSOS",
+    "func": "const entry = msg.payload;\n\nconst chatroomName = global.get('wasosChatroomName');\nconst wasosUrl = global.get('wasos_url');\nconst wasosApiKey = global.get('wasos_apikey');\n\nif (!chatroomName || !wasosUrl || !wasosApiKey) {\n    node.error('WaSOS not configured');\n    return null;\n}\n\n// Set headers (like your working Headers node)\nmsg.headers = {\n    'x-api-key': wasosApiKey\n};\n\n// Set URL (like your working Headers node)\nmsg.url = `${wasosUrl}/api/chat/messages/${chatroomName}`;\n\n// Build payload (like your working BuildSimpleChat) - DON'T stringify!\nmsg.payload = {\n    \"content\": `[Rayvn - ${entry.loggedByFullName}] ${entry.text}`,\n    \"isLocation\": false,\n    \"callsign\": \"Rayvn\",  \n    \"replyMessageId\": null,\n    \"files\": []\n};\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 1780,
+    "y": 220,
+    "wires": [
+      [
+        "b29dbac857794926"
+      ]
+    ],
+    "info": "(Function Node)\n\nKonverterer Rayvn-meldingsformat til WaSOS API-format. \nSetter headers med x-api-key, bygger URL til /api/chat/messages/{chatroomName}, \nog lager payload med format [Rayvn - Forfatter] melding. \nSetter callsign til \"Rayvn\" for identifikasjon i WaSOS."
+  },
+  {
+    "id": "cd853bf53c7bb90f",
+    "type": "debug",
+    "z": "fdea0898d1f24630",
+    "name": "System/Echo Debug",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1760,
+    "y": 140,
+    "wires": []
+  },
+  {
+    "id": "b29dbac857794926",
+    "type": "http request",
+    "z": "fdea0898d1f24630",
+    "name": "Simple Chat Message To WaSOS",
+    "method": "POST",
+    "ret": "txt",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 2080,
+    "y": 220,
+    "wires": [
+      [
+        "95efed32efa8171f"
+      ]
+    ],
+    "info": "(HTTP Request Node)\n\nSender meldingen til WaSOS chat API med POST-forespørsel. \nDette er det steget som leverer Rayvn-meldingen inn i WaSOS-chatten."
+  },
+  {
+    "id": "95efed32efa8171f",
+    "type": "debug",
+    "z": "fdea0898d1f24630",
+    "name": "WaSOS Chat Output Debug",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 2260,
+    "y": 140,
+    "wires": []
+  },
+  {
+    "id": "e991511e54283c22",
+    "type": "comment",
+    "z": "fdea0898d1f24630",
+    "name": "",
+    "info": "",
+    "x": 280,
+    "y": 40,
+    "wires": []
+  },
+  {
+    "id": "63ecfb0d9d64a98a",
+    "type": "function",
+    "z": "fdea0898d1f24630",
+    "name": "Configuration check",
+    "func": "let wasosApiKey = global.get('wasos_apikey');\nlet rayvnConfig = global.get('rayvnConfig') || {};\nlet rayvnLogId = global.get('rayvnLogId');\n\nif (!wasosApiKey || !rayvnConfig.apiKey || !rayvnLogId) {\n    node.warn('Systemene er ikke fullstendig konfigurert for Rayvn → WaSOS.');\n    return null;\n}\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 300,
+    "y": 220,
+    "wires": [
+      [
+        "8a17e2fc97c6b763"
+      ]
+    ],
+    "info": "(Function Node)\n\nDenne noden validerer de nødvendige globale variablene som er konfigurert.\n(wasos_apikey, rayvnConfig, rayvnLogId)\n\nDen stopper flyten dersom noe mangler.\nDette sikrer at vi ikke prøver å kommunisere med API uten gyldig konfigurasjon."
+  },
+  {
+    "id": "5ee46511a8896d6c",
+    "type": "inject",
+    "z": "fdea0898d1f24630",
+    "name": "Rayvn Poll",
+    "props": [],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 100,
+    "y": 220,
+    "wires": [
+      [
+        "63ecfb0d9d64a98a"
+      ]
+    ]
+  }
+]
