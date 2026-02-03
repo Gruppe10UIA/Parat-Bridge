@@ -179,7 +179,7 @@
     "y": 240,
     "wires": [
       [
-        "c0bcd6e3558a869c"
+        "ae7acc03165ff62c"
       ]
     ]
   },
@@ -195,7 +195,7 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 1600,
+    "x": 1840,
     "y": 240,
     "wires": [
       [
@@ -219,10 +219,30 @@
     "authType": "",
     "senderr": false,
     "headers": [],
-    "x": 1840,
+    "x": 2080,
     "y": 240,
     "wires": [
       []
+    ]
+  },
+  {
+    "id": "ae7acc03165ff62c",
+    "type": "function",
+    "z": "559975c27e81a86b",
+    "name": "Filter Rayvn Messages",
+    "func": "const m = msg.payload;\n\n// Skip messages sent by our bridge (prevents echo loop)\nif (m.callsign === \"Rayvn\" || m.username === \"Rayvn\") {\n    return null;\n}\n\n// Also skip if content starts with [Rayvn - (belt and suspenders)\nif (m.content && m.content.startsWith(\"[Rayvn -\")) {\n    return null;\n}\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 1620,
+    "y": 240,
+    "wires": [
+      [
+        "c0bcd6e3558a869c"
+      ]
     ]
   }
 ]

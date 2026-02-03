@@ -174,7 +174,7 @@
     "type": "function",
     "z": "fdea0898d1f24630",
     "name": "Map Rayvn Entry To WaSOS",
-    "func": "const entry = msg.payload;\n\nconst chatroomName = global.get('wasosChatroomName');\nconst wasosUrl = global.get('wasos_url');\nconst wasosApiKey = global.get('wasos_apikey');\n\nif (!chatroomName || !wasosUrl || !wasosApiKey) {\n    node.error('WaSOS not configured');\n    return null;\n}\n\n// Set headers (like your working Headers node)\nmsg.headers = {\n    'x-api-key': wasosApiKey\n};\n\n// Set URL (like your working Headers node)\nmsg.url = `${wasosUrl}/api/chat/messages/${chatroomName}`;\n\n// Build payload (like your working BuildSimpleChat) - DON'T stringify!\nmsg.payload = {\n    \"content\": `[Rayvn - ${entry.loggedByFullName}] ${entry.text}`,\n    \"isLocation\": false,\n    \"callsign\": \"Rayvn Bridge\",\n    \"replyMessageId\": null,\n    \"files\": []\n};\n\nreturn msg;",
+    "func": "const entry = msg.payload;\n\nconst chatroomName = global.get('wasosChatroomName');\nconst wasosUrl = global.get('wasos_url');\nconst wasosApiKey = global.get('wasos_apikey');\n\nif (!chatroomName || !wasosUrl || !wasosApiKey) {\n    node.error('WaSOS not configured');\n    return null;\n}\n\n// Set headers (like your working Headers node)\nmsg.headers = {\n    'x-api-key': wasosApiKey\n};\n\n// Set URL (like your working Headers node)\nmsg.url = `${wasosUrl}/api/chat/messages/${chatroomName}`;\n\n// Build payload (like your working BuildSimpleChat) - DON'T stringify!\nmsg.payload = {\n    \"content\": `[Rayvn - ${entry.loggedByFullName}] ${entry.text}`,\n    \"isLocation\": false,\n    \"callsign\": \"Rayvn\",  \n    \"replyMessageId\": null,\n    \"files\": []\n};\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
