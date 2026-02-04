@@ -18,7 +18,7 @@
     ],
     "out": [
       {
-        "x": 920,
+        "x": 1040,
         "y": 320,
         "wires": [
           {
@@ -58,7 +58,7 @@
     "type": "function",
     "z": "0047704f35a57b0c",
     "name": "filter by label",
-    "func": "let data = msg.payload\n\n// warning hardcoded label\nconst labelName = \"WaSOS\";\n\nconst filtered = data.filter(\n    entry => entry.labels.some(label => label.name === labelName)\n);\n\nmsg.payload = filtered\n\nreturn msg;",
+    "func": "let data = msg.payload\n\n// Exclude entries that have the WaSOS label (they came from WaSOS)\nconst labelName = \"WaSOS\";\n\nconst filtered = data.filter(\n    entry => !entry.labels.some(label => label.name === labelName)\n);\n\nmsg.payload = filtered\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -78,7 +78,7 @@
     "type": "function",
     "z": "0047704f35a57b0c",
     "name": "stop empty injects",
-    "func": "if (msg.payload && msg.payload.length > 0) {\n    return msg;\n}",
+    "func": "if (msg.payload && msg.payload.length > 0) {\n    return msg;\n}\nelse {\n    node.warn(\"no new messages\");\n}",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,

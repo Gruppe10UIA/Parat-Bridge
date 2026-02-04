@@ -113,7 +113,8 @@
     "y": 380,
     "wires": [
       [
-        "aa16f22ad11315a4"
+        "aa16f22ad11315a4",
+        "e58572bfc8924a57"
       ]
     ]
   },
@@ -137,5 +138,17 @@
         "aa3086af730870d0"
       ]
     ]
+  },
+  {
+    "id": "e58572bfc8924a57",
+    "type": "subflow:146a0fb1b7b158fc",
+    "z": "ac954d2933f37bfb",
+    "name": "",
+    "x": 1040,
+    "y": 440,
+    "wires": [
+      []
+    ],
+    "info": "This subflow should post the inital rayvn log to wasos\r\n"
   }
 ]
