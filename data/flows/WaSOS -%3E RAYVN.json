@@ -8,50 +8,6 @@
     "env": []
   },
   {
-    "id": "c0bcd6e3558a869c",
-    "type": "function",
-    "z": "559975c27e81a86b",
-    "name": "Map To Rayvn",
-    "func": "const rayvnConfig = global.get('rayvnConfig') || {};\nconst logId = global.get('rayvnLogId');\n\n// Validation\nif (!rayvnConfig.apiKey || !logId) {\n    node.error('Rayvn not configured. Please submit Rayvn configuration first.');\n    return null;\n}\n\nconst m = msg.payload; // one chat message after Split\n\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + rayvnConfig.apiKey,\n    \"Content-Type\": \"application/json\",\n    \"Accept\": \"application/json\"\n};\n\nmsg.url = `https://api.rayvn.global/logs/${logId}/entry`;\n\n// Put the chat content into Rayvn entry text\nmsg.payload = {\n    text: `[${m.username}] ${m.content}`,\n    keyEvent: false,\n    releasedInfo: false,\n    labels: [\n        { id: \"8d8f4cd8-c57c-4ddd-861c-f515237c75d1\" }\n    ]\n};\n\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 1840,
-    "y": 240,
-    "wires": [
-      [
-        "edcc87d1f40195de"
-      ]
-    ],
-    "info": "(Function Node)\n\nKonverterer WaSOS-meldingsformat til Rayvn API-format.\n\nSetter Authorization Bearer token, Content-Type og Accept headers. \n\nBygger URL til /logs/{logId}/entry endepunktet, \nog lager payload med format [Brukernavn] Melding.\n\nLegger til WaSOS-label (ID: 8d8f4cd8-c57c-4ddd-861c-f515237c75d1), \nfor å identifisere meldinger fra WaSOS."
-  },
-  {
-    "id": "edcc87d1f40195de",
-    "type": "http request",
-    "z": "559975c27e81a86b",
-    "name": "POST To Rayvn Entry Point",
-    "method": "POST",
-    "ret": "txt",
-    "paytoqs": "ignore",
-    "url": "",
-    "tls": "",
-    "persist": false,
-    "proxy": "",
-    "insecureHTTPParser": false,
-    "authType": "",
-    "senderr": false,
-    "headers": [],
-    "x": 2080,
-    "y": 240,
-    "wires": [
-      []
-    ],
-    "info": "(HTTP Request Node)\n\nSender meldingen til Rayvn logg-API med POST-forespørsel. \nDette er det steget som leverer WaSOS-meldingen inn i Rayvn-loggen."
-  },
-  {
     "id": "9c083fc8c222c29d",
     "type": "subflow:6844cb2c3b9378da",
     "z": "559975c27e81a86b",
@@ -60,8 +16,7 @@
     "y": 300,
     "wires": [
       [
-        "e5047f481499ea01",
-        "ad6e4ebae620ae51"
+        "e5047f481499ea01"
       ]
     ]
   },
@@ -109,7 +64,163 @@
     "x": 830,
     "y": 300,
     "wires": [
+      [
+        "826af035abb1587d",
+        "3b1a180eac54a098"
+      ]
+    ]
+  },
+  {
+    "id": "826af035abb1587d",
+    "type": "subflow:a72933a33e32b28c",
+    "z": "559975c27e81a86b",
+    "name": "",
+    "x": 1120,
+    "y": 300,
+    "wires": [
+      [
+        "481e3e8076f94f99",
+        "453ac9498920626e",
+        "c08dff63b6bf94a4"
+      ]
+    ]
+  },
+  {
+    "id": "481e3e8076f94f99",
+    "type": "subflow:fe9d5f6f9c2bdb16",
+    "z": "559975c27e81a86b",
+    "name": "",
+    "x": 1440,
+    "y": 300,
+    "wires": [
       []
     ]
+  },
+  {
+    "id": "453ac9498920626e",
+    "type": "subflow:2e632affbd071524",
+    "z": "559975c27e81a86b",
+    "name": "",
+    "x": 590,
+    "y": 460,
+    "wires": [
+      [
+        "df39f1408665a8da"
+      ]
+    ]
+  },
+  {
+    "id": "df39f1408665a8da",
+    "type": "subflow:5ed556f2fe39e3a2",
+    "z": "559975c27e81a86b",
+    "name": "",
+    "x": 860,
+    "y": 460,
+    "wires": [
+      [
+        "37d09b076004e699",
+        "5adc9f55c147a330"
+      ]
+    ]
+  },
+  {
+    "id": "3b1a180eac54a098",
+    "type": "debug",
+    "z": "559975c27e81a86b",
+    "name": "wasos filtered entries",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 840,
+    "y": 260,
+    "wires": []
+  },
+  {
+    "id": "c08dff63b6bf94a4",
+    "type": "debug",
+    "z": "559975c27e81a86b",
+    "name": "wasos bridge log formatted entries",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1160,
+    "y": 260,
+    "wires": []
+  },
+  {
+    "id": "5adc9f55c147a330",
+    "type": "subflow:4a6a1af9b9af6b0f",
+    "z": "559975c27e81a86b",
+    "name": "",
+    "x": 1210,
+    "y": 460,
+    "wires": [
+      [
+        "04b018b08a56f604"
+      ]
+    ]
+  },
+  {
+    "id": "37d09b076004e699",
+    "type": "debug",
+    "z": "559975c27e81a86b",
+    "name": "Rayvn log formatted entries",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 880,
+    "y": 420,
+    "wires": []
+  },
+  {
+    "id": "04b018b08a56f604",
+    "type": "debug",
+    "z": "559975c27e81a86b",
+    "name": "POST to rayvn response",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1200,
+    "y": 420,
+    "wires": []
+  },
+  {
+    "id": "c0bcd6e3558a869c",
+    "type": "function",
+    "z": "559975c27e81a86b",
+    "name": "Map To Rayvn",
+    "func": "const rayvnConfig = global.get('rayvnConfig') || {};\nconst logId = global.get('rayvnLogId');\n\n// Validation\nif (!rayvnConfig.apiKey || !logId) {\n    node.error('Rayvn not configured. Please submit Rayvn configuration first.');\n    return null;\n}\n\nconst m = msg.payload; // one chat message after Split\n\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + rayvnConfig.apiKey,\n    \"Content-Type\": \"application/json\",\n    \"Accept\": \"application/json\"\n};\n\nmsg.url = `https://api.rayvn.global/logs/${logId}/entry`;\n\n// Put the chat content into Rayvn entry text\nmsg.payload = {\n    text: `[${m.username}] ${m.content}`,\n    keyEvent: false,\n    releasedInfo: false,\n    labels: [\n        { id: \"8d8f4cd8-c57c-4ddd-861c-f515237c75d1\" }\n    ]\n};\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 1840,
+    "y": 240,
+    "wires": [
+      []
+    ],
+    "info": "(Function Node)\n\nKonverterer WaSOS-meldingsformat til Rayvn API-format.\n\nSetter Authorization Bearer token, Content-Type og Accept headers. \n\nBygger URL til /logs/{logId}/entry endepunktet, \nog lager payload med format [Brukernavn] Melding.\n\nLegger til WaSOS-label (ID: 8d8f4cd8-c57c-4ddd-861c-f515237c75d1), \nfor å identifisere meldinger fra WaSOS."
   }
 ]

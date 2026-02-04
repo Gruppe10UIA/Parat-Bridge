@@ -1,0 +1,99 @@
+[
+  {
+    "id": "4a6a1af9b9af6b0f",
+    "type": "subflow",
+    "name": "POST to RAYVN log",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 180,
+        "y": 300,
+        "wires": [
+          {
+            "id": "044459bc226a0ba1"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 1020,
+        "y": 300,
+        "wires": [
+          {
+            "id": "edcc87d1f40195de",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#AAAA66",
+    "icon": "font-awesome/fa-paper-plane"
+  },
+  {
+    "id": "edcc87d1f40195de",
+    "type": "http request",
+    "z": "4a6a1af9b9af6b0f",
+    "name": "POST To Rayvn Entry Point",
+    "method": "POST",
+    "ret": "txt",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 820,
+    "y": 300,
+    "wires": [
+      []
+    ],
+    "info": "(HTTP Request Node)\n\nSender meldingen til Rayvn logg-API med POST-forespørsel. \nDette er det steget som leverer WaSOS-meldingen inn i Rayvn-loggen."
+  },
+  {
+    "id": "044459bc226a0ba1",
+    "type": "function",
+    "z": "4a6a1af9b9af6b0f",
+    "name": "Format header and url",
+    "func": "const rayvnConfig = global.get('rayvnConfig') || {};\nconst logId = global.get('rayvnLogId');\n\nif (!rayvnConfig.apiKey || !logId) {\n    node.error('Rayvn not configured. Please submit Rayvn configuration first.');\n    return null;\n}\n\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + rayvnConfig.apiKey,\n    \"Content-Type\": \"application/json\",\n    \"Accept\": \"application/json\"\n};\n\nmsg.url = `https://api.rayvn.global/logs/${logId}/entry`;\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 340,
+    "y": 300,
+    "wires": [
+      [
+        "9b381619b4b4fd2a"
+      ]
+    ]
+  },
+  {
+    "id": "9b381619b4b4fd2a",
+    "type": "split",
+    "z": "4a6a1af9b9af6b0f",
+    "name": "array to single entries",
+    "splt": "\\n",
+    "spltType": "str",
+    "arraySplt": 1,
+    "arraySpltType": "len",
+    "stream": false,
+    "addname": "",
+    "property": "payload",
+    "x": 580,
+    "y": 300,
+    "wires": [
+      [
+        "edcc87d1f40195de"
+      ]
+    ]
+  }
+]

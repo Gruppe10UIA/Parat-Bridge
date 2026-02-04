@@ -171,8 +171,8 @@
     "topic": "",
     "payload": "",
     "payloadType": "date",
-    "x": 460,
-    "y": 400,
+    "x": 480,
+    "y": 320,
     "wires": [
       [
         "d33647ad91e47105"
@@ -191,8 +191,8 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 690,
-    "y": 400,
+    "x": 710,
+    "y": 320,
     "wires": [
       []
     ]
@@ -214,8 +214,8 @@
     "topic": "",
     "payload": "",
     "payloadType": "date",
-    "x": 450,
-    "y": 540,
+    "x": 470,
+    "y": 380,
     "wires": [
       [
         "e22ac8fa8bf418ac"
@@ -234,8 +234,126 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 700,
-    "y": 540,
+    "x": 720,
+    "y": 380,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "2bb096b5fa147299",
+    "type": "ui-switch",
+    "z": "901ed98289cc4ecd",
+    "name": "Rayvn polling",
+    "label": "Rayvn polling toggle",
+    "group": "9df65904057aeaa7",
+    "order": 0,
+    "width": 0,
+    "height": 0,
+    "passthru": false,
+    "decouple": false,
+    "topic": "payload",
+    "topicType": "msg",
+    "style": "",
+    "className": "",
+    "layout": "row-left",
+    "clickableArea": "switch",
+    "onvalue": "true",
+    "onvalueType": "bool",
+    "onicon": "",
+    "oncolor": "",
+    "offvalue": "false",
+    "offvalueType": "bool",
+    "officon": "",
+    "offcolor": "",
+    "x": 460,
+    "y": 480,
+    "wires": [
+      [
+        "2f8dbf7319072a1d"
+      ]
+    ]
+  },
+  {
+    "id": "2f8dbf7319072a1d",
+    "type": "change",
+    "z": "901ed98289cc4ecd",
+    "name": "",
+    "rules": [
+      {
+        "t": "set",
+        "p": "pollRayvn",
+        "pt": "global",
+        "to": "payload",
+        "tot": "msg"
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 720,
+    "y": 480,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "18d492fbf4b111ee",
+    "type": "ui-switch",
+    "z": "901ed98289cc4ecd",
+    "name": "Wasos polling",
+    "label": "Wasos polling toggle",
+    "group": "9df65904057aeaa7",
+    "order": 0,
+    "width": 0,
+    "height": 0,
+    "passthru": false,
+    "decouple": false,
+    "topic": "payload",
+    "topicType": "msg",
+    "style": "",
+    "className": "",
+    "layout": "row-left",
+    "clickableArea": "switch",
+    "onvalue": "true",
+    "onvalueType": "bool",
+    "onicon": "",
+    "oncolor": "",
+    "offvalue": "false",
+    "offvalueType": "bool",
+    "officon": "",
+    "offcolor": "",
+    "x": 460,
+    "y": 560,
+    "wires": [
+      [
+        "7e8d761d15eec31b"
+      ]
+    ]
+  },
+  {
+    "id": "7e8d761d15eec31b",
+    "type": "change",
+    "z": "901ed98289cc4ecd",
+    "name": "",
+    "rules": [
+      {
+        "t": "set",
+        "p": "pollWasos",
+        "pt": "global",
+        "to": "payload",
+        "tot": "msg"
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 720,
+    "y": 560,
     "wires": [
       []
     ]

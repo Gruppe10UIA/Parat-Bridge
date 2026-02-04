@@ -1,0 +1,54 @@
+[
+  {
+    "id": "5ed556f2fe39e3a2",
+    "type": "subflow",
+    "name": "Bridge log -> Rayvn log",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 120,
+        "y": 300,
+        "wires": [
+          {
+            "id": "166631496d1c2de1"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 560,
+        "y": 300,
+        "wires": [
+          {
+            "id": "166631496d1c2de1",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#D8BFD8",
+    "icon": "font-awesome/fa-file-text-o"
+  },
+  {
+    "id": "166631496d1c2de1",
+    "type": "function",
+    "z": "5ed556f2fe39e3a2",
+    "name": "map wasos log to bridge log",
+    "func": "let rawLog = msg.payload;\n\nconst WASOS_LABEL_ID = \"8d8f4cd8-c57c-4ddd-861c-f515237c75d1\";\n\nmsg.payload = rawLog.map(({ \n    text,\n    loggedByFullName,\n    client\n}) => ({\n    text: `[${client}] ${loggedByFullName}: ${text}`,\n    keyEvent: false,\n    releasedInfo: false,\n    labels: client === \"wasos\" ? [{ id: WASOS_LABEL_ID }] : []\n}));\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 340,
+    "y": 300,
+    "wires": [
+      []
+    ]
+  }
+]

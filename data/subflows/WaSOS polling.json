@@ -8,7 +8,7 @@
     "in": [
       {
         "x": 200,
-        "y": 380,
+        "y": 280,
         "wires": [
           {
             "id": "c062940d577a1a8a"
@@ -18,11 +18,11 @@
     ],
     "out": [
       {
-        "x": 1180,
+        "x": 1360,
         "y": 460,
         "wires": [
           {
-            "id": "e650d743f11e0dcd",
+            "id": "aab83de98c023460",
             "port": 0
           }
         ]
@@ -53,25 +53,6 @@
       ]
     ],
     "info": "(Function Node)\n\nValiderer at alle nødvendige globale variabler er konfigurert.\n(wasos_apikey, rayvnConfig, rayvnLogId).\n\nStopper flyten med en advarsel hvis noe mangler. \nDette sikrer at begge systemer er konfigurert før vi prøver å synkronisere."
-  },
-  {
-    "id": "3dd695e0c2037eed",
-    "type": "inject",
-    "z": "6844cb2c3b9378da",
-    "name": "WaSOS Poll",
-    "props": [],
-    "repeat": "",
-    "crontab": "",
-    "once": false,
-    "onceDelay": "5",
-    "topic": "",
-    "x": 250,
-    "y": 460,
-    "wires": [
-      [
-        "c062940d577a1a8a"
-      ]
-    ]
   },
   {
     "id": "dc29199ca671794a",
@@ -113,8 +94,84 @@
     "x": 940,
     "y": 460,
     "wires": [
-      []
+      [
+        "aab83de98c023460"
+      ]
     ],
     "info": "(HTTP Request Node)\n\nHenter chat-meldinger fra WaSOS API med GET-forespørsel. \nReturnerer tekst (JSON) som må parses videre."
+  },
+  {
+    "id": "aab83de98c023460",
+    "type": "json",
+    "z": "6844cb2c3b9378da",
+    "name": "",
+    "property": "payload",
+    "action": "obj",
+    "pretty": true,
+    "x": 1190,
+    "y": 460,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "0b86fdcf9cca6a38",
+    "type": "inject",
+    "z": "6844cb2c3b9378da",
+    "name": "Wasos Poll",
+    "props": [],
+    "repeat": "2",
+    "crontab": "",
+    "once": true,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 70,
+    "y": 460,
+    "wires": [
+      [
+        "2fd547e31f7ce19a"
+      ]
+    ]
+  },
+  {
+    "id": "2fd547e31f7ce19a",
+    "type": "switch",
+    "z": "6844cb2c3b9378da",
+    "name": "",
+    "property": "pollWasos",
+    "propertyType": "global",
+    "rules": [
+      {
+        "t": "true"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 1,
+    "x": 230,
+    "y": 460,
+    "wires": [
+      [
+        "ae86e133c272e6c3",
+        "c062940d577a1a8a"
+      ]
+    ]
+  },
+  {
+    "id": "ae86e133c272e6c3",
+    "type": "debug",
+    "z": "6844cb2c3b9378da",
+    "name": "polling wasos test",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 490,
+    "y": 380,
+    "wires": []
   }
 ]

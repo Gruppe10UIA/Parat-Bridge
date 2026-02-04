@@ -1,0 +1,131 @@
+[
+  {
+    "id": "5b8da813a76ba94b",
+    "type": "subflow",
+    "name": "Filter Wasos entries",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 120,
+        "y": 320,
+        "wires": [
+          {
+            "id": "afb18248e99c8954"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 1080,
+        "y": 320,
+        "wires": [
+          {
+            "id": "35961c63028fa8c1",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#E9967A",
+    "icon": "font-awesome/fa-minus-circle"
+  },
+  {
+    "id": "afb18248e99c8954",
+    "type": "function",
+    "z": "5b8da813a76ba94b",
+    "name": "Filter by time",
+    "func": "let data = msg.payload.messages || [];\n\nlet filtered = data.filter(\n    entry => new Date(entry.createdAt).getTime() > global.get(\"lastWasosEntryTimeStamp\")\n);\n\nmsg.payload = filtered;\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 310,
+    "y": 320,
+    "wires": [
+      [
+        "a247c2c515411e30",
+        "e9d49a73f0b580fa"
+      ]
+    ]
+  },
+  {
+    "id": "a247c2c515411e30",
+    "type": "function",
+    "z": "5b8da813a76ba94b",
+    "name": "Filter by callsign",
+    "func": "let data = msg.payload;\n\nlet filtered = data.filter(\n    entry => !entry.username.includes(\"[rayvn]\")\n);\n\nmsg.payload = filtered;\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 540,
+    "y": 320,
+    "wires": [
+      [
+        "35961c63028fa8c1",
+        "33d33b3b2cd1aafd"
+      ]
+    ]
+  },
+  {
+    "id": "35961c63028fa8c1",
+    "type": "function",
+    "z": "5b8da813a76ba94b",
+    "name": "stop empty injects",
+    "func": "if (msg.payload && msg.payload.length > 0) {\n    return msg;\n}\nelse {\n    node.warn(\"no new messages\");\n}",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 770,
+    "y": 320,
+    "wires": [
+      []
+    ],
+    "info": "stops and output from this subflow if empty or null"
+  },
+  {
+    "id": "e9d49a73f0b580fa",
+    "type": "debug",
+    "z": "5b8da813a76ba94b",
+    "name": "filtered by time",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 320,
+    "y": 280,
+    "wires": []
+  },
+  {
+    "id": "33d33b3b2cd1aafd",
+    "type": "debug",
+    "z": "5b8da813a76ba94b",
+    "name": "filtered by callsign",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 550,
+    "y": 280,
+    "wires": []
+  }
+]
