@@ -91,7 +91,7 @@
     "type": "function",
     "z": "ac954d2933f37bfb",
     "name": "Set newest timestamp",
-    "func": "let data = msg.payload\n\nconst newestTimestamp = Math.max(\n    ...data.map(entry => entry.timeCreated)\n    )\n\nglobal.set(\n    \"lastRayvnEntryTimeStamp\", newestTimestamp\n    );\n",
+    "func": "let data = msg.payload\n\nconst newestTimestamp = Math.max(\n    ...data.map(entry => entry.timeCreated)\n    )\n\nglobal.set(\"lastRayvnEntryTimeStamp\", newestTimestamp);\nglobal.set(\"lastWasosEntryTimeStamp\", newestTimestamp);",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
