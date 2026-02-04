@@ -56,7 +56,7 @@
     "type": "function",
     "z": "fe9d5f6f9c2bdb16",
     "name": "remove duplicate entries",
-    "func": "const masterLog = global.get(\"masterLog\") || [];\nconst existingIds = new Set(masterLog.map(entry => entry.id));\n\nmsg.payload = msg.payload.filter(entry => !existingIds.has(entry.id));\n\nreturn msg;",
+    "func": "const masterLog = global.get(\"masterLog\") || [];\nconst existingIds = new Set(masterLog.map(entry => entry.id));\n\nconst duplicates = msg.payload.filter(entry => existingIds.has(entry.id));\nmsg.payload = msg.payload.filter(entry => !existingIds.has(entry.id));\n\nif (duplicates.length > 0) {\n    node.warn({ msg: \"Duplicate entries removed\", duplicates: duplicates });\n}\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,

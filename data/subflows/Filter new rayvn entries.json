@@ -22,7 +22,7 @@
         "y": 320,
         "wires": [
           {
-            "id": "8ab7e4f646f60aa0",
+            "id": "10e041a2641b06a5",
             "port": 0
           }
         ]
@@ -69,25 +69,27 @@
     "y": 320,
     "wires": [
       [
-        "7301360cdbff0d83"
+        "10e041a2641b06a5"
       ]
     ]
   },
   {
-    "id": "7301360cdbff0d83",
-    "type": "debug",
+    "id": "10e041a2641b06a5",
+    "type": "function",
     "z": "0047704f35a57b0c",
-    "name": "rayvn filtered entries",
-    "active": true,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 1000,
-    "y": 260,
-    "wires": []
+    "name": "stop empty injects",
+    "func": "if (msg.payload && msg.payload.length > 0) {\n    return msg;\n}",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 790,
+    "y": 320,
+    "wires": [
+      []
+    ],
+    "info": "stops and output from this subflow if empty or null"
   }
 ]

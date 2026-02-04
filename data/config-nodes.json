@@ -69,7 +69,7 @@
         "cols": 12
       }
     ],
-    "order": 1,
+    "order": 2,
     "className": "",
     "visible": "true",
     "disabled": "false"
@@ -86,6 +86,56 @@
     "className": "",
     "visible": true,
     "disabled": false,
+    "groupType": "default"
+  },
+  {
+    "id": "ef26d04f11960157",
+    "type": "ui-page",
+    "name": "test",
+    "ui": "eb785a65aeb88688",
+    "path": "/test",
+    "icon": "home",
+    "layout": "grid",
+    "theme": "64c47e7d5394df35",
+    "breakpoints": [
+      {
+        "name": "Default",
+        "px": "0",
+        "cols": "3"
+      },
+      {
+        "name": "Tablet",
+        "px": "576",
+        "cols": "6"
+      },
+      {
+        "name": "Small Desktop",
+        "px": "768",
+        "cols": "9"
+      },
+      {
+        "name": "Desktop",
+        "px": "1024",
+        "cols": "12"
+      }
+    ],
+    "order": 1,
+    "className": "",
+    "visible": "true",
+    "disabled": "false"
+  },
+  {
+    "id": "9df65904057aeaa7",
+    "type": "ui-group",
+    "name": "test",
+    "page": "ef26d04f11960157",
+    "width": 6,
+    "height": 1,
+    "order": 1,
+    "showTitle": true,
+    "className": "",
+    "visible": "true",
+    "disabled": "false",
     "groupType": "default"
   }
 ]

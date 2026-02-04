@@ -8,18 +8,146 @@
     "env": []
   },
   {
-    "id": "8dac7e5b6fb8e13c",
+    "id": "4f906d41175849bc",
+    "type": "group",
+    "z": "901ed98289cc4ecd",
+    "name": "Overwrite timestamp",
+    "style": {
+      "stroke": "#000000",
+      "fill": "#addb7b",
+      "label": true,
+      "label-position": "n",
+      "color": "#000000"
+    },
+    "nodes": [
+      "5c54b929df2d1af5"
+    ],
+    "x": 634,
+    "y": 199,
+    "w": 172,
+    "h": 82
+  },
+  {
+    "id": "5c54b929df2d1af5",
+    "type": "function",
+    "z": "901ed98289cc4ecd",
+    "g": "4f906d41175849bc",
+    "name": "function 1",
+    "func": "const timestamp = new Date(msg.payload.time).getTime();\n\nglobal.set(\"lastRayvnEntryTimeStamp\", timestamp);\n\nmsg.payload = timestamp;\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 720,
+    "y": 240,
+    "wires": [
+      [
+        "f3321844b8025424"
+      ]
+    ]
+  },
+  {
+    "id": "f3321844b8025424",
+    "type": "debug",
+    "z": "901ed98289cc4ecd",
+    "name": "timestamp",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 950,
+    "y": 240,
+    "wires": []
+  },
+  {
+    "id": "33da432c1227a5ae",
+    "type": "ui-form",
+    "z": "901ed98289cc4ecd",
+    "name": "",
+    "group": "9df65904057aeaa7",
+    "label": "",
+    "order": 0,
+    "width": 0,
+    "height": 0,
+    "options": [
+      {
+        "label": "time",
+        "key": "time",
+        "type": "date",
+        "required": true,
+        "rows": null
+      }
+    ],
+    "formValue": {
+      "time": ""
+    },
+    "payload": "",
+    "submit": "submit",
+    "cancel": "clear",
+    "resetOnSubmit": false,
+    "topic": "payload",
+    "topicType": "msg",
+    "splitLayout": "",
+    "className": "",
+    "passthru": false,
+    "dropdownOptions": [],
+    "x": 490,
+    "y": 260,
+    "wires": [
+      [
+        "5c54b929df2d1af5"
+      ]
+    ]
+  },
+  {
+    "id": "7ab7597407334826",
     "type": "inject",
     "z": "901ed98289cc4ecd",
     "name": "",
-    "props": [],
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
     "repeat": "",
     "crontab": "",
     "once": false,
     "onceDelay": 0.1,
     "topic": "",
-    "x": 330,
-    "y": 140,
+    "payload": "",
+    "payloadType": "date",
+    "x": 500,
+    "y": 160,
+    "wires": [
+      [
+        "8254f6c54918e4ed"
+      ]
+    ]
+  },
+  {
+    "id": "8254f6c54918e4ed",
+    "type": "function",
+    "z": "901ed98289cc4ecd",
+    "name": "function 2",
+    "func": "const timestamp = msg.payload\n\nglobal.set(\"lastRayvnEntryTimeStamp\", timestamp);\n\nmsg.payload = timestamp;\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 720,
+    "y": 160,
     "wires": [
       []
     ]
