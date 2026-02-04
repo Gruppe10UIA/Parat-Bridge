@@ -1,0 +1,95 @@
+[
+  {
+    "id": "5b8da813a76ba94b",
+    "type": "subflow",
+    "name": "WaSOS filter entries",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 120,
+        "y": 320,
+        "wires": [
+          {
+            "id": "afb18248e99c8954"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 1080,
+        "y": 320,
+        "wires": [
+          {
+            "id": "35961c63028fa8c1",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#E9967A",
+    "icon": "font-awesome/fa-minus-circle"
+  },
+  {
+    "id": "afb18248e99c8954",
+    "type": "function",
+    "z": "5b8da813a76ba94b",
+    "name": "Filter by time",
+    "func": "let data = msg.payload.messages || [];\n\nlet filtered = data.filter(\n    entry => new Date(entry.createdAt).getTime() > global.get(\"lastWasosEntryTimeStamp\")\n);\n\nmsg.payload = filtered;\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 310,
+    "y": 320,
+    "wires": [
+      [
+        "a247c2c515411e30"
+      ]
+    ]
+  },
+  {
+    "id": "a247c2c515411e30",
+    "type": "function",
+    "z": "5b8da813a76ba94b",
+    "name": "Filter by callsign",
+    "func": "let data = msg.payload;\n\n// filter exclude any entries that comes from rayvn\nlet filtered = data.filter(\n    entry => !entry.callsign.includes(\"[rayvn]\")\n);\n\nmsg.payload = filtered;\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 540,
+    "y": 320,
+    "wires": [
+      [
+        "35961c63028fa8c1"
+      ]
+    ]
+  },
+  {
+    "id": "35961c63028fa8c1",
+    "type": "function",
+    "z": "5b8da813a76ba94b",
+    "name": "stop empty injects",
+    "func": "if (msg.payload && msg.payload.length > 0) {\n    return msg;\n}\nelse {\n    node.warn(\"no new messages\");\n}",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 770,
+    "y": 320,
+    "wires": [
+      []
+    ],
+    "info": "stops and output from this subflow if empty or null"
+  }
+]

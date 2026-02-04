@@ -1,0 +1,120 @@
+[
+  {
+    "id": "6844cb2c3b9378da",
+    "type": "subflow",
+    "name": "WaSOS polling",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 200,
+        "y": 380,
+        "wires": [
+          {
+            "id": "c062940d577a1a8a"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 1180,
+        "y": 460,
+        "wires": [
+          {
+            "id": "e650d743f11e0dcd",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#C0DEED",
+    "icon": "node-red/bridge.svg"
+  },
+  {
+    "id": "c062940d577a1a8a",
+    "type": "function",
+    "z": "6844cb2c3b9378da",
+    "name": "Configuration check",
+    "func": "let wasosApiKey = global.get('wasos_apikey');\nlet wasosChatroomName = global.get('wasosChatroomName');\n\n\nif (!wasosApiKey || !wasosChatroomName) {\n    node.warn('Systemene er ikke fullstendig konfigurert. Vennligst fullfør både WaSOS- og Rayvn-konfigurasjon.');\n    return null;\n}\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 460,
+    "y": 460,
+    "wires": [
+      [
+        "dc29199ca671794a"
+      ]
+    ],
+    "info": "(Function Node)\n\nValiderer at alle nødvendige globale variabler er konfigurert.\n(wasos_apikey, rayvnConfig, rayvnLogId).\n\nStopper flyten med en advarsel hvis noe mangler. \nDette sikrer at begge systemer er konfigurert før vi prøver å synkronisere."
+  },
+  {
+    "id": "3dd695e0c2037eed",
+    "type": "inject",
+    "z": "6844cb2c3b9378da",
+    "name": "WaSOS Poll",
+    "props": [],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": "5",
+    "topic": "",
+    "x": 250,
+    "y": 460,
+    "wires": [
+      [
+        "c062940d577a1a8a"
+      ]
+    ]
+  },
+  {
+    "id": "dc29199ca671794a",
+    "type": "function",
+    "z": "6844cb2c3b9378da",
+    "name": "Headers function",
+    "func": "let wasosApiKey = global.get('wasos_apikey');\nlet chatroomUrl = global.get('wasosChatroomUrl');\n\nif (!wasosApiKey || !chatroomUrl) {\n    node.error('WaSOS not configured. Please submit WaSOS configuration first.');\n    return null;\n}\n\nmsg.headers = {\n    'x-api-key': wasosApiKey\n};\nmsg.url = chatroomUrl + '?limit=50';\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 690,
+    "y": 460,
+    "wires": [
+      [
+        "e650d743f11e0dcd"
+      ]
+    ],
+    "info": "(Function Node)\n\nBygger HTTP-forespørsel for å hente chat-meldinger fra WaSOS. \nSetter x-api-key header og konstruerer URL fra wasosChatroomUrl med ?limit=50 parameter, \nfor å hente de siste 50 meldingene."
+  },
+  {
+    "id": "e650d743f11e0dcd",
+    "type": "http request",
+    "z": "6844cb2c3b9378da",
+    "name": "Get WaSOS Chat Messages",
+    "method": "GET",
+    "ret": "txt",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 940,
+    "y": 460,
+    "wires": [
+      []
+    ],
+    "info": "(HTTP Request Node)\n\nHenter chat-meldinger fra WaSOS API med GET-forespørsel. \nReturnerer tekst (JSON) som må parses videre."
+  }
+]
