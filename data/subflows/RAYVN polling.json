@@ -18,7 +18,7 @@
     ],
     "out": [
       {
-        "x": 1120,
+        "x": 1240,
         "y": 200,
         "wires": [
           {
@@ -45,7 +45,7 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 580,
+    "x": 700,
     "y": 200,
     "wires": [
       [
@@ -70,12 +70,10 @@
     "authType": "",
     "senderr": false,
     "headers": [],
-    "x": 890,
+    "x": 1010,
     "y": 200,
     "wires": [
-      [
-        "9df42f2c7449bae6"
-      ]
+      []
     ],
     "info": "(HTTP Request Node)\n\nHenter alle logginnlegg fra Rayvn API med GET-forespørsel. \nReturnerer en array med entries som behandles videre i flyten."
   },
@@ -84,14 +82,14 @@
     "type": "function",
     "z": "1c21db2b0b16a979",
     "name": "Configuration check",
-    "func": "let wasosApiKey = global.get('wasos_apikey');\nlet rayvnConfig = global.get('rayvnConfig') || {};\nlet rayvnLogId = global.get('rayvnLogId');\n\nif (!wasosApiKey || !rayvnConfig.apiKey || !rayvnLogId) {\n    node.warn('Systemene er ikke fullstendig konfigurert for Rayvn → WaSOS.');\n    return null;\n}\n\nreturn msg;",
+    "func": "let rayvnConfig = global.get('rayvnConfig') || {};\nlet rayvnLogId = global.get('rayvnLogId');\n\nif (!rayvnConfig.apiKey || !rayvnLogId) {\n    node.warn('Systemene er ikke fullstendig konfigurert for Rayvn → WaSOS.');\n    return null;\n}\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 320,
+    "x": 440,
     "y": 200,
     "wires": [
       [
@@ -118,22 +116,5 @@
         "63ecfb0d9d64a98a"
       ]
     ]
-  },
-  {
-    "id": "9df42f2c7449bae6",
-    "type": "debug",
-    "z": "1c21db2b0b16a979",
-    "name": "rayvn poll response",
-    "active": true,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 1130,
-    "y": 120,
-    "wires": []
   }
 ]

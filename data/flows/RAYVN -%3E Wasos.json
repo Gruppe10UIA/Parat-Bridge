@@ -41,7 +41,7 @@
     "type": "subflow:fe9d5f6f9c2bdb16",
     "z": "fdea0898d1f24630",
     "name": "",
-    "x": 1240,
+    "x": 1340,
     "y": 280,
     "wires": [
       [
@@ -222,7 +222,7 @@
     "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 1260,
+    "x": 1360,
     "y": 240,
     "wires": []
   }

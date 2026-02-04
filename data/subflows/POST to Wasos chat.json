@@ -11,14 +11,14 @@
         "y": 360,
         "wires": [
           {
-            "id": "41621a8a87543cf1"
+            "id": "4b7da576ce1ab299"
           }
         ]
       }
     ],
     "out": [
       {
-        "x": 1000,
+        "x": 1280,
         "y": 360,
         "wires": [
           {
@@ -49,11 +49,51 @@
     "authType": "",
     "senderr": false,
     "headers": [],
-    "x": 560,
+    "x": 1100,
     "y": 360,
     "wires": [
       []
     ],
     "info": "(HTTP Request Node)\n\nSender meldingen til WaSOS chat API med POST-forespørsel. \nDette er det steget som leverer Rayvn-meldingen inn i WaSOS-chatten."
+  },
+  {
+    "id": "4b7da576ce1ab299",
+    "type": "function",
+    "z": "209f3c980818c499",
+    "name": "Format header and url",
+    "func": "let wasosApiKey = global.get('wasos_apikey');\nlet chatroomUrl = global.get('wasosChatroomUrl');\n\nif (!wasosApiKey || !chatroomUrl) {\n    node.warn('WaSOS not configured');\n    return null;\n}\n\nmsg.url = chatroomUrl;\nmsg.headers = {\n    'x-api-key': wasosApiKey,\n    'Content-Type': 'application/json'\n};\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 540,
+    "y": 360,
+    "wires": [
+      [
+        "4b9eb1abd60ed246"
+      ]
+    ]
+  },
+  {
+    "id": "4b9eb1abd60ed246",
+    "type": "split",
+    "z": "209f3c980818c499",
+    "name": "array to single entries",
+    "splt": "\\n",
+    "spltType": "str",
+    "arraySplt": 1,
+    "arraySpltType": "len",
+    "stream": false,
+    "addname": "",
+    "property": "payload",
+    "x": 780,
+    "y": 360,
+    "wires": [
+      [
+        "41621a8a87543cf1"
+      ]
+    ]
   }
 ]

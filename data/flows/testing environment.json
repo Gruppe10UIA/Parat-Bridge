@@ -135,7 +135,7 @@
     "type": "function",
     "z": "901ed98289cc4ecd",
     "name": "function 2",
-    "func": "const timestamp = msg.payload\n\nglobal.set(\"lastRayvnEntryTimeStamp\", timestamp);\n\nmsg.payload = timestamp;\nreturn msg;",
+    "func": "const timestamp = msg.payload\n\nglobal.set(\"lastRayvnEntryTimeStamp\", timestamp);\nglobal.set(\"lastWasosEntryTimeStamp\", timestamp);\n\nmsg.payload = timestamp;\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -148,6 +148,96 @@
       [
         "f3321844b8025424"
       ]
+    ]
+  },
+  {
+    "id": "11c3f6f4a2cdb60c",
+    "type": "inject",
+    "z": "901ed98289cc4ecd",
+    "name": "",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 460,
+    "y": 400,
+    "wires": [
+      [
+        "d33647ad91e47105"
+      ]
+    ]
+  },
+  {
+    "id": "d33647ad91e47105",
+    "type": "function",
+    "z": "901ed98289cc4ecd",
+    "name": "delete masterLog",
+    "func": "global.set(\"masterLog\", null)",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 690,
+    "y": 400,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "ad828ba6ade1f9a0",
+    "type": "inject",
+    "z": "901ed98289cc4ecd",
+    "name": "reset api credentials",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 450,
+    "y": 540,
+    "wires": [
+      [
+        "e22ac8fa8bf418ac"
+      ]
+    ]
+  },
+  {
+    "id": "e22ac8fa8bf418ac",
+    "type": "function",
+    "z": "901ed98289cc4ecd",
+    "name": "function 3",
+    "func": "global.set(\"rayvnConfig\", null);\nglobal.set(\"rayvnLogId\", null);\nglobal.set(\"wasosChatroomName\", null);\nglobal.set(\"wasosChatroomUrl\", null);\nglobal.set(\"wasosConfig\", null);\nglobal.set(\"wasos_apikey\", null);\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 700,
+    "y": 540,
+    "wires": [
+      []
     ]
   }
 ]

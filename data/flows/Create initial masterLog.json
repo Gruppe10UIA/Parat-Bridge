@@ -15,11 +15,11 @@
     "links": [
       "b0d28ced526a64e0"
     ],
-    "x": 225,
+    "x": 185,
     "y": 380,
     "wires": [
       [
-        "fd9a6df1266f338f"
+        "c81ee0845cd3b7f3"
       ]
     ]
   },
@@ -35,7 +35,7 @@
     "complete": "false",
     "statusVal": "",
     "statusType": "auto",
-    "x": 1000,
+    "x": 1220,
     "y": 320,
     "wires": []
   },
@@ -47,22 +47,15 @@
     "method": "GET",
     "ret": "txt",
     "paytoqs": "ignore",
-    "url": "https://api.rayvn.global/logs/851213f8-cf3c-4a2b-90bb-98167c93623c/entries",
+    "url": "",
     "tls": "",
     "persist": false,
     "proxy": "",
     "insecureHTTPParser": false,
     "authType": "",
     "senderr": false,
-    "headers": [
-      {
-        "keyType": "Authorization",
-        "keyValue": "",
-        "valueType": "other",
-        "valueValue": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhdXRoMHw2OTI1OTlhNjBhOWYxMDUzZWQwNmNlODAiLCJhdWQiOiJzMmxVMlgwT3RSOUxmbEdsWGFvaFJTSFptTGJDV3EwRSIsImFwaVRva2VuSWQiOiIzZjQ3N2UwYi1lODg1LTQ2MjUtOWFiNy00NjdhMmNlY2FlZGYiLCJhcGlVcmwiOiJodHRwczovL25vLTEucmF5dm4uZ2xvYmFsLyIsImlzcyI6InJheXZuLmV1LmF1dGgwLmNvbSIsInRlbmFudElkIjoiVEVTVFVJQTlmZjkxYWI4NjQ4YjQwZmRiODhhYzI2ODI3ZTU3YmZjIiwicHJvamVjdCI6eyJpZCI6ImY0YTFkZDM1LWM0ZDItNDdjOC05OTU5LTg0ZWMwMDFhMzIwMCIsIm5hbWUiOiJURVNUIFVJQSJ9LCJ1c2VyIjp7InJvbGVzIjpbIlJPTEVfQ1VTVE9NRVJfQURNSU4iXSwibmFtZSI6IktyaXN0aWFuIE5pZWxzZW4iLCJpZCI6IjUzNzgwODc3LWZiMjUtNGM3MC1iZDUxLWE0MGY3OTYwMzI3MiJ9LCJpYXQiOjE3NzAwMzM2NjI5NjUsImdyb3VwIjp7ImlkIjoiZDM0Y2JhMzMtOGMyZC00OTU0LWFmZWUtODMxOThhNTJiMDg5IiwibmFtZSI6IlRFU1QgVUlBIn19.UkSSl06mN4Z5G6kCqCtgUEKsbnJGo2CLwIDTHZ7aBo0"
-      }
-    ],
-    "x": 380,
+    "headers": [],
+    "x": 600,
     "y": 380,
     "wires": [
       [
@@ -78,7 +71,7 @@
     "property": "payload",
     "action": "",
     "pretty": false,
-    "x": 550,
+    "x": 770,
     "y": 380,
     "wires": [
       [
@@ -98,7 +91,7 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 1240,
+    "x": 1460,
     "y": 380,
     "wires": [
       []
@@ -109,7 +102,7 @@
     "type": "subflow:e56a9c672a5eb8f6",
     "z": "ac954d2933f37bfb",
     "name": "",
-    "x": 750,
+    "x": 970,
     "y": 380,
     "wires": [
       [
@@ -130,7 +123,7 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 1000,
+    "x": 1220,
     "y": 380,
     "wires": [
       [
@@ -144,11 +137,31 @@
     "type": "subflow:146a0fb1b7b158fc",
     "z": "ac954d2933f37bfb",
     "name": "",
-    "x": 1040,
+    "x": 1260,
     "y": 440,
     "wires": [
       []
     ],
     "info": "This subflow should post the inital rayvn log to wasos\r\n"
+  },
+  {
+    "id": "c81ee0845cd3b7f3",
+    "type": "function",
+    "z": "ac954d2933f37bfb",
+    "name": "Set headers and url",
+    "func": "const rayvnConfig = global.get('rayvnConfig') || {};\nconst logId = global.get('rayvnLogId');\n\nif (!rayvnConfig.apiKey || !logId) {\n    node.error('Rayvn not configured');\n    return null;\n}\n\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + rayvnConfig.apiKey\n};\n\nmsg.url = `https://api.rayvn.global/logs/${logId}/entries`;\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 350,
+    "y": 380,
+    "wires": [
+      [
+        "fd9a6df1266f338f"
+      ]
+    ]
   }
 ]

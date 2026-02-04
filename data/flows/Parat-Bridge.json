@@ -289,7 +289,7 @@
     "type": "function",
     "z": "84d1a0de660abb59",
     "name": "Process Rayvn Submit",
-    "func": "let rayvnConfig = global.get('rayvnConfig') || {};\n\nnode.warn('Retrieved Rayvn config: ' + JSON.stringify({ ...rayvnConfig, apiKey: '***' }));\n\nif (!rayvnConfig.apiKey || !rayvnConfig.logName) {\n    node.warn('Missing required Rayvn fields');\n    msg.payload = 'Vennligst fyll ut alle påkrevde Rayvn-felt.';\n    msg.topic = 'Error';\n    msg.color = '#F44336';\n    return msg;\n}\n\n// Prepare to fetch logs from Rayvn\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + rayvnConfig.apiKey\n};\nmsg.url = \"https://api.rayvn.global/logs\";\nmsg.rayvnConfig = rayvnConfig; // Pass config along\n\nreturn msg;",
+    "func": "let rayvnConfig = global.get('rayvnConfig') || {};\n\nnode.warn('Retrieved Rayvn config: ' + JSON.stringify({ ...rayvnConfig, apiKey: '***' }));\n\nif (!rayvnConfig.apiKey || !rayvnConfig.logName) {\n    node.warn('Missing required Rayvn fields');\n    return null;\n}\n\n// Prepare to fetch logs from Rayvn\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + rayvnConfig.apiKey\n};\nmsg.url = \"https://api.rayvn.global/logs\";\nmsg.rayvnConfig = rayvnConfig;\n\nreturn msg;\n",
     "outputs": 1,
     "timeout": "",
     "noerr": 0,
