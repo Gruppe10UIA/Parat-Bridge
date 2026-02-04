@@ -16,10 +16,22 @@
         ]
       }
     ],
-    "out": [],
+    "out": [
+      {
+        "x": 940,
+        "y": 260,
+        "wires": [
+          {
+            "id": "41c1c734ed1adaed",
+            "port": 0
+          }
+        ]
+      }
+    ],
     "env": [],
     "meta": {},
-    "color": "#DDAA99"
+    "color": "#FFCC66",
+    "icon": "font-awesome/fa-book"
   },
   {
     "id": "41c1c734ed1adaed",
@@ -36,9 +48,7 @@
     "x": 690,
     "y": 260,
     "wires": [
-      [
-        "33a0b6eee51a333a"
-      ]
+      []
     ]
   },
   {
@@ -57,25 +67,28 @@
     "y": 260,
     "wires": [
       [
-        "41c1c734ed1adaed"
+        "41c1c734ed1adaed",
+        "1da901da05252d6d"
       ]
     ]
   },
   {
-    "id": "33a0b6eee51a333a",
-    "type": "debug",
+    "id": "1da901da05252d6d",
+    "type": "function",
     "z": "fe9d5f6f9c2bdb16",
-    "name": "debug entries added to masterLog",
-    "active": true,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 930,
-    "y": 180,
-    "wires": []
+    "name": "Uppdate newest timestamp",
+    "func": "const entries = msg.payload;\n\nif (entries.length > 0) {\n    const newestEntry = entries.reduce((a, b) => a.timeCreated > b.timeCreated ? a : b); // find newest log entry\n    const clientCapitalized = newestEntry.client.charAt(0).toUpperCase() + newestEntry.client.slice(1); // extract client\n    \n    global.set(`last${clientCapitalized}EntryTimeStamp`, newestEntry.timeCreated); // update global timestamp variable\n}\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 720,
+    "y": 200,
+    "wires": [
+      []
+    ],
+    "info": "Updates the newest timestamp for the given client"
   }
 ]

@@ -8,164 +8,16 @@
     "env": []
   },
   {
-    "id": "4d658fe94a8f420e",
-    "type": "debug",
-    "z": "fdea0898d1f24630",
-    "name": "Filter Rayvn Debug",
-    "active": true,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 1650,
-    "y": 340,
-    "wires": []
-  },
-  {
-    "id": "f741e9168976e284",
-    "type": "function",
-    "z": "fdea0898d1f24630",
-    "name": "Filter System And Echo Messages",
-    "func": "const entry = msg.payload;\n\n// Skip if entry has the WaSOS label (prevents echo loop)\nconst WASOS_LABEL_ID = \"8d8f4cd8-c57c-4ddd-861c-f515237c75d1\";\nif (entry.labels && entry.labels.some(label => label.id === WASOS_LABEL_ID)) {\n    return null; // Skip this entry\n}\n\n// Skip system messages (no labels or system-generated text)\nif (!entry.labels || entry.labels.length === 0) {\n    // Additional check: skip if text contains system patterns\n    if (entry.text.includes('har endret status') ||\n        entry.text.includes('Loggen') ||\n        entry.text.includes('er opprettet')) {\n        return null;\n    }\n}\n\n// Skip if no author name (Kan fjernes ved skalering)\nif (!entry.loggedByFullName) {\n    return null;\n}\n\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 1480,
-    "y": 220,
-    "wires": [
-      [
-        "3d9b87133341d3f2",
-        "cd853bf53c7bb90f"
-      ]
-    ],
-    "info": "(Function Node)\n\nFjerner meldinger som ikke skal forwardes til WaSOS:\n\nMeldinger med WaSOS-label(tagger i Rayvn UI), \nfor å unngå echo-loop når meldinger kommer tilbake fra WaSOS\n\nPr. nå: ingen systemmeldinger uten forfatter eller med systembeskjeder (statusendringer, opprettelse av logger)\nKun genuine brukermeldinger fra Rayvn går videre."
-  },
-  {
-    "id": "3d9b87133341d3f2",
-    "type": "function",
-    "z": "fdea0898d1f24630",
-    "name": "Map Rayvn Entry To WaSOS",
-    "func": "const entry = msg.payload;\n\nconst chatroomName = global.get('wasosChatroomName');\nconst wasosUrl = global.get('wasos_url');\nconst wasosApiKey = global.get('wasos_apikey');\n\nif (!chatroomName || !wasosUrl || !wasosApiKey) {\n    node.error('WaSOS not configured');\n    return null;\n}\n\n// Set headers (like your working Headers node)\nmsg.headers = {\n    'x-api-key': wasosApiKey\n};\n\n// Set URL (like your working Headers node)\nmsg.url = `${wasosUrl}/api/chat/messages/${chatroomName}`;\n\n// Build payload (like your working BuildSimpleChat) - DON'T stringify!\nmsg.payload = {\n    \"content\": `[Rayvn - ${entry.loggedByFullName}] ${entry.text}`,\n    \"isLocation\": false,\n    \"callsign\": \"Rayvn\",  \n    \"replyMessageId\": null,\n    \"files\": []\n};\n\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 1780,
-    "y": 220,
-    "wires": [
-      [
-        "b29dbac857794926"
-      ]
-    ],
-    "info": "(Function Node)\n\nKonverterer Rayvn-meldingsformat til WaSOS API-format. \nSetter headers med x-api-key, bygger URL til /api/chat/messages/{chatroomName}, \nog lager payload med format [Rayvn - Forfatter] melding. \nSetter callsign til \"Rayvn\" for identifikasjon i WaSOS."
-  },
-  {
-    "id": "cd853bf53c7bb90f",
-    "type": "debug",
-    "z": "fdea0898d1f24630",
-    "name": "System/Echo Debug",
-    "active": true,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 1760,
-    "y": 140,
-    "wires": []
-  },
-  {
-    "id": "b29dbac857794926",
-    "type": "http request",
-    "z": "fdea0898d1f24630",
-    "name": "Simple Chat Message To WaSOS",
-    "method": "POST",
-    "ret": "txt",
-    "paytoqs": "ignore",
-    "url": "",
-    "tls": "",
-    "persist": false,
-    "proxy": "",
-    "insecureHTTPParser": false,
-    "authType": "",
-    "senderr": false,
-    "headers": [],
-    "x": 2080,
-    "y": 220,
-    "wires": [
-      [
-        "95efed32efa8171f"
-      ]
-    ],
-    "info": "(HTTP Request Node)\n\nSender meldingen til WaSOS chat API med POST-forespørsel. \nDette er det steget som leverer Rayvn-meldingen inn i WaSOS-chatten."
-  },
-  {
-    "id": "95efed32efa8171f",
-    "type": "debug",
-    "z": "fdea0898d1f24630",
-    "name": "WaSOS Chat Output Debug",
-    "active": true,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 2260,
-    "y": 140,
-    "wires": []
-  },
-  {
-    "id": "e991511e54283c22",
-    "type": "comment",
-    "z": "fdea0898d1f24630",
-    "name": "",
-    "info": "",
-    "x": 280,
-    "y": 40,
-    "wires": []
-  },
-  {
-    "id": "7562297c82e829b4",
-    "type": "function",
-    "z": "fdea0898d1f24630",
-    "d": true,
-    "name": "Filter New Rayvn Entries",
-    "func": "const entries = msg.payload || [];\n\n// Nothing to do\nif (!Array.isArray(entries) || entries.length === 0) {\n    msg.payload = [];\n    return msg;\n}\n\n// Sort oldest to newest\nentries.sort((a, b) => {\n    return a.timeCreated - b.timeCreated;\n});\n\n// Track last forwarded entry per log\nconst logId = global.get('rayvnLogId') || 'default';\nconst key = `lastForwardedRayvnEntry_${logId}`;\n\nconst lastId = global.get(key);\n\n// First run: set cursor but don't forward history\nif (!lastId) {\n    const latest = entries[entries.length - 1];\n    global.set(key, latest.id);\n    msg.payload = [];\n    return msg;\n}\n\n// Collect entries after lastId\nconst newEntries = [];\nlet seen = false;\n\nfor (const entry of entries) {\n    if (seen) newEntries.push(entry);\n    if (entry.id === lastId) seen = true;\n}\n\n// If lastId not found, forward only latest\nif (!seen) {\n    const latest = entries[entries.length - 1];\n    global.set(key, latest.id);\n    msg.payload = [latest];\n    return msg;\n}\n\n// Update cursor to newest forwarded\nif (newEntries.length > 0) {\n    global.set(key, newEntries[newEntries.length - 1].id);\n}\n\nmsg.payload = newEntries;\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 1070,
-    "y": 520,
-    "wires": [
-      []
-    ],
-    "info": "(Function Node)\n\nDenne filtrerer ut kun nye log entries som ikke er sendt til WaSOS fra før.\nBruker global variabel lastForwardedRayvnEntry_{logId} som peker.\nVed første kjøring lagres kun siste melding uten å forwarde (unngår å sende gammel historikk). \nSorterer meldinger i fra eldst til nyest, og oppdaterer pekeren etter hver kjøring. "
-  },
-  {
     "id": "94b2e009834e7457",
     "type": "subflow:0047704f35a57b0c",
     "z": "fdea0898d1f24630",
     "name": "",
-    "x": 500,
-    "y": 300,
+    "x": 630,
+    "y": 280,
     "wires": [
       [
-        "336a09e1fa63bcb2"
+        "336a09e1fa63bcb2",
+        "73ba40e05157c072"
       ]
     ]
   },
@@ -174,12 +26,13 @@
     "type": "subflow:e56a9c672a5eb8f6",
     "z": "fdea0898d1f24630",
     "name": "",
-    "x": 790,
-    "y": 300,
+    "x": 910,
+    "y": 280,
     "wires": [
       [
         "edcb8d65c7a805ec",
-        "e8f453cb650cc177"
+        "e8f453cb650cc177",
+        "4a1c55ec94f7f562"
       ]
     ]
   },
@@ -188,20 +41,25 @@
     "type": "subflow:fe9d5f6f9c2bdb16",
     "z": "fdea0898d1f24630",
     "name": "",
-    "x": 1130,
-    "y": 300,
-    "wires": []
+    "x": 1240,
+    "y": 280,
+    "wires": [
+      [
+        "33a0b6eee51a333a"
+      ]
+    ]
   },
   {
     "id": "e0ea47ed88577046",
     "type": "subflow:1c21db2b0b16a979",
     "z": "fdea0898d1f24630",
     "name": "",
-    "x": 220,
-    "y": 300,
+    "x": 340,
+    "y": 280,
     "wires": [
       [
-        "94b2e009834e7457"
+        "94b2e009834e7457",
+        "27c43e87cadaab1d"
       ]
     ]
   },
@@ -210,21 +68,22 @@
     "type": "subflow:2e632affbd071524",
     "z": "fdea0898d1f24630",
     "name": "",
-    "x": 230,
-    "y": 380,
+    "x": 370,
+    "y": 440,
     "wires": [
       [
         "d9951ddcbdc5971e"
       ]
-    ]
+    ],
+    "info": "subflow, is currently a placeholder, but\r\nshould in the future be responsible for queueing"
   },
   {
     "id": "d9951ddcbdc5971e",
     "type": "subflow:9ee8527d12b415b0",
     "z": "fdea0898d1f24630",
     "name": "",
-    "x": 500,
-    "y": 380,
+    "x": 610,
+    "y": 440,
     "wires": [
       [
         "abe5d62bc9ae2a47"
@@ -236,43 +95,134 @@
     "type": "subflow:209f3c980818c499",
     "z": "fdea0898d1f24630",
     "name": "",
-    "x": 870,
-    "y": 380,
-    "wires": []
+    "x": 920,
+    "y": 440,
+    "wires": [
+      [
+        "c80cdddcb40c9aab"
+      ]
+    ],
+    "info": "This subflow takes a formatted Wasos chat\r\npackage and Makes a POST request to the\r\nWasos client"
   },
   {
     "id": "abe5d62bc9ae2a47",
     "type": "debug",
     "z": "fdea0898d1f24630",
-    "name": "debug 3",
+    "name": "formatted wasos log entries",
     "active": true,
     "tosidebar": true,
     "console": false,
     "tostatus": false,
-    "complete": "false",
+    "complete": "payload",
+    "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 740,
-    "y": 500,
+    "x": 620,
+    "y": 400,
     "wires": []
   },
   {
     "id": "7cf86c57d5f2eac6",
     "type": "inject",
     "z": "fdea0898d1f24630",
-    "name": "Rayvn Poll",
+    "name": "test inject",
     "props": [],
     "repeat": "",
     "crontab": "",
     "once": false,
     "onceDelay": 0.1,
     "topic": "",
-    "x": 200,
-    "y": 220,
+    "x": 160,
+    "y": 280,
     "wires": [
       [
         "e0ea47ed88577046"
       ]
     ]
+  },
+  {
+    "id": "73ba40e05157c072",
+    "type": "debug",
+    "z": "fdea0898d1f24630",
+    "name": "new rayvn entries",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 610,
+    "y": 240,
+    "wires": []
+  },
+  {
+    "id": "4a1c55ec94f7f562",
+    "type": "debug",
+    "z": "fdea0898d1f24630",
+    "name": "formatted rayvn entries",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 900,
+    "y": 240,
+    "wires": []
+  },
+  {
+    "id": "c80cdddcb40c9aab",
+    "type": "debug",
+    "z": "fdea0898d1f24630",
+    "name": "WaSOS Chat Output Debug",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 940,
+    "y": 400,
+    "wires": []
+  },
+  {
+    "id": "27c43e87cadaab1d",
+    "type": "debug",
+    "z": "fdea0898d1f24630",
+    "name": "RAYVN polling result",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 360,
+    "y": 240,
+    "wires": []
+  },
+  {
+    "id": "33a0b6eee51a333a",
+    "type": "debug",
+    "z": "fdea0898d1f24630",
+    "name": "debug entries added to masterLog",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1260,
+    "y": 240,
+    "wires": []
   }
 ]

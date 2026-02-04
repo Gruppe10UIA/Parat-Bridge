@@ -30,7 +30,8 @@
     ],
     "env": [],
     "meta": {},
-    "color": "#DDAA99"
+    "color": "#D8BFD8",
+    "icon": "font-awesome/fa-file-text-o"
   },
   {
     "id": "2d74543c86e88e55",

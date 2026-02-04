@@ -2,7 +2,7 @@
   {
     "id": "2e632affbd071524",
     "type": "subflow",
-    "name": "log queue (empty)",
+    "name": "log queue (placeholder)",
     "info": "",
     "category": "",
     "in": [
@@ -26,6 +26,7 @@
     ],
     "env": [],
     "meta": {},
-    "color": "#DDAA99"
+    "color": "#C0C0C0",
+    "icon": "font-awesome/fa-forward"
   }
 ]

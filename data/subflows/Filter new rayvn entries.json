@@ -30,7 +30,8 @@
     ],
     "env": [],
     "meta": {},
-    "color": "#DDAA99"
+    "color": "#E9967A",
+    "icon": "font-awesome/fa-minus-circle"
   },
   {
     "id": "1bb4b5ee32a3022c",
