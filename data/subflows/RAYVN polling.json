@@ -136,25 +136,8 @@
     "y": 200,
     "wires": [
       [
-        "6a51b3a9e4cf762c"
+        "63ecfb0d9d64a98a"
       ]
     ]
-  },
-  {
-    "id": "6a51b3a9e4cf762c",
-    "type": "debug",
-    "z": "1c21db2b0b16a979",
-    "name": "polling rayvn test",
-    "active": true,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 580,
-    "y": 120,
-    "wires": []
   }
 ]

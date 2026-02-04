@@ -152,26 +152,8 @@
     "y": 460,
     "wires": [
       [
-        "ae86e133c272e6c3",
         "c062940d577a1a8a"
       ]
     ]
-  },
-  {
-    "id": "ae86e133c272e6c3",
-    "type": "debug",
-    "z": "6844cb2c3b9378da",
-    "name": "polling wasos test",
-    "active": true,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 490,
-    "y": 380,
-    "wires": []
   }
 ]
