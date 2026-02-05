@@ -252,7 +252,7 @@
     "z": "fdea0898d1f24630",
     "name": "Rayvn Poll",
     "props": [],
-    "repeat": "30",
+    "repeat": "1",
     "crontab": "",
     "once": true,
     "onceDelay": 0.1,

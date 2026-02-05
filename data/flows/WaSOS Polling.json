@@ -34,7 +34,7 @@
     "z": "559975c27e81a86b",
     "name": "WaSOS Poll",
     "props": [],
-    "repeat": "30",
+    "repeat": "1",
     "crontab": "",
     "once": true,
     "onceDelay": "0.1",
