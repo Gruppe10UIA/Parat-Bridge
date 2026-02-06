@@ -303,7 +303,7 @@
         "2065d5042251827f"
       ]
     ],
-    "info": "Validates that both API key and log name are filled in. If something is missing, returns error. If OK, builds HTTP request to Rayvn API (/logs endpoint) with Authorization Bearer token to fetch list of available logs. Passes config in msg for later use."
+    "info": "Validates that both API key and log name are filled in. If something is missing, logs a warning and returns null (no message is sent). If OK, builds HTTP request to Rayvn API (/logs endpoint) with Authorization Bearer token to fetch list of available logs. Passes config in msg for later use."
   },
   {
     "id": "7c8cdc4d2d8e2acb",
