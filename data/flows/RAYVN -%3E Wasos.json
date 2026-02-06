@@ -41,7 +41,7 @@
     "type": "subflow:fe9d5f6f9c2bdb16",
     "z": "fdea0898d1f24630",
     "name": "",
-    "x": 1340,
+    "x": 1240,
     "y": 280,
     "wires": [
       [
@@ -110,7 +110,7 @@
     "type": "debug",
     "z": "fdea0898d1f24630",
     "name": "formatted wasos log entries",
-    "active": true,
+    "active": false,
     "tosidebar": true,
     "console": false,
     "tostatus": false,
@@ -123,30 +123,11 @@
     "wires": []
   },
   {
-    "id": "7cf86c57d5f2eac6",
-    "type": "inject",
-    "z": "fdea0898d1f24630",
-    "name": "test inject",
-    "props": [],
-    "repeat": "",
-    "crontab": "",
-    "once": false,
-    "onceDelay": 0.1,
-    "topic": "",
-    "x": 160,
-    "y": 280,
-    "wires": [
-      [
-        "e0ea47ed88577046"
-      ]
-    ]
-  },
-  {
     "id": "73ba40e05157c072",
     "type": "debug",
     "z": "fdea0898d1f24630",
     "name": "new rayvn entries",
-    "active": true,
+    "active": false,
     "tosidebar": true,
     "console": false,
     "tostatus": false,
@@ -163,7 +144,7 @@
     "type": "debug",
     "z": "fdea0898d1f24630",
     "name": "formatted rayvn entries",
-    "active": true,
+    "active": false,
     "tosidebar": true,
     "console": false,
     "tostatus": false,
@@ -180,7 +161,7 @@
     "type": "debug",
     "z": "fdea0898d1f24630",
     "name": "WaSOS Chat Output Debug",
-    "active": true,
+    "active": false,
     "tosidebar": true,
     "console": false,
     "tostatus": false,
@@ -197,7 +178,7 @@
     "type": "debug",
     "z": "fdea0898d1f24630",
     "name": "RAYVN polling result",
-    "active": true,
+    "active": false,
     "tosidebar": true,
     "console": false,
     "tostatus": false,
@@ -214,7 +195,7 @@
     "type": "debug",
     "z": "fdea0898d1f24630",
     "name": "debug entries added to masterLog",
-    "active": true,
+    "active": false,
     "tosidebar": true,
     "console": false,
     "tostatus": false,
@@ -222,8 +203,24 @@
     "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 1360,
+    "x": 1260,
     "y": 240,
     "wires": []
+  },
+  {
+    "id": "116e8fe2105b1f4b",
+    "type": "link in",
+    "z": "fdea0898d1f24630",
+    "name": "Inject Rayvn -> Wasos",
+    "links": [
+      "4f2504777076bc4d"
+    ],
+    "x": 195,
+    "y": 280,
+    "wires": [
+      [
+        "e0ea47ed88577046"
+      ]
+    ]
   }
 ]

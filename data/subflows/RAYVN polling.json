@@ -96,7 +96,7 @@
         "8a17e2fc97c6b763"
       ]
     ],
-    "info": "(Function Node)\n\nDenne noden validerer de nødvendige globale variablene som er konfigurert.\n(wasos_apikey, rayvnConfig, rayvnLogId)\n\nDen stopper flyten dersom noe mangler.\nDette sikrer at vi ikke prøver å kommunisere med API uten gyldig konfigurasjon."
+    "info": "(Function Node)\n\nDenne noden validerer de nødvendige globale variablene som er konfigurert.\n(rayvnConfig, rayvnLogId)\n\nDen stopper flyten dersom noe mangler.\nDette sikrer at vi ikke prøver å kommunisere med API uten gyldig konfigurasjon."
   },
   {
     "id": "5ee46511a8896d6c",
@@ -115,7 +115,8 @@
       [
         "20720430c252951b"
       ]
-    ]
+    ],
+    "info": "sender inject med gjevne mellomrom så lenge\napplikasjonen kjører"
   },
   {
     "id": "20720430c252951b",
@@ -138,6 +139,7 @@
       [
         "63ecfb0d9d64a98a"
       ]
-    ]
+    ],
+    "info": "Lar injects passere om polling er skrudd\n"
   }
 ]

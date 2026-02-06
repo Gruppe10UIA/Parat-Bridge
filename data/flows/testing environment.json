@@ -8,30 +8,9 @@
     "env": []
   },
   {
-    "id": "4f906d41175849bc",
-    "type": "group",
-    "z": "901ed98289cc4ecd",
-    "name": "Overwrite timestamp",
-    "style": {
-      "stroke": "#000000",
-      "fill": "#addb7b",
-      "label": true,
-      "label-position": "n",
-      "color": "#000000"
-    },
-    "nodes": [
-      "5c54b929df2d1af5"
-    ],
-    "x": 634,
-    "y": 199,
-    "w": 172,
-    "h": 82
-  },
-  {
     "id": "5c54b929df2d1af5",
     "type": "function",
     "z": "901ed98289cc4ecd",
-    "g": "4f906d41175849bc",
     "name": "function 1",
     "func": "const timestamp = new Date(msg.payload.time).getTime();\n\nglobal.set(\"lastRayvnEntryTimeStamp\", timestamp);\n\nmsg.payload = timestamp;\nreturn msg;",
     "outputs": 1,
@@ -356,6 +335,70 @@
     "y": 560,
     "wires": [
       []
+    ]
+  },
+  {
+    "id": "47564cb87057cee1",
+    "type": "link out",
+    "z": "901ed98289cc4ecd",
+    "name": "Test inject Wasos -> rayvn",
+    "mode": "link",
+    "links": [
+      "56587a3e4c9c3c80"
+    ],
+    "x": 675,
+    "y": 640,
+    "wires": []
+  },
+  {
+    "id": "08c66198a731c5f3",
+    "type": "inject",
+    "z": "901ed98289cc4ecd",
+    "name": "Inject Wasos -> Rayvn",
+    "props": [],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 440,
+    "y": 640,
+    "wires": [
+      [
+        "47564cb87057cee1"
+      ]
+    ]
+  },
+  {
+    "id": "4f2504777076bc4d",
+    "type": "link out",
+    "z": "901ed98289cc4ecd",
+    "name": "Test inject Rayvn -> Wasos",
+    "mode": "link",
+    "links": [
+      "116e8fe2105b1f4b"
+    ],
+    "x": 675,
+    "y": 700,
+    "wires": []
+  },
+  {
+    "id": "815081454d899fe0",
+    "type": "inject",
+    "z": "901ed98289cc4ecd",
+    "name": "Inject Rayvn -> Wasos",
+    "props": [],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 440,
+    "y": 700,
+    "wires": [
+      [
+        "4f2504777076bc4d"
+      ]
     ]
   }
 ]

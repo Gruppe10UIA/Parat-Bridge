@@ -22,30 +22,11 @@
     ]
   },
   {
-    "id": "c3c122046f155378",
-    "type": "inject",
-    "z": "559975c27e81a86b",
-    "name": "WaSOS Poll test inject",
-    "props": [],
-    "repeat": "",
-    "crontab": "",
-    "once": false,
-    "onceDelay": "5",
-    "topic": "",
-    "x": 340,
-    "y": 140,
-    "wires": [
-      [
-        "9c083fc8c222c29d"
-      ]
-    ]
-  },
-  {
     "id": "e5047f481499ea01",
     "type": "debug",
     "z": "559975c27e81a86b",
     "name": "Wasos polling response",
-    "active": true,
+    "active": false,
     "tosidebar": true,
     "console": false,
     "tostatus": false,
@@ -129,7 +110,7 @@
     "type": "debug",
     "z": "559975c27e81a86b",
     "name": "wasos filtered entries",
-    "active": true,
+    "active": false,
     "tosidebar": true,
     "console": false,
     "tostatus": false,
@@ -146,7 +127,7 @@
     "type": "debug",
     "z": "559975c27e81a86b",
     "name": "wasos bridge log formatted entries",
-    "active": true,
+    "active": false,
     "tosidebar": true,
     "console": false,
     "tostatus": false,
@@ -176,7 +157,7 @@
     "type": "debug",
     "z": "559975c27e81a86b",
     "name": "Rayvn log formatted entries",
-    "active": true,
+    "active": false,
     "tosidebar": true,
     "console": false,
     "tostatus": false,
@@ -193,7 +174,7 @@
     "type": "debug",
     "z": "559975c27e81a86b",
     "name": "POST to rayvn response",
-    "active": true,
+    "active": false,
     "tosidebar": true,
     "console": false,
     "tostatus": false,
@@ -206,22 +187,19 @@
     "wires": []
   },
   {
-    "id": "c0bcd6e3558a869c",
-    "type": "function",
+    "id": "56587a3e4c9c3c80",
+    "type": "link in",
     "z": "559975c27e81a86b",
-    "name": "Map To Rayvn",
-    "func": "const rayvnConfig = global.get('rayvnConfig') || {};\nconst logId = global.get('rayvnLogId');\n\n// Validation\nif (!rayvnConfig.apiKey || !logId) {\n    node.error('Rayvn not configured. Please submit Rayvn configuration first.');\n    return null;\n}\n\nconst m = msg.payload; // one chat message after Split\n\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + rayvnConfig.apiKey,\n    \"Content-Type\": \"application/json\",\n    \"Accept\": \"application/json\"\n};\n\nmsg.url = `https://api.rayvn.global/logs/${logId}/entry`;\n\n// Put the chat content into Rayvn entry text\nmsg.payload = {\n    text: `[${m.username}] ${m.content}`,\n    keyEvent: false,\n    releasedInfo: false,\n    labels: [\n        { id: \"8d8f4cd8-c57c-4ddd-861c-f515237c75d1\" }\n    ]\n};\n\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 1840,
-    "y": 240,
-    "wires": [
-      []
+    "name": "Inject Wasos -> Rayvn",
+    "links": [
+      "47564cb87057cee1"
     ],
-    "info": "(Function Node)\n\nKonverterer WaSOS-meldingsformat til Rayvn API-format.\n\nSetter Authorization Bearer token, Content-Type og Accept headers. \n\nBygger URL til /logs/{logId}/entry endepunktet, \nog lager payload med format [Brukernavn] Melding.\n\nLegger til WaSOS-label (ID: 8d8f4cd8-c57c-4ddd-861c-f515237c75d1), \nfor å identifisere meldinger fra WaSOS."
+    "x": 425,
+    "y": 300,
+    "wires": [
+      [
+        "9c083fc8c222c29d"
+      ]
+    ]
   }
 ]

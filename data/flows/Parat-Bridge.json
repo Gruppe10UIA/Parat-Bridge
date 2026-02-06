@@ -140,8 +140,7 @@
     "y": 320,
     "wires": [
       [
-        "549385311d02d888",
-        "5d9136e42e9b4b57"
+        "549385311d02d888"
       ]
     ]
   },
@@ -349,8 +348,8 @@
     "raw": false,
     "className": "",
     "name": "Rayvn Notification",
-    "x": 1150,
-    "y": 180,
+    "x": 910,
+    "y": 160,
     "wires": []
   },
   {
@@ -380,7 +379,7 @@
     "type": "debug",
     "z": "84d1a0de660abb59",
     "name": "Configuration Debug",
-    "active": true,
+    "active": false,
     "tosidebar": true,
     "console": false,
     "tostatus": false,
@@ -436,7 +435,7 @@
     "type": "debug",
     "z": "84d1a0de660abb59",
     "name": "Wasos login debug",
-    "active": true,
+    "active": false,
     "tosidebar": true,
     "console": false,
     "tostatus": false,
@@ -446,23 +445,6 @@
     "statusType": "auto",
     "x": 850,
     "y": 660,
-    "wires": []
-  },
-  {
-    "id": "5d9136e42e9b4b57",
-    "type": "debug",
-    "z": "84d1a0de660abb59",
-    "name": "debug 20",
-    "active": true,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "true",
-    "targetType": "full",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 400,
-    "y": 320,
     "wires": []
   },
   {
@@ -549,21 +531,17 @@
     "wires": [
       [
         "3adc3b7f0d67c9de",
-        "b0d28ced526a64e0"
+        "3a4bfd9a70bec65b"
       ]
     ],
     "info": "(Function Node)\n\nFinner riktig logg-ID fra Rayvn-responsen basert på logg-navnet brukeren skrev inn. \nGjør case-insensitive matching av logg-navn. \nHåndterer tre scenarioer: ingen match (feil), \nflere matches (feil - krever admin), \neller én match (suksess). \nVed suksess lagres logg-ID i global variabel rayvnLogId og viser suksessmelding med navn og ID."
   },
   {
-    "id": "b0d28ced526a64e0",
-    "type": "link out",
+    "id": "3a4bfd9a70bec65b",
+    "type": "subflow:1ce42ce5a45a0446",
     "z": "84d1a0de660abb59",
-    "name": "rayvn conneced",
-    "mode": "link",
-    "links": [
-      "1679c03e2d722705"
-    ],
-    "x": 1095,
+    "name": "",
+    "x": 1180,
     "y": 120,
     "wires": []
   }
