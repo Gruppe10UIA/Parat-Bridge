@@ -3,7 +3,7 @@
     "id": "209f3c980818c499",
     "type": "subflow",
     "name": "POST to Wasos chat",
-    "info": "",
+    "info": "Posts chat messages to the WaSOS API. Formats x-api-key headers, splits arrays into individual messages, and sends each as a separate POST request.",
     "category": "",
     "in": [
       {
@@ -54,7 +54,7 @@
     "wires": [
       []
     ],
-    "info": "(HTTP Request Node)\n\nSender meldingen til WaSOS chat API med POST-forespørsel. \nDette er det steget som leverer Rayvn-meldingen inn i WaSOS-chatten."
+    "info": "Sends the message to WaSOS chat API with POST request. This is the step that delivers the Rayvn message into the WaSOS chat."
   },
   {
     "id": "4b7da576ce1ab299",
@@ -74,7 +74,8 @@
       [
         "4b9eb1abd60ed246"
       ]
-    ]
+    ],
+    "info": "Builds HTTP request headers and URL for WaSOS API. Sets x-api-key header from wasos_apikey and uses wasosChatroomUrl as the endpoint. Returns null if not configured."
   },
   {
     "id": "4b9eb1abd60ed246",

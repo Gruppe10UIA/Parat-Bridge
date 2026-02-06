@@ -4,7 +4,7 @@
     "type": "tab",
     "label": "Parat-Bridge",
     "disabled": false,
-    "info": ""
+    "info": "Configuration UI for Parat-Bridge. Handles setup of Rayvn API credentials and WaSOS login. Validates input, authenticates with both services, and stores configuration in global variables."
   },
   {
     "id": "a5b51da0c7e1d994",
@@ -264,7 +264,7 @@
     "x": 430,
     "y": 130,
     "wires": [],
-    "info": "(Function Node)\n\nLagrer Rayvn-konfigurasjon i global variabel rayvnConfig som et objekt. \nHåndterer både API-nøkkel (rayvn_api_key topic) og logg-navn (log_name topic). \nOppdaterer eksisterende config uten å overskrive andre felter."
+    "info": "Stores Rayvn configuration in global variable rayvnConfig as an object. Handles both API key (rayvn_api_key topic) and log name (log_name topic). Updates existing config without overwriting other fields."
   },
   {
     "id": "549385311d02d888",
@@ -281,7 +281,7 @@
     "x": 480,
     "y": 380,
     "wires": [],
-    "info": "(Function Node)\n\nLagrer WaSOS-konfigurasjon (brukernavn og chatroom) i global variabel wasosConfig. \nHåndterer IKKE passord permanent av sikkerhetshensyn, \npassord sendes kun videre i msg for umiddelbar bruk. \nOppdaterer eksisterende config uten å overskrive andre felter."
+    "info": "Stores WaSOS configuration (username and chatroom) in global variable wasosConfig. Does NOT store password permanently for security reasons - password is only passed in msg for immediate use. Updates existing config without overwriting other fields."
   },
   {
     "id": "9d0f53d836574646",
@@ -303,7 +303,7 @@
         "2065d5042251827f"
       ]
     ],
-    "info": "(Function Node)\n\nValiderer at både API-nøkkel og logg-navn er fylt ut. \nHvis noe mangler, returner feilmelding. \nHvis OK, bygger HTTP-forespørsel til Rayvn API (/logs endpoint) med Authorization Bearer token, \nfor å hente liste over tilgjengelige logger. \nSender config videre i msg for senere bruk."
+    "info": "Validates that both API key and log name are filled in. If something is missing, returns error. If OK, builds HTTP request to Rayvn API (/logs endpoint) with Authorization Bearer token to fetch list of available logs. Passes config in msg for later use."
   },
   {
     "id": "7c8cdc4d2d8e2acb",
@@ -328,7 +328,7 @@
         "b86b3a69a6a4d5ab"
       ]
     ],
-    "info": "(Function Node)\n\nValiderer at brukernavn, passord og chatroom er fylt ut. \nHvis noe mangler, returner feilmelding (output 1). \nHvis OK, bygger melding for WasosLogin subflow med URL, brukernavn og passord. \nBygger og lagrer chatroom URL (wasosChatroomUrl) og navn (wasosChatroomName) i globale variabler. \nSletter midlertidig passord etter bruk. \nSender til output 2 for login-prosess."
+    "info": "Validates that username, password, and chatroom are filled in. If something is missing, returns error (output 1). If OK, builds message for WasosLogin subflow with URL, username, and password. Builds and stores chatroom URL (wasosChatroomUrl) and name (wasosChatroomName) in global variables. Deletes temporary password after use. Sends to output 2 for login process."
   },
   {
     "id": "3adc3b7f0d67c9de",
@@ -428,7 +428,7 @@
         "3dc9d5c2fc2783d0"
       ]
     ],
-    "info": "(Subflow Node)\n\nKjører WaSOS innloggingsprosessen med oppgitte credentials. \nReturnerer nonce (API-nøkkel) som lagres i wasos_apikey av subflowet. \nDette er den faktiske autentiseringen mot WaSOS-systemet.\n\nDenne noden abstraherer bort følgende flyt:\n\nConfig (Function Node - inne i subflow)\nForbereder WaSOS login-forespørsel. \nLagrer base URL i global variabel wasos_url, \nbygger login endpoint (/apisec/login), \nog lager Basic Authentication header fra brukernavn og passord (Base64-encoded). \nHenter verdier enten fra msg eller environment variabler.\n\nRequest API key (HTTP Request Node - inne i subflow)\nSender POST-forespørsel til WaSOS login endpoint med Basic Auth. \nReturnerer en nonce (API-nøkkel) som brukes til autentisering i alle videre API-kall.\n\nSet wasos_apikey (Function Node - inne i subflow)\nLagrer den mottatte nonce fra WaSOS login som global variabel wasos_apikey. Denne brukes som x-api-key header i alle påfølgende WaSOS API-forespørsler."
+    "info": "Runs the WaSOS login process with provided credentials. Returns nonce (API key) which is stored in wasos_apikey by the subflow. This is the actual authentication against the WaSOS system.\n\nThis node abstracts the following flow:\n\nConfig (Function Node - inside subflow)\nPrepares WaSOS login request. Stores base URL in global variable wasos_url, builds login endpoint (/apisec/login), and creates Basic Authentication header from username and password (Base64-encoded). Gets values either from msg or environment variables.\n\nRequest API key (HTTP Request Node - inside subflow)\nSends POST request to WaSOS login endpoint with Basic Auth. Returns a nonce (API key) used for authentication in all subsequent API calls.\n\nSet wasos_apikey (Function Node - inside subflow)\nStores the received nonce from WaSOS login as global variable wasos_apikey. This is used as x-api-key header in all subsequent WaSOS API requests."
   },
   {
     "id": "b1a4d943b8d31c8d",
@@ -466,7 +466,7 @@
         "549385311d02d888"
       ]
     ],
-    "info": "(Function Node)\n\nLagrer passordet midlertidig i global variabel temp_password. \nDette er en sikkerhetsmekanisme - passordet slettes umiddelbart etter bruk i login-prosessen, \nslik at det ikke ligger permanent i global context."
+    "info": "Stores the password temporarily in global variable temp_password. This is a security mechanism - the password is deleted immediately after use in the login process, so it doesn't remain permanently in global context."
   },
   {
     "id": "3dc9d5c2fc2783d0",
@@ -487,7 +487,7 @@
         "c8cf2212e8e95c77"
       ]
     ],
-    "info": "(Function Node)\n\nGenererer brukervennlig melding basert på login-resultat. \nSjekker om nonce finnes i responsen:\nHvis ja, vis suksessmelding med chatroom-navn (grønn). \nHvis nei, vis feilmelding om å sjekke credentials (rød)."
+    "info": "Generates user-friendly message based on login result. Checks if nonce exists in response: If yes, shows success message with chatroom name (green). If no, shows error message to check credentials (red)."
   },
   {
     "id": "2065d5042251827f",
@@ -512,7 +512,7 @@
         "360ab27a8945585e"
       ]
     ],
-    "info": "(HTTP Request Node)\n\nHenter alle logger fra Rayvn API som brukeren har tilgang til. \nReturnerer liste over logger som brukes til å finne riktig log ID basert på det oppgitte logg-navnet."
+    "info": "Fetches all logs from Rayvn API that the user has access to. Returns list of logs used to find the correct log ID based on the provided log name."
   },
   {
     "id": "360ab27a8945585e",
@@ -534,7 +534,7 @@
         "3a4bfd9a70bec65b"
       ]
     ],
-    "info": "(Function Node)\n\nFinner riktig logg-ID fra Rayvn-responsen basert på logg-navnet brukeren skrev inn. \nGjør case-insensitive matching av logg-navn. \nHåndterer tre scenarioer: ingen match (feil), \nflere matches (feil - krever admin), \neller én match (suksess). \nVed suksess lagres logg-ID i global variabel rayvnLogId og viser suksessmelding med navn og ID."
+    "info": "Finds correct log ID from Rayvn response based on the log name the user entered. Does case-insensitive matching of log names. Handles three scenarios: no match (error), multiple matches (error - requires admin), or one match (success). On success, stores log ID in global variable rayvnLogId and shows success message with name and ID."
   },
   {
     "id": "3a4bfd9a70bec65b",

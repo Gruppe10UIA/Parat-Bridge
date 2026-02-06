@@ -3,7 +3,7 @@
     "id": "2e632affbd071524",
     "type": "subflow",
     "name": "log queue (placeholder)",
-    "info": "",
+    "info": "Placeholder. Intended for queueing log entries before sending to prevent rate limiting and ensure order.",
     "category": "",
     "in": [
       {

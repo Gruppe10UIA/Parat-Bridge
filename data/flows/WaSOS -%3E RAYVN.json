@@ -4,7 +4,7 @@
     "type": "tab",
     "label": "WaSOS -> RAYVN",
     "disabled": false,
-    "info": "",
+    "info": "Sync flow from WaSOS to Rayvn. Polls WaSOS API, filters new messages, converts to Bridge format, appends to masterLog, then converts to Rayvn format and posts to Rayvn log.",
     "env": []
   },
   {

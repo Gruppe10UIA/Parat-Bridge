@@ -3,7 +3,7 @@
     "id": "1c21db2b0b16a979",
     "type": "subflow",
     "name": "RAYVN polling",
-    "info": "",
+    "info": "Polls the Rayvn API at regular intervals to fetch log entries. Checks configuration, builds authorized request, and returns log entries for processing.",
     "category": "",
     "in": [
       {
@@ -52,7 +52,7 @@
         "ebd7c13e74b9eb35"
       ]
     ],
-    "info": "(Function Node)\n\nDenne noden bygger en HTTP-forespørsel for å hente logg-innlegg i fra Rayvn.\n\nDen setter Authorization header med Bearer token fra rayvnConfig.apiKey\nog bygger URL til /logs/{logId}/entries endepunktet."
+    "info": "Builds an HTTP request to fetch log entries from Rayvn. Sets Authorization header with Bearer token from rayvnConfig.apiKey and builds URL to /logs/{logId}/entries endpoint."
   },
   {
     "id": "ebd7c13e74b9eb35",
@@ -75,7 +75,7 @@
     "wires": [
       []
     ],
-    "info": "(HTTP Request Node)\n\nHenter alle logginnlegg fra Rayvn API med GET-forespørsel. \nReturnerer en array med entries som behandles videre i flyten."
+    "info": "Fetches all log entries from Rayvn API with GET request. Returns an array of entries that are processed further in the flow."
   },
   {
     "id": "63ecfb0d9d64a98a",
@@ -96,7 +96,7 @@
         "8a17e2fc97c6b763"
       ]
     ],
-    "info": "(Function Node)\n\nDenne noden validerer de nødvendige globale variablene som er konfigurert.\n(rayvnConfig, rayvnLogId)\n\nDen stopper flyten dersom noe mangler.\nDette sikrer at vi ikke prøver å kommunisere med API uten gyldig konfigurasjon."
+    "info": "Validates that required global variables are configured (rayvnConfig, rayvnLogId). Stops the flow if something is missing. This ensures we don't try to communicate with the API without valid configuration."
   },
   {
     "id": "5ee46511a8896d6c",
@@ -116,7 +116,7 @@
         "20720430c252951b"
       ]
     ],
-    "info": "sender inject med gjevne mellomrom så lenge\napplikasjonen kjører"
+    "info": "Sends inject at regular intervals while the application is running."
   },
   {
     "id": "20720430c252951b",
@@ -140,6 +140,6 @@
         "63ecfb0d9d64a98a"
       ]
     ],
-    "info": "Lar injects passere om polling er skrudd\n"
+    "info": "Allows injects to pass through if polling is enabled."
   }
 ]

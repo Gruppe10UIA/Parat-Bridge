@@ -3,7 +3,7 @@
     "id": "146a0fb1b7b158fc",
     "type": "subflow",
     "name": "(placeholder)transfer initial rayvn log",
-    "info": "",
+    "info": "Placeholder. Intended for initial transfer of existing Rayvn log entries to WaSOS when sync is first started.",
     "category": "",
     "in": [
       {

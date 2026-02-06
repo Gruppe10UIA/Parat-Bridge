@@ -3,7 +3,7 @@
     "id": "6844cb2c3b9378da",
     "type": "subflow",
     "name": "WaSOS polling",
-    "info": "",
+    "info": "Polls the WaSOS API at regular intervals to fetch chat messages. Checks configuration, builds authorized request, and returns messages for processing.",
     "category": "",
     "in": [
       {
@@ -52,7 +52,7 @@
         "dc29199ca671794a"
       ]
     ],
-    "info": "(Function Node)\n\nValiderer at alle nødvendige globale variabler er konfigurert.\n(wasos_apikey, rayvnConfig, rayvnLogId).\n\nStopper flyten med en advarsel hvis noe mangler. \nDette sikrer at begge systemer er konfigurert før vi prøver å synkronisere."
+    "info": "Validates that all required global variables are configured (wasos_apikey, rayvnConfig, rayvnLogId). Stops the flow with a warning if something is missing. This ensures both systems are configured before attempting to sync."
   },
   {
     "id": "dc29199ca671794a",
@@ -73,7 +73,7 @@
         "e650d743f11e0dcd"
       ]
     ],
-    "info": "(Function Node)\n\nBygger HTTP-forespørsel for å hente chat-meldinger fra WaSOS. \nSetter x-api-key header og konstruerer URL fra wasosChatroomUrl med ?limit=50 parameter, \nfor å hente de siste 50 meldingene."
+    "info": "Builds HTTP request to fetch chat messages from WaSOS. Sets x-api-key header and constructs URL from wasosChatroomUrl with ?limit=50 parameter to fetch the last 50 messages."
   },
   {
     "id": "e650d743f11e0dcd",
@@ -98,7 +98,7 @@
         "aab83de98c023460"
       ]
     ],
-    "info": "(HTTP Request Node)\n\nHenter chat-meldinger fra WaSOS API med GET-forespørsel. \nReturnerer tekst (JSON) som må parses videre."
+    "info": "Fetches chat messages from WaSOS API with GET request. Returns text (JSON) that needs to be parsed further."
   },
   {
     "id": "aab83de98c023460",
@@ -131,7 +131,8 @@
       [
         "2fd547e31f7ce19a"
       ]
-    ]
+    ],
+    "info": "Sends inject at regular intervals while the application is running."
   },
   {
     "id": "2fd547e31f7ce19a",
@@ -154,6 +155,7 @@
       [
         "c062940d577a1a8a"
       ]
-    ]
+    ],
+    "info": "Allows injects to pass through if polling is enabled."
   }
 ]

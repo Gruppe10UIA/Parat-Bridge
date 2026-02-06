@@ -3,7 +3,7 @@
     "id": "9ee8527d12b415b0",
     "type": "subflow",
     "name": "Bridge log ->  Wasos log",
-    "info": "",
+    "info": "Converts Bridge format entries to WaSOS chat format. Maps text to content, adds callsign with client and author prefix, converts timestamp to ISO format.",
     "category": "",
     "in": [
       {
@@ -49,6 +49,7 @@
     "y": 320,
     "wires": [
       []
-    ]
+    ],
+    "info": "Transforms Bridge entries to WaSOS chat format. Maps text->content, creates callsign as [client] author, converts timeCreated to ISO date string."
   }
 ]

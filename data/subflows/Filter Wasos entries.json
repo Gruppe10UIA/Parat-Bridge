@@ -3,7 +3,7 @@
     "id": "5b8da813a76ba94b",
     "type": "subflow",
     "name": "Filter Wasos entries",
-    "info": "",
+    "info": "Filters WaSOS chat messages to only include new entries. Removes messages older than the last sync timestamp and excludes messages with [rayvn] callsign to prevent duplicates.",
     "category": "",
     "in": [
       {
@@ -52,7 +52,8 @@
         "a247c2c515411e30",
         "e9d49a73f0b580fa"
       ]
-    ]
+    ],
+    "info": "Filters messages by timestamp. Only keeps messages newer than lastWasosEntryTimeStamp to avoid reprocessing old data."
   },
   {
     "id": "a247c2c515411e30",
@@ -73,7 +74,8 @@
         "35961c63028fa8c1",
         "33d33b3b2cd1aafd"
       ]
-    ]
+    ],
+    "info": "Filters out messages with [rayvn] in the callsign. These messages originated from Rayvn and should not be sent back to prevent infinite loops."
   },
   {
     "id": "35961c63028fa8c1",

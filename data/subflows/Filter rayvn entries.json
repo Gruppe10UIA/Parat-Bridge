@@ -3,7 +3,7 @@
     "id": "0047704f35a57b0c",
     "type": "subflow",
     "name": "Filter rayvn entries",
-    "info": "",
+    "info": "Filters Rayvn log entries to only include new entries. Removes entries older than the last sync timestamp and excludes entries with WaSOS label to prevent duplicates.",
     "category": "",
     "in": [
       {
@@ -51,7 +51,8 @@
       [
         "8ab7e4f646f60aa0"
       ]
-    ]
+    ],
+    "info": "Filters entries by timestamp. Only keeps entries newer than lastRayvnEntryTimeStamp to avoid reprocessing old data."
   },
   {
     "id": "8ab7e4f646f60aa0",
@@ -71,7 +72,8 @@
       [
         "10e041a2641b06a5"
       ]
-    ]
+    ],
+    "info": "Filters out entries with WaSOS label. These entries originated from WaSOS and should not be sent back to prevent infinite loops."
   },
   {
     "id": "10e041a2641b06a5",

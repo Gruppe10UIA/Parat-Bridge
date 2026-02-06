@@ -49,7 +49,8 @@
     "y": 260,
     "wires": [
       []
-    ]
+    ],
+    "info": "Appends new entries to the global masterLog array. Concatenates incoming entries with existing log and passes entries through for further processing."
   },
   {
     "id": "ef866edea2a4e295",
@@ -70,7 +71,8 @@
         "41c1c734ed1adaed",
         "1da901da05252d6d"
       ]
-    ]
+    ],
+    "info": "Removes entries that already exist in the masterLog by checking entry IDs. Prevents duplicate entries from being added to the log."
   },
   {
     "id": "1da901da05252d6d",

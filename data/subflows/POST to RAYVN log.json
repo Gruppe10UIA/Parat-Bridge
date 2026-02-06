@@ -3,7 +3,7 @@
     "id": "4a6a1af9b9af6b0f",
     "type": "subflow",
     "name": "POST to RAYVN log",
-    "info": "",
+    "info": "Posts log entries to the Rayvn API. Formats authorization headers with Bearer token, splits arrays into individual entries, and sends each as a separate POST request.",
     "category": "",
     "in": [
       {
@@ -54,7 +54,7 @@
     "wires": [
       []
     ],
-    "info": "(HTTP Request Node)\n\nSender meldingen til Rayvn logg-API med POST-forespørsel. \nDette er det steget som leverer WaSOS-meldingen inn i Rayvn-loggen."
+    "info": "Sends the message to Rayvn log API with POST request. This is the step that delivers the WaSOS message into the Rayvn log."
   },
   {
     "id": "044459bc226a0ba1",
@@ -74,7 +74,8 @@
       [
         "9b381619b4b4fd2a"
       ]
-    ]
+    ],
+    "info": "Builds HTTP request headers and URL for Rayvn API. Sets Authorization header with Bearer token from rayvnConfig.apiKey and constructs URL to /logs/{logId}/entry endpoint. Returns null if not configured."
   },
   {
     "id": "9b381619b4b4fd2a",

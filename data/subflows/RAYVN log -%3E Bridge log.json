@@ -3,7 +3,7 @@
     "id": "e56a9c672a5eb8f6",
     "type": "subflow",
     "name": "RAYVN log -> Bridge log",
-    "info": "",
+    "info": "Converts Rayvn log entries to Bridge format. Extracts id, text, timeCreated, loggedByFullName and adds client identifier.",
     "category": "",
     "in": [
       {

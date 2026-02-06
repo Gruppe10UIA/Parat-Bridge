@@ -3,7 +3,7 @@
     "id": "a72933a33e32b28c",
     "type": "subflow",
     "name": "Wasos log -> Bridge log",
-    "info": "",
+    "info": "Converts WaSOS chat messages to Bridge format. Maps content to text, createdAt to timeCreated, username to loggedByFullName and adds client identifier.",
     "category": "",
     "in": [
       {
@@ -49,6 +49,7 @@
     "y": 300,
     "wires": [
       []
-    ]
+    ],
+    "info": "Maps WaSOS message fields to Bridge format: content->text, createdAt->timeCreated (as timestamp), username->loggedByFullName. Adds wasos as client identifier."
   }
 ]

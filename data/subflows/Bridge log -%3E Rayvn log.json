@@ -3,7 +3,7 @@
     "id": "5ed556f2fe39e3a2",
     "type": "subflow",
     "name": "Bridge log -> Rayvn log",
-    "info": "",
+    "info": "Converts Bridge format entries to Rayvn log format. Formats text with client and author prefix, adds WaSOS label to entries originating from WaSOS.",
     "category": "",
     "in": [
       {
@@ -49,6 +49,7 @@
     "y": 300,
     "wires": [
       []
-    ]
+    ],
+    "info": "Transforms Bridge entries to Rayvn format. Prefixes text with [client] author:, sets keyEvent and releasedInfo to false, adds WaSOS label for entries from wasos client."
   }
 ]
