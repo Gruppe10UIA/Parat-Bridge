@@ -9,7 +9,7 @@
 # Flow manager generated files
 flow-manager-cfg.json
 flow-manager-nodes-order.json
-config-nodes.json
+# Note: config-nodes.json is NOT ignored - it contains dashboard config (ui-base, ui-page, ui-group, ui-theme)
 
 # Credentials (should never be committed)
 *_cred.json

@@ -1,0 +1,226 @@
+[
+  {
+    "id": "fdea0898d1f24630",
+    "type": "tab",
+    "label": "RAYVN -> Wasos",
+    "disabled": false,
+    "info": "Sync flow from Rayvn to WaSOS. Polls Rayvn API, filters new entries, converts to Bridge format, appends to masterLog, then converts to WaSOS format and posts to WaSOS chat.",
+    "env": []
+  },
+  {
+    "id": "94b2e009834e7457",
+    "type": "subflow:0047704f35a57b0c",
+    "z": "fdea0898d1f24630",
+    "name": "",
+    "x": 610,
+    "y": 280,
+    "wires": [
+      [
+        "336a09e1fa63bcb2",
+        "73ba40e05157c072"
+      ]
+    ]
+  },
+  {
+    "id": "336a09e1fa63bcb2",
+    "type": "subflow:e56a9c672a5eb8f6",
+    "z": "fdea0898d1f24630",
+    "name": "",
+    "x": 910,
+    "y": 280,
+    "wires": [
+      [
+        "edcb8d65c7a805ec",
+        "e8f453cb650cc177",
+        "4a1c55ec94f7f562"
+      ]
+    ]
+  },
+  {
+    "id": "edcb8d65c7a805ec",
+    "type": "subflow:fe9d5f6f9c2bdb16",
+    "z": "fdea0898d1f24630",
+    "name": "",
+    "x": 1240,
+    "y": 280,
+    "wires": [
+      [
+        "33a0b6eee51a333a"
+      ]
+    ]
+  },
+  {
+    "id": "e0ea47ed88577046",
+    "type": "subflow:1c21db2b0b16a979",
+    "z": "fdea0898d1f24630",
+    "name": "",
+    "x": 340,
+    "y": 280,
+    "wires": [
+      [
+        "94b2e009834e7457",
+        "27c43e87cadaab1d"
+      ]
+    ]
+  },
+  {
+    "id": "e8f453cb650cc177",
+    "type": "subflow:2e632affbd071524",
+    "z": "fdea0898d1f24630",
+    "name": "",
+    "x": 370,
+    "y": 440,
+    "wires": [
+      [
+        "d9951ddcbdc5971e"
+      ]
+    ],
+    "info": "subflow, is currently a placeholder, but\r\nshould in the future be responsible for queueing"
+  },
+  {
+    "id": "d9951ddcbdc5971e",
+    "type": "subflow:9ee8527d12b415b0",
+    "z": "fdea0898d1f24630",
+    "name": "",
+    "x": 630,
+    "y": 440,
+    "wires": [
+      [
+        "abe5d62bc9ae2a47",
+        "7cddce93b0c1de1d"
+      ]
+    ]
+  },
+  {
+    "id": "7cddce93b0c1de1d",
+    "type": "subflow:209f3c980818c499",
+    "z": "fdea0898d1f24630",
+    "name": "",
+    "x": 940,
+    "y": 440,
+    "wires": [
+      [
+        "c80cdddcb40c9aab"
+      ]
+    ],
+    "info": "This subflow takes a formatted Wasos chat\r\npackage and Makes a POST request to the\r\nWasos client"
+  },
+  {
+    "id": "abe5d62bc9ae2a47",
+    "type": "debug",
+    "z": "fdea0898d1f24630",
+    "name": "formatted wasos log entries",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 640,
+    "y": 400,
+    "wires": []
+  },
+  {
+    "id": "73ba40e05157c072",
+    "type": "debug",
+    "z": "fdea0898d1f24630",
+    "name": "new rayvn entries",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 610,
+    "y": 240,
+    "wires": []
+  },
+  {
+    "id": "4a1c55ec94f7f562",
+    "type": "debug",
+    "z": "fdea0898d1f24630",
+    "name": "formatted rayvn entries",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 900,
+    "y": 240,
+    "wires": []
+  },
+  {
+    "id": "c80cdddcb40c9aab",
+    "type": "debug",
+    "z": "fdea0898d1f24630",
+    "name": "WaSOS Chat Output Debug",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 960,
+    "y": 400,
+    "wires": []
+  },
+  {
+    "id": "27c43e87cadaab1d",
+    "type": "debug",
+    "z": "fdea0898d1f24630",
+    "name": "RAYVN polling result",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 360,
+    "y": 240,
+    "wires": []
+  },
+  {
+    "id": "33a0b6eee51a333a",
+    "type": "debug",
+    "z": "fdea0898d1f24630",
+    "name": "debug entries added to masterLog",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1260,
+    "y": 240,
+    "wires": []
+  },
+  {
+    "id": "116e8fe2105b1f4b",
+    "type": "link in",
+    "z": "fdea0898d1f24630",
+    "name": "Inject Rayvn -> Wasos",
+    "links": [
+      "4f2504777076bc4d"
+    ],
+    "x": 195,
+    "y": 280,
+    "wires": [
+      [
+        "e0ea47ed88577046"
+      ]
+    ]
+  }
+]

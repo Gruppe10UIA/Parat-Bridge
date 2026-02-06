@@ -1,0 +1,96 @@
+[
+  {
+    "id": "fe9d5f6f9c2bdb16",
+    "type": "subflow",
+    "name": "Append entries to masterLog",
+    "info": "This is a reusable subflow, that adds\nformatted log entries to the masterLog",
+    "category": "",
+    "in": [
+      {
+        "x": 180,
+        "y": 260,
+        "wires": [
+          {
+            "id": "ef866edea2a4e295"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 940,
+        "y": 260,
+        "wires": [
+          {
+            "id": "41c1c734ed1adaed",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#FFCC66",
+    "icon": "font-awesome/fa-book"
+  },
+  {
+    "id": "41c1c734ed1adaed",
+    "type": "function",
+    "z": "fe9d5f6f9c2bdb16",
+    "name": "append new entries",
+    "func": "const masterLog = global.get(\"masterLog\") || [];\nconst newEntries = msg.payload;\n\nglobal.set(\"masterLog\", masterLog.concat(newEntries));\n\nmsg.payload = newEntries;\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 690,
+    "y": 260,
+    "wires": [
+      []
+    ],
+    "info": "Appends new entries to the global masterLog array. Concatenates incoming entries with existing log and passes entries through for further processing."
+  },
+  {
+    "id": "ef866edea2a4e295",
+    "type": "function",
+    "z": "fe9d5f6f9c2bdb16",
+    "name": "remove duplicate entries",
+    "func": "const masterLog = global.get(\"masterLog\") || [];\nconst existingIds = new Set(masterLog.map(entry => entry.id));\n\nconst duplicates = msg.payload.filter(entry => existingIds.has(entry.id));\nmsg.payload = msg.payload.filter(entry => !existingIds.has(entry.id));\n\nif (duplicates.length > 0) {\n    node.warn({ msg: \"Duplicate entries removed\", duplicates: duplicates });\n}\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 410,
+    "y": 260,
+    "wires": [
+      [
+        "41c1c734ed1adaed",
+        "1da901da05252d6d"
+      ]
+    ],
+    "info": "Removes entries that already exist in the masterLog by checking entry IDs. Prevents duplicate entries from being added to the log."
+  },
+  {
+    "id": "1da901da05252d6d",
+    "type": "function",
+    "z": "fe9d5f6f9c2bdb16",
+    "name": "Uppdate newest timestamp",
+    "func": "const entries = msg.payload;\n\nif (entries.length > 0) {\n    const newestEntry = entries.reduce((a, b) => a.timeCreated > b.timeCreated ? a : b); // find newest log entry\n    const clientCapitalized = newestEntry.client.charAt(0).toUpperCase() + newestEntry.client.slice(1); // extract client\n    \n    global.set(`last${clientCapitalized}EntryTimeStamp`, newestEntry.timeCreated); // update global timestamp variable\n}\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 720,
+    "y": 200,
+    "wires": [
+      []
+    ],
+    "info": "Updates the newest timestamp for the given client"
+  }
+]

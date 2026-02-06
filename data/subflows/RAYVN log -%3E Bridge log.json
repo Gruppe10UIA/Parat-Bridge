@@ -1,0 +1,55 @@
+[
+  {
+    "id": "e56a9c672a5eb8f6",
+    "type": "subflow",
+    "name": "RAYVN log -> Bridge log",
+    "info": "Converts Rayvn log entries to Bridge format. Extracts id, text, timeCreated, loggedByFullName and adds client identifier.",
+    "category": "",
+    "in": [
+      {
+        "x": 260,
+        "y": 360,
+        "wires": [
+          {
+            "id": "6b18f0b47502d533"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 1120,
+        "y": 360,
+        "wires": [
+          {
+            "id": "6b18f0b47502d533",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#D8BFD8",
+    "icon": "font-awesome/fa-file-text-o"
+  },
+  {
+    "id": "6b18f0b47502d533",
+    "type": "function",
+    "z": "e56a9c672a5eb8f6",
+    "name": "map rayvn log to bridge log",
+    "func": "let rawLog = msg.payload\n\nmsg.payload = rawLog.map(({ \n  id,\n  text,\n  timeCreated,\n  loggedByFullName\n  }) => ({\n  id,\n  text,\n  timeCreated,\n  loggedByFullName,\n  client: \"rayvn\"  // Added to every entry\n}));\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 640,
+    "y": 360,
+    "wires": [
+      []
+    ],
+    "info": "This function takes an array of rayvn log entries\nand transforms them into the format of bridge entries\n(standardised format for logentries in Parat-Bridge)"
+  }
+]

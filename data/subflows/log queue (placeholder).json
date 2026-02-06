@@ -1,0 +1,32 @@
+[
+  {
+    "id": "2e632affbd071524",
+    "type": "subflow",
+    "name": "log queue (placeholder)",
+    "info": "Placeholder. Intended for queueing log entries before sending to prevent rate limiting and ensure order.",
+    "category": "",
+    "in": [
+      {
+        "x": 380,
+        "y": 260,
+        "wires": []
+      }
+    ],
+    "out": [
+      {
+        "x": 820,
+        "y": 260,
+        "wires": [
+          {
+            "id": "2e632affbd071524",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#C0C0C0",
+    "icon": "font-awesome/fa-forward"
+  }
+]

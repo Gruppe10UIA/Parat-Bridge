@@ -1,0 +1,205 @@
+[
+  {
+    "id": "559975c27e81a86b",
+    "type": "tab",
+    "label": "WaSOS -> RAYVN",
+    "disabled": false,
+    "info": "Sync flow from WaSOS to Rayvn. Polls WaSOS API, filters new messages, converts to Bridge format, appends to masterLog, then converts to Rayvn format and posts to Rayvn log.",
+    "env": []
+  },
+  {
+    "id": "9c083fc8c222c29d",
+    "type": "subflow:6844cb2c3b9378da",
+    "z": "559975c27e81a86b",
+    "name": "",
+    "x": 560,
+    "y": 300,
+    "wires": [
+      [
+        "e5047f481499ea01",
+        "ad6e4ebae620ae51"
+      ]
+    ]
+  },
+  {
+    "id": "e5047f481499ea01",
+    "type": "debug",
+    "z": "559975c27e81a86b",
+    "name": "Wasos polling response",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 590,
+    "y": 260,
+    "wires": []
+  },
+  {
+    "id": "ad6e4ebae620ae51",
+    "type": "subflow:5b8da813a76ba94b",
+    "z": "559975c27e81a86b",
+    "name": "",
+    "x": 830,
+    "y": 300,
+    "wires": [
+      [
+        "826af035abb1587d",
+        "3b1a180eac54a098"
+      ]
+    ]
+  },
+  {
+    "id": "826af035abb1587d",
+    "type": "subflow:a72933a33e32b28c",
+    "z": "559975c27e81a86b",
+    "name": "",
+    "x": 1120,
+    "y": 300,
+    "wires": [
+      [
+        "481e3e8076f94f99",
+        "453ac9498920626e",
+        "c08dff63b6bf94a4"
+      ]
+    ]
+  },
+  {
+    "id": "481e3e8076f94f99",
+    "type": "subflow:fe9d5f6f9c2bdb16",
+    "z": "559975c27e81a86b",
+    "name": "",
+    "x": 1440,
+    "y": 300,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "453ac9498920626e",
+    "type": "subflow:2e632affbd071524",
+    "z": "559975c27e81a86b",
+    "name": "",
+    "x": 590,
+    "y": 460,
+    "wires": [
+      [
+        "df39f1408665a8da"
+      ]
+    ]
+  },
+  {
+    "id": "df39f1408665a8da",
+    "type": "subflow:5ed556f2fe39e3a2",
+    "z": "559975c27e81a86b",
+    "name": "",
+    "x": 860,
+    "y": 460,
+    "wires": [
+      [
+        "37d09b076004e699",
+        "5adc9f55c147a330"
+      ]
+    ]
+  },
+  {
+    "id": "3b1a180eac54a098",
+    "type": "debug",
+    "z": "559975c27e81a86b",
+    "name": "wasos filtered entries",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 840,
+    "y": 260,
+    "wires": []
+  },
+  {
+    "id": "c08dff63b6bf94a4",
+    "type": "debug",
+    "z": "559975c27e81a86b",
+    "name": "wasos bridge log formatted entries",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1160,
+    "y": 260,
+    "wires": []
+  },
+  {
+    "id": "5adc9f55c147a330",
+    "type": "subflow:4a6a1af9b9af6b0f",
+    "z": "559975c27e81a86b",
+    "name": "",
+    "x": 1210,
+    "y": 460,
+    "wires": [
+      [
+        "04b018b08a56f604"
+      ]
+    ]
+  },
+  {
+    "id": "37d09b076004e699",
+    "type": "debug",
+    "z": "559975c27e81a86b",
+    "name": "Rayvn log formatted entries",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 880,
+    "y": 420,
+    "wires": []
+  },
+  {
+    "id": "04b018b08a56f604",
+    "type": "debug",
+    "z": "559975c27e81a86b",
+    "name": "POST to rayvn response",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1200,
+    "y": 420,
+    "wires": []
+  },
+  {
+    "id": "56587a3e4c9c3c80",
+    "type": "link in",
+    "z": "559975c27e81a86b",
+    "name": "Inject Wasos -> Rayvn",
+    "links": [
+      "47564cb87057cee1"
+    ],
+    "x": 425,
+    "y": 300,
+    "wires": [
+      [
+        "9c083fc8c222c29d"
+      ]
+    ]
+  }
+]

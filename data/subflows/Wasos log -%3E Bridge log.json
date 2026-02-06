@@ -1,0 +1,55 @@
+[
+  {
+    "id": "a72933a33e32b28c",
+    "type": "subflow",
+    "name": "Wasos log -> Bridge log",
+    "info": "Converts WaSOS chat messages to Bridge format. Maps content to text, createdAt to timeCreated, username to loggedByFullName and adds client identifier.",
+    "category": "",
+    "in": [
+      {
+        "x": 180,
+        "y": 300,
+        "wires": [
+          {
+            "id": "22d599a7e5359d86"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 700,
+        "y": 300,
+        "wires": [
+          {
+            "id": "22d599a7e5359d86",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#D8BFD8",
+    "icon": "font-awesome/fa-file-text-o"
+  },
+  {
+    "id": "22d599a7e5359d86",
+    "type": "function",
+    "z": "a72933a33e32b28c",
+    "name": "map wasos log to bridge log",
+    "func": "let rawLog = msg.payload;\n\nmsg.payload = rawLog.map(({ \n    id,\n    content,\n    createdAt,\n    username\n}) => ({\n    id,\n    text: content,\n    timeCreated: new Date(createdAt).getTime(),\n    loggedByFullName: username,\n    client: \"wasos\"\n}));\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 480,
+    "y": 300,
+    "wires": [
+      []
+    ],
+    "info": "Maps WaSOS message fields to Bridge format: content->text, createdAt->timeCreated (as timestamp), username->loggedByFullName. Adds wasos as client identifier."
+  }
+]

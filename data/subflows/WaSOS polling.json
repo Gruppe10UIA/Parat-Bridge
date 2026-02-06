@@ -1,0 +1,161 @@
+[
+  {
+    "id": "6844cb2c3b9378da",
+    "type": "subflow",
+    "name": "WaSOS polling",
+    "info": "Polls the WaSOS API at regular intervals to fetch chat messages. Checks configuration, builds authorized request, and returns messages for processing.",
+    "category": "",
+    "in": [
+      {
+        "x": 200,
+        "y": 280,
+        "wires": [
+          {
+            "id": "c062940d577a1a8a"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 1360,
+        "y": 460,
+        "wires": [
+          {
+            "id": "aab83de98c023460",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#C0DEED",
+    "icon": "node-red/bridge.svg"
+  },
+  {
+    "id": "c062940d577a1a8a",
+    "type": "function",
+    "z": "6844cb2c3b9378da",
+    "name": "Configuration check",
+    "func": "let wasosApiKey = global.get('wasos_apikey');\nlet wasosChatroomName = global.get('wasosChatroomName');\n\n\nif (!wasosApiKey || !wasosChatroomName) {\n    node.warn('Systemene er ikke fullstendig konfigurert. Vennligst fullfør både WaSOS- og Rayvn-konfigurasjon.');\n    return null;\n}\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 460,
+    "y": 460,
+    "wires": [
+      [
+        "dc29199ca671794a"
+      ]
+    ],
+    "info": "Validates that all required global variables are configured (wasos_apikey, rayvnConfig, rayvnLogId). Stops the flow with a warning if something is missing. This ensures both systems are configured before attempting to sync."
+  },
+  {
+    "id": "dc29199ca671794a",
+    "type": "function",
+    "z": "6844cb2c3b9378da",
+    "name": "Headers function",
+    "func": "let wasosApiKey = global.get('wasos_apikey');\nlet chatroomUrl = global.get('wasosChatroomUrl');\n\nif (!wasosApiKey || !chatroomUrl) {\n    node.error('WaSOS not configured. Please submit WaSOS configuration first.');\n    return null;\n}\n\nmsg.headers = {\n    'x-api-key': wasosApiKey\n};\nmsg.url = chatroomUrl + '?limit=50';\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 690,
+    "y": 460,
+    "wires": [
+      [
+        "e650d743f11e0dcd"
+      ]
+    ],
+    "info": "Builds HTTP request to fetch chat messages from WaSOS. Sets x-api-key header and constructs URL from wasosChatroomUrl with ?limit=50 parameter to fetch the last 50 messages."
+  },
+  {
+    "id": "e650d743f11e0dcd",
+    "type": "http request",
+    "z": "6844cb2c3b9378da",
+    "name": "Get WaSOS Chat Messages",
+    "method": "GET",
+    "ret": "txt",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 940,
+    "y": 460,
+    "wires": [
+      [
+        "aab83de98c023460"
+      ]
+    ],
+    "info": "Fetches chat messages from WaSOS API with GET request. Returns text (JSON) that needs to be parsed further."
+  },
+  {
+    "id": "aab83de98c023460",
+    "type": "json",
+    "z": "6844cb2c3b9378da",
+    "name": "",
+    "property": "payload",
+    "action": "obj",
+    "pretty": true,
+    "x": 1190,
+    "y": 460,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "0b86fdcf9cca6a38",
+    "type": "inject",
+    "z": "6844cb2c3b9378da",
+    "name": "Wasos Poll",
+    "props": [],
+    "repeat": "2",
+    "crontab": "",
+    "once": true,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 70,
+    "y": 460,
+    "wires": [
+      [
+        "2fd547e31f7ce19a"
+      ]
+    ],
+    "info": "Sends inject at regular intervals while the application is running."
+  },
+  {
+    "id": "2fd547e31f7ce19a",
+    "type": "switch",
+    "z": "6844cb2c3b9378da",
+    "name": "",
+    "property": "pollWasos",
+    "propertyType": "global",
+    "rules": [
+      {
+        "t": "true"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 1,
+    "x": 230,
+    "y": 460,
+    "wires": [
+      [
+        "c062940d577a1a8a"
+      ]
+    ],
+    "info": "Allows injects to pass through if polling is enabled."
+  }
+]

@@ -1,0 +1,100 @@
+[
+  {
+    "id": "209f3c980818c499",
+    "type": "subflow",
+    "name": "POST to Wasos chat",
+    "info": "Posts chat messages to the WaSOS API. Formats x-api-key headers, splits arrays into individual messages, and sends each as a separate POST request.",
+    "category": "",
+    "in": [
+      {
+        "x": 320,
+        "y": 360,
+        "wires": [
+          {
+            "id": "4b7da576ce1ab299"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 1280,
+        "y": 360,
+        "wires": [
+          {
+            "id": "41621a8a87543cf1",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#AAAA66",
+    "icon": "font-awesome/fa-send"
+  },
+  {
+    "id": "41621a8a87543cf1",
+    "type": "http request",
+    "z": "209f3c980818c499",
+    "name": "Simple Chat Message To WaSOS",
+    "method": "POST",
+    "ret": "txt",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 1100,
+    "y": 360,
+    "wires": [
+      []
+    ],
+    "info": "Sends the message to WaSOS chat API with POST request. This is the step that delivers the Rayvn message into the WaSOS chat."
+  },
+  {
+    "id": "4b7da576ce1ab299",
+    "type": "function",
+    "z": "209f3c980818c499",
+    "name": "Format header and url",
+    "func": "let wasosApiKey = global.get('wasos_apikey');\nlet chatroomUrl = global.get('wasosChatroomUrl');\n\nif (!wasosApiKey || !chatroomUrl) {\n    node.warn('WaSOS not configured');\n    return null;\n}\n\nmsg.url = chatroomUrl;\nmsg.headers = {\n    'x-api-key': wasosApiKey,\n    'Content-Type': 'application/json'\n};\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 540,
+    "y": 360,
+    "wires": [
+      [
+        "4b9eb1abd60ed246"
+      ]
+    ],
+    "info": "Builds HTTP request headers and URL for WaSOS API. Sets x-api-key header from wasos_apikey and uses wasosChatroomUrl as the endpoint. Returns null if not configured."
+  },
+  {
+    "id": "4b9eb1abd60ed246",
+    "type": "split",
+    "z": "209f3c980818c499",
+    "name": "array to single entries",
+    "splt": "\\n",
+    "spltType": "str",
+    "arraySplt": 1,
+    "arraySpltType": "len",
+    "stream": false,
+    "addname": "",
+    "property": "payload",
+    "x": 780,
+    "y": 360,
+    "wires": [
+      [
+        "41621a8a87543cf1"
+      ]
+    ]
+  }
+]
