@@ -246,7 +246,7 @@
     "officon": "",
     "offcolor": "",
     "x": 460,
-    "y": 480,
+    "y": 520,
     "wires": [
       [
         "2f8dbf7319072a1d"
@@ -273,7 +273,7 @@
     "to": "",
     "reg": false,
     "x": 720,
-    "y": 480,
+    "y": 520,
     "wires": [
       []
     ]
@@ -305,7 +305,7 @@
     "officon": "",
     "offcolor": "",
     "x": 460,
-    "y": 560,
+    "y": 600,
     "wires": [
       [
         "7e8d761d15eec31b"
@@ -332,7 +332,7 @@
     "to": "",
     "reg": false,
     "x": 720,
-    "y": 560,
+    "y": 600,
     "wires": [
       []
     ]
@@ -347,7 +347,7 @@
       "56587a3e4c9c3c80"
     ],
     "x": 675,
-    "y": 640,
+    "y": 700,
     "wires": []
   },
   {
@@ -362,7 +362,7 @@
     "onceDelay": 0.1,
     "topic": "",
     "x": 440,
-    "y": 640,
+    "y": 700,
     "wires": [
       [
         "47564cb87057cee1"
@@ -379,7 +379,7 @@
       "116e8fe2105b1f4b"
     ],
     "x": 675,
-    "y": 700,
+    "y": 760,
     "wires": []
   },
   {
@@ -394,10 +394,45 @@
     "onceDelay": 0.1,
     "topic": "",
     "x": 440,
-    "y": 700,
+    "y": 760,
     "wires": [
       [
         "4f2504777076bc4d"
+      ]
+    ]
+  },
+  {
+    "id": "e00c1b0734785919",
+    "type": "ui-switch",
+    "z": "901ed98289cc4ecd",
+    "name": "toggle polling main",
+    "label": "toggle polling main",
+    "group": "9df65904057aeaa7",
+    "order": 0,
+    "width": 0,
+    "height": 0,
+    "passthru": false,
+    "decouple": false,
+    "topic": "payload",
+    "topicType": "msg",
+    "style": "",
+    "className": "",
+    "layout": "row-left",
+    "clickableArea": "switch",
+    "onvalue": "true",
+    "onvalueType": "bool",
+    "onicon": "",
+    "oncolor": "",
+    "offvalue": "false",
+    "offvalueType": "bool",
+    "officon": "",
+    "offcolor": "",
+    "x": 210,
+    "y": 560,
+    "wires": [
+      [
+        "2bb096b5fa147299",
+        "18d492fbf4b111ee"
       ]
     ]
   }
