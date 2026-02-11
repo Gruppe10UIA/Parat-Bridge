@@ -109,7 +109,7 @@
     "wires": [
       [
         "6152194cf44ce897",
-        "7017735b2442a3df"
+        "28c40f94e8f7b860"
       ]
     ]
   },
@@ -136,18 +136,6 @@
     "info": "Stores the converted Rayvn entries as the initial masterLog in global context."
   },
   {
-    "id": "7017735b2442a3df",
-    "type": "subflow:146a0fb1b7b158fc",
-    "z": "1ce42ce5a45a0446",
-    "name": "",
-    "x": 1200,
-    "y": 400,
-    "wires": [
-      []
-    ],
-    "info": "This subflow should post the inital rayvn log to wasos\r\n"
-  },
-  {
     "id": "470e7492fee0b030",
     "type": "function",
     "z": "1ce42ce5a45a0446",
@@ -167,5 +155,49 @@
       ]
     ],
     "info": "Prepares the HTTP request to fetch Rayvn log entries. Sets Authorization header and builds the API URL."
+  },
+  {
+    "id": "f46652973e5d016e",
+    "type": "subflow:209f3c980818c499",
+    "z": "1ce42ce5a45a0446",
+    "name": "",
+    "x": 1300,
+    "y": 460,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "e95b4372fea62cfc",
+    "type": "subflow:9ee8527d12b415b0",
+    "z": "1ce42ce5a45a0446",
+    "name": "",
+    "x": 1310,
+    "y": 400,
+    "wires": [
+      [
+        "f46652973e5d016e"
+      ]
+    ]
+  },
+  {
+    "id": "28c40f94e8f7b860",
+    "type": "function",
+    "z": "1ce42ce5a45a0446",
+    "name": "Sort by time",
+    "func": "msg.payload.sort((a, b) => a.timeCreated - b.timeCreated);\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 1110,
+    "y": 400,
+    "wires": [
+      [
+        "e95b4372fea62cfc"
+      ]
+    ]
   }
 ]
