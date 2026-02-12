@@ -7,249 +7,6 @@
     "info": "Configuration UI for Parat-Bridge. Handles setup of Rayvn API credentials and WaSOS login. Validates input, authenticates with both services, and stores configuration in global variables."
   },
   {
-    "id": "a5b51da0c7e1d994",
-    "type": "ui-text-input",
-    "z": "84d1a0de660abb59",
-    "group": "76f825e60cbfe2c2",
-    "name": "Rayvn API Key",
-    "label": "Legg til Rayvn API-nøkkel*",
-    "order": 2,
-    "width": "12",
-    "height": "1",
-    "topic": "rayvn_api_key",
-    "topicType": "str",
-    "mode": "text",
-    "tooltip": "",
-    "delay": 300,
-    "passthru": false,
-    "sendOnDelay": true,
-    "sendOnBlur": true,
-    "sendOnEnter": true,
-    "className": "",
-    "clearable": false,
-    "sendOnClear": false,
-    "icon": "",
-    "iconPosition": "left",
-    "iconInnerPosition": "inside",
-    "x": 150,
-    "y": 100,
-    "wires": [
-      [
-        "687fc4e3ed142421"
-      ]
-    ]
-  },
-  {
-    "id": "6f445177895a1a04",
-    "type": "ui-text-input",
-    "z": "84d1a0de660abb59",
-    "group": "76f825e60cbfe2c2",
-    "name": "Log Name",
-    "label": "Legg til Logg-navn*",
-    "order": 3,
-    "width": "12",
-    "height": "1",
-    "topic": "log_name",
-    "topicType": "str",
-    "mode": "text",
-    "tooltip": "",
-    "delay": 300,
-    "passthru": false,
-    "sendOnDelay": true,
-    "sendOnBlur": true,
-    "sendOnEnter": true,
-    "className": "",
-    "clearable": false,
-    "sendOnClear": false,
-    "icon": "",
-    "iconPosition": "left",
-    "iconInnerPosition": "inside",
-    "x": 150,
-    "y": 160,
-    "wires": [
-      [
-        "687fc4e3ed142421"
-      ]
-    ]
-  },
-  {
-    "id": "17809f04eab0bb49",
-    "type": "ui-button",
-    "z": "84d1a0de660abb59",
-    "group": "76f825e60cbfe2c2",
-    "name": "Submit Rayvn",
-    "label": "Legg til",
-    "order": 4,
-    "width": "3",
-    "height": "1",
-    "emulateClick": false,
-    "tooltip": "",
-    "color": "",
-    "bgcolor": "",
-    "className": "",
-    "icon": "",
-    "iconPosition": "left",
-    "payload": "submit_rayvn",
-    "payloadType": "str",
-    "topic": "submit",
-    "topicType": "str",
-    "buttonColor": "",
-    "textColor": "",
-    "iconColor": "",
-    "enableClick": true,
-    "enablePointerdown": false,
-    "pointerdownPayload": "",
-    "pointerdownPayloadType": "str",
-    "enablePointerup": false,
-    "pointerupPayload": "",
-    "pointerupPayloadType": "str",
-    "x": 150,
-    "y": 220,
-    "wires": [
-      [
-        "9d0f53d836574646"
-      ]
-    ]
-  },
-  {
-    "id": "9304e0516f1ff4da",
-    "type": "ui-text-input",
-    "z": "84d1a0de660abb59",
-    "group": "76f825e60cbfe2c2",
-    "name": "WaSOS Username",
-    "label": "Skriv ditt WaSOS brukernavn*",
-    "order": 6,
-    "width": "12",
-    "height": "1",
-    "topic": "wasos_username",
-    "topicType": "str",
-    "mode": "text",
-    "tooltip": "",
-    "delay": 300,
-    "passthru": true,
-    "sendOnDelay": true,
-    "sendOnBlur": true,
-    "sendOnEnter": true,
-    "className": "",
-    "clearable": false,
-    "sendOnClear": false,
-    "icon": "",
-    "iconPosition": "left",
-    "iconInnerPosition": "inside",
-    "x": 150,
-    "y": 320,
-    "wires": [
-      [
-        "549385311d02d888"
-      ]
-    ]
-  },
-  {
-    "id": "6b0203d409053d87",
-    "type": "ui-text-input",
-    "z": "84d1a0de660abb59",
-    "group": "76f825e60cbfe2c2",
-    "name": "WaSOS Password",
-    "label": "Skriv ditt WaSOS passord*",
-    "order": 7,
-    "width": "12",
-    "height": "1",
-    "topic": "wasos_password",
-    "topicType": "str",
-    "mode": "password",
-    "tooltip": "",
-    "delay": 300,
-    "passthru": false,
-    "sendOnDelay": true,
-    "sendOnBlur": true,
-    "sendOnEnter": true,
-    "className": "",
-    "clearable": false,
-    "sendOnClear": false,
-    "icon": "",
-    "iconPosition": "left",
-    "iconInnerPosition": "inside",
-    "x": 150,
-    "y": 380,
-    "wires": [
-      [
-        "e944d2a698270ba0"
-      ]
-    ]
-  },
-  {
-    "id": "6c7bcaa2787de40f",
-    "type": "ui-text-input",
-    "z": "84d1a0de660abb59",
-    "group": "76f825e60cbfe2c2",
-    "name": "Chatroom Name",
-    "label": "Legg til passende chatrom*",
-    "order": 5,
-    "width": "12",
-    "height": "1",
-    "topic": "chatroom_name",
-    "topicType": "str",
-    "mode": "text",
-    "tooltip": "",
-    "delay": 300,
-    "passthru": false,
-    "sendOnDelay": true,
-    "sendOnBlur": true,
-    "sendOnEnter": true,
-    "className": "",
-    "clearable": false,
-    "sendOnClear": false,
-    "icon": "",
-    "iconPosition": "left",
-    "iconInnerPosition": "inside",
-    "x": 150,
-    "y": 440,
-    "wires": [
-      [
-        "549385311d02d888"
-      ]
-    ]
-  },
-  {
-    "id": "b0a191c90970bf62",
-    "type": "ui-button",
-    "z": "84d1a0de660abb59",
-    "group": "76f825e60cbfe2c2",
-    "name": "Submit WaSOS",
-    "label": "Legg til",
-    "order": 8,
-    "width": "3",
-    "height": "1",
-    "emulateClick": false,
-    "tooltip": "",
-    "color": "",
-    "bgcolor": "",
-    "className": "",
-    "icon": "",
-    "iconPosition": "left",
-    "payload": "submit_wasos",
-    "payloadType": "str",
-    "topic": "submit",
-    "topicType": "str",
-    "buttonColor": "#828d62",
-    "textColor": "",
-    "iconColor": "",
-    "enableClick": true,
-    "enablePointerdown": false,
-    "pointerdownPayload": "",
-    "pointerdownPayloadType": "str",
-    "enablePointerup": false,
-    "pointerupPayload": "",
-    "pointerupPayloadType": "str",
-    "x": 150,
-    "y": 500,
-    "wires": [
-      [
-        "7c8cdc4d2d8e2acb"
-      ]
-    ]
-  },
-  {
     "id": "687fc4e3ed142421",
     "type": "function",
     "z": "84d1a0de660abb59",
@@ -392,30 +149,6 @@
     "wires": []
   },
   {
-    "id": "5b69d41434bb0dd0",
-    "type": "ui-template",
-    "z": "84d1a0de660abb59",
-    "group": "76f825e60cbfe2c2",
-    "page": "",
-    "ui": "eb785a65aeb88688",
-    "name": "",
-    "order": 1,
-    "width": 0,
-    "height": 0,
-    "head": "",
-    "format": "button {\n    font-weight: bold !important;\n    font-size: 18px !important;\n}",
-    "storeOutMessages": true,
-    "passthru": true,
-    "resendOnRefresh": true,
-    "templateScope": "site:style",
-    "className": "",
-    "x": 140,
-    "y": 40,
-    "wires": [
-      []
-    ]
-  },
-  {
     "id": "b86b3a69a6a4d5ab",
     "type": "subflow:80f93fa22c15ece3",
     "z": "84d1a0de660abb59",
@@ -544,5 +277,16 @@
     "x": 1180,
     "y": 120,
     "wires": []
+  },
+  {
+    "id": "f7bbfc371ab086b1",
+    "type": "subflow:99c17cced97ac339",
+    "z": "84d1a0de660abb59",
+    "name": "",
+    "x": 110,
+    "y": 300,
+    "wires": [
+      []
+    ]
   }
 ]
