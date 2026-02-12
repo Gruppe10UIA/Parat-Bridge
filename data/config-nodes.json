@@ -50,23 +50,23 @@
     "breakpoints": [
       {
         "name": "Default",
-        "px": 0,
-        "cols": 3
+        "px": "0",
+        "cols": "3"
       },
       {
         "name": "Tablet",
-        "px": 576,
-        "cols": 6
+        "px": "576",
+        "cols": "6"
       },
       {
         "name": "Small Desktop",
-        "px": 768,
-        "cols": 9
+        "px": "768",
+        "cols": "9"
       },
       {
         "name": "Desktop",
-        "px": 1024,
-        "cols": 12
+        "px": "1024",
+        "cols": "12"
       }
     ],
     "order": 2,
@@ -121,8 +121,8 @@
     ],
     "order": 1,
     "className": "",
-    "visible": "true",
-    "disabled": "false"
+    "visible": true,
+    "disabled": false
   },
   {
     "id": "9df65904057aeaa7",
