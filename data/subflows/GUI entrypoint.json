@@ -48,35 +48,35 @@
         "label": "Rayvn API nøkkel",
         "key": "rayvn_api_key",
         "type": "text",
-        "required": false,
+        "required": true,
         "rows": null
       },
       {
         "label": "Rayvn logg navn",
         "key": "rayvn_log_name",
         "type": "text",
-        "required": false,
+        "required": true,
         "rows": null
       },
       {
         "label": "WaSOS brukernavn",
         "key": "wasos_username",
         "type": "text",
-        "required": false,
+        "required": true,
         "rows": null
       },
       {
         "label": "WaSOS passord",
         "key": "wasos_password",
         "type": "password",
-        "required": false,
+        "required": true,
         "rows": null
       },
       {
         "label": "WaSOS chatrom",
         "key": "wasos_chatroom_name",
         "type": "text",
-        "required": false,
+        "required": true,
         "rows": null
       }
     ],
@@ -101,8 +101,7 @@
     "y": 340,
     "wires": [
       [
-        "1c0ef5d005b0394b",
-        "af027571dee61068"
+        "1c0ef5d005b0394b"
       ]
     ]
   },
@@ -121,12 +120,8 @@
     "x": 500,
     "y": 340,
     "wires": [
-      [
-        "79b9b1b4cd059f41"
-      ],
-      [
-        "578bf8494b4baf8d"
-      ]
+      [],
+      []
     ]
   },
   {
