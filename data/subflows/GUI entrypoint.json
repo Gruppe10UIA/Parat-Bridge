@@ -3,7 +3,7 @@
     "id": "99c17cced97ac339",
     "type": "subflow",
     "name": "GUI entrypoint",
-    "info": "",
+    "info": "The GUI entrypoint subflow handles the front end elements and outputs the user input\n\n* The form sends all required rayvn and wasos credentials\n* The split input variables splits the rayvn and wasos credentials into their own output.\n* which are then routed to indivitual outputs from the subflow",
     "category": "",
     "in": [],
     "out": [
