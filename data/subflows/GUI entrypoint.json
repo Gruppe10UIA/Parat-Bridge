@@ -8,12 +8,22 @@
     "in": [],
     "out": [
       {
-        "x": 840,
-        "y": 360,
+        "x": 720,
+        "y": 300,
         "wires": [
           {
-            "id": "82d9701bc316c966",
+            "id": "1c0ef5d005b0394b",
             "port": 0
+          }
+        ]
+      },
+      {
+        "x": 720,
+        "y": 380,
+        "wires": [
+          {
+            "id": "1c0ef5d005b0394b",
+            "port": 1
           }
         ]
       }
@@ -24,263 +34,94 @@
     "icon": "font-awesome/fa-th-list"
   },
   {
-    "id": "a5b51da0c7e1d994",
-    "type": "ui-text-input",
+    "id": "5a4c121da0dc0c2b",
+    "type": "ui-form",
     "z": "99c17cced97ac339",
+    "name": "Insert credentials",
     "group": "76f825e60cbfe2c2",
-    "name": "Rayvn API Key",
-    "label": "RAYVN api nøkkel*",
-    "order": 2,
-    "width": "12",
-    "height": "1",
-    "topic": "rayvn_api_key",
-    "topicType": "str",
-    "mode": "text",
-    "tooltip": "",
-    "delay": 300,
-    "passthru": false,
-    "sendOnDelay": true,
-    "sendOnBlur": true,
-    "sendOnEnter": true,
-    "className": "",
-    "clearable": false,
-    "sendOnClear": false,
-    "icon": "",
-    "iconPosition": "left",
-    "iconInnerPosition": "inside",
-    "x": 220,
-    "y": 240,
-    "wires": [
-      [
-        "82d9701bc316c966"
-      ]
-    ]
-  },
-  {
-    "id": "6f445177895a1a04",
-    "type": "ui-text-input",
-    "z": "99c17cced97ac339",
-    "group": "76f825e60cbfe2c2",
-    "name": "Log Name",
-    "label": "RAYVN logg-navn*",
-    "order": 3,
-    "width": "12",
-    "height": "1",
-    "topic": "log_name",
-    "topicType": "str",
-    "mode": "text",
-    "tooltip": "",
-    "delay": 300,
-    "passthru": false,
-    "sendOnDelay": true,
-    "sendOnBlur": true,
-    "sendOnEnter": true,
-    "className": "",
-    "clearable": false,
-    "sendOnClear": false,
-    "icon": "",
-    "iconPosition": "left",
-    "iconInnerPosition": "inside",
-    "x": 220,
-    "y": 300,
-    "wires": [
-      [
-        "82d9701bc316c966"
-      ]
-    ]
-  },
-  {
-    "id": "9304e0516f1ff4da",
-    "type": "ui-text-input",
-    "z": "99c17cced97ac339",
-    "group": "76f825e60cbfe2c2",
-    "name": "WaSOS Username",
-    "label": "WaSOS brukernavn*",
-    "order": 6,
-    "width": "12",
-    "height": "1",
-    "topic": "wasos_username",
-    "topicType": "str",
-    "mode": "text",
-    "tooltip": "",
-    "delay": 300,
-    "passthru": true,
-    "sendOnDelay": true,
-    "sendOnBlur": true,
-    "sendOnEnter": true,
-    "className": "",
-    "clearable": false,
-    "sendOnClear": false,
-    "icon": "",
-    "iconPosition": "left",
-    "iconInnerPosition": "inside",
-    "x": 230,
-    "y": 360,
-    "wires": [
-      [
-        "82d9701bc316c966"
-      ]
-    ]
-  },
-  {
-    "id": "6b0203d409053d87",
-    "type": "ui-text-input",
-    "z": "99c17cced97ac339",
-    "group": "76f825e60cbfe2c2",
-    "name": "WaSOS Password",
-    "label": "WaSOS passord*",
-    "order": 7,
-    "width": "12",
-    "height": "1",
-    "topic": "wasos_password",
-    "topicType": "str",
-    "mode": "password",
-    "tooltip": "",
-    "delay": 300,
-    "passthru": false,
-    "sendOnDelay": true,
-    "sendOnBlur": true,
-    "sendOnEnter": true,
-    "className": "",
-    "clearable": false,
-    "sendOnClear": false,
-    "icon": "",
-    "iconPosition": "left",
-    "iconInnerPosition": "inside",
-    "x": 230,
-    "y": 420,
-    "wires": [
-      [
-        "82d9701bc316c966"
-      ]
-    ]
-  },
-  {
-    "id": "6c7bcaa2787de40f",
-    "type": "ui-text-input",
-    "z": "99c17cced97ac339",
-    "group": "76f825e60cbfe2c2",
-    "name": "Chatroom Name",
-    "label": "WaSOS chatroom",
-    "order": 5,
-    "width": "12",
-    "height": "1",
-    "topic": "chatroom_name",
-    "topicType": "str",
-    "mode": "text",
-    "tooltip": "",
-    "delay": 300,
-    "passthru": false,
-    "sendOnDelay": true,
-    "sendOnBlur": true,
-    "sendOnEnter": true,
-    "className": "",
-    "clearable": false,
-    "sendOnClear": false,
-    "icon": "",
-    "iconPosition": "left",
-    "iconInnerPosition": "inside",
-    "x": 230,
-    "y": 480,
-    "wires": [
-      [
-        "82d9701bc316c966"
-      ]
-    ]
-  },
-  {
-    "id": "b0a191c90970bf62",
-    "type": "ui-button",
-    "z": "99c17cced97ac339",
-    "group": "76f825e60cbfe2c2",
-    "name": "Submit WaSOS",
-    "label": "Legg til",
-    "order": 8,
-    "width": "3",
-    "height": "1",
-    "emulateClick": false,
-    "tooltip": "",
-    "color": "",
-    "bgcolor": "",
-    "className": "",
-    "icon": "",
-    "iconPosition": "left",
+    "label": "",
+    "order": 1,
+    "width": 0,
+    "height": 0,
+    "options": [
+      {
+        "label": "Rayvn API key",
+        "key": "rayvn_api_key",
+        "type": "text",
+        "required": true,
+        "rows": null
+      },
+      {
+        "label": "Rayvn logg name",
+        "key": "rayvn_log_name",
+        "type": "text",
+        "required": true,
+        "rows": null
+      },
+      {
+        "label": "WaSOS brukernavn",
+        "key": "wasos_username",
+        "type": "text",
+        "required": true,
+        "rows": null
+      },
+      {
+        "label": "WaSOS passord",
+        "key": "wasos_password",
+        "type": "password",
+        "required": true,
+        "rows": null
+      },
+      {
+        "label": "WaSOS chatrom",
+        "key": "wasos_chatroom_name",
+        "type": "text",
+        "required": true,
+        "rows": null
+      }
+    ],
+    "formValue": {
+      "rayvn_api_key": "",
+      "rayvn_log_name": "",
+      "wasos_username": "",
+      "wasos_password": "",
+      "wasos_chatroom_name": ""
+    },
     "payload": "",
-    "payloadType": "str",
-    "topic": "submit",
-    "topicType": "str",
-    "buttonColor": "#828d62",
-    "textColor": "",
-    "iconColor": "",
-    "enableClick": true,
-    "enablePointerdown": false,
-    "pointerdownPayload": "",
-    "pointerdownPayloadType": "str",
-    "enablePointerup": false,
-    "pointerupPayload": "",
-    "pointerupPayloadType": "str",
-    "x": 230,
-    "y": 540,
+    "submit": "submit",
+    "cancel": "clear",
+    "resetOnSubmit": true,
+    "topic": "payload",
+    "topicType": "msg",
+    "splitLayout": "",
+    "className": "",
+    "passthru": false,
+    "dropdownOptions": [],
+    "x": 270,
+    "y": 340,
     "wires": [
       [
-        "82d9701bc316c966"
+        "1c0ef5d005b0394b"
       ]
     ]
   },
   {
-    "id": "82d9701bc316c966",
+    "id": "1c0ef5d005b0394b",
     "type": "function",
     "z": "99c17cced97ac339",
-    "name": "Submit Form",
-    "func": "// Get previously stored values (or initialize as empty)\nlet rayvnConfig = { apiKey: \"\", logName: \"\" };\nlet wasosConfig = { username: \"\", password: \"\", chatroom: \"\" };\n\n// Update the configs based on which UI element sent the message\nif (msg.topic === 'rayvn_api_key') {\n    rayvnConfig.apiKey = msg.payload;\n    context.set('rayvnConfig', rayvnConfig);\n    \n} else if (msg.topic === 'log_name') {\n    rayvnConfig.logName = msg.payload;\n    context.set('rayvnConfig', rayvnConfig);\n    \n} else if (msg.topic === 'wasos_username') {\n    wasosConfig.username = msg.payload;\n    context.set('wasosConfig', wasosConfig);\n    \n} else if (msg.topic === 'wasos_password') {\n    wasosConfig.password = msg.payload;\n    context.set('wasosConfig', wasosConfig);\n    \n} else if (msg.topic === 'chatroom_name') {\n    wasosConfig.chatroom = msg.payload;\n    context.set('wasosConfig', wasosConfig);\n    \n} else if (msg.topic === \"submit\") { // check if everything is filled\n    if (wasosConfig.username === \"\" || wasosConfig.password === \"\" || wasosConfig.chatroom === \"\") {\n        node.warn(\"Attempted to submit empty wasos form\");\n        return null;\n    }\n    \n    if (rayvnConfig.apiKey === \"\" || rayvnConfig.logName === \"\") {\n        node.warn(\"Attempted to submit empty rayvn form\");\n        return null;\n    }\n    \n    // Everything is filled! Send the data forward\n    msg.rayvnConfig = rayvnConfig;\n    msg.wasosConfig = wasosConfig;\n    return msg;\n}",
-    "outputs": 1,
+    "name": "Split input variables",
+    "func": "var rayvn = {\n    payload: {\n        rayvn_api_key: msg.payload.rayvn_api_key,\n        rayvn_log_name: msg.payload.rayvn_log_name\n    }\n};\n\nvar wasos = {\n    payload: {\n        wasos_username: msg.payload.wasos_username,\n        wasos_password: msg.payload.wasos_password,\n        wasos_chatroom_name: msg.payload.wasos_chatroom_name\n    }\n};\n\nreturn [rayvn, wasos];\n",
+    "outputs": 2,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 530,
-    "y": 360,
+    "x": 500,
+    "y": 340,
     "wires": [
-      [
-        "3de9cd42f5d0c428",
-        "cc29c370cb9a83a2"
-      ]
-    ],
-    "info": "This function node takes the input msg from the form nodes and stores them in a object literal\nIt checks if all the values are filled inn before allowing a submit\nThe submit button triggres the formatted form input to be returned"
-  },
-  {
-    "id": "3de9cd42f5d0c428",
-    "type": "debug",
-    "z": "99c17cced97ac339",
-    "name": "wasos form submit",
-    "active": true,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "wasosConfig",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 550,
-    "y": 400,
-    "wires": []
-  },
-  {
-    "id": "cc29c370cb9a83a2",
-    "type": "debug",
-    "z": "99c17cced97ac339",
-    "name": "Rayvn form submit",
-    "active": true,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "rayvnConfig",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 550,
-    "y": 320,
-    "wires": []
+      [],
+      []
+    ]
   }
 ]
