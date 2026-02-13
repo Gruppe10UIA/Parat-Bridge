@@ -1,0 +1,182 @@
+[
+  {
+    "id": "5da162b98b7b6b86",
+    "type": "subflow",
+    "name": "Configure RAYVN",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 140,
+        "y": 260,
+        "wires": [
+          {
+            "id": "65a4ee0bb9416825"
+          }
+        ]
+      }
+    ],
+    "out": [],
+    "env": [],
+    "meta": {},
+    "color": "#C0C0C0",
+    "icon": "font-awesome/fa-gears"
+  },
+  {
+    "id": "65a4ee0bb9416825",
+    "type": "function",
+    "z": "5da162b98b7b6b86",
+    "name": "Build get logs request",
+    "func": "\n// sets payload to different msg variable to\n// to persist through http request node\nmsg.config_variables = msg.payload\n\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + msg.payload.rayvn_api_key\n};\n\nmsg.url = global.get(\"rayvn_url\") + \"/logs\";\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": "",
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 340,
+    "y": 260,
+    "wires": [
+      [
+        "84052828145a2945",
+        "1ab2ac50af66c8e7"
+      ]
+    ],
+    "info": "Validates that both API key and log name are filled in. If something is missing, logs a warning and returns null (no message is sent). If OK, builds HTTP request to Rayvn API (/logs endpoint) with Authorization Bearer token to fetch list of available logs. Passes config in msg for later use."
+  },
+  {
+    "id": "84052828145a2945",
+    "type": "http request",
+    "z": "5da162b98b7b6b86",
+    "name": "GET to fetch logs",
+    "method": "GET",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 590,
+    "y": 260,
+    "wires": [
+      [
+        "0f47847f4d9f264a",
+        "23baa93c795b8628"
+      ]
+    ],
+    "info": "Fetches all logs from Rayvn API that the user has access to. Returns list of logs used to find the correct log ID based on the provided log name."
+  },
+  {
+    "id": "0f47847f4d9f264a",
+    "type": "function",
+    "z": "5da162b98b7b6b86",
+    "name": "get logg id from log name",
+    "func": "let result = msg.payload;\nlet name = msg.config_variables.rayvn_log_name;\n\n// Find the log id where the name matches\nmsg.payload = result.find(item => item.name === name)?.id;\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 870,
+    "y": 260,
+    "wires": [
+      [
+        "f70630adaa80c4a1",
+        "9758a7adaca1cc2a"
+      ]
+    ]
+  },
+  {
+    "id": "f70630adaa80c4a1",
+    "type": "function",
+    "z": "5da162b98b7b6b86",
+    "name": "Set global rayvn variable",
+    "func": "\nlet rayvn_config = {\n    rayvn_api_key: msg.config_variables.rayvn_api_key,\n    rayvn_log_name: msg.config_variables.rayvn_log_name,\n    rayvn_log_id: msg.payload\n}\n\nglobal.set(\"rayvn_config\", rayvn_config)\n\nreturn rayvn_config;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 1170,
+    "y": 260,
+    "wires": [
+      [
+        "1666e9ab3f59e1bc"
+      ]
+    ]
+  },
+  {
+    "id": "1ab2ac50af66c8e7",
+    "type": "debug",
+    "z": "5da162b98b7b6b86",
+    "name": "get loggs request",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 330,
+    "y": 220,
+    "wires": []
+  },
+  {
+    "id": "23baa93c795b8628",
+    "type": "debug",
+    "z": "5da162b98b7b6b86",
+    "name": "get logs result",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 580,
+    "y": 220,
+    "wires": []
+  },
+  {
+    "id": "9758a7adaca1cc2a",
+    "type": "debug",
+    "z": "5da162b98b7b6b86",
+    "name": "log id result",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 830,
+    "y": 220,
+    "wires": []
+  },
+  {
+    "id": "1666e9ab3f59e1bc",
+    "type": "debug",
+    "z": "5da162b98b7b6b86",
+    "name": "set rayvn global variables",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1170,
+    "y": 220,
+    "wires": []
+  }
+]

@@ -45,38 +45,38 @@
     "height": 0,
     "options": [
       {
-        "label": "Rayvn API key",
+        "label": "Rayvn API nøkkel",
         "key": "rayvn_api_key",
         "type": "text",
-        "required": true,
+        "required": false,
         "rows": null
       },
       {
-        "label": "Rayvn logg name",
+        "label": "Rayvn logg navn",
         "key": "rayvn_log_name",
         "type": "text",
-        "required": true,
+        "required": false,
         "rows": null
       },
       {
         "label": "WaSOS brukernavn",
         "key": "wasos_username",
         "type": "text",
-        "required": true,
+        "required": false,
         "rows": null
       },
       {
         "label": "WaSOS passord",
         "key": "wasos_password",
         "type": "password",
-        "required": true,
+        "required": false,
         "rows": null
       },
       {
         "label": "WaSOS chatrom",
         "key": "wasos_chatroom_name",
         "type": "text",
-        "required": true,
+        "required": false,
         "rows": null
       }
     ],
@@ -90,10 +90,10 @@
     "payload": "",
     "submit": "submit",
     "cancel": "clear",
-    "resetOnSubmit": true,
+    "resetOnSubmit": false,
     "topic": "payload",
     "topicType": "msg",
-    "splitLayout": "",
+    "splitLayout": false,
     "className": "",
     "passthru": false,
     "dropdownOptions": [],
@@ -101,7 +101,8 @@
     "y": 340,
     "wires": [
       [
-        "1c0ef5d005b0394b"
+        "1c0ef5d005b0394b",
+        "af027571dee61068"
       ]
     ]
   },
@@ -120,8 +121,63 @@
     "x": 500,
     "y": 340,
     "wires": [
-      [],
-      []
+      [
+        "79b9b1b4cd059f41"
+      ],
+      [
+        "578bf8494b4baf8d"
+      ]
     ]
+  },
+  {
+    "id": "af027571dee61068",
+    "type": "debug",
+    "z": "99c17cced97ac339",
+    "name": "Form result",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 250,
+    "y": 300,
+    "wires": []
+  },
+  {
+    "id": "79b9b1b4cd059f41",
+    "type": "debug",
+    "z": "99c17cced97ac339",
+    "name": "Rayvnen innput",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 500,
+    "y": 260,
+    "wires": []
+  },
+  {
+    "id": "578bf8494b4baf8d",
+    "type": "debug",
+    "z": "99c17cced97ac339",
+    "name": "wasos innput",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 490,
+    "y": 300,
+    "wires": []
   }
 ]

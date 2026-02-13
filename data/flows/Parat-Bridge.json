@@ -7,6 +7,27 @@
     "info": "Configuration UI for Parat-Bridge. Handles setup of Rayvn API credentials and WaSOS login. Validates input, authenticates with both services, and stores configuration in global variables."
   },
   {
+    "id": "9ab1f6c2842073c5",
+    "type": "group",
+    "z": "84d1a0de660abb59",
+    "name": "Setting runtime constants",
+    "style": {
+      "stroke": "#92d04f",
+      "fill": "#c8e7a7",
+      "label": true,
+      "label-position": "n",
+      "color": "#000000"
+    },
+    "nodes": [
+      "413516062738b6ec",
+      "5a283579df925b67"
+    ],
+    "x": 94,
+    "y": 139,
+    "w": 472,
+    "h": 82
+  },
+  {
     "id": "687fc4e3ed142421",
     "type": "function",
     "z": "84d1a0de660abb59",
@@ -18,8 +39,8 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 430,
-    "y": 130,
+    "x": 810,
+    "y": 110,
     "wires": [],
     "info": "Stores Rayvn configuration in global variable rayvnConfig as an object. Handles both API key (rayvn_api_key topic) and log name (log_name topic). Updates existing config without overwriting other fields."
   },
@@ -35,8 +56,8 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 480,
-    "y": 380,
+    "x": 860,
+    "y": 360,
     "wires": [],
     "info": "Stores WaSOS configuration (username and chatroom) in global variable wasosConfig. Does NOT store password permanently for security reasons - password is only passed in msg for immediate use. Updates existing config without overwriting other fields."
   },
@@ -52,8 +73,8 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 430,
-    "y": 220,
+    "x": 810,
+    "y": 200,
     "wires": [
       [
         "8cd401886d4dce2c",
@@ -74,8 +95,8 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 430,
-    "y": 500,
+    "x": 810,
+    "y": 480,
     "wires": [
       [
         "8cd401886d4dce2c",
@@ -105,8 +126,8 @@
     "raw": false,
     "className": "",
     "name": "Rayvn Notification",
-    "x": 910,
-    "y": 160,
+    "x": 1290,
+    "y": 140,
     "wires": []
   },
   {
@@ -127,8 +148,8 @@
     "raw": false,
     "className": "",
     "name": "WaSOS Notification",
-    "x": 840,
-    "y": 480,
+    "x": 1220,
+    "y": 460,
     "wires": []
   },
   {
@@ -144,8 +165,8 @@
     "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 760,
-    "y": 340,
+    "x": 1140,
+    "y": 320,
     "wires": []
   },
   {
@@ -153,8 +174,8 @@
     "type": "subflow:80f93fa22c15ece3",
     "z": "84d1a0de660abb59",
     "name": "",
-    "x": 590,
-    "y": 660,
+    "x": 970,
+    "y": 640,
     "wires": [
       [
         "b1a4d943b8d31c8d",
@@ -176,8 +197,8 @@
     "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 850,
-    "y": 660,
+    "x": 1230,
+    "y": 640,
     "wires": []
   },
   {
@@ -192,8 +213,8 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 350,
-    "y": 580,
+    "x": 730,
+    "y": 560,
     "wires": [
       [
         "549385311d02d888"
@@ -213,8 +234,8 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 880,
-    "y": 580,
+    "x": 1260,
+    "y": 560,
     "wires": [
       [
         "c8cf2212e8e95c77"
@@ -238,8 +259,8 @@
     "authType": "",
     "senderr": false,
     "headers": [],
-    "x": 690,
-    "y": 120,
+    "x": 1070,
+    "y": 100,
     "wires": [
       [
         "360ab27a8945585e"
@@ -259,8 +280,8 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 900,
-    "y": 120,
+    "x": 1280,
+    "y": 100,
     "wires": [
       [
         "3adc3b7f0d67c9de",
@@ -274,8 +295,8 @@
     "type": "subflow:1ce42ce5a45a0446",
     "z": "84d1a0de660abb59",
     "name": "",
-    "x": 1180,
-    "y": 120,
+    "x": 1560,
+    "y": 100,
     "wires": []
   },
   {
@@ -283,10 +304,86 @@
     "type": "subflow:99c17cced97ac339",
     "z": "84d1a0de660abb59",
     "name": "",
-    "x": 110,
-    "y": 300,
+    "x": 190,
+    "y": 400,
+    "wires": [
+      [
+        "9b6e4d1e92c769d9"
+      ],
+      [
+        "02f5aa2ff841acd1"
+      ]
+    ]
+  },
+  {
+    "id": "9b6e4d1e92c769d9",
+    "type": "subflow:5da162b98b7b6b86",
+    "z": "84d1a0de660abb59",
+    "name": "",
+    "x": 470,
+    "y": 340,
+    "wires": []
+  },
+  {
+    "id": "02f5aa2ff841acd1",
+    "type": "subflow:a7d9b521445d1bf0",
+    "z": "84d1a0de660abb59",
+    "name": "",
+    "x": 470,
+    "y": 440,
+    "wires": []
+  },
+  {
+    "id": "413516062738b6ec",
+    "type": "change",
+    "z": "84d1a0de660abb59",
+    "g": "9ab1f6c2842073c5",
+    "name": "set global constants",
+    "rules": [
+      {
+        "t": "set",
+        "p": "wasos_url",
+        "pt": "global",
+        "to": "https://dev.wasos.no",
+        "tot": "str"
+      },
+      {
+        "t": "set",
+        "p": "rayvn_url",
+        "pt": "global",
+        "to": "https://api.rayvn.global",
+        "tot": "str"
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 440,
+    "y": 180,
     "wires": [
       []
+    ]
+  },
+  {
+    "id": "5a283579df925b67",
+    "type": "inject",
+    "z": "84d1a0de660abb59",
+    "g": "9ab1f6c2842073c5",
+    "name": "",
+    "props": [],
+    "repeat": "",
+    "crontab": "",
+    "once": true,
+    "onceDelay": "0.0",
+    "topic": "",
+    "x": 190,
+    "y": 180,
+    "wires": [
+      [
+        "413516062738b6ec"
+      ]
     ]
   }
 ]
