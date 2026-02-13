@@ -11,7 +11,7 @@
         "y": 260,
         "wires": [
           {
-            "id": "65a4ee0bb9416825"
+            "id": "6ac84c00bfb4df9e"
           }
         ]
       }
@@ -34,7 +34,7 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 340,
+    "x": 500,
     "y": 260,
     "wires": [
       [
@@ -60,7 +60,7 @@
     "authType": "",
     "senderr": false,
     "headers": [],
-    "x": 590,
+    "x": 750,
     "y": 260,
     "wires": [
       [
@@ -82,8 +82,8 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 870,
-    "y": 260,
+    "x": 490,
+    "y": 380,
     "wires": [
       [
         "f70630adaa80c4a1",
@@ -103,8 +103,8 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 1170,
-    "y": 260,
+    "x": 790,
+    "y": 380,
     "wires": [
       [
         "1666e9ab3f59e1bc"
@@ -124,7 +124,7 @@
     "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 330,
+    "x": 490,
     "y": 220,
     "wires": []
   },
@@ -141,7 +141,7 @@
     "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 580,
+    "x": 740,
     "y": 220,
     "wires": []
   },
@@ -158,8 +158,8 @@
     "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 830,
-    "y": 220,
+    "x": 450,
+    "y": 340,
     "wires": []
   },
   {
@@ -175,8 +175,28 @@
     "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 1170,
-    "y": 220,
+    "x": 790,
+    "y": 340,
     "wires": []
+  },
+  {
+    "id": "6ac84c00bfb4df9e",
+    "type": "function",
+    "z": "5da162b98b7b6b86",
+    "name": "verify input",
+    "func": "if (\n    msg.payload.rayvn_api_key.length > 0 && \n    msg.payload.rayvn_log_name.length > 0\n    ) \n    {\n        return msg;\n    } else {\n        node.error(\"missing rayvn config in msg.payload: \", msg);\n        return null\n    }\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 270,
+    "y": 260,
+    "wires": [
+      [
+        "65a4ee0bb9416825"
+      ]
+    ]
   }
 ]
