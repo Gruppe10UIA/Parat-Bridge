@@ -18,9 +18,14 @@
     ],
     "out": [
       {
-        "x": 860,
-        "y": 240,
-        "wires": []
+        "x": 600,
+        "y": 380,
+        "wires": [
+          {
+            "id": "dd2f6242fcde0863",
+            "port": 0
+          }
+        ]
       }
     ],
     "env": [],
@@ -53,10 +58,12 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 610,
-    "y": 260,
+    "x": 210,
+    "y": 380,
     "wires": [
-      []
+      [
+        "dd2f6242fcde0863"
+      ]
     ]
   },
   {
@@ -92,8 +99,26 @@
     "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 600,
-    "y": 220,
+    "x": 200,
+    "y": 340,
     "wires": []
+  },
+  {
+    "id": "dd2f6242fcde0863",
+    "type": "function",
+    "z": "a7d9b521445d1bf0",
+    "name": "Verify rayvn config",
+    "func": "let config = global.get(\"wasos_config\");\n\nif (config.chatroom_name &&\n    config.api.key) {\n        msg.payload = true;\n        return msg;\n    } else {\n        node.error(\"wasos config not correctly configured\", global.get(\"wasos_config\"));\n        return null;\n    }",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 430,
+    "y": 380,
+    "wires": [
+      []
+    ]
   }
 ]

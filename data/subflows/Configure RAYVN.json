@@ -18,11 +18,11 @@
     ],
     "out": [
       {
-        "x": 1060,
+        "x": 1100,
         "y": 380,
         "wires": [
           {
-            "id": "f70630adaa80c4a1",
+            "id": "445fefd13d36c08e",
             "port": 0
           }
         ]
@@ -93,7 +93,7 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 490,
+    "x": 310,
     "y": 380,
     "wires": [
       [
@@ -107,18 +107,19 @@
     "type": "function",
     "z": "5da162b98b7b6b86",
     "name": "Set global rayvn variable",
-    "func": "\nlet rayvn_config = {\n    rayvn_api_key: msg.config_variables.rayvn_api_key,\n    rayvn_log_name: msg.config_variables.rayvn_log_name,\n    rayvn_log_id: msg.payload\n}\n\nglobal.set(\"rayvn_config\", rayvn_config)\n\nreturn rayvn_config;",
+    "func": "\nlet rayvn_config = {\n    api_key: msg.config_variables.rayvn_api_key,\n    log_name: msg.config_variables.rayvn_log_name,\n    log_id: msg.payload\n}\n\nglobal.set(\"rayvn_config\", rayvn_config)\nmsg.payload = rayvn_config\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 790,
+    "x": 610,
     "y": 380,
     "wires": [
       [
-        "1666e9ab3f59e1bc"
+        "1666e9ab3f59e1bc",
+        "445fefd13d36c08e"
       ]
     ]
   },
@@ -169,7 +170,7 @@
     "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 450,
+    "x": 270,
     "y": 340,
     "wires": []
   },
@@ -186,7 +187,7 @@
     "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 790,
+    "x": 610,
     "y": 340,
     "wires": []
   },
@@ -208,6 +209,24 @@
       [
         "65a4ee0bb9416825"
       ]
+    ]
+  },
+  {
+    "id": "445fefd13d36c08e",
+    "type": "function",
+    "z": "5da162b98b7b6b86",
+    "name": "Verify rayvn config",
+    "func": "let config = global.get(\"rayvn_config\");\n\nif (config.api_key &&\n    config.log_name &&\n    config.log_id) {\n        msg.payload = true;\n        return msg;\n    } else {\n        node.error(\"rayvn config not correctly configured\", global.get(\"rayvn_config\"));\n        return null;\n    }",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 870,
+    "y": 380,
+    "wires": [
+      []
     ]
   }
 ]

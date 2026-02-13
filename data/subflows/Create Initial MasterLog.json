@@ -7,8 +7,8 @@
     "category": "",
     "in": [
       {
-        "x": 80,
-        "y": 340,
+        "x": 60,
+        "y": 200,
         "wires": [
           {
             "id": "470e7492fee0b030"
@@ -35,8 +35,8 @@
     "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 1180,
-    "y": 280,
+    "x": 560,
+    "y": 360,
     "wires": []
   },
   {
@@ -45,7 +45,7 @@
     "z": "1ce42ce5a45a0446",
     "name": "get rayvn logs",
     "method": "GET",
-    "ret": "txt",
+    "ret": "obj",
     "paytoqs": "ignore",
     "url": "",
     "tls": "",
@@ -56,44 +56,28 @@
     "senderr": false,
     "headers": [],
     "x": 540,
-    "y": 340,
-    "wires": [
-      [
-        "cadf0506763141b0"
-      ]
-    ],
-    "info": "Fetches all log entries from the configured Rayvn log using the API."
-  },
-  {
-    "id": "cadf0506763141b0",
-    "type": "json",
-    "z": "1ce42ce5a45a0446",
-    "name": "",
-    "property": "payload",
-    "action": "",
-    "pretty": false,
-    "x": 710,
-    "y": 340,
+    "y": 200,
     "wires": [
       [
         "06693abda16b511c"
       ]
-    ]
+    ],
+    "info": "Fetches all log entries from the configured Rayvn log using the API."
   },
   {
     "id": "a6fd40ed60e5a6a7",
     "type": "function",
     "z": "1ce42ce5a45a0446",
     "name": "Set newest timestamp",
-    "func": "let data = msg.payload\n\nconst newestTimestamp = Math.max(\n    ...data.map(entry => entry.timeCreated)\n    )\n\nglobal.set(\"lastRayvnEntryTimeStamp\", newestTimestamp);\nglobal.set(\"lastWasosEntryTimeStamp\", newestTimestamp);",
+    "func": "let data = msg.payload\n\nconst newestTimestamp = Math.max(\n    ...data.map(entry => entry.timeCreated)\n    )\n\nglobal.set(\"last_rayvn_timestamp\", newestTimestamp);\nglobal.set(\"last_wasos_timestamp\", newestTimestamp);",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 1400,
-    "y": 340,
+    "x": 780,
+    "y": 420,
     "wires": [
       []
     ],
@@ -104,8 +88,8 @@
     "type": "subflow:e56a9c672a5eb8f6",
     "z": "1ce42ce5a45a0446",
     "name": "",
-    "x": 910,
-    "y": 340,
+    "x": 250,
+    "y": 420,
     "wires": [
       [
         "6152194cf44ce897",
@@ -118,15 +102,15 @@
     "type": "function",
     "z": "1ce42ce5a45a0446",
     "name": "Set Initial masterLog",
-    "func": "global.set(\"masterLog\", msg.payload);\nreturn msg;",
+    "func": "global.set(\"master_log\", msg.payload);\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 1160,
-    "y": 340,
+    "x": 540,
+    "y": 420,
     "wires": [
       [
         "a6fd40ed60e5a6a7",
@@ -140,7 +124,7 @@
     "type": "function",
     "z": "1ce42ce5a45a0446",
     "name": "Set headers and url",
-    "func": "const rayvnConfig = global.get('rayvnConfig') || {};\nconst logId = global.get('rayvnLogId');\n\nif (!rayvnConfig.apiKey || !logId) {\n    node.error('Rayvn not configured');\n    return null;\n}\n\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + rayvnConfig.apiKey\n};\n\nmsg.url = `https://api.rayvn.global/logs/${logId}/entries`;\n\nreturn msg;\n",
+    "func": "let rayvn_config = global.get('rayvn_config')\n\n\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + rayvn_config.api_key\n};\n\nmsg.url = global.get(\"rayvn_url\") + `/logs/${rayvn_config.log_id}/entries`;\n\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -148,7 +132,7 @@
     "finalize": "",
     "libs": [],
     "x": 290,
-    "y": 340,
+    "y": 200,
     "wires": [
       [
         "4b639d58ff0cfdb8"
@@ -161,10 +145,12 @@
     "type": "subflow:209f3c980818c499",
     "z": "1ce42ce5a45a0446",
     "name": "",
-    "x": 1300,
-    "y": 460,
+    "x": 260,
+    "y": 600,
     "wires": [
-      []
+      [
+        "6dd663335d1f8c29"
+      ]
     ]
   },
   {
@@ -172,8 +158,8 @@
     "type": "subflow:9ee8527d12b415b0",
     "z": "1ce42ce5a45a0446",
     "name": "",
-    "x": 1310,
-    "y": 400,
+    "x": 410,
+    "y": 540,
     "wires": [
       [
         "f46652973e5d016e"
@@ -192,12 +178,58 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 1110,
-    "y": 400,
+    "x": 210,
+    "y": 540,
     "wires": [
       [
         "e95b4372fea62cfc"
       ]
     ]
+  },
+  {
+    "id": "6dd663335d1f8c29",
+    "type": "join",
+    "z": "1ce42ce5a45a0446",
+    "name": "join initial messages",
+    "mode": "auto",
+    "build": "object",
+    "property": "payload",
+    "propertyType": "msg",
+    "key": "topic",
+    "joiner": "\\n",
+    "joinerType": "str",
+    "useparts": false,
+    "accumulate": true,
+    "timeout": "",
+    "count": "",
+    "reduceRight": false,
+    "reduceExp": "",
+    "reduceInit": "",
+    "reduceInitType": "",
+    "reduceFixup": "",
+    "x": 520,
+    "y": 600,
+    "wires": [
+      [
+        "65034386ba3a62fd"
+      ]
+    ]
+  },
+  {
+    "id": "65034386ba3a62fd",
+    "type": "debug",
+    "z": "1ce42ce5a45a0446",
+    "name": "Initial post from to wasos",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 760,
+    "y": 600,
+    "wires": []
   }
 ]
