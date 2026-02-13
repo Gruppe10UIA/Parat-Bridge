@@ -1,0 +1,99 @@
+[
+  {
+    "id": "a7d9b521445d1bf0",
+    "type": "subflow",
+    "name": "Configure WaSOS",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 80,
+        "y": 260,
+        "wires": [
+          {
+            "id": "ff1c5855103a10a7"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 860,
+        "y": 240,
+        "wires": []
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#AAAA66",
+    "icon": "font-awesome/fa-won"
+  },
+  {
+    "id": "e52c1353734964c8",
+    "type": "subflow:80f93fa22c15ece3",
+    "z": "a7d9b521445d1bf0",
+    "name": "",
+    "x": 390,
+    "y": 260,
+    "wires": [
+      [
+        "ebec1bfad607a0c8"
+      ]
+    ]
+  },
+  {
+    "id": "ebec1bfad607a0c8",
+    "type": "function",
+    "z": "a7d9b521445d1bf0",
+    "name": "Set wasos_config",
+    "func": "let wasos_config = {\n    username: msg.config.username,\n    user_id: msg.payload.profileId,\n    chatroom_name: msg.config.chatroom_name,\n    api: {\n        key: msg.payload.nonce,\n        expires: msg.payload.refresh_expires\n    },\n    group: msg.payload.groups,\n}\n\nglobal.set(\"wasos_config\", wasos_config)\n\nmsg.payload = wasos_config\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 610,
+    "y": 260,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "ff1c5855103a10a7",
+    "type": "function",
+    "z": "a7d9b521445d1bf0",
+    "name": "verify input",
+    "func": "if (\n    msg.payload.wasos_username.length > 0 && \n    msg.payload.wasos_password.length > 0 &&\n    msg.payload.wasos_chatroom_name.length > 0\n    ) \n    {\n        return msg;\n    } else {\n        node.error(\"missing wasos config in msg.payload: \", msg);\n        return null\n    }\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 210,
+    "y": 260,
+    "wires": [
+      [
+        "e52c1353734964c8"
+      ]
+    ]
+  },
+  {
+    "id": "c6b6d4a344c38252",
+    "type": "debug",
+    "z": "a7d9b521445d1bf0",
+    "name": "wasos config set",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 600,
+    "y": 220,
+    "wires": []
+  }
+]

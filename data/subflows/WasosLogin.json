@@ -7,8 +7,8 @@
     "category": "",
     "in": [
       {
-        "x": 100,
-        "y": 80,
+        "x": 120,
+        "y": 220,
         "wires": [
           {
             "id": "481267d96889460a"
@@ -18,33 +18,17 @@
     ],
     "out": [
       {
-        "x": 820,
-        "y": 80,
+        "x": 720,
+        "y": 220,
         "wires": [
           {
-            "id": "ebec1bfad607a0c8",
+            "id": "289d03d3b8475ebf",
             "port": 0
           }
         ]
       }
     ],
-    "env": [
-      {
-        "name": "url",
-        "type": "env",
-        "value": "url"
-      },
-      {
-        "name": "username",
-        "type": "env",
-        "value": "username"
-      },
-      {
-        "name": "password",
-        "type": "env",
-        "value": "password"
-      }
-    ],
+    "env": [],
     "meta": {
       "module": "WasosLogin"
     },
@@ -67,12 +51,10 @@
     "authType": "basic",
     "senderr": false,
     "headers": [],
-    "x": 450,
-    "y": 80,
+    "x": 470,
+    "y": 220,
     "wires": [
-      [
-        "ebec1bfad607a0c8"
-      ]
+      []
     ]
   },
   {
@@ -80,37 +62,19 @@
     "type": "function",
     "z": "80f93fa22c15ece3",
     "name": "Config",
-    "func": "global.set(\"wasos_url\", (msg.url || env.get(\"url\")))\nmsg.url = global.get(\"wasos_url\") + \"/apisec/login\"\n\nlet user = msg.username || env.get(\"username\");\nlet pass = msg.password || env.get(\"password\");\nlet auth = Buffer.from(user + \":\" + pass).toString('base64');\n\nmsg.headers = msg.headers || {};\nmsg.headers['Authorization'] = \"Basic \" + auth;\n\nreturn msg;",
+    "func": "let username = msg.payload.wasos_username;\nlet password = msg.payload.wasos_password;\n\n// Encode to Base64 for Basic Auth\nlet auth = Buffer.from(username + \":\" + password).toString('base64');\n\nmsg.headers = {\n    'Authorization': 'Basic ' + auth\n};\n\nmsg.url = global.get(\"wasos_url\") + \"/apisec/login\";\n\n// store variables to persist after request\nmsg.config = {\n    username: username,\n    chatroom_name: msg.payload.wasos_chatroom_name\n}\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 230,
-    "y": 80,
+    "x": 250,
+    "y": 220,
     "wires": [
       [
         "289d03d3b8475ebf"
       ]
-    ]
-  },
-  {
-    "id": "ebec1bfad607a0c8",
-    "type": "function",
-    "z": "80f93fa22c15ece3",
-    "name": "Set wasos_apikey",
-    "func": "global.set(\"wasos_apikey\", msg.payload.nonce)\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 670,
-    "y": 80,
-    "wires": [
-      []
     ]
   }
 ]
