@@ -26,7 +26,7 @@
     "type": "debug",
     "z": "559975c27e81a86b",
     "name": "Wasos polling response",
-    "active": true,
+    "active": false,
     "tosidebar": true,
     "console": false,
     "tostatus": false,

@@ -32,7 +32,7 @@
     "type": "debug",
     "z": "901ed98289cc4ecd",
     "name": "new timestamp",
-    "active": true,
+    "active": false,
     "tosidebar": true,
     "console": false,
     "tostatus": false,

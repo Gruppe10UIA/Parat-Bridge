@@ -3,7 +3,7 @@
     "id": "80f93fa22c15ece3",
     "type": "subflow",
     "name": "WasosLogin",
-    "info": "",
+    "info": "makes a login request to get the api key",
     "category": "",
     "in": [
       {

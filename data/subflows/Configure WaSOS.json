@@ -3,7 +3,7 @@
     "id": "a7d9b521445d1bf0",
     "type": "subflow",
     "name": "Configure WaSOS",
-    "info": "",
+    "info": "Uses the username and password to get the wasos api key\nsets the wasos configuration to the global variables",
     "category": "",
     "in": [
       {
