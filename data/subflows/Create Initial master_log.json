@@ -2,7 +2,7 @@
   {
     "id": "1ce42ce5a45a0446",
     "type": "subflow",
-    "name": "Create Initial MasterLog",
+    "name": "Create Initial master_log",
     "info": "Initializes the masterLog with existing Rayvn entries. Fetches current log from Rayvn, converts to Bridge format, and sets initial timestamps for both clients.",
     "category": "",
     "in": [
@@ -100,7 +100,7 @@
     "id": "6152194cf44ce897",
     "type": "function",
     "z": "1ce42ce5a45a0446",
-    "name": "Set Initial masterLog",
+    "name": "Set Initial master_log",
     "func": "global.set(\"master_log\", msg.payload);\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
