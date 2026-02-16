@@ -24,7 +24,7 @@
     ],
     "x": 94,
     "y": 139,
-    "w": 472,
+    "w": 452,
     "h": 82
   },
   {
@@ -36,10 +36,14 @@
     "y": 400,
     "wires": [
       [
-        "9b6e4d1e92c769d9"
+        "9b6e4d1e92c769d9",
+        "413516062738b6ec",
+        "989d45634f23b97e"
       ],
       [
-        "02f5aa2ff841acd1"
+        "02f5aa2ff841acd1",
+        "413516062738b6ec",
+        "3f5a48b721dae9db"
       ]
     ]
   },
@@ -48,10 +52,13 @@
     "type": "subflow:5da162b98b7b6b86",
     "z": "84d1a0de660abb59",
     "name": "",
-    "x": 470,
+    "x": 430,
     "y": 340,
     "wires": [
-      []
+      [
+        "4290cc6fa1aadff0",
+        "794b757ef07a4e19"
+      ]
     ]
   },
   {
@@ -59,10 +66,13 @@
     "type": "subflow:a7d9b521445d1bf0",
     "z": "84d1a0de660abb59",
     "name": "",
-    "x": 470,
-    "y": 440,
+    "x": 430,
+    "y": 460,
     "wires": [
-      []
+      [
+        "4290cc6fa1aadff0",
+        "a81cbcc889952fb3"
+      ]
     ]
   },
   {
@@ -70,7 +80,7 @@
     "type": "change",
     "z": "84d1a0de660abb59",
     "g": "9ab1f6c2842073c5",
-    "name": "set global constants",
+    "name": "set client base urls",
     "rules": [
       {
         "t": "set",
@@ -92,7 +102,7 @@
     "from": "",
     "to": "",
     "reg": false,
-    "x": 440,
+    "x": 430,
     "y": 180,
     "wires": [
       []
@@ -123,8 +133,123 @@
     "type": "subflow:1ce42ce5a45a0446",
     "z": "84d1a0de660abb59",
     "name": "",
-    "x": 890,
+    "x": 1070,
     "y": 400,
+    "wires": []
+  },
+  {
+    "id": "4290cc6fa1aadff0",
+    "type": "join",
+    "z": "84d1a0de660abb59",
+    "name": "Pass when both configured",
+    "mode": "custom",
+    "build": "object",
+    "property": "payload",
+    "propertyType": "msg",
+    "key": "topic",
+    "joiner": "\\n",
+    "joinerType": "str",
+    "useparts": false,
+    "accumulate": false,
+    "timeout": "",
+    "count": "2",
+    "reduceRight": false,
+    "reduceExp": "",
+    "reduceInit": "false",
+    "reduceInitType": "bool",
+    "reduceFixup": "",
+    "x": 760,
+    "y": 400,
+    "wires": [
+      [
+        "5539a5c7e284f07d",
+        "293cf0ecd677bac0"
+      ]
+    ]
+  },
+  {
+    "id": "293cf0ecd677bac0",
+    "type": "debug",
+    "z": "84d1a0de660abb59",
+    "name": "correct config",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 720,
+    "y": 360,
+    "wires": []
+  },
+  {
+    "id": "a81cbcc889952fb3",
+    "type": "debug",
+    "z": "84d1a0de660abb59",
+    "name": "Config wasos",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 420,
+    "y": 420,
+    "wires": []
+  },
+  {
+    "id": "794b757ef07a4e19",
+    "type": "debug",
+    "z": "84d1a0de660abb59",
+    "name": "config rayvn",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 410,
+    "y": 300,
+    "wires": []
+  },
+  {
+    "id": "989d45634f23b97e",
+    "type": "debug",
+    "z": "84d1a0de660abb59",
+    "name": "Rayvn output",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 170,
+    "y": 360,
+    "wires": []
+  },
+  {
+    "id": "3f5a48b721dae9db",
+    "type": "debug",
+    "z": "84d1a0de660abb59",
+    "name": "wasos output",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 170,
+    "y": 440,
     "wires": []
   }
 ]

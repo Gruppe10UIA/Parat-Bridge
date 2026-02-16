@@ -61,7 +61,7 @@
     "type": "function",
     "z": "209f3c980818c499",
     "name": "Format header and url",
-    "func": "let wasosApiKey = global.get('wasos_apikey');\nlet chatroomUrl = global.get('wasosChatroomUrl');\n\nif (!wasosApiKey || !chatroomUrl) {\n    node.warn('WaSOS not configured');\n    return null;\n}\n\nmsg.url = chatroomUrl;\nmsg.headers = {\n    'x-api-key': wasosApiKey,\n    'Content-Type': 'application/json'\n};\n\nreturn msg;",
+    "func": "let wasos_api_key = global.get('wasos_config.api.key');\nlet wasos_url = global.get('wasos_url');\nlet wasos_chatroom = global.get('wasos_config.chatroom_name')\nlet path = \"/api/chat/messages/\"\n\nif (!wasos_api_key || !wasos_chatroom) {\n    node.error('WaSOS not configured');\n    return null;\n}\n\nmsg.url = wasos_url + path + wasos_chatroom;\nmsg.headers = {\n    'x-api-key': wasos_api_key,\n    'Content-Type': 'application/json'\n};\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,

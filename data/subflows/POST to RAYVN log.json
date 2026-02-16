@@ -61,7 +61,7 @@
     "type": "function",
     "z": "4a6a1af9b9af6b0f",
     "name": "Format header and url",
-    "func": "const rayvnConfig = global.get('rayvnConfig') || {};\nconst logId = global.get('rayvnLogId');\n\nif (!rayvnConfig.apiKey || !logId) {\n    node.error('Rayvn not configured. Please submit Rayvn configuration first.');\n    return null;\n}\n\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + rayvnConfig.apiKey,\n    \"Content-Type\": \"application/json\",\n    \"Accept\": \"application/json\"\n};\n\nmsg.url = `https://api.rayvn.global/logs/${logId}/entry`;\n\nreturn msg;\n",
+    "func": "const rayvn_config = global.get('rayvn_config')\n\nif (!rayvn_config.api_key || !rayvn_config.log_id) {\n    node.error('Rayvn not configured. Please submit Rayvn configuration first.');\n    return null;\n}\n\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + rayvn_config.api_key,\n    \"Content-Type\": \"application/json\",\n    \"Accept\": \"application/json\"\n};\n\nmsg.url = `https://api.rayvn.global/logs/${rayvn_config.log_id}/entry`;\n\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,

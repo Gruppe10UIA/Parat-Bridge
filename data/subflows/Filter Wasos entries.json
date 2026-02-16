@@ -38,7 +38,7 @@
     "type": "function",
     "z": "5b8da813a76ba94b",
     "name": "Filter by time",
-    "func": "let data = msg.payload.messages || [];\n\nlet filtered = data.filter(\n    entry => new Date(entry.createdAt).getTime() > global.get(\"lastWasosEntryTimeStamp\")\n);\n\nmsg.payload = filtered;\nreturn msg;\n",
+    "func": "let data = msg.payload.messages || [];\n\nlet filtered = data.filter(\n    entry => new Date(entry.createdAt).getTime() > global.get(\"last_wasos_timestamp\")\n);\n\nmsg.payload = filtered;\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -49,8 +49,7 @@
     "y": 320,
     "wires": [
       [
-        "a247c2c515411e30",
-        "e9d49a73f0b580fa"
+        "a247c2c515411e30"
       ]
     ],
     "info": "Filters messages by timestamp. Only keeps messages newer than lastWasosEntryTimeStamp to avoid reprocessing old data."
@@ -71,8 +70,7 @@
     "y": 320,
     "wires": [
       [
-        "35961c63028fa8c1",
-        "33d33b3b2cd1aafd"
+        "35961c63028fa8c1"
       ]
     ],
     "info": "Filters out messages with [rayvn] in the callsign. These messages originated from Rayvn and should not be sent back to prevent infinite loops."
@@ -82,7 +80,7 @@
     "type": "function",
     "z": "5b8da813a76ba94b",
     "name": "stop empty injects",
-    "func": "if (msg.payload && msg.payload.length > 0) {\n    return msg;\n}\nelse {\n    node.warn(\"no new messages\");\n}",
+    "func": "if (msg.payload && msg.payload.length > 0) {\n    return msg;\n}\nelse {\n    return null;\n}",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,

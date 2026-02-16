@@ -3,7 +3,7 @@
     "id": "5da162b98b7b6b86",
     "type": "subflow",
     "name": "Configure RAYVN",
-    "info": "",
+    "info": "configures the rayvn connection by getting the log id based on the log name and then storing all config variable to the global context",
     "category": "",
     "in": [
       {
@@ -49,8 +49,7 @@
     "y": 260,
     "wires": [
       [
-        "84052828145a2945",
-        "1ab2ac50af66c8e7"
+        "84052828145a2945"
       ]
     ],
     "info": "Validates that both API key and log name are filled in. If something is missing, logs a warning and returns null (no message is sent). If OK, builds HTTP request to Rayvn API (/logs endpoint) with Authorization Bearer token to fetch list of available logs. Passes config in msg for later use."
@@ -75,8 +74,7 @@
     "y": 260,
     "wires": [
       [
-        "0f47847f4d9f264a",
-        "23baa93c795b8628"
+        "0f47847f4d9f264a"
       ]
     ],
     "info": "Fetches all logs from Rayvn API that the user has access to. Returns list of logs used to find the correct log ID based on the provided log name."
@@ -97,8 +95,7 @@
     "y": 380,
     "wires": [
       [
-        "f70630adaa80c4a1",
-        "9758a7adaca1cc2a"
+        "f70630adaa80c4a1"
       ]
     ]
   },
@@ -118,7 +115,6 @@
     "y": 380,
     "wires": [
       [
-        "1666e9ab3f59e1bc",
         "445fefd13d36c08e"
       ]
     ]
@@ -216,7 +212,7 @@
     "type": "function",
     "z": "5da162b98b7b6b86",
     "name": "Verify rayvn config",
-    "func": "let config = global.get(\"rayvn_config\");\n\nif (config.api_key &&\n    config.log_name &&\n    config.log_id) {\n        msg.payload = true;\n        return msg;\n    } else {\n        node.error(\"rayvn config not correctly configured\", global.get(\"rayvn_config\"));\n        return null;\n    }",
+    "func": "let config = global.get(\"rayvn_config\");\nmsg.topic = \"rayvn_configured\"\n\nif (config.api_key &&\n    config.log_name &&\n    config.log_id) {\n        msg.payload = true;\n        return msg;\n    } else {\n        node.error(\"rayvn config not correctly configured\", global.get(\"rayvn_config\"));\n        return null;\n    }",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
