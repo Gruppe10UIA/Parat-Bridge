@@ -4,7 +4,8 @@
 services:
   node-red:
     image: nodered/node-red:4.1.4-22 # Defult node-red image, newest version per 28.01.2026 (make sure version is the same in DOCKERFILE)
-    dns: # Set custom DNS servers for the container in case of network issues (EAI_AGAIN error)
+    # Set custom DNS servers for the container in case of network issues (EAI_AGAIN error)
+    dns:
       - 8.8.8.8
       - 8.8.4.4
     ports:
