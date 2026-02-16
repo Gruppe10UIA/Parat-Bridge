@@ -43,7 +43,7 @@
     "id": "4b639d58ff0cfdb8",
     "type": "http request",
     "z": "1ce42ce5a45a0446",
-    "name": "get rayvn logs",
+    "name": "get Rayvn logs",
     "method": "GET",
     "ret": "obj",
     "paytoqs": "ignore",

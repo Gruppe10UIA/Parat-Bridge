@@ -2,7 +2,7 @@
   {
     "id": "1c21db2b0b16a979",
     "type": "subflow",
-    "name": "RAYVN polling",
+    "name": "Rayvn polling",
     "info": "Polls the Rayvn API at regular intervals to fetch log entries. Checks configuration, builds authorized request, and returns log entries for processing.",
     "category": "",
     "in": [

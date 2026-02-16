@@ -2,7 +2,7 @@
   {
     "id": "a7d9b521445d1bf0",
     "type": "subflow",
-    "name": "Configure WaSOS",
+    "name": "Configure Wasos",
     "info": "Uses the username and password to get the wasos api key\nsets the wasos configuration to the global variables",
     "category": "",
     "in": [
@@ -90,7 +90,7 @@
     "id": "c6b6d4a344c38252",
     "type": "debug",
     "z": "a7d9b521445d1bf0",
-    "name": "wasos config set",
+    "name": "Wasos config set",
     "active": true,
     "tosidebar": true,
     "console": false,
@@ -99,7 +99,7 @@
     "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 200,
+    "x": 210,
     "y": 320,
     "wires": []
   },
@@ -107,7 +107,7 @@
     "id": "dd2f6242fcde0863",
     "type": "function",
     "z": "a7d9b521445d1bf0",
-    "name": "Verify wasos config",
+    "name": "Verify Wasos config",
     "func": "let config = global.get(\"wasos_config\");\nmsg.topic = \"wasos_configured\"\n\nif (config.chatroom_name &&\n    config.api.key) {\n        msg.payload = true;\n        return msg;\n    } else {\n        node.error(\"wasos config not correctly configured\", global.get(\"wasos_config\"));\n        return null;\n    }",
     "outputs": 1,
     "timeout": 0,

@@ -2,7 +2,7 @@
   {
     "id": "0047704f35a57b0c",
     "type": "subflow",
-    "name": "Filter rayvn entries",
+    "name": "Filter Rayvn entries",
     "info": "Filters Rayvn log entries to only include new entries. Removes entries older than the last sync timestamp and excludes entries with WaSOS label to prevent duplicates.",
     "category": "",
     "in": [

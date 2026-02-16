@@ -37,7 +37,7 @@
     "id": "41621a8a87543cf1",
     "type": "http request",
     "z": "209f3c980818c499",
-    "name": "Simple Chat Message To WaSOS",
+    "name": "Simple Chat Message To Wasos",
     "method": "POST",
     "ret": "txt",
     "paytoqs": "ignore",
@@ -49,7 +49,7 @@
     "authType": "",
     "senderr": false,
     "headers": [],
-    "x": 780,
+    "x": 770,
     "y": 480,
     "wires": [
       []

@@ -2,7 +2,7 @@
   {
     "id": "6844cb2c3b9378da",
     "type": "subflow",
-    "name": "WaSOS polling",
+    "name": "Wasos polling",
     "info": "Polls the WaSOS API at regular intervals to fetch chat messages. Checks configuration, builds authorized request, and returns messages for processing.",
     "category": "",
     "in": [
@@ -79,7 +79,7 @@
     "id": "e650d743f11e0dcd",
     "type": "http request",
     "z": "6844cb2c3b9378da",
-    "name": "Get WaSOS Chat Messages",
+    "name": "Get Wasos Chat Messages",
     "method": "GET",
     "ret": "txt",
     "paytoqs": "ignore",

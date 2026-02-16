@@ -2,7 +2,7 @@
   {
     "id": "4a6a1af9b9af6b0f",
     "type": "subflow",
-    "name": "POST to RAYVN log",
+    "name": "POST to Rayvn log",
     "info": "Posts log entries to the Rayvn API. Formats authorization headers with Bearer token, splits arrays into individual entries, and sends each as a separate POST request.",
     "category": "",
     "in": [

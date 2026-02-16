@@ -37,7 +37,7 @@
     "id": "22d599a7e5359d86",
     "type": "function",
     "z": "a72933a33e32b28c",
-    "name": "map wasos log to bridge log",
+    "name": "map Wasos log to Bridge log",
     "func": "let rawLog = msg.payload;\n\nmsg.payload = rawLog.map(({ \n    id,\n    content,\n    createdAt,\n    username\n}) => ({\n    id,\n    text: content,\n    timeCreated: new Date(createdAt).getTime(),\n    loggedByFullName: username,\n    client: \"wasos\"\n}));\n\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
