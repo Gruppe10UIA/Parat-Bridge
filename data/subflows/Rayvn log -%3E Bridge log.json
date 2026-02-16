@@ -2,7 +2,7 @@
   {
     "id": "e56a9c672a5eb8f6",
     "type": "subflow",
-    "name": "RAYVN log -> Bridge log",
+    "name": "Rayvn log -> Bridge log",
     "info": "Converts Rayvn log entries to Bridge format. Extracts id, text, timeCreated, loggedByFullName and adds client identifier.",
     "category": "",
     "in": [
@@ -37,7 +37,7 @@
     "id": "6b18f0b47502d533",
     "type": "function",
     "z": "e56a9c672a5eb8f6",
-    "name": "map rayvn log to bridge log",
+    "name": "map Rayvn log to Bridge log",
     "func": "let rawLog = msg.payload\n\nmsg.payload = rawLog.map(({ \n  id,\n  text,\n  timeCreated,\n  loggedByFullName\n  }) => ({\n  id,\n  text,\n  timeCreated,\n  loggedByFullName,\n  client: \"rayvn\"  // Added to every entry\n}));\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,

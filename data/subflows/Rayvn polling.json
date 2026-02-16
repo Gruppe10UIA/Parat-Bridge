@@ -2,7 +2,7 @@
   {
     "id": "1c21db2b0b16a979",
     "type": "subflow",
-    "name": "RAYVN polling",
+    "name": "Rayvn polling",
     "info": "Polls the Rayvn API at regular intervals to fetch log entries. Checks configuration, builds authorized request, and returns log entries for processing.",
     "category": "",
     "in": [
@@ -38,7 +38,7 @@
     "type": "function",
     "z": "1c21db2b0b16a979",
     "name": "Build Rayvn Entry Request",
-    "func": "const rayvnConfig = global.get('rayvnConfig') || {};\nconst logId = global.get('rayvnLogId');\n\nif (!rayvnConfig.apiKey || !logId) {\n    node.error('Rayvn not configured.');\n    return null;\n}\n\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + rayvnConfig.apiKey\n};\n\nmsg.url = `https://api.rayvn.global/logs/${logId}/entries`;\n\nreturn msg;",
+    "func": "const rayvn_config = global.get('rayvn_config')\nconst url = global.get('rayvn_url')\nconst path = `/logs/${rayvn_config.log_id}/entries`\n\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + rayvn_config.api_key\n};\n\nmsg.url = url + path;\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -81,15 +81,15 @@
     "id": "63ecfb0d9d64a98a",
     "type": "function",
     "z": "1c21db2b0b16a979",
-    "name": "Configuration check",
-    "func": "let rayvnConfig = global.get('rayvnConfig') || {};\nlet rayvnLogId = global.get('rayvnLogId');\n\nif (!rayvnConfig.apiKey || !rayvnLogId) {\n    node.warn('Systemene er ikke fullstendig konfigurert for Rayvn → WaSOS.');\n    return null;\n}\n\nreturn msg;",
+    "name": "Verify config",
+    "func": "let rayvn_config = global.get('rayvn_config');\n\nif (!rayvn_config.api_key || !rayvn_config.log_id) {\n    node.error('rayvn not configured. cannot poll rayvn');\n    return null;\n}\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 620,
+    "x": 590,
     "y": 200,
     "wires": [
       [

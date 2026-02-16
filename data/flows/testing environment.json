@@ -32,7 +32,7 @@
     "type": "debug",
     "z": "901ed98289cc4ecd",
     "name": "new timestamp",
-    "active": true,
+    "active": false,
     "tosidebar": true,
     "console": false,
     "tostatus": false,
@@ -162,8 +162,8 @@
     "id": "d33647ad91e47105",
     "type": "function",
     "z": "901ed98289cc4ecd",
-    "name": "delete masterLog",
-    "func": "global.set(\"masterLog\", null)",
+    "name": "delete master_log",
+    "func": "global.set(\"master_log\", null)",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -172,49 +172,6 @@
     "libs": [],
     "x": 710,
     "y": 320,
-    "wires": [
-      []
-    ]
-  },
-  {
-    "id": "ad828ba6ade1f9a0",
-    "type": "inject",
-    "z": "901ed98289cc4ecd",
-    "name": "reset api credentials",
-    "props": [
-      {
-        "p": "payload"
-      }
-    ],
-    "repeat": "",
-    "crontab": "",
-    "once": false,
-    "onceDelay": 0.1,
-    "topic": "",
-    "payload": "",
-    "payloadType": "date",
-    "x": 470,
-    "y": 380,
-    "wires": [
-      [
-        "e22ac8fa8bf418ac"
-      ]
-    ]
-  },
-  {
-    "id": "e22ac8fa8bf418ac",
-    "type": "function",
-    "z": "901ed98289cc4ecd",
-    "name": "function 3",
-    "func": "global.set(\"rayvnConfig\", null);\nglobal.set(\"rayvnLogId\", null);\nglobal.set(\"wasosChatroomName\", null);\nglobal.set(\"wasosChatroomUrl\", null);\nglobal.set(\"wasosConfig\", null);\nglobal.set(\"wasos_apikey\", null);\n\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 720,
-    "y": 380,
     "wires": [
       []
     ]

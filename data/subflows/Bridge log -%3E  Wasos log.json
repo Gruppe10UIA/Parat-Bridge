@@ -37,7 +37,7 @@
     "id": "2d74543c86e88e55",
     "type": "function",
     "z": "9ee8527d12b415b0",
-    "name": "map Parat log to Wasos chat",
+    "name": "map Bridge log to Wasos chat",
     "func": "let rawLog = msg.payload;\n\nmsg.payload = rawLog.map(({ \n    text,\n    timeCreated,\n    loggedByFullName,\n    client\n}) => ({\n    content: text || \"\",\n    callsign: `[${client}] ${loggedByFullName}` || \"Unknown\",\n    createdAt: new Date(timeCreated).toISOString(),\n    isLocation: false,      // Changed from \"location\" to \"isLocation\"\n    replyMessageId: null,\n    files: []\n}));\n\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
@@ -45,7 +45,7 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 570,
+    "x": 580,
     "y": 320,
     "wires": [
       []

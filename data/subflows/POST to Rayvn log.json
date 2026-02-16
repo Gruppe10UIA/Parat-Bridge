@@ -2,7 +2,7 @@
   {
     "id": "4a6a1af9b9af6b0f",
     "type": "subflow",
-    "name": "POST to RAYVN log",
+    "name": "POST to Rayvn log",
     "info": "Posts log entries to the Rayvn API. Formats authorization headers with Bearer token, splits arrays into individual entries, and sends each as a separate POST request.",
     "category": "",
     "in": [
@@ -18,7 +18,7 @@
     ],
     "out": [
       {
-        "x": 1020,
+        "x": 1060,
         "y": 300,
         "wires": [
           {
@@ -49,7 +49,7 @@
     "authType": "",
     "senderr": false,
     "headers": [],
-    "x": 820,
+    "x": 860,
     "y": 300,
     "wires": [
       []
@@ -61,7 +61,7 @@
     "type": "function",
     "z": "4a6a1af9b9af6b0f",
     "name": "Format header and url",
-    "func": "const rayvnConfig = global.get('rayvnConfig') || {};\nconst logId = global.get('rayvnLogId');\n\nif (!rayvnConfig.apiKey || !logId) {\n    node.error('Rayvn not configured. Please submit Rayvn configuration first.');\n    return null;\n}\n\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + rayvnConfig.apiKey,\n    \"Content-Type\": \"application/json\",\n    \"Accept\": \"application/json\"\n};\n\nmsg.url = `https://api.rayvn.global/logs/${logId}/entry`;\n\nreturn msg;\n",
+    "func": "const rayvn_config = global.get('rayvn_config')\nconst path = \"/logs/\" + rayvn_config.log_id + \"/entry\"\n\nif (!rayvn_config.api_key || !rayvn_config.log_id) {\n    node.error('Rayvn not configured. Please submit Rayvn configuration first.');\n    return null;\n}\n\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + rayvn_config.api_key,\n    \"Content-Type\": \"application/json\",\n    \"Accept\": \"application/json\"\n};\n\nmsg.url = global.get(\"rayvn_url\") + path;\n\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
