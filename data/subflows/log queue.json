@@ -19,7 +19,7 @@
     "out": [
       {
         "x": 1120,
-        "y": 260,
+        "y": 280,
         "wires": [
           {
             "id": "b517dd3e71771eb0",
@@ -38,7 +38,7 @@
     "type": "function",
     "z": "2e632affbd071524",
     "name": "Enqueue new messages",
-    "func": "let message = msg.payload\nlet client = message.client\n\nlet queue = global.get(client + \"_queue\");\nqueue.push(message)\nglobal.set(client + \"_queue\", queue)\n\nreturn msg;",
+    "func": "let message = msg.payload\nlet client = message.client\n\nlet queue = flow.get(\"queue\");\nqueue.push(message)\nflow.set(\"queue\", queue)\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -158,7 +158,7 @@
     "type": "function",
     "z": "2e632affbd071524",
     "name": "Send message",
-    "func": "let queue = flow.get(\"queue\")\n\nif (queue.lenghth <= 0){\n    return null\n}\n\nlet message = queue[0]\n\nmsg.msg_id = message.id // passing on the id to be used if it returns\nmsg.payload = message\n\nreturn msg;",
+    "func": "let queue = flow.get(\"queue\")\n\nif (queue.length <= 0){\n    return null\n}\n\nlet message = queue[0]\n\nmsg.msg_id = message.id // passing on the id to be used if it returns\nmsg.payload = message\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -176,7 +176,7 @@
     "type": "function",
     "z": "2e632affbd071524",
     "name": "Retry",
-    "func": "let msg_id = msg.msg_id\n\nlet retry_limit = node.get(\"retry_limit\")\nlet current_id = node.get(\"current_id\")\nlet retries = node.get(\"retries\")\n\n// reset if new message\nif (current_id || !current_id == msg_id) {\n    node.set(\"current_id\", msg_id)\n    node.set(\"retries\", 2)\n    return [null, msg]\n}\n\n// retry until retry limit reached\nif (current_id == msg_id) {\n    if (retries <= retry_limit) {\n        node.set(\"restries\", retries +1)\n        return [null, msg]\n    } else if (retries > retry_limit) {\n        node.set(\"retries\", 0)\n        node.set(\"current_id\", \"\")\n        return [msg, null]\n    }\n}",
+    "func": "let msg_id = msg.msg_id\n\nlet retry_limit = node.get(\"retry_limit\")\nlet current_id = node.get(\"current_id\")\nlet retries = node.get(\"retries\")\n\n// reset if new message\nif (!current_id || current_id !== msg_id) {\n    node.set(\"current_id\", msg_id)\n    node.set(\"retries\", 2)\n    return [null, msg]\n}\n\n// retry until retry_limit reached\nif (current_id == msg_id) {\n    if (retries <= retry_limit) {\n        node.set(\"retries\", retries +1)\n        return [null, msg]\n    } else if (retries > retry_limit) {\n        node.set(\"retries\", 0)\n        node.set(\"current_id\", \"\")\n        return [msg, null]\n    }\n}",
     "outputs": 2,
     "timeout": 0,
     "noerr": 0,

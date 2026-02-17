@@ -8,27 +8,6 @@
     "env": []
   },
   {
-    "id": "6b619eec1587c265",
-    "type": "group",
-    "z": "fdea0898d1f24630",
-    "name": "Set initial flow variables",
-    "style": {
-      "stroke": "#addb7b",
-      "fill": "#c8e7a7",
-      "label": true,
-      "color": "#001f60",
-      "label-position": "n"
-    },
-    "nodes": [
-      "c645c903d0df48d4",
-      "eb83c49fd076c7b0"
-    ],
-    "x": 414,
-    "y": 59,
-    "w": 432,
-    "h": 82
-  },
-  {
     "id": "94b2e009834e7457",
     "type": "subflow:0047704f35a57b0c",
     "z": "fdea0898d1f24630",
@@ -246,49 +225,21 @@
     ]
   },
   {
-    "id": "c645c903d0df48d4",
-    "type": "change",
+    "id": "406938de3330b8b7",
+    "type": "function",
     "z": "fdea0898d1f24630",
-    "g": "6b619eec1587c265",
-    "name": "Initialize queues",
-    "rules": [
-      {
-        "t": "set",
-        "p": "queue",
-        "pt": "flow",
-        "to": "[]",
-        "tot": "json"
-      }
-    ],
-    "action": "",
-    "property": "",
-    "from": "",
-    "to": "",
-    "reg": false,
-    "x": 740,
+    "name": "initialize empty queue",
+    "func": "",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "// Code added here will be run once\n// whenever the node is started.\nflow.set(\"queue\", [])",
+    "finalize": "",
+    "libs": [],
+    "x": 600,
     "y": 100,
     "wires": [
       []
-    ]
-  },
-  {
-    "id": "eb83c49fd076c7b0",
-    "type": "inject",
-    "z": "fdea0898d1f24630",
-    "g": "6b619eec1587c265",
-    "name": "",
-    "props": [],
-    "repeat": "",
-    "crontab": "",
-    "once": true,
-    "onceDelay": "0.1",
-    "topic": "",
-    "x": 510,
-    "y": 100,
-    "wires": [
-      [
-        "c645c903d0df48d4"
-      ]
     ]
   }
 ]

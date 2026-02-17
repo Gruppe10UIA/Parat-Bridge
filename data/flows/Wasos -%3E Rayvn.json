@@ -8,27 +8,6 @@
     "env": []
   },
   {
-    "id": "1e2fc2dac0848356",
-    "type": "group",
-    "z": "559975c27e81a86b",
-    "name": "Set initial flow variables",
-    "style": {
-      "stroke": "#addb7b",
-      "fill": "#c8e7a7",
-      "label": true,
-      "color": "#001f60",
-      "label-position": "n"
-    },
-    "nodes": [
-      "21861d5ef7419443",
-      "c4bc6e9e3a78e83a"
-    ],
-    "x": 474,
-    "y": 39,
-    "w": 432,
-    "h": 82
-  },
-  {
     "id": "9c083fc8c222c29d",
     "type": "subflow:6844cb2c3b9378da",
     "z": "559975c27e81a86b",
@@ -212,52 +191,6 @@
     "wires": [
       [
         "9c083fc8c222c29d"
-      ]
-    ]
-  },
-  {
-    "id": "21861d5ef7419443",
-    "type": "change",
-    "z": "559975c27e81a86b",
-    "g": "1e2fc2dac0848356",
-    "name": "Initialize queues",
-    "rules": [
-      {
-        "t": "set",
-        "p": "queue",
-        "pt": "flow",
-        "to": "[]",
-        "tot": "json"
-      }
-    ],
-    "action": "",
-    "property": "",
-    "from": "",
-    "to": "",
-    "reg": false,
-    "x": 800,
-    "y": 80,
-    "wires": [
-      []
-    ]
-  },
-  {
-    "id": "c4bc6e9e3a78e83a",
-    "type": "inject",
-    "z": "559975c27e81a86b",
-    "g": "1e2fc2dac0848356",
-    "name": "",
-    "props": [],
-    "repeat": "",
-    "crontab": "",
-    "once": true,
-    "onceDelay": "0.1",
-    "topic": "",
-    "x": 570,
-    "y": 80,
-    "wires": [
-      [
-        "21861d5ef7419443"
       ]
     ]
   },
