@@ -46,11 +46,13 @@
       "2be29013d9e94cd8",
       "f46652973e5d016e",
       "e95b4372fea62cfc",
-      "6e81dde533c0b1f4"
+      "6e81dde533c0b1f4",
+      "215d734a758d3e4e",
+      "e5997ab2f3eb1fb6"
     ],
     "x": 74,
     "y": 539,
-    "w": 952,
+    "w": 1052,
     "h": 202
   },
   {
@@ -80,6 +82,20 @@
     "y": 259,
     "w": 832,
     "h": 242
+  },
+  {
+    "id": "e5997ab2f3eb1fb6",
+    "type": "junction",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "x": 100,
+    "y": 620,
+    "wires": [
+      [
+        "03c1d5a79bea3bbf",
+        "215d734a758d3e4e"
+      ]
+    ]
   },
   {
     "id": "f7bbfc371ab086b1",
@@ -213,7 +229,7 @@
     "wires": [
       [
         "293cf0ecd677bac0",
-        "03c1d5a79bea3bbf"
+        "e5997ab2f3eb1fb6"
       ]
     ]
   },
@@ -313,7 +329,7 @@
     "z": "84d1a0de660abb59",
     "g": "96e90febc19e0c83",
     "name": "",
-    "x": 200,
+    "x": 300,
     "y": 620,
     "wires": [
       [
@@ -327,7 +343,7 @@
     "z": "84d1a0de660abb59",
     "g": "96e90febc19e0c83",
     "name": "",
-    "x": 420,
+    "x": 520,
     "y": 620,
     "wires": [
       [
@@ -344,7 +360,7 @@
     "z": "84d1a0de660abb59",
     "g": "96e90febc19e0c83",
     "name": "",
-    "x": 740,
+    "x": 840,
     "y": 700,
     "wires": [
       []
@@ -356,7 +372,7 @@
     "z": "84d1a0de660abb59",
     "g": "96e90febc19e0c83",
     "name": "",
-    "x": 900,
+    "x": 1000,
     "y": 620,
     "wires": [
       [
@@ -373,7 +389,7 @@
     "z": "84d1a0de660abb59",
     "g": "96e90febc19e0c83",
     "name": "",
-    "x": 650,
+    "x": 750,
     "y": 600,
     "wires": [
       [
@@ -395,7 +411,7 @@
     "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 880,
+    "x": 980,
     "y": 580,
     "wires": []
   },
@@ -421,6 +437,39 @@
     "reg": false,
     "x": 440,
     "y": 160,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "215d734a758d3e4e",
+    "type": "change",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "name": "Enable Polling",
+    "rules": [
+      {
+        "t": "set",
+        "p": "poll_rayvn",
+        "pt": "global",
+        "to": "true",
+        "tot": "bool"
+      },
+      {
+        "t": "set",
+        "p": "poll_wasos",
+        "pt": "global",
+        "to": "true",
+        "tot": "bool"
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 280,
+    "y": 680,
     "wires": [
       []
     ]
