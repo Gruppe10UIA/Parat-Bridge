@@ -28,6 +28,59 @@
     "h": 82
   },
   {
+    "id": "5a283579df925b67",
+    "type": "inject",
+    "z": "84d1a0de660abb59",
+    "g": "9ab1f6c2842073c5",
+    "name": "",
+    "props": [],
+    "repeat": "",
+    "crontab": "",
+    "once": true,
+    "onceDelay": "0.1",
+    "topic": "",
+    "x": 190,
+    "y": 180,
+    "wires": [
+      [
+        "413516062738b6ec"
+      ]
+    ]
+  },
+  {
+    "id": "413516062738b6ec",
+    "type": "change",
+    "z": "84d1a0de660abb59",
+    "g": "9ab1f6c2842073c5",
+    "name": "set client base urls",
+    "rules": [
+      {
+        "t": "set",
+        "p": "wasos_url",
+        "pt": "global",
+        "to": "https://dev.wasos.no",
+        "tot": "str"
+      },
+      {
+        "t": "set",
+        "p": "rayvn_url",
+        "pt": "global",
+        "to": "https://api.rayvn.global",
+        "tot": "str"
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 430,
+    "y": 180,
+    "wires": [
+      []
+    ]
+  },
+  {
     "id": "f7bbfc371ab086b1",
     "type": "subflow:99c17cced97ac339",
     "z": "84d1a0de660abb59",
@@ -76,59 +129,6 @@
     ]
   },
   {
-    "id": "413516062738b6ec",
-    "type": "change",
-    "z": "84d1a0de660abb59",
-    "g": "9ab1f6c2842073c5",
-    "name": "set client base urls",
-    "rules": [
-      {
-        "t": "set",
-        "p": "wasos_url",
-        "pt": "global",
-        "to": "https://dev.wasos.no",
-        "tot": "str"
-      },
-      {
-        "t": "set",
-        "p": "rayvn_url",
-        "pt": "global",
-        "to": "https://api.rayvn.global",
-        "tot": "str"
-      }
-    ],
-    "action": "",
-    "property": "",
-    "from": "",
-    "to": "",
-    "reg": false,
-    "x": 430,
-    "y": 180,
-    "wires": [
-      []
-    ]
-  },
-  {
-    "id": "5a283579df925b67",
-    "type": "inject",
-    "z": "84d1a0de660abb59",
-    "g": "9ab1f6c2842073c5",
-    "name": "",
-    "props": [],
-    "repeat": "",
-    "crontab": "",
-    "once": true,
-    "onceDelay": "0.1",
-    "topic": "",
-    "x": 190,
-    "y": 180,
-    "wires": [
-      [
-        "413516062738b6ec"
-      ]
-    ]
-  },
-  {
     "id": "5539a5c7e284f07d",
     "type": "subflow:1ce42ce5a45a0446",
     "z": "84d1a0de660abb59",
@@ -163,7 +163,8 @@
     "wires": [
       [
         "5539a5c7e284f07d",
-        "293cf0ecd677bac0"
+        "293cf0ecd677bac0",
+        "6f7fd472cd12528b"
       ]
     ]
   },
@@ -251,5 +252,37 @@
     "x": 180,
     "y": 440,
     "wires": []
+  },
+  {
+    "id": "6f7fd472cd12528b",
+    "type": "change",
+    "z": "84d1a0de660abb59",
+    "name": "Enable polling",
+    "rules": [
+      {
+        "t": "set",
+        "p": "poll_rayvn",
+        "pt": "global",
+        "to": "true",
+        "tot": "bool"
+      },
+      {
+        "t": "set",
+        "p": "poll_wasos",
+        "pt": "global",
+        "to": "true",
+        "tot": "bool"
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 1040,
+    "y": 460,
+    "wires": [
+      []
+    ]
   }
 ]
