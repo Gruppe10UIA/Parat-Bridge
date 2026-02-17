@@ -80,7 +80,7 @@
     "type": "function",
     "z": "0047704f35a57b0c",
     "name": "stop empty injects",
-    "func": "if (msg.payload && msg.payload.length > 0) {\n    return msg;\n}\nelse {\n    return null;\n}",
+    "func": "if (msg.payload && msg.payload.length > 0) {\n    msg.topic = \"new_messages\"\n    return msg;\n}\nelse {\n    return null;\n}",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,

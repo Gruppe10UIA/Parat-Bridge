@@ -8,6 +8,27 @@
     "env": []
   },
   {
+    "id": "6b619eec1587c265",
+    "type": "group",
+    "z": "fdea0898d1f24630",
+    "name": "Set initial flow variables",
+    "style": {
+      "stroke": "#addb7b",
+      "fill": "#c8e7a7",
+      "label": true,
+      "color": "#001f60",
+      "label-position": "n"
+    },
+    "nodes": [
+      "c645c903d0df48d4",
+      "eb83c49fd076c7b0"
+    ],
+    "x": 414,
+    "y": 59,
+    "w": 432,
+    "h": 82
+  },
+  {
     "id": "94b2e009834e7457",
     "type": "subflow:0047704f35a57b0c",
     "z": "fdea0898d1f24630",
@@ -30,7 +51,6 @@
     "y": 280,
     "wires": [
       [
-        "edcb8d65c7a805ec",
         "e8f453cb650cc177",
         "4a1c55ec94f7f562"
       ]
@@ -41,8 +61,8 @@
     "type": "subflow:fe9d5f6f9c2bdb16",
     "z": "fdea0898d1f24630",
     "name": "",
-    "x": 1240,
-    "y": 280,
+    "x": 680,
+    "y": 540,
     "wires": [
       [
         "33a0b6eee51a333a"
@@ -68,11 +88,12 @@
     "type": "subflow:2e632affbd071524",
     "z": "fdea0898d1f24630",
     "name": "",
-    "x": 370,
+    "x": 320,
     "y": 440,
     "wires": [
       [
-        "d9951ddcbdc5971e"
+        "d9951ddcbdc5971e",
+        "edcb8d65c7a805ec"
       ]
     ],
     "info": "subflow, is currently a placeholder, but\r\nshould in the future be responsible for queueing"
@@ -101,7 +122,8 @@
     "wires": [
       [
         "c80cdddcb40c9aab"
-      ]
+      ],
+      []
     ],
     "info": "This subflow takes a formatted Wasos chat\r\npackage and Makes a POST request to the\r\nWasos client"
   },
@@ -203,8 +225,8 @@
     "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 1260,
-    "y": 240,
+    "x": 700,
+    "y": 500,
     "wires": []
   },
   {
@@ -220,6 +242,52 @@
     "wires": [
       [
         "e0ea47ed88577046"
+      ]
+    ]
+  },
+  {
+    "id": "c645c903d0df48d4",
+    "type": "change",
+    "z": "fdea0898d1f24630",
+    "g": "6b619eec1587c265",
+    "name": "Initialize queues",
+    "rules": [
+      {
+        "t": "set",
+        "p": "queue",
+        "pt": "flow",
+        "to": "[]",
+        "tot": "json"
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 740,
+    "y": 100,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "eb83c49fd076c7b0",
+    "type": "inject",
+    "z": "fdea0898d1f24630",
+    "g": "6b619eec1587c265",
+    "name": "",
+    "props": [],
+    "repeat": "",
+    "crontab": "",
+    "once": true,
+    "onceDelay": "0.1",
+    "topic": "",
+    "x": 510,
+    "y": 100,
+    "wires": [
+      [
+        "c645c903d0df48d4"
       ]
     ]
   }

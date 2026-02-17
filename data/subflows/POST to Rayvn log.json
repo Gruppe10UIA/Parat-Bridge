@@ -18,11 +18,21 @@
     ],
     "out": [
       {
-        "x": 1060,
+        "x": 1200,
         "y": 300,
         "wires": [
           {
             "id": "edcc87d1f40195de",
+            "port": 0
+          }
+        ]
+      },
+      {
+        "x": 1200,
+        "y": 380,
+        "wires": [
+          {
+            "id": "f8d5ca9b4e03584d",
             "port": 0
           }
         ]
@@ -52,7 +62,9 @@
     "x": 860,
     "y": 300,
     "wires": [
-      []
+      [
+        "f8d5ca9b4e03584d"
+      ]
     ],
     "info": "Sends the message to Rayvn log API with POST request. This is the step that delivers the WaSOS message into the Rayvn log."
   },
@@ -95,6 +107,24 @@
       [
         "edcc87d1f40195de"
       ]
+    ]
+  },
+  {
+    "id": "f8d5ca9b4e03584d",
+    "type": "function",
+    "z": "4a6a1af9b9af6b0f",
+    "name": "Parse response",
+    "func": "msg.topic = \"response\"\n\nnode.warn(msg.headers)\nnode.warn(msg.statusCode)\nnode.warn(msg.payload)\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 1060,
+    "y": 380,
+    "wires": [
+      []
     ]
   }
 ]

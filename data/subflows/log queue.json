@@ -1,0 +1,208 @@
+[
+  {
+    "id": "2e632affbd071524",
+    "type": "subflow",
+    "name": "log queue",
+    "info": "Placeholder. Intended for queueing log entries before sending to prevent rate limiting and ensure order.",
+    "category": "",
+    "in": [
+      {
+        "x": 100,
+        "y": 260,
+        "wires": [
+          {
+            "id": "b10e551af2b47fa1"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 1120,
+        "y": 260,
+        "wires": [
+          {
+            "id": "b517dd3e71771eb0",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#C0C0C0",
+    "icon": "font-awesome/fa-forward"
+  },
+  {
+    "id": "3242f4f6bd93e62d",
+    "type": "function",
+    "z": "2e632affbd071524",
+    "name": "Enqueue new messages",
+    "func": "let message = msg.payload\nlet client = message.client\n\nlet queue = global.get(client + \"_queue\");\nqueue.push(message)\nglobal.set(client + \"_queue\", queue)\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 690,
+    "y": 340,
+    "wires": [
+      [
+        "b517dd3e71771eb0"
+      ]
+    ]
+  },
+  {
+    "id": "461f9d574db1530b",
+    "type": "split",
+    "z": "2e632affbd071524",
+    "name": "",
+    "splt": "\\n",
+    "spltType": "str",
+    "arraySplt": 1,
+    "arraySpltType": "len",
+    "stream": false,
+    "addname": "",
+    "property": "payload",
+    "x": 490,
+    "y": 340,
+    "wires": [
+      [
+        "3242f4f6bd93e62d"
+      ]
+    ]
+  },
+  {
+    "id": "b10e551af2b47fa1",
+    "type": "switch",
+    "z": "2e632affbd071524",
+    "name": "Route incomming data",
+    "property": "topic",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "eq",
+        "v": "response",
+        "vt": "str"
+      },
+      {
+        "t": "eq",
+        "v": "new_messages",
+        "vt": "str"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 2,
+    "x": 260,
+    "y": 260,
+    "wires": [
+      [
+        "ddca3902fe2fda3f"
+      ],
+      [
+        "461f9d574db1530b"
+      ]
+    ]
+  },
+  {
+    "id": "ddca3902fe2fda3f",
+    "type": "switch",
+    "z": "2e632affbd071524",
+    "name": "split on result",
+    "property": "result",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "true"
+      },
+      {
+        "t": "false"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 2,
+    "x": 510,
+    "y": 180,
+    "wires": [
+      [
+        "2a7cc21f4ee7dbe5"
+      ],
+      [
+        "7f466ec0b3d58872"
+      ]
+    ]
+  },
+  {
+    "id": "2a7cc21f4ee7dbe5",
+    "type": "function",
+    "z": "2e632affbd071524",
+    "name": "Dequeue succsessfull post",
+    "func": "let queue = flow.get(\"queue\")\nlet msg_id = msg.msg_id\n\nlet new_queue = queue.filter(entry => entry.id !== msg_id)\n\nflow.set(\"queue\", new_queue)\n\nreturn msg\n\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 740,
+    "y": 160,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "b517dd3e71771eb0",
+    "type": "function",
+    "z": "2e632affbd071524",
+    "name": "Send message",
+    "func": "let queue = flow.get(\"queue\")\n\nif (queue.lenghth <= 0){\n    return null\n}\n\nlet message = queue[0]\n\nmsg.msg_id = message.id // passing on the id to be used if it returns\nmsg.payload = message\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 940,
+    "y": 280,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "7f466ec0b3d58872",
+    "type": "function",
+    "z": "2e632affbd071524",
+    "name": "Retry",
+    "func": "let msg_id = msg.msg_id\n\nlet retry_limit = node.get(\"retry_limit\")\nlet current_id = node.get(\"current_id\")\nlet retries = node.get(\"retries\")\n\n// reset if new message\nif (current_id || !current_id == msg_id) {\n    node.set(\"current_id\", msg_id)\n    node.set(\"retries\", 2)\n    return [null, msg]\n}\n\n// retry until retry limit reached\nif (current_id == msg_id) {\n    if (retries <= retry_limit) {\n        node.set(\"restries\", retries +1)\n        return [null, msg]\n    } else if (retries > retry_limit) {\n        node.set(\"retries\", 0)\n        node.set(\"current_id\", \"\")\n        return [msg, null]\n    }\n}",
+    "outputs": 2,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "// Code added here will be run once\n// whenever the node is started.\n\nnode.set(\"retry_limit\", 10)\nnode.set(\"retries\", 0)\nnode.set(\"current_id\", \"\")",
+    "finalize": "",
+    "libs": [],
+    "x": 710,
+    "y": 220,
+    "wires": [
+      [
+        "edf196f867834eb4"
+      ],
+      [
+        "b517dd3e71771eb0"
+      ]
+    ]
+  },
+  {
+    "id": "edf196f867834eb4",
+    "type": "link out",
+    "z": "2e632affbd071524",
+    "name": "maximum retries reached",
+    "mode": "link",
+    "links": [],
+    "x": 1115,
+    "y": 120,
+    "wires": []
+  }
+]

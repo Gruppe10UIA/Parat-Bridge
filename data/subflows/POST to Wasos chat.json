@@ -26,6 +26,16 @@
             "port": 0
           }
         ]
+      },
+      {
+        "x": 1120,
+        "y": 560,
+        "wires": [
+          {
+            "id": "d8ba5952c6f01ecb",
+            "port": 0
+          }
+        ]
       }
     ],
     "env": [],
@@ -52,7 +62,9 @@
     "x": 770,
     "y": 480,
     "wires": [
-      []
+      [
+        "d8ba5952c6f01ecb"
+      ]
     ],
     "info": "Sends the message to WaSOS chat API with POST request. This is the step that delivers the Rayvn message into the WaSOS chat."
   },
@@ -120,6 +132,24 @@
       [
         "41621a8a87543cf1"
       ]
+    ]
+  },
+  {
+    "id": "d8ba5952c6f01ecb",
+    "type": "function",
+    "z": "209f3c980818c499",
+    "name": "Parse response",
+    "func": "msg.topic = \"response\"\n\nnode.warn(msg.headers)\nnode.warn(msg.statusCode)\nnode.warn(msg.payload)\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 960,
+    "y": 560,
+    "wires": [
+      []
     ]
   }
 ]
