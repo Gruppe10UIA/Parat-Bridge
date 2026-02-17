@@ -218,7 +218,7 @@
     "rules": [
       {
         "t": "set",
-        "p": "pollRayvn",
+        "p": "poll_rayvn",
         "pt": "global",
         "to": "payload",
         "tot": "msg"
@@ -277,7 +277,7 @@
     "rules": [
       {
         "t": "set",
-        "p": "pollWasos",
+        "p": "poll_wasos",
         "pt": "global",
         "to": "payload",
         "tot": "msg"
@@ -355,41 +355,6 @@
     "wires": [
       [
         "4f2504777076bc4d"
-      ]
-    ]
-  },
-  {
-    "id": "e00c1b0734785919",
-    "type": "ui-switch",
-    "z": "901ed98289cc4ecd",
-    "name": "toggle polling main",
-    "label": "toggle polling main",
-    "group": "9df65904057aeaa7",
-    "order": 1,
-    "width": 0,
-    "height": 0,
-    "passthru": false,
-    "decouple": false,
-    "topic": "payload",
-    "topicType": "msg",
-    "style": "",
-    "className": "",
-    "layout": "row-left",
-    "clickableArea": "switch",
-    "onvalue": "true",
-    "onvalueType": "bool",
-    "onicon": "",
-    "oncolor": "",
-    "offvalue": "false",
-    "offvalueType": "bool",
-    "officon": "",
-    "offcolor": "",
-    "x": 210,
-    "y": 560,
-    "wires": [
-      [
-        "2bb096b5fa147299",
-        "18d492fbf4b111ee"
       ]
     ]
   }
