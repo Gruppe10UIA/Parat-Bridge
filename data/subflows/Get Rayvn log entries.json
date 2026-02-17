@@ -1,0 +1,93 @@
+[
+  {
+    "id": "0fad769721e9978c",
+    "type": "subflow",
+    "name": "Get Rayvn log entries",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 60,
+        "y": 80,
+        "wires": [
+          {
+            "id": "470e7492fee0b030"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 900,
+        "y": 80,
+        "wires": [
+          {
+            "id": "06693abda16b511c",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#DEB887",
+    "icon": "font-awesome/fa-commenting-o"
+  },
+  {
+    "id": "4b639d58ff0cfdb8",
+    "type": "http request",
+    "z": "0fad769721e9978c",
+    "name": "get Rayvn logs",
+    "method": "GET",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 480,
+    "y": 80,
+    "wires": [
+      [
+        "06693abda16b511c"
+      ]
+    ],
+    "info": "Fetches all log entries from the configured Rayvn log using the API."
+  },
+  {
+    "id": "06693abda16b511c",
+    "type": "subflow:e56a9c672a5eb8f6",
+    "z": "0fad769721e9978c",
+    "name": "",
+    "x": 710,
+    "y": 80,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "470e7492fee0b030",
+    "type": "function",
+    "z": "0fad769721e9978c",
+    "name": "Set headers and url",
+    "func": "let rayvn_config = global.get('rayvn_config')\n\n\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + rayvn_config.api_key\n};\n\nmsg.url = global.get(\"rayvn_url\") + `/logs/${rayvn_config.log_id}/entries`;\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 230,
+    "y": 80,
+    "wires": [
+      [
+        "4b639d58ff0cfdb8"
+      ]
+    ],
+    "info": "Prepares the HTTP request to fetch Rayvn log entries. Sets Authorization header and builds the API URL."
+  }
+]

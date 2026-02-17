@@ -3,7 +3,7 @@
     "id": "2e632affbd071524",
     "type": "subflow",
     "name": "log queue",
-    "info": "Placeholder. Intended for queueing log entries before sending to prevent rate limiting and ensure order.",
+    "info": "# Queue\n\nImplements queueing for messages not yet sendt\n\n* Takes in new messages from source\n* Enques the message to the queue flow variable\n* Triggers the send message node to send the top element\n* If the post is succesfull:\n    * The message is dequeued\n    * Appended to master_log\n* else\n    * The retry is triggered\n    * The message attemts to send again\n    * If message fails more then limit.\n    * attempts stop and routs message out\n\n\n## Note\n\n* As it uses a flow variable it will only work if inside a Flow (not another subflow)",
     "category": "",
     "in": [
       {
@@ -23,6 +23,16 @@
         "wires": [
           {
             "id": "b517dd3e71771eb0",
+            "port": 0
+          }
+        ]
+      },
+      {
+        "x": 1120,
+        "y": 120,
+        "wires": [
+          {
+            "id": "2a7cc21f4ee7dbe5",
             "port": 0
           }
         ]
@@ -140,15 +150,15 @@
     "type": "function",
     "z": "2e632affbd071524",
     "name": "Dequeue succsessfull post",
-    "func": "let queue = flow.get(\"queue\")\nlet msg_id = msg.msg_id\n\nlet new_queue = queue.filter(entry => entry.id !== msg_id)\n\nflow.set(\"queue\", new_queue)\n\nreturn msg\n\n",
+    "func": "let queue = flow.get(\"queue\")\nlet msg_id = msg.msg_id\n\n// retrieve the sendt message\nlet message = queue.filter(entry => entry.id == msg_id)\n\n// dequeue the sendt message\nlet new_queue = queue.filter(entry => entry.id !== msg_id)\n\nflow.set(\"queue\", new_queue)\n\n// Return the sent message\nmsg.payload = message\n\nreturn msg\n\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 740,
-    "y": 160,
+    "x": 760,
+    "y": 120,
     "wires": [
       []
     ]
@@ -201,8 +211,26 @@
     "name": "maximum retries reached",
     "mode": "link",
     "links": [],
-    "x": 1115,
-    "y": 120,
+    "x": 815,
+    "y": 180,
     "wires": []
+  },
+  {
+    "id": "406938de3330b8b7",
+    "type": "function",
+    "z": "2e632affbd071524",
+    "name": "initialize empty queue",
+    "func": "",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "// Code added here will be run once\n// whenever the node is started.\nflow.set(\"$parent.queue\", [])",
+    "finalize": "",
+    "libs": [],
+    "x": 700,
+    "y": 60,
+    "wires": [
+      []
+    ]
   }
 ]

@@ -1,0 +1,44 @@
+[
+  {
+    "id": "9252cc4477dcae34",
+    "type": "subflow",
+    "name": "Update last timestamp",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 140,
+        "y": 160,
+        "wires": [
+          {
+            "id": "3295d519f987e3a0"
+          }
+        ]
+      }
+    ],
+    "out": [],
+    "env": [],
+    "meta": {},
+    "color": "#DAC4B4",
+    "icon": "node-red/timer.svg"
+  },
+  {
+    "id": "3295d519f987e3a0",
+    "type": "function",
+    "z": "9252cc4477dcae34",
+    "name": "Update newest timestamp",
+    "func": "const entries = msg.payload;\n\nif (entries.length > 0) {\n    const newestEntry = entries.reduce((a, b) => a.timeCreated > b.timeCreated ? a : b);\n    global.set(`last_${newestEntry.client}_timestamp`, newestEntry.timeCreated);\n}\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 330,
+    "y": 160,
+    "wires": [
+      []
+    ],
+    "info": "Updates the newest timestamp for the given client"
+  }
+]

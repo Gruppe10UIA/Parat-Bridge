@@ -20,17 +20,72 @@
     },
     "nodes": [
       "413516062738b6ec",
-      "5a283579df925b67"
+      "5a283579df925b67",
+      "d3877115a33305e6"
     ],
     "x": 94,
     "y": 79,
-    "w": 452,
+    "w": 472,
     "h": 122
+  },
+  {
+    "id": "96e90febc19e0c83",
+    "type": "group",
+    "z": "84d1a0de660abb59",
+    "name": "Initialization",
+    "style": {
+      "stroke": "#ffff3f",
+      "fill": "#ffffbf",
+      "label": true,
+      "label-position": "n",
+      "color": "#000000"
+    },
+    "nodes": [
+      "03c1d5a79bea3bbf",
+      "2efc4e48a66a9cf1",
+      "2be29013d9e94cd8",
+      "f46652973e5d016e",
+      "e95b4372fea62cfc",
+      "6e81dde533c0b1f4"
+    ],
+    "x": 74,
+    "y": 539,
+    "w": 952,
+    "h": 202
+  },
+  {
+    "id": "354aca9dbc391ace",
+    "type": "group",
+    "z": "84d1a0de660abb59",
+    "name": "Configuration",
+    "style": {
+      "stroke": "#001f60",
+      "fill": "#bfc7d7",
+      "label": true,
+      "color": "#000000",
+      "label-position": "n"
+    },
+    "nodes": [
+      "f7bbfc371ab086b1",
+      "9b6e4d1e92c769d9",
+      "02f5aa2ff841acd1",
+      "4290cc6fa1aadff0",
+      "293cf0ecd677bac0",
+      "a81cbcc889952fb3",
+      "794b757ef07a4e19",
+      "989d45634f23b97e",
+      "3f5a48b721dae9db"
+    ],
+    "x": 74,
+    "y": 259,
+    "w": 832,
+    "h": 242
   },
   {
     "id": "f7bbfc371ab086b1",
     "type": "subflow:99c17cced97ac339",
     "z": "84d1a0de660abb59",
+    "g": "354aca9dbc391ace",
     "name": "",
     "x": 190,
     "y": 400,
@@ -51,6 +106,7 @@
     "id": "9b6e4d1e92c769d9",
     "type": "subflow:5da162b98b7b6b86",
     "z": "84d1a0de660abb59",
+    "g": "354aca9dbc391ace",
     "name": "",
     "x": 430,
     "y": 340,
@@ -65,6 +121,7 @@
     "id": "02f5aa2ff841acd1",
     "type": "subflow:a7d9b521445d1bf0",
     "z": "84d1a0de660abb59",
+    "g": "354aca9dbc391ace",
     "name": "",
     "x": 430,
     "y": 460,
@@ -103,7 +160,7 @@
     "to": "",
     "reg": false,
     "x": 430,
-    "y": 160,
+    "y": 120,
     "wires": [
       []
     ]
@@ -124,23 +181,16 @@
     "y": 120,
     "wires": [
       [
-        "413516062738b6ec"
+        "413516062738b6ec",
+        "d3877115a33305e6"
       ]
     ]
-  },
-  {
-    "id": "5539a5c7e284f07d",
-    "type": "subflow:1ce42ce5a45a0446",
-    "z": "84d1a0de660abb59",
-    "name": "",
-    "x": 1070,
-    "y": 400,
-    "wires": []
   },
   {
     "id": "4290cc6fa1aadff0",
     "type": "join",
     "z": "84d1a0de660abb59",
+    "g": "354aca9dbc391ace",
     "name": "Pass when both configured",
     "mode": "custom",
     "build": "object",
@@ -162,8 +212,8 @@
     "y": 400,
     "wires": [
       [
-        "5539a5c7e284f07d",
-        "293cf0ecd677bac0"
+        "293cf0ecd677bac0",
+        "03c1d5a79bea3bbf"
       ]
     ]
   },
@@ -171,6 +221,7 @@
     "id": "293cf0ecd677bac0",
     "type": "debug",
     "z": "84d1a0de660abb59",
+    "g": "354aca9dbc391ace",
     "name": "correct config",
     "active": false,
     "tosidebar": true,
@@ -188,6 +239,7 @@
     "id": "a81cbcc889952fb3",
     "type": "debug",
     "z": "84d1a0de660abb59",
+    "g": "354aca9dbc391ace",
     "name": "Config Wasos",
     "active": false,
     "tosidebar": true,
@@ -205,6 +257,7 @@
     "id": "794b757ef07a4e19",
     "type": "debug",
     "z": "84d1a0de660abb59",
+    "g": "354aca9dbc391ace",
     "name": "Config Rayvn",
     "active": false,
     "tosidebar": true,
@@ -222,6 +275,7 @@
     "id": "989d45634f23b97e",
     "type": "debug",
     "z": "84d1a0de660abb59",
+    "g": "354aca9dbc391ace",
     "name": "Rayvn output",
     "active": false,
     "tosidebar": true,
@@ -239,6 +293,7 @@
     "id": "3f5a48b721dae9db",
     "type": "debug",
     "z": "84d1a0de660abb59",
+    "g": "354aca9dbc391ace",
     "name": "Wasos output",
     "active": false,
     "tosidebar": true,
@@ -251,5 +306,123 @@
     "x": 180,
     "y": 440,
     "wires": []
+  },
+  {
+    "id": "03c1d5a79bea3bbf",
+    "type": "subflow:0fad769721e9978c",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "name": "",
+    "x": 200,
+    "y": 620,
+    "wires": [
+      [
+        "2efc4e48a66a9cf1"
+      ]
+    ]
+  },
+  {
+    "id": "2efc4e48a66a9cf1",
+    "type": "subflow:2e632affbd071524",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "name": "",
+    "x": 420,
+    "y": 620,
+    "wires": [
+      [
+        "e95b4372fea62cfc"
+      ],
+      [
+        "2be29013d9e94cd8"
+      ]
+    ]
+  },
+  {
+    "id": "2be29013d9e94cd8",
+    "type": "subflow:fe9d5f6f9c2bdb16",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "name": "",
+    "x": 740,
+    "y": 700,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "f46652973e5d016e",
+    "type": "subflow:209f3c980818c499",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "name": "",
+    "x": 900,
+    "y": 620,
+    "wires": [
+      [
+        "6e81dde533c0b1f4"
+      ],
+      [
+        "2efc4e48a66a9cf1"
+      ]
+    ]
+  },
+  {
+    "id": "e95b4372fea62cfc",
+    "type": "subflow:9ee8527d12b415b0",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "name": "",
+    "x": 650,
+    "y": 600,
+    "wires": [
+      [
+        "f46652973e5d016e"
+      ]
+    ]
+  },
+  {
+    "id": "6e81dde533c0b1f4",
+    "type": "debug",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "name": "Initial log post",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 880,
+    "y": 580,
+    "wires": []
+  },
+  {
+    "id": "d3877115a33305e6",
+    "type": "change",
+    "z": "84d1a0de660abb59",
+    "g": "9ab1f6c2842073c5",
+    "name": "set initial master_log",
+    "rules": [
+      {
+        "t": "set",
+        "p": "master_log",
+        "pt": "global",
+        "to": "[]",
+        "tot": "json"
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 440,
+    "y": 160,
+    "wires": [
+      []
+    ]
   }
 ]

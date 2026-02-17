@@ -18,11 +18,11 @@
     ],
     "out": [
       {
-        "x": 700,
+        "x": 920,
         "y": 300,
         "wires": [
           {
-            "id": "22d599a7e5359d86",
+            "id": "b9786e4a2827ddca",
             "port": 0
           }
         ]
@@ -48,8 +48,28 @@
     "x": 480,
     "y": 300,
     "wires": [
-      []
+      [
+        "b9786e4a2827ddca"
+      ]
     ],
     "info": "Maps WaSOS message fields to Bridge format: content->text, createdAt->timeCreated (as timestamp), username->loggedByFullName. Adds wasos as client identifier."
+  },
+  {
+    "id": "b9786e4a2827ddca",
+    "type": "function",
+    "z": "a72933a33e32b28c",
+    "name": "Sort by time",
+    "func": "msg.payload.sort((a, b) => a.timeCreated - b.timeCreated);\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 750,
+    "y": 300,
+    "wires": [
+      []
+    ]
   }
 ]

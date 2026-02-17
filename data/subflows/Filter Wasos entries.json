@@ -38,7 +38,7 @@
     "type": "function",
     "z": "5b8da813a76ba94b",
     "name": "Filter by time",
-    "func": "let data = msg.payload.messages || [];\n\nlet filtered = data.filter(\n    entry => new Date(entry.createdAt).getTime() > global.get(\"last_wasos_timestamp\")\n);\n\nmsg.payload = filtered;\nreturn msg;\n",
+    "func": "let data = msg.payload.messages || [];\n\nlet filtered = data.filter(\n    entry => new Date(entry.createdAt).getTime() > global.get(\"last_wasos_timestamp\") || 0\n);\n\nmsg.payload = filtered;\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,

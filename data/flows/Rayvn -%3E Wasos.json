@@ -31,7 +31,8 @@
     "wires": [
       [
         "e8f453cb650cc177",
-        "4a1c55ec94f7f562"
+        "4a1c55ec94f7f562",
+        "6e481c7cb1720cf7"
       ]
     ]
   },
@@ -71,7 +72,9 @@
     "y": 440,
     "wires": [
       [
-        "d9951ddcbdc5971e",
+        "d9951ddcbdc5971e"
+      ],
+      [
         "edcb8d65c7a805ec"
       ]
     ],
@@ -225,21 +228,12 @@
     ]
   },
   {
-    "id": "406938de3330b8b7",
-    "type": "function",
+    "id": "6e481c7cb1720cf7",
+    "type": "subflow:9252cc4477dcae34",
     "z": "fdea0898d1f24630",
-    "name": "initialize empty queue",
-    "func": "",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "// Code added here will be run once\n// whenever the node is started.\nflow.set(\"queue\", [])",
-    "finalize": "",
-    "libs": [],
-    "x": 600,
-    "y": 100,
-    "wires": [
-      []
-    ]
+    "name": "",
+    "x": 1220,
+    "y": 280,
+    "wires": []
   }
 ]
