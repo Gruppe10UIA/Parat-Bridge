@@ -18,3 +18,4 @@ flow-manager-nodes-order.json
 # Dependencies
 node_modules/
 lib/
+/.idea/
