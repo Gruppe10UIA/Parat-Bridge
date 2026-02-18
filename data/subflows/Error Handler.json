@@ -99,6 +99,7 @@
     "x": 1450,
     "y": 280,
     "wires": [
+      [],
       []
     ],
     "info": "Sends the connection break notification \r\nto the Rayvn log via the POST to Rayvn log subflow.\r\n\r\nTriggered by output 1 from \r\n\"Build connection break notification\"."
@@ -111,6 +112,7 @@
     "x": 1460,
     "y": 360,
     "wires": [
+      [],
       []
     ],
     "info": "Sends the connection break notification\r\ndirectly to WaSOS chat via the \r\nPOST to Wasos chat subflow.\r\n\r\nTriggered by output 2 from\r\n\"Build connection break notification\".\r\n"
