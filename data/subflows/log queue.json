@@ -206,7 +206,8 @@
     "y": 220,
     "wires": [
       [
-        "edf196f867834eb4"
+        "edf196f867834eb4",
+        "006115f685dcf065"
       ],
       [
         "b517dd3e71771eb0"
@@ -220,7 +221,7 @@
     "name": "maximum retries reached",
     "mode": "link",
     "links": [],
-    "x": 835,
+    "x": 885,
     "y": 180,
     "wires": []
   },
@@ -308,6 +309,23 @@
     "statusType": "auto",
     "x": 1040,
     "y": 220,
+    "wires": []
+  },
+  {
+    "id": "006115f685dcf065",
+    "type": "debug",
+    "z": "2e632affbd071524",
+    "name": "message failed",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 740,
+    "y": 180,
     "wires": []
   }
 ]
