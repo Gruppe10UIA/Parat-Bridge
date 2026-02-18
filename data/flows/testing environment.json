@@ -218,7 +218,7 @@
     "rules": [
       {
         "t": "set",
-        "p": "poll_rayvn",
+        "p": "pollRayvn",
         "pt": "global",
         "to": "payload",
         "tot": "msg"
@@ -277,7 +277,7 @@
     "rules": [
       {
         "t": "set",
-        "p": "poll_wasos",
+        "p": "pollWasos",
         "pt": "global",
         "to": "payload",
         "tot": "msg"

@@ -43,7 +43,7 @@
     "method": "POST",
     "ret": "obj",
     "paytoqs": "ignore",
-    "url": "https://invalid.wasos.no/login",
+    "url": "",
     "tls": "",
     "persist": false,
     "proxy": "",
