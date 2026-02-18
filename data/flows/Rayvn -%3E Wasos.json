@@ -105,7 +105,9 @@
       [
         "c80cdddcb40c9aab"
       ],
-      []
+      [
+        "e8f453cb650cc177"
+      ]
     ],
     "info": "This subflow takes a formatted Wasos chat\r\npackage and Makes a POST request to the\r\nWasos client"
   },

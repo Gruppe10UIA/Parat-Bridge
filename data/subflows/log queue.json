@@ -12,6 +12,9 @@
         "wires": [
           {
             "id": "b10e551af2b47fa1"
+          },
+          {
+            "id": "8788f6ce818a6577"
           }
         ]
       }
@@ -181,7 +184,9 @@
     "x": 940,
     "y": 280,
     "wires": [
-      []
+      [
+        "4461d77da5387fe7"
+      ]
     ]
   },
   {
@@ -268,6 +273,40 @@
     "statusType": "auto",
     "x": 750,
     "y": 80,
+    "wires": []
+  },
+  {
+    "id": "8788f6ce818a6577",
+    "type": "debug",
+    "z": "2e632affbd071524",
+    "name": "Queue input",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 150,
+    "y": 200,
+    "wires": []
+  },
+  {
+    "id": "4461d77da5387fe7",
+    "type": "debug",
+    "z": "2e632affbd071524",
+    "name": "Message send",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 940,
+    "y": 220,
     "wires": []
   }
 ]

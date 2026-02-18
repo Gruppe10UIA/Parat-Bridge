@@ -357,5 +357,65 @@
         "4f2504777076bc4d"
       ]
     ]
+  },
+  {
+    "id": "66922d85be331de8",
+    "type": "ui-number-input",
+    "z": "901ed98289cc4ecd",
+    "group": "9df65904057aeaa7",
+    "name": "Test response",
+    "label": "Test response",
+    "order": 0,
+    "width": 0,
+    "height": 0,
+    "topic": "topic",
+    "topicType": "msg",
+    "min": 0,
+    "max": "1000",
+    "step": 1,
+    "tooltip": "",
+    "delay": 300,
+    "passthru": true,
+    "sendOnDelay": false,
+    "sendOnBlur": true,
+    "sendOnEnter": true,
+    "className": "",
+    "clearable": false,
+    "icon": "",
+    "iconPosition": "left",
+    "iconInnerPosition": "inside",
+    "spinner": "default",
+    "x": 460,
+    "y": 400,
+    "wires": [
+      [
+        "4115bf635ed27a54"
+      ]
+    ]
+  },
+  {
+    "id": "4115bf635ed27a54",
+    "type": "change",
+    "z": "901ed98289cc4ecd",
+    "name": "set test response code",
+    "rules": [
+      {
+        "t": "set",
+        "p": "test_response",
+        "pt": "global",
+        "to": "payload",
+        "tot": "msg"
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 710,
+    "y": 400,
+    "wires": [
+      []
+    ]
   }
 ]
