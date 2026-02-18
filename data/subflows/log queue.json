@@ -51,7 +51,7 @@
     "type": "function",
     "z": "2e632affbd071524",
     "name": "Enqueue new messages",
-    "func": "let message = msg.payload\nlet client = message.client\n\nlet queue = flow.get(\"queue\");\nqueue.push(message)\nflow.set(\"queue\", queue)\n\nreturn msg;",
+    "func": "let message = msg.payload\nlet client = message.client\n\nlet queue = flow.get(\"$parent.queue\");\nqueue.push(message)\nflow.set(\"$parent.queue\", queue)\n\n// Only trigger send after the last message is enqueued\nif (msg.parts && msg.parts.index === msg.parts.count - 1) {\n    return msg;\n}\nreturn null;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -62,8 +62,8 @@
     "y": 340,
     "wires": [
       [
-        "b517dd3e71771eb0",
-        "20509a97a6128571"
+        "20509a97a6128571",
+        "b517dd3e71771eb0"
       ]
     ]
   },
@@ -154,7 +154,7 @@
     "type": "function",
     "z": "2e632affbd071524",
     "name": "Dequeue succsessfull post",
-    "func": "let queue = flow.get(\"queue\")\nlet msg_id = msg.msg_id\n\n// retrieve the sendt message\nlet message = queue.filter(entry => entry.id == msg_id)\n\n// dequeue the sendt message\nlet new_queue = queue.filter(entry => entry.id !== msg_id)\n\nflow.set(\"queue\", new_queue)\n\n// Return the sent message\nmsg.payload = message\n\nreturn msg\n\n",
+    "func": "let queue = flow.get(\"$parent.queue\")\nlet msg_id = msg.msg_id\n\n// retrieve the sendt message\nlet message = queue.filter(entry => entry.id == msg_id)\n\n// dequeue the sendt message\nlet new_queue = queue.filter(entry => entry.id !== msg_id)\n\nflow.set(\"$parent.queue\", new_queue)\n\n// Return the sent message\nmsg.payload = message\n\nreturn msg\n\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -174,7 +174,7 @@
     "type": "function",
     "z": "2e632affbd071524",
     "name": "Send message",
-    "func": "let queue = flow.get(\"queue\")\n\nif (queue.length <= 0){\n    return null\n}\n\nlet message = queue[0]\n\nmsg.msg_id = message.id // passing on the id to be used if it returns\nmsg.payload = message\n\nreturn msg;",
+    "func": "let queue = flow.get(\"$parent.queue\")\n\nif (queue.length <= 0){\n    return null\n}\n\nlet message = queue[0]\n\nmsg.msg_id = message.id // passing on the id to be used if it returns\nmsg.payload = [message]\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
