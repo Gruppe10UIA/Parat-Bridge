@@ -139,7 +139,7 @@
     "type": "switch",
     "z": "6844cb2c3b9378da",
     "name": "",
-    "property": "pollWasos",
+    "property": "poll_wasos",
     "propertyType": "global",
     "rules": [
       {
