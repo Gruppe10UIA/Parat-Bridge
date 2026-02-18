@@ -47,7 +47,7 @@
     "proxy": "",
     "insecureHTTPParser": false,
     "authType": "",
-    "senderr": false,
+    "senderr": true,
     "headers": [],
     "x": 860,
     "y": 300,

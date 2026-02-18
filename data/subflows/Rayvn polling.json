@@ -68,7 +68,7 @@
     "proxy": "",
     "insecureHTTPParser": false,
     "authType": "",
-    "senderr": false,
+    "senderr": true,
     "headers": [],
     "x": 1190,
     "y": 200,
@@ -141,5 +141,31 @@
       ]
     ],
     "info": "Allows injects to pass through if polling is enabled."
+  },
+  {
+    "id": "017c291e6ab9d693",
+    "type": "subflow:7cecb563cf8b234a",
+    "z": "1c21db2b0b16a979",
+    "name": "",
+    "x": 970,
+    "y": 80,
+    "wires": [],
+    "info": "Centralized error handler for this subflow.\r\nReceives errors from the catch node and:\r\n- Classifies and logs the error\r\n- Sends notification to Rayvn and WaSOS\r\n  if 5+ consecutive failures occur"
+  },
+  {
+    "id": "405999065fa0e9c1",
+    "type": "catch",
+    "z": "1c21db2b0b16a979",
+    "name": "",
+    "scope": null,
+    "uncaught": false,
+    "x": 800,
+    "y": 80,
+    "wires": [
+      [
+        "017c291e6ab9d693"
+      ]
+    ],
+    "info": "Catches all errors from nodes in this subflow\r\nand forwards them to the centralized \r\nError Handler subflow for classification,\r\nlogging and notification."
   }
 ]

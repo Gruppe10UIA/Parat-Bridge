@@ -1,0 +1,89 @@
+[
+  {
+    "id": "003e75aaa2880405",
+    "type": "tab",
+    "label": "System handling",
+    "disabled": false,
+    "info": "",
+    "env": []
+  },
+  {
+    "id": "b174b7b88e8a24b4",
+    "type": "inject",
+    "z": "003e75aaa2880405",
+    "name": "",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "repeat": "5",
+    "crontab": "",
+    "once": true,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 410,
+    "y": 260,
+    "wires": [
+      [
+        "666d47d1dca16efb"
+      ]
+    ],
+    "info": "Triggers the error log fetch every 5 seconds.\r\nEnsures the dashboard table stays up to date\r\nwith the latest errors from global context.\r\n"
+  },
+  {
+    "id": "666d47d1dca16efb",
+    "type": "function",
+    "z": "003e75aaa2880405",
+    "name": "Get error log",
+    "func": "let errorLog = global.get('error_log') || [];\n\n// Vis de siste 10 feilene, nyeste først\nconst recent = errorLog.slice(-10).reverse();\n\nmsg.payload = recent.map(e => ({\n    time: e.timestamp.replace('T', ' ').substring(0, 19),\n    type: e.type.toUpperCase(),\n    source: e.source,\n    status: e.statusCode || 'none',\n    message: e.message.substring(0, 60)\n}));\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 650,
+    "y": 260,
+    "wires": [
+      [
+        "ddef126c9f69bdc9"
+      ]
+    ],
+    "info": "Fetches the last 10 errors from global context\r\n(error_log) and formats them for display in\r\nthe dashboard table.\r\n\r\nReturns errors in reverse chronological order\r\n(newest first) with the following fields:\r\n- time: timestamp (formatted)\r\n- type: error type in uppercase\r\n- source: source node name\r\n- status: HTTP status code or 'none'\r\n- message: error message (max 60 chars)\r\n"
+  },
+  {
+    "id": "ddef126c9f69bdc9",
+    "type": "ui-table",
+    "z": "003e75aaa2880405",
+    "group": "60fb1b7421fbbd11",
+    "name": "",
+    "label": "Last error",
+    "order": 0,
+    "width": 0,
+    "height": 0,
+    "maxrows": 0,
+    "passthru": false,
+    "autocols": true,
+    "showSearch": true,
+    "deselect": true,
+    "selectionType": "none",
+    "columns": [],
+    "mobileBreakpoint": "sm",
+    "mobileBreakpointType": "defaults",
+    "action": "replace",
+    "className": "",
+    "x": 900,
+    "y": 260,
+    "wires": [
+      []
+    ],
+    "info": "Displays the last 10 errors from the error log\r\nin a table on the Error Monitor dashboard page.\r\n\r\nUpdates every 5 seconds via the timestamp\r\ninject node. Table is replaced (not appended)\r\non each update.\r\n\r\nColumns (auto-calculated):\r\n- time, type, source, status, message\r\n"
+  }
+]
