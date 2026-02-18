@@ -123,7 +123,7 @@
     "type": "switch",
     "z": "1c21db2b0b16a979",
     "name": "",
-    "property": "pollRayvn",
+    "property": "poll_rayvn",
     "propertyType": "global",
     "rules": [
       {
