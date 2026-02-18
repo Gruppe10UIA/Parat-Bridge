@@ -6,6 +6,9 @@
 *.backup
 */flows.json
 
+# Node-RED context storage (runtime data, user-specific)
+data/context/
+
 # Flow manager generated files
 flow-manager-cfg.json
 flow-manager-nodes-order.json
@@ -22,3 +25,6 @@ lib/
 # Rider generated files
 /.idea/
 .DS_Store
+
+# Claude
+.claude/

@@ -1,0 +1,118 @@
+[
+  {
+    "id": "7cecb563cf8b234a",
+    "type": "subflow",
+    "name": "Error Handler",
+    "info": "This subflow is a centralized errorhandler\r\nfor all HTTP request nodes in Parat-Bridge.\r\n\r\nReceives errors from catch-nodes in all\r\nsubflows and:\r\n1. Classifies the error(network, auth, not_found, rate_limit, server, client)\r\n2. Logs the error to global context (error_log) writes to disc.\r\n3. Counts errors per classification (failure_counts)\r\n4. Sends notification to Rayvn and Wasos when more than 5 continuing errors from the same source happens.\r\n    - Notifies again at 15, 25, 35... (every 10 error after first notification.)\r\n\r\n",
+    "category": "",
+    "in": [
+      {
+        "x": 240,
+        "y": 320,
+        "wires": [
+          {
+            "id": "58081edc4740bb35"
+          }
+        ]
+      }
+    ],
+    "out": [],
+    "env": [],
+    "meta": {},
+    "color": "#E9967A",
+    "icon": "font-awesome/fa-times-circle-o"
+  },
+  {
+    "id": "58081edc4740bb35",
+    "type": "function",
+    "z": "7cecb563cf8b234a",
+    "name": "Classify and log error",
+    "func": "const statusCode = msg.statusCode;\nconst errorMsg = msg.error ? msg.error.message : 'Unknown error';\nconst source = msg.error ? (msg.error.source ? msg.error.source.name : 'Unknown node') : 'Unknown node';\nconst now = new Date().toISOString();\n\nlet errorType = 'unknown';\nlet isCritical = false;\n\nif (!statusCode || statusCode === 0) {\n    errorType = 'network';\n    isCritical = true;\n} else if (statusCode === 401 || statusCode === 403) {\n    errorType = 'auth';\n    isCritical = true;\n} else if (statusCode === 404) {\n    errorType = 'not_found';\n} else if (statusCode === 429) {\n    errorType = 'rate_limit';\n} else if (statusCode >= 500) {\n    errorType = 'server';\n    isCritical = true;\n} else if (statusCode >= 400) {\n    errorType = 'client';\n}\n\nconst errorEntry = {\n    timestamp: now,\n    type: errorType,\n    critical: isCritical,\n    statusCode: statusCode || null,\n    message: errorMsg,\n    source: source,\n    url: msg.url || null\n};\n\nlet errorLog = global.get('error_log') || [];\nif (errorLog.length >= 100) {\n    errorLog = errorLog.slice(-99);\n}\nerrorLog.push(errorEntry);\nglobal.set('error_log', errorLog);\n\nlet failureCounts = global.get('failure_counts') || {};\nfailureCounts[source] = (failureCounts[source] || 0) + 1;\nglobal.set('failure_counts', failureCounts);\n\nmsg.errorEntry = errorEntry;\nmsg.failureCount = failureCounts[source];\nmsg.isCritical = isCritical;\n\nnode.error(`[${errorType.toUpperCase()}] ${source}: ${errorMsg} (status: ${statusCode || 'none'})`);\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 460,
+    "y": 320,
+    "wires": [
+      [
+        "e08f4ca34eced1db"
+      ]
+    ],
+    "info": "Receives errors from catch nodes and:\r\n\r\n1. Classifies the error by HTTP status code:\r\n   - network: no connection (status 0/null) - critical\r\n   - auth: 401/403 - critical\r\n   - not_found: 404\r\n   - rate_limit: 429\r\n   - server: 5xx - critical\r\n   - client: 4xx\r\n\r\n2. Logs the error to global context (error_log, max 100 entries)\r\n   - Persisted to disk via localfilesystem context storage\r\n\r\n3. Counts failures per source node (failure_counts)\r\n\r\n4. Sets msg properties for downstream nodes:\r\n   - msg.errorEntry: full error details\r\n   - msg.failureCount: total failures from this source\r\n   - msg.isCritical: true if critical error type\r\n"
+  },
+  {
+    "id": "4a4070c77201a81b",
+    "type": "switch",
+    "z": "7cecb563cf8b234a",
+    "name": "Connection break: 5+ failures",
+    "property": "failureCount",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "gte",
+        "v": "5",
+        "vt": "str"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 1,
+    "x": 740,
+    "y": 460,
+    "wires": [
+      []
+    ],
+    "info": "Switch node that checks if a source node has \r\nfailed 5 or more times.\r\n\r\nPasses the message downstream only if:\r\n- msg.failureCount >= 5\r\n\r\nIf below threshold, message is dropped and\r\nno notification is sent.\r\n"
+  },
+  {
+    "id": "e08f4ca34eced1db",
+    "type": "function",
+    "z": "7cecb563cf8b234a",
+    "name": "Build connection break notification",
+    "func": "const count = msg.failureCount;\nconst entry = msg.errorEntry;\n\n// Rate limit: notify at 5, then every 10th (15, 25, 35...)\nconst shouldNotify = count === 5 || (count > 5 && (count - 5) % 10 === 0);\n\nif (!shouldNotify) {\n    return null;\n}\n\nconst text = `⚠️ CONNECTION BREAK: ${entry.source} has failed ${count} times. ` +\n    `Last error: [${entry.type.toUpperCase()}] ${entry.message} ` +\n    `(status: ${entry.statusCode || 'none'}) at ${entry.timestamp}`;\n\nmsg.message = text;\nmsg.payload = [{ content: text }];\ndelete msg.url;\ndelete msg.headers;\n\nreturn [msg, msg];\n",
+    "outputs": 2,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 1060,
+    "y": 320,
+    "wires": [
+      [
+        "460c049d9a376213"
+      ],
+      [
+        "c94fdbb3457bc7bd"
+      ]
+    ],
+    "info": "Builds a connection break notification message\r\nand applies rate limiting.\r\n\r\nRate limiting:\r\n- Notifies at count = 5\r\n- Then every 10th failure (15, 25, 35...)\r\n- Returns null (stops flow) if not a notify interval\r\n\r\nOutput:\r\n- Output 1: POST to Rayvn log\r\n- Output 2: POST to Wasos chat\r\n- msg.payload: [{ content: \"⚠️ CONNECTION BREAK...\" }]\r\n- msg.message: notification text"
+  },
+  {
+    "id": "460c049d9a376213",
+    "type": "subflow:4a6a1af9b9af6b0f",
+    "z": "7cecb563cf8b234a",
+    "name": "",
+    "x": 1450,
+    "y": 280,
+    "wires": [
+      []
+    ],
+    "info": "Sends the connection break notification \r\nto the Rayvn log via the POST to Rayvn log subflow.\r\n\r\nTriggered by output 1 from \r\n\"Build connection break notification\"."
+  },
+  {
+    "id": "c94fdbb3457bc7bd",
+    "type": "subflow:209f3c980818c499",
+    "z": "7cecb563cf8b234a",
+    "name": "",
+    "x": 1460,
+    "y": 360,
+    "wires": [
+      []
+    ],
+    "info": "Sends the connection break notification\r\ndirectly to WaSOS chat via the \r\nPOST to Wasos chat subflow.\r\n\r\nTriggered by output 2 from\r\n\"Build connection break notification\".\r\n"
+  }
+]
