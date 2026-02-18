@@ -18,11 +18,11 @@
     ],
     "out": [
       {
-        "x": 900,
-        "y": 80,
+        "x": 580,
+        "y": 240,
         "wires": [
           {
-            "id": "06693abda16b511c",
+            "id": "de9fa88ba84fe0e0",
             "port": 0
           }
         ]
@@ -66,7 +66,9 @@
     "x": 710,
     "y": 80,
     "wires": [
-      []
+      [
+        "e4f61546cd395d89"
+      ]
     ]
   },
   {
@@ -89,5 +91,50 @@
       ]
     ],
     "info": "Prepares the HTTP request to fetch Rayvn log entries. Sets Authorization header and builds the API URL."
+  },
+  {
+    "id": "de9fa88ba84fe0e0",
+    "type": "change",
+    "z": "0fad769721e9978c",
+    "name": "",
+    "rules": [
+      {
+        "t": "set",
+        "p": "topic",
+        "pt": "msg",
+        "to": "new_messages",
+        "tot": "str"
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 390,
+    "y": 240,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "e4f61546cd395d89",
+    "type": "function",
+    "z": "0fad769721e9978c",
+    "name": "Sort by time",
+    "func": "msg.payload.sort((a, b) => a.timeCreated - b.timeCreated);\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 210,
+    "y": 240,
+    "wires": [
+      [
+        "de9fa88ba84fe0e0"
+      ]
+    ]
   }
 ]

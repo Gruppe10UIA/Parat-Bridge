@@ -63,7 +63,7 @@
     "y": 480,
     "wires": [
       [
-        "d8ba5952c6f01ecb"
+        "03bd706cf789c2fc"
       ]
     ],
     "info": "Sends the message to WaSOS chat API with POST request. This is the step that delivers the Rayvn message into the WaSOS chat."
@@ -150,6 +150,26 @@
     "y": 560,
     "wires": [
       []
+    ]
+  },
+  {
+    "id": "03bd706cf789c2fc",
+    "type": "function",
+    "z": "209f3c980818c499",
+    "name": "Overwrite for testing",
+    "func": "if (global.get(\"test_response\")) {\n    msg.statusCode = global.get(\"test_response\")\n}\n\n\n\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 880,
+    "y": 520,
+    "wires": [
+      [
+        "d8ba5952c6f01ecb"
+      ]
     ]
   }
 ]

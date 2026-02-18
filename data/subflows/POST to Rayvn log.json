@@ -28,8 +28,8 @@
         ]
       },
       {
-        "x": 1200,
-        "y": 380,
+        "x": 1220,
+        "y": 460,
         "wires": [
           {
             "id": "f8d5ca9b4e03584d",
@@ -63,7 +63,7 @@
     "y": 300,
     "wires": [
       [
-        "f8d5ca9b4e03584d"
+        "720f47213810b7c3"
       ]
     ],
     "info": "Sends the message to Rayvn log API with POST request. This is the step that delivers the WaSOS message into the Rayvn log."
@@ -121,10 +121,30 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 1060,
-    "y": 380,
+    "x": 1080,
+    "y": 460,
     "wires": [
       []
+    ]
+  },
+  {
+    "id": "720f47213810b7c3",
+    "type": "function",
+    "z": "4a6a1af9b9af6b0f",
+    "name": "Overwrite for testing",
+    "func": "if (global.get(\"test_response\")) {\n    msg.statusCode = global.get(\"test_response\")\n}\n\n\n\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 1050,
+    "y": 380,
+    "wires": [
+      [
+        "f8d5ca9b4e03584d"
+      ]
     ]
   }
 ]
