@@ -163,7 +163,8 @@
     "wires": [
       [
         "5539a5c7e284f07d",
-        "293cf0ecd677bac0"
+        "293cf0ecd677bac0",
+        "6f7fd472cd12528b"
       ]
     ]
   },
@@ -252,4 +253,40 @@
     "y": 440,
     "wires": []
   }
+   },
+  {
+    "id": "6f7fd472cd12528b",
+    "type": "change",
+    "z": "84d1a0de660abb59",
+    "name": "Enable polling",
+    "rules": [
+      {
+        "t": "set",
+        "p": "poll_rayvn",
+        "pt": "global",
+        "to": "true",
+        "tot": "bool"
+      },
+      {
+        "t": "set",
+        "p": "poll_wasos",
+        "pt": "global",
+        "to": "true",
+        "tot": "bool"
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 1040,
+    "y": 460,
+       "wires": [
+      []
+    ]
+  }
+]
+      []
+    ]
 ]
