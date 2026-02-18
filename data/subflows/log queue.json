@@ -31,7 +31,7 @@
         ]
       },
       {
-        "x": 1100,
+        "x": 1200,
         "y": 280,
         "wires": [
           {
@@ -51,7 +51,7 @@
     "type": "function",
     "z": "2e632affbd071524",
     "name": "Enqueue new messages",
-    "func": "let message = msg.payload\nlet client = message.client\n\nlet queue = flow.get(\"$parent.queue\");\nqueue.push(message)\nflow.set(\"$parent.queue\", queue)\n\n// Only trigger send after the last message is enqueued\nif (msg.parts && msg.parts.index === msg.parts.count - 1) {\n    return msg;\n}\nreturn null;",
+    "func": "let message = msg.payload\nlet client = message.client\n\nlet queue = flow.get(\"$parent.queue\");\nqueue.push(message)\nflow.set(\"$parent.queue\", queue)\n\n// Only trigger send after the last message is enqueued\nif (msg.parts && msg.parts.index === msg.parts.count - 1) {\n    return msg;\n}\nreturn null;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -165,7 +165,8 @@
     "y": 120,
     "wires": [
       [
-        "8edb190c121fcc51"
+        "8edb190c121fcc51",
+        "b517dd3e71771eb0"
       ]
     ]
   },
@@ -181,7 +182,7 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 940,
+    "x": 1040,
     "y": 280,
     "wires": [
       [
@@ -305,7 +306,7 @@
     "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 940,
+    "x": 1040,
     "y": 220,
     "wires": []
   }

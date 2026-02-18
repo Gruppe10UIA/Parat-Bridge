@@ -54,7 +54,8 @@
       "e95b4372fea62cfc",
       "6e81dde533c0b1f4",
       "215d734a758d3e4e",
-      "e5997ab2f3eb1fb6"
+      "e5997ab2f3eb1fb6",
+      "a814dfd2fd2a6b9b"
     ],
     "x": 74,
     "y": 539,
@@ -244,7 +245,8 @@
     "y": 660,
     "wires": [
       [
-        "2efc4e48a66a9cf1"
+        "2efc4e48a66a9cf1",
+        "a814dfd2fd2a6b9b"
       ]
     ]
   },
@@ -254,7 +256,7 @@
     "z": "84d1a0de660abb59",
     "g": "354aca9dbc391ace",
     "name": "Wasos output",
-    "active": true,
+    "active": false,
     "tosidebar": true,
     "console": false,
     "tostatus": false,
@@ -272,7 +274,7 @@
     "z": "84d1a0de660abb59",
     "g": "354aca9dbc391ace",
     "name": "Rayvn output",
-    "active": true,
+    "active": false,
     "tosidebar": true,
     "console": false,
     "tostatus": false,
@@ -290,7 +292,7 @@
     "z": "84d1a0de660abb59",
     "g": "354aca9dbc391ace",
     "name": "Config Rayvn",
-    "active": true,
+    "active": false,
     "tosidebar": true,
     "console": false,
     "tostatus": false,
@@ -308,7 +310,7 @@
     "z": "84d1a0de660abb59",
     "g": "354aca9dbc391ace",
     "name": "Config Wasos",
-    "active": true,
+    "active": false,
     "tosidebar": true,
     "console": false,
     "tostatus": false,
@@ -326,7 +328,7 @@
     "z": "84d1a0de660abb59",
     "g": "354aca9dbc391ace",
     "name": "correct config",
-    "active": true,
+    "active": false,
     "tosidebar": true,
     "console": false,
     "tostatus": false,
@@ -472,6 +474,25 @@
         "413516062738b6ec",
         "3f5a48b721dae9db"
       ]
+    ]
+  },
+  {
+    "id": "a814dfd2fd2a6b9b",
+    "type": "function",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "name": "Set initial timestamp",
+    "func": "let timestamp = msg.payload[msg.payload.length - 1].timeCreated\n\nglobal.set(\"last_rayvn_timestamp\", timestamp)\nglobal.set(\"last_wasos_timestamp\", Date.now())\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 600,
+    "wires": [
+      []
     ]
   }
 ]

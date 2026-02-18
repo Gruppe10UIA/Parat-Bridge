@@ -158,7 +158,7 @@
     "z": "559975c27e81a86b",
     "g": "d4b8f2a40d3eff46",
     "name": "Wasos filtered entries",
-    "active": false,
+    "active": true,
     "tosidebar": true,
     "console": false,
     "tostatus": false,
