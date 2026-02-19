@@ -8,175 +8,59 @@
     "env": []
   },
   {
-    "id": "94b2e009834e7457",
-    "type": "subflow:0047704f35a57b0c",
+    "id": "859e4fe853cbece6",
+    "type": "group",
     "z": "fdea0898d1f24630",
-    "name": "",
-    "x": 610,
-    "y": 280,
-    "wires": [
-      [
-        "336a09e1fa63bcb2",
-        "73ba40e05157c072"
-      ]
-    ]
-  },
-  {
-    "id": "336a09e1fa63bcb2",
-    "type": "subflow:e56a9c672a5eb8f6",
-    "z": "fdea0898d1f24630",
-    "name": "",
-    "x": 910,
-    "y": 280,
-    "wires": [
-      [
-        "edcb8d65c7a805ec",
-        "e8f453cb650cc177",
-        "4a1c55ec94f7f562"
-      ]
-    ]
-  },
-  {
-    "id": "edcb8d65c7a805ec",
-    "type": "subflow:fe9d5f6f9c2bdb16",
-    "z": "fdea0898d1f24630",
-    "name": "",
-    "x": 1240,
-    "y": 280,
-    "wires": [
-      [
-        "33a0b6eee51a333a"
-      ]
-    ]
-  },
-  {
-    "id": "e0ea47ed88577046",
-    "type": "subflow:1c21db2b0b16a979",
-    "z": "fdea0898d1f24630",
-    "name": "",
-    "x": 340,
-    "y": 280,
-    "wires": [
-      [
-        "94b2e009834e7457",
-        "27c43e87cadaab1d"
-      ]
-    ]
-  },
-  {
-    "id": "e8f453cb650cc177",
-    "type": "subflow:2e632affbd071524",
-    "z": "fdea0898d1f24630",
-    "name": "",
-    "x": 370,
-    "y": 440,
-    "wires": [
-      [
-        "d9951ddcbdc5971e"
-      ]
+    "name": "Retrieve",
+    "style": {
+      "stroke": "#0070c0",
+      "fill": "#bfdbef",
+      "label": true,
+      "label-position": "n",
+      "color": "#000000"
+    },
+    "nodes": [
+      "94b2e009834e7457",
+      "336a09e1fa63bcb2",
+      "e0ea47ed88577046",
+      "73ba40e05157c072",
+      "4a1c55ec94f7f562",
+      "27c43e87cadaab1d"
     ],
-    "info": "subflow, is currently a placeholder, but\r\nshould in the future be responsible for queueing"
+    "x": 234,
+    "y": 199,
+    "w": 832,
+    "h": 122
   },
   {
-    "id": "d9951ddcbdc5971e",
-    "type": "subflow:9ee8527d12b415b0",
+    "id": "4217539236797617",
+    "type": "group",
     "z": "fdea0898d1f24630",
-    "name": "",
-    "x": 630,
-    "y": 440,
-    "wires": [
-      [
-        "abe5d62bc9ae2a47",
-        "7cddce93b0c1de1d"
-      ]
-    ]
-  },
-  {
-    "id": "7cddce93b0c1de1d",
-    "type": "subflow:209f3c980818c499",
-    "z": "fdea0898d1f24630",
-    "name": "",
-    "x": 940,
-    "y": 440,
-    "wires": [
-      [
-        "c80cdddcb40c9aab"
-      ]
+    "name": "Send",
+    "style": {
+      "stroke": "#92d04f",
+      "fill": "#e3f3d3",
+      "label": true,
+      "label-position": "n",
+      "color": "#000000"
+    },
+    "nodes": [
+      "e8f453cb650cc177",
+      "d9951ddcbdc5971e",
+      "7cddce93b0c1de1d",
+      "abe5d62bc9ae2a47",
+      "c80cdddcb40c9aab"
     ],
-    "info": "This subflow takes a formatted Wasos chat\r\npackage and Makes a POST request to the\r\nWasos client"
-  },
-  {
-    "id": "abe5d62bc9ae2a47",
-    "type": "debug",
-    "z": "fdea0898d1f24630",
-    "name": "formatted wasos log entries",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 640,
-    "y": 400,
-    "wires": []
-  },
-  {
-    "id": "73ba40e05157c072",
-    "type": "debug",
-    "z": "fdea0898d1f24630",
-    "name": "new Rayvn entries",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 610,
-    "y": 240,
-    "wires": []
-  },
-  {
-    "id": "4a1c55ec94f7f562",
-    "type": "debug",
-    "z": "fdea0898d1f24630",
-    "name": "formatted Rayvn entries",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 910,
-    "y": 240,
-    "wires": []
-  },
-  {
-    "id": "c80cdddcb40c9aab",
-    "type": "debug",
-    "z": "fdea0898d1f24630",
-    "name": "Wasos Chat Output Debug",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 960,
-    "y": 400,
-    "wires": []
+    "x": 234,
+    "y": 439,
+    "w": 892,
+    "h": 122
   },
   {
     "id": "27c43e87cadaab1d",
     "type": "debug",
     "z": "fdea0898d1f24630",
+    "g": "859e4fe853cbece6",
     "name": "Rayvn polling result",
     "active": false,
     "tosidebar": true,
@@ -191,6 +75,188 @@
     "wires": []
   },
   {
+    "id": "c80cdddcb40c9aab",
+    "type": "debug",
+    "z": "fdea0898d1f24630",
+    "g": "4217539236797617",
+    "name": "Wasos Chat Output Debug",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 960,
+    "y": 480,
+    "wires": []
+  },
+  {
+    "id": "4a1c55ec94f7f562",
+    "type": "debug",
+    "z": "fdea0898d1f24630",
+    "g": "859e4fe853cbece6",
+    "name": "formatted Rayvn entries",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 910,
+    "y": 240,
+    "wires": []
+  },
+  {
+    "id": "73ba40e05157c072",
+    "type": "debug",
+    "z": "fdea0898d1f24630",
+    "g": "859e4fe853cbece6",
+    "name": "new Rayvn entries",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 610,
+    "y": 240,
+    "wires": []
+  },
+  {
+    "id": "abe5d62bc9ae2a47",
+    "type": "debug",
+    "z": "fdea0898d1f24630",
+    "g": "4217539236797617",
+    "name": "formatted wasos log entries",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 640,
+    "y": 480,
+    "wires": []
+  },
+  {
+    "id": "7cddce93b0c1de1d",
+    "type": "subflow:209f3c980818c499",
+    "z": "fdea0898d1f24630",
+    "g": "4217539236797617",
+    "name": "",
+    "x": 940,
+    "y": 520,
+    "wires": [
+      [
+        "c80cdddcb40c9aab"
+      ],
+      [
+        "e8f453cb650cc177"
+      ]
+    ],
+    "info": "This subflow takes a formatted Wasos chat\r\npackage and Makes a POST request to the\r\nWasos client"
+  },
+  {
+    "id": "d9951ddcbdc5971e",
+    "type": "subflow:9ee8527d12b415b0",
+    "z": "fdea0898d1f24630",
+    "g": "4217539236797617",
+    "name": "",
+    "x": 630,
+    "y": 520,
+    "wires": [
+      [
+        "abe5d62bc9ae2a47",
+        "7cddce93b0c1de1d"
+      ]
+    ]
+  },
+  {
+    "id": "e8f453cb650cc177",
+    "type": "subflow:2e632affbd071524",
+    "z": "fdea0898d1f24630",
+    "g": "4217539236797617",
+    "name": "",
+    "x": 320,
+    "y": 520,
+    "wires": [
+      [
+        "edcb8d65c7a805ec"
+      ],
+      [
+        "d9951ddcbdc5971e"
+      ]
+    ],
+    "info": "subflow, is currently a placeholder, but\r\nshould in the future be responsible for queueing"
+  },
+  {
+    "id": "e0ea47ed88577046",
+    "type": "subflow:1c21db2b0b16a979",
+    "z": "fdea0898d1f24630",
+    "g": "859e4fe853cbece6",
+    "name": "",
+    "x": 340,
+    "y": 280,
+    "wires": [
+      [
+        "94b2e009834e7457",
+        "27c43e87cadaab1d"
+      ]
+    ]
+  },
+  {
+    "id": "336a09e1fa63bcb2",
+    "type": "subflow:e56a9c672a5eb8f6",
+    "z": "fdea0898d1f24630",
+    "g": "859e4fe853cbece6",
+    "name": "",
+    "x": 910,
+    "y": 280,
+    "wires": [
+      [
+        "e8f453cb650cc177",
+        "4a1c55ec94f7f562",
+        "6e481c7cb1720cf7"
+      ]
+    ]
+  },
+  {
+    "id": "94b2e009834e7457",
+    "type": "subflow:0047704f35a57b0c",
+    "z": "fdea0898d1f24630",
+    "g": "859e4fe853cbece6",
+    "name": "",
+    "x": 610,
+    "y": 280,
+    "wires": [
+      [
+        "336a09e1fa63bcb2",
+        "73ba40e05157c072"
+      ]
+    ]
+  },
+  {
+    "id": "edcb8d65c7a805ec",
+    "type": "subflow:fe9d5f6f9c2bdb16",
+    "z": "fdea0898d1f24630",
+    "name": "",
+    "x": 640,
+    "y": 640,
+    "wires": [
+      [
+        "33a0b6eee51a333a"
+      ]
+    ]
+  },
+  {
     "id": "33a0b6eee51a333a",
     "type": "debug",
     "z": "fdea0898d1f24630",
@@ -203,8 +269,8 @@
     "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 1260,
-    "y": 240,
+    "x": 660,
+    "y": 600,
     "wires": []
   },
   {
@@ -222,5 +288,14 @@
         "e0ea47ed88577046"
       ]
     ]
+  },
+  {
+    "id": "6e481c7cb1720cf7",
+    "type": "subflow:9252cc4477dcae34",
+    "z": "fdea0898d1f24630",
+    "name": "",
+    "x": 1220,
+    "y": 280,
+    "wires": []
   }
 ]

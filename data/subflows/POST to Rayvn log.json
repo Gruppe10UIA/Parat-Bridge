@@ -18,11 +18,21 @@
     ],
     "out": [
       {
-        "x": 1060,
-        "y": 300,
+        "x": 860,
+        "y": 420,
         "wires": [
           {
             "id": "edcc87d1f40195de",
+            "port": 0
+          }
+        ]
+      },
+      {
+        "x": 860,
+        "y": 500,
+        "wires": [
+          {
+            "id": "f8d5ca9b4e03584d",
             "port": 0
           }
         ]
@@ -49,10 +59,12 @@
     "authType": "",
     "senderr": true,
     "headers": [],
-    "x": 860,
-    "y": 300,
+    "x": 600,
+    "y": 420,
     "wires": [
-      []
+      [
+        "f8d5ca9b4e03584d"
+      ]
     ],
     "info": "Sends the message to Rayvn log API with POST request. This is the step that delivers the WaSOS message into the Rayvn log."
   },
@@ -91,6 +103,49 @@
     "property": "payload",
     "x": 580,
     "y": 300,
+    "wires": [
+      [
+        "509a0e1abbf14248"
+      ]
+    ]
+  },
+  {
+    "id": "f8d5ca9b4e03584d",
+    "type": "function",
+    "z": "4a6a1af9b9af6b0f",
+    "name": "Return response",
+    "func": "msg.topic = \"response\"\n\nif (msg.statusCode == 200) {\n    msg.result = true\n} else {\n    msg.result = false\n}\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 560,
+    "y": 500,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "509a0e1abbf14248",
+    "type": "delay",
+    "z": "4a6a1af9b9af6b0f",
+    "name": "",
+    "pauseType": "delay",
+    "timeout": "100",
+    "timeoutUnits": "milliseconds",
+    "rate": "1",
+    "nbRateUnits": "1",
+    "rateUnits": "second",
+    "randomFirst": "1",
+    "randomLast": "5",
+    "randomUnits": "seconds",
+    "drop": false,
+    "allowrate": false,
+    "outputs": 1,
+    "x": 310,
+    "y": 420,
     "wires": [
       [
         "edcc87d1f40195de"

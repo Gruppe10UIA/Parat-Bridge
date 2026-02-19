@@ -8,128 +8,6 @@
     "env": []
   },
   {
-    "id": "5c54b929df2d1af5",
-    "type": "function",
-    "z": "901ed98289cc4ecd",
-    "name": "function 1",
-    "func": "const timestamp = new Date(msg.payload.time).getTime();\n\nglobal.set(\"lastRayvnEntryTimeStamp\", timestamp);\n\nmsg.payload = timestamp;\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 720,
-    "y": 240,
-    "wires": [
-      [
-        "f3321844b8025424"
-      ]
-    ]
-  },
-  {
-    "id": "f3321844b8025424",
-    "type": "debug",
-    "z": "901ed98289cc4ecd",
-    "name": "new timestamp",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 960,
-    "y": 200,
-    "wires": []
-  },
-  {
-    "id": "33da432c1227a5ae",
-    "type": "ui-form",
-    "z": "901ed98289cc4ecd",
-    "name": "inject timestamp",
-    "group": "9df65904057aeaa7",
-    "label": "",
-    "order": 4,
-    "width": 0,
-    "height": 0,
-    "options": [
-      {
-        "label": "time",
-        "key": "time",
-        "type": "date",
-        "required": true,
-        "rows": null
-      }
-    ],
-    "formValue": {
-      "time": ""
-    },
-    "payload": "",
-    "submit": "submit",
-    "cancel": "clear",
-    "resetOnSubmit": false,
-    "topic": "payload",
-    "topicType": "msg",
-    "splitLayout": "",
-    "className": "",
-    "passthru": false,
-    "dropdownOptions": [],
-    "x": 500,
-    "y": 240,
-    "wires": [
-      [
-        "5c54b929df2d1af5"
-      ]
-    ]
-  },
-  {
-    "id": "7ab7597407334826",
-    "type": "inject",
-    "z": "901ed98289cc4ecd",
-    "name": "reset timestamp to current",
-    "props": [
-      {
-        "p": "payload"
-      }
-    ],
-    "repeat": "",
-    "crontab": "",
-    "once": false,
-    "onceDelay": 0.1,
-    "topic": "",
-    "payload": "",
-    "payloadType": "date",
-    "x": 510,
-    "y": 160,
-    "wires": [
-      [
-        "8254f6c54918e4ed"
-      ]
-    ]
-  },
-  {
-    "id": "8254f6c54918e4ed",
-    "type": "function",
-    "z": "901ed98289cc4ecd",
-    "name": "function 2",
-    "func": "const timestamp = msg.payload\n\nglobal.set(\"lastRayvnEntryTimeStamp\", timestamp);\nglobal.set(\"lastWasosEntryTimeStamp\", timestamp);\n\nmsg.payload = timestamp;\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 720,
-    "y": 160,
-    "wires": [
-      [
-        "f3321844b8025424"
-      ]
-    ]
-  },
-  {
     "id": "11c3f6f4a2cdb60c",
     "type": "inject",
     "z": "901ed98289cc4ecd",
@@ -359,37 +237,49 @@
     ]
   },
   {
-    "id": "e00c1b0734785919",
-    "type": "ui-switch",
+    "id": "1ea6f859e159bdb7",
+    "type": "function",
     "z": "901ed98289cc4ecd",
-    "name": "toggle polling main",
-    "label": "toggle polling main",
-    "group": "9df65904057aeaa7",
-    "order": 1,
-    "width": 0,
-    "height": 0,
-    "passthru": false,
-    "decouple": false,
-    "topic": "payload",
-    "topicType": "msg",
-    "style": "",
-    "className": "",
-    "layout": "row-left",
-    "clickableArea": "switch",
-    "onvalue": "true",
-    "onvalueType": "bool",
-    "onicon": "",
-    "oncolor": "",
-    "offvalue": "false",
-    "offvalueType": "bool",
-    "officon": "",
-    "offcolor": "",
-    "x": 210,
-    "y": 560,
+    "name": "Delete all global variables",
+    "func": "global.keys().forEach(key => global.set(key, undefined));\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 770,
+    "y": 420,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "1b4fdcad46e3948c",
+    "type": "inject",
+    "z": "901ed98289cc4ecd",
+    "name": "",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 480,
+    "y": 420,
     "wires": [
       [
-        "2bb096b5fa147299",
-        "18d492fbf4b111ee"
+        "1ea6f859e159bdb7"
       ]
     ]
   }

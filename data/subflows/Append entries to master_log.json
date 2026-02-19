@@ -68,29 +68,9 @@
     "y": 260,
     "wires": [
       [
-        "41c1c734ed1adaed",
-        "1da901da05252d6d"
+        "41c1c734ed1adaed"
       ]
     ],
     "info": "Removes entries that already exist in the masterLog by checking entry IDs. Prevents duplicate entries from being added to the log."
-  },
-  {
-    "id": "1da901da05252d6d",
-    "type": "function",
-    "z": "fe9d5f6f9c2bdb16",
-    "name": "Uppdate newest timestamp",
-    "func": "const entries = msg.payload;\n\nif (entries.length > 0) {\n    const newestEntry = entries.reduce((a, b) => a.timeCreated > b.timeCreated ? a : b); // find newest log entry\n    const client = newestEntry.client.charAt(0) + newestEntry.client.slice(1); // extract client\n    \n    global.set(`last_${client}_timestamp`, newestEntry.timeCreated); // update global timestamp variable\n}\n\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 720,
-    "y": 200,
-    "wires": [
-      []
-    ],
-    "info": "Updates the newest timestamp for the given client"
   }
 ]
