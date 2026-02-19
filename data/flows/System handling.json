@@ -85,5 +85,48 @@
       []
     ],
     "info": "Displays the last 10 errors from the error log\r\nin a table on the Error Monitor dashboard page.\r\n\r\nUpdates every 5 seconds via the timestamp\r\ninject node. Table is replaced (not appended)\r\non each update.\r\n\r\nColumns (auto-calculated):\r\n- time, type, source, status, message\r\n"
+  },
+  {
+    "id": "de6ca76d90c9c420",
+    "type": "link in",
+    "z": "003e75aaa2880405",
+    "name": "message failed",
+    "links": [],
+    "x": 385,
+    "y": 360,
+    "wires": [
+      [
+        "a8907418fbaa0775",
+        "0bf8491c4bebb0eb"
+      ]
+    ]
+  },
+  {
+    "id": "a8907418fbaa0775",
+    "type": "debug",
+    "z": "003e75aaa2880405",
+    "name": "message failed system environment",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 650,
+    "y": 360,
+    "wires": []
+  },
+  {
+    "id": "0bf8491c4bebb0eb",
+    "type": "link out",
+    "z": "003e75aaa2880405",
+    "name": "message failed recieved",
+    "mode": "return",
+    "links": [],
+    "x": 535,
+    "y": 420,
+    "wires": []
   }
 ]

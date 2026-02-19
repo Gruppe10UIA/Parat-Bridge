@@ -18,7 +18,7 @@
     ],
     "out": [
       {
-        "x": 960,
+        "x": 1200,
         "y": 480,
         "wires": [
           {
@@ -28,7 +28,7 @@
         ]
       },
       {
-        "x": 1120,
+        "x": 1360,
         "y": 560,
         "wires": [
           {
@@ -59,7 +59,7 @@
     "authType": "",
     "senderr": true,
     "headers": [],
-    "x": 770,
+    "x": 1010,
     "y": 480,
     "wires": [
       [
@@ -84,7 +84,8 @@
     "y": 360,
     "wires": [
       [
-        "4b9eb1abd60ed246"
+        "4b9eb1abd60ed246",
+        "a607c9074662d6ed"
       ]
     ],
     "info": "Builds HTTP request headers and URL for WaSOS API. Sets x-api-key header from wasos_apikey and uses wasosChatroomUrl as the endpoint. Returns null if not configured."
@@ -130,7 +131,8 @@
     "y": 480,
     "wires": [
       [
-        "41621a8a87543cf1"
+        "41621a8a87543cf1",
+        "f4c8c024ae114703"
       ]
     ]
   },
@@ -146,7 +148,7 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 960,
+    "x": 1200,
     "y": 560,
     "wires": [
       []
@@ -156,7 +158,7 @@
     "id": "03bd706cf789c2fc",
     "type": "function",
     "z": "209f3c980818c499",
-    "name": "Overwrite for testing",
+    "name": "Overwrite statusCode for testing",
     "func": "if (global.get(\"test_response\")) {\n    msg.statusCode = global.get(\"test_response\")\n}\n\n\n\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
@@ -164,12 +166,47 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 880,
+    "x": 1150,
     "y": 520,
     "wires": [
       [
         "d8ba5952c6f01ecb"
       ]
     ]
+  },
+  {
+    "id": "f4c8c024ae114703",
+    "type": "function",
+    "z": "209f3c980818c499",
+    "name": "list messages for test",
+    "func": "let message = msg.payload.content;\nlet array = global.get(\"msg_list\");\n\narray.push(message);               // push modifies the array directly\nglobal.set(\"msg_list\", array);     // now save the actual array\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "// Code added here will be run once\n// whenever the node is started.\n\nglobal.set(\"msg_list\", [])",
+    "finalize": "",
+    "libs": [],
+    "x": 740,
+    "y": 560,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "a607c9074662d6ed",
+    "type": "debug",
+    "z": "209f3c980818c499",
+    "name": "headers",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 530,
+    "y": 280,
+    "wires": []
   }
 ]

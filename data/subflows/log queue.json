@@ -3,7 +3,7 @@
     "id": "2e632affbd071524",
     "type": "subflow",
     "name": "log queue",
-    "info": "# Queue\n\nImplements queueing for messages not yet sendt\n\n* Takes in new messages from source\n* Enques the message to the queue flow variable\n* Triggers the send message node to send the top element\n* If the post is succesfull:\n    * The message is dequeued\n    * Appended to master_log\n* else\n    * The retry is triggered\n    * The message attemts to send again\n    * If message fails more then limit.\n    * attempts stop and routs message out\n\n\n## Note\n\n* As it uses a flow variable it will only work if inside a Flow (not another subflow)",
+    "info": "# Queue\n\nImplements queueing for messages not yet sendt\n\n* Takes in new messages from source\n* Enques the message to the queue flow variable\n* Triggers the send message node to send the top element\n* If the post is succesfull:\n    * The message is dequeued\n    * Appended to master_log\n* else\n    * The retry is triggered\n    * The message attemts to send again\n    * If message fails more then limit.\n    * attempts stop and routs message out\n\n\n## Note\n\n* As it uses a flow variable it will only work if inside a Flow (not another subflow)\n    * this issue would not exist if the queue existed in a dedicated json file\n* as of now, it will not reactivate if a queue already exists on reconection",
     "category": "",
     "in": [
       {
@@ -118,7 +118,8 @@
       [
         "461f9d574db1530b"
       ]
-    ]
+    ],
+    "info": "Routes inncomming messages based on if they are a new message or a http response from a previos message"
   },
   {
     "id": "ddca3902fe2fda3f",
@@ -175,11 +176,11 @@
     "type": "function",
     "z": "2e632affbd071524",
     "name": "Send message",
-    "func": "let queue = flow.get(\"$parent.queue\")\n\nif (queue.length <= 0){\n    return null\n}\n\nlet message = queue[0]\n\nmsg.msg_id = message.id // passing on the id to be used if it returns\nmsg.payload = [message]\n\nreturn msg;",
+    "func": "let queue = flow.get(\"$parent.queue\");\n\n// queue is empty no message sent\nif (queue.length <= 0) {\n    context.set(\"sending\", false);\n    return null;\n}\n\n// Reset flag when triggered by a response (dequeue or retry)\nif (msg.topic === \"response\") {\n    context.set(\"sending\", false);\n}\n\n// Guard: skip if already in-flight from a new_messages trigger\nif (context.get(\"sending\")) return null;\n\n// Send message\ncontext.set(\"sending\", true);\nlet message = queue[0];\nmsg.msg_id = message.id;\nmsg.payload = [message];\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
-    "initialize": "",
+    "initialize": "// Code added here will be run once\n// whenever the node is started.\n\ncontext.set(\"sending\", false)",
     "finalize": "",
     "libs": [],
     "x": 1040,
@@ -188,14 +189,15 @@
       [
         "4461d77da5387fe7"
       ]
-    ]
+    ],
+    "info": "Sends the last queued message when triggerd,\nuses a boolean -> sending variable to avoid retriggering during execution"
   },
   {
     "id": "7f466ec0b3d58872",
     "type": "function",
     "z": "2e632affbd071524",
     "name": "Retry",
-    "func": "let msg_id = msg.msg_id\n\nlet retry_limit = context.get(\"retry_limit\")\nlet current_id = context.get(\"current_id\")\nlet retries = context.get(\"retries\")\n\n// reset if new message\nif (!current_id || current_id !== msg_id) {\n    context.set(\"current_id\", msg_id)\n    context.set(\"retries\", 2)\n    return [null, msg]\n}\n\n// retry until retry_limit reached\nif (current_id == msg_id) {\n    if (retries <= retry_limit) {\n        context.set(\"retries\", retries +1)\n        return [null, msg]\n    } else if (retries > retry_limit) {\n        context.set(\"retries\", 0)\n        context.set(\"current_id\", \"\")\n        return [msg, null]\n    }\n}",
+    "func": "let msg_id = msg.msg_id\n\nlet retry_limit = context.get(\"retry_limit\")\nlet current_id = context.get(\"current_id\")\nlet retries = context.get(\"retries\")\n\n// reset if new message\nif (!current_id || current_id !== msg_id) {\n    context.set(\"current_id\", msg_id)\n    context.set(\"retries\", 2)\n    return [null, msg]\n}\n\n// retry until retry_limit reached\nif (current_id == msg_id) {\n    if (retries <= retry_limit) {\n        context.set(\"retries\", retries +1)\n        return [null, msg]\n    } else if (retries > retry_limit) {\n        context.set(\"retries\", 0)\n        context.set(\"current_id\", \"\")\n        msg.failed_messages = flow.get(\"$parent.queue\")\n        return [msg, null]\n    }\n}",
     "outputs": 2,
     "timeout": 0,
     "noerr": 0,
@@ -206,24 +208,13 @@
     "y": 220,
     "wires": [
       [
-        "edf196f867834eb4",
-        "006115f685dcf065"
+        "006115f685dcf065",
+        "26e68ba78fe8146c"
       ],
       [
         "b517dd3e71771eb0"
       ]
     ]
-  },
-  {
-    "id": "edf196f867834eb4",
-    "type": "link out",
-    "z": "2e632affbd071524",
-    "name": "maximum retries reached",
-    "mode": "link",
-    "links": [],
-    "x": 885,
-    "y": 180,
-    "wires": []
   },
   {
     "id": "406938de3330b8b7",
@@ -286,8 +277,8 @@
     "tosidebar": true,
     "console": false,
     "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
+    "complete": "true",
+    "targetType": "full",
     "statusVal": "",
     "statusType": "auto",
     "x": 150,
@@ -303,8 +294,8 @@
     "tosidebar": true,
     "console": false,
     "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
+    "complete": "true",
+    "targetType": "full",
     "statusVal": "",
     "statusType": "auto",
     "x": 1040,
@@ -327,5 +318,21 @@
     "x": 740,
     "y": 180,
     "wires": []
+  },
+  {
+    "id": "26e68ba78fe8146c",
+    "type": "link call",
+    "z": "2e632affbd071524",
+    "name": "Message failed too many times",
+    "links": [
+      "de6ca76d90c9c420"
+    ],
+    "linkType": "static",
+    "timeout": "10",
+    "x": 1090,
+    "y": 180,
+    "wires": [
+      []
+    ]
   }
 ]
