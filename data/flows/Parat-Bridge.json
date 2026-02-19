@@ -7,32 +7,26 @@
     "info": "Configuration UI for Parat-Bridge. Handles setup of Rayvn API credentials and WaSOS login. Validates input, authenticates with both services, and stores configuration in global variables."
   },
   {
-    "id": "354aca9dbc391ace",
+    "id": "9ab1f6c2842073c5",
     "type": "group",
     "z": "84d1a0de660abb59",
-    "name": "Configuration",
+    "name": "Setting runtime constants",
     "style": {
-      "stroke": "#001f60",
-      "fill": "#bfc7d7",
+      "stroke": "#92d04f",
+      "fill": "#c8e7a7",
       "label": true,
-      "color": "#000000",
-      "label-position": "n"
+      "label-position": "n",
+      "color": "#000000"
     },
     "nodes": [
-      "f7bbfc371ab086b1",
-      "9b6e4d1e92c769d9",
-      "02f5aa2ff841acd1",
-      "4290cc6fa1aadff0",
-      "293cf0ecd677bac0",
-      "a81cbcc889952fb3",
-      "794b757ef07a4e19",
-      "989d45634f23b97e",
-      "3f5a48b721dae9db"
+      "413516062738b6ec",
+      "5a283579df925b67",
+      "d3877115a33305e6"
     ],
-    "x": 74,
-    "y": 259,
-    "w": 832,
-    "h": 242
+    "x": 94,
+    "y": 79,
+    "w": 472,
+    "h": 122
   },
   {
     "id": "96e90febc19e0c83",
@@ -63,26 +57,32 @@
     "h": 162
   },
   {
-    "id": "9ab1f6c2842073c5",
+    "id": "354aca9dbc391ace",
     "type": "group",
     "z": "84d1a0de660abb59",
-    "name": "Setting runtime constants",
+    "name": "Configuration",
     "style": {
-      "stroke": "#92d04f",
-      "fill": "#c8e7a7",
+      "stroke": "#001f60",
+      "fill": "#bfc7d7",
       "label": true,
-      "label-position": "n",
-      "color": "#000000"
+      "color": "#000000",
+      "label-position": "n"
     },
     "nodes": [
-      "413516062738b6ec",
-      "5a283579df925b67",
-      "d3877115a33305e6"
+      "f7bbfc371ab086b1",
+      "9b6e4d1e92c769d9",
+      "02f5aa2ff841acd1",
+      "4290cc6fa1aadff0",
+      "293cf0ecd677bac0",
+      "a81cbcc889952fb3",
+      "794b757ef07a4e19",
+      "989d45634f23b97e",
+      "3f5a48b721dae9db"
     ],
-    "x": 94,
-    "y": 79,
-    "w": 472,
-    "h": 122
+    "x": 74,
+    "y": 259,
+    "w": 832,
+    "h": 242
   },
   {
     "id": "e5997ab2f3eb1fb6",
@@ -99,296 +99,72 @@
     ]
   },
   {
-    "id": "215d734a758d3e4e",
-    "type": "change",
+    "id": "a814dfd2fd2a6b9b",
+    "type": "function",
     "z": "84d1a0de660abb59",
     "g": "96e90febc19e0c83",
-    "name": "Enable Polling",
-    "rules": [
-      {
-        "t": "set",
-        "p": "poll_rayvn",
-        "pt": "global",
-        "to": "true",
-        "tot": "bool"
-      },
-      {
-        "t": "set",
-        "p": "poll_wasos",
-        "pt": "global",
-        "to": "true",
-        "tot": "bool"
-      }
-    ],
-    "action": "",
-    "property": "",
-    "from": "",
-    "to": "",
-    "reg": false,
-    "x": 300,
-    "y": 600,
-    "wires": [
-      []
-    ]
-  },
-  {
-    "id": "d3877115a33305e6",
-    "type": "change",
-    "z": "84d1a0de660abb59",
-    "g": "9ab1f6c2842073c5",
-    "name": "set initial master_log",
-    "rules": [
-      {
-        "t": "set",
-        "p": "master_log",
-        "pt": "global",
-        "to": "[]",
-        "tot": "json"
-      }
-    ],
-    "action": "",
-    "property": "",
-    "from": "",
-    "to": "",
-    "reg": false,
-    "x": 440,
-    "y": 160,
-    "wires": [
-      []
-    ]
-  },
-  {
-    "id": "6e81dde533c0b1f4",
-    "type": "debug",
-    "z": "84d1a0de660abb59",
-    "g": "96e90febc19e0c83",
-    "name": "Initial log post",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 980,
-    "y": 620,
-    "wires": []
-  },
-  {
-    "id": "e95b4372fea62cfc",
-    "type": "subflow:9ee8527d12b415b0",
-    "z": "84d1a0de660abb59",
-    "g": "96e90febc19e0c83",
-    "name": "",
-    "x": 750,
-    "y": 660,
-    "wires": [
-      [
-        "f46652973e5d016e"
-      ]
-    ]
-  },
-  {
-    "id": "f46652973e5d016e",
-    "type": "subflow:209f3c980818c499",
-    "z": "84d1a0de660abb59",
-    "g": "96e90febc19e0c83",
-    "name": "",
-    "x": 1000,
-    "y": 660,
-    "wires": [
-      [
-        "6e81dde533c0b1f4"
-      ],
-      [
-        "2efc4e48a66a9cf1"
-      ]
-    ]
-  },
-  {
-    "id": "2be29013d9e94cd8",
-    "type": "subflow:fe9d5f6f9c2bdb16",
-    "z": "84d1a0de660abb59",
-    "g": "96e90febc19e0c83",
-    "name": "",
-    "x": 760,
+    "name": "Set initial timestamp",
+    "func": "\nconst lastItem = Array.isArray(msg.payload) && msg.payload.at(-1);\nconst timestamp = lastItem?.timeCreated || Date.now();\n\nglobal.set(\"last_rayvn_timestamp\", timestamp);\nglobal.set(\"last_wasos_timestamp\", Date.now());\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 500,
     "y": 580,
     "wires": [
       []
     ]
   },
   {
-    "id": "2efc4e48a66a9cf1",
-    "type": "subflow:2e632affbd071524",
+    "id": "f7bbfc371ab086b1",
+    "type": "subflow:99c17cced97ac339",
     "z": "84d1a0de660abb59",
-    "g": "96e90febc19e0c83",
+    "g": "354aca9dbc391ace",
     "name": "",
-    "x": 520,
-    "y": 660,
-    "wires": [
-      [
-        "2be29013d9e94cd8"
-      ],
-      [
-        "e95b4372fea62cfc"
-      ]
-    ]
-  },
-  {
-    "id": "03c1d5a79bea3bbf",
-    "type": "subflow:0fad769721e9978c",
-    "z": "84d1a0de660abb59",
-    "g": "96e90febc19e0c83",
-    "name": "",
-    "x": 300,
-    "y": 660,
-    "wires": [
-      [
-        "2efc4e48a66a9cf1",
-        "a814dfd2fd2a6b9b"
-      ]
-    ]
-  },
-  {
-    "id": "3f5a48b721dae9db",
-    "type": "debug",
-    "z": "84d1a0de660abb59",
-    "g": "354aca9dbc391ace",
-    "name": "Wasos output",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 180,
-    "y": 440,
-    "wires": []
-  },
-  {
-    "id": "989d45634f23b97e",
-    "type": "debug",
-    "z": "84d1a0de660abb59",
-    "g": "354aca9dbc391ace",
-    "name": "Rayvn output",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 170,
-    "y": 360,
-    "wires": []
-  },
-  {
-    "id": "794b757ef07a4e19",
-    "type": "debug",
-    "z": "84d1a0de660abb59",
-    "g": "354aca9dbc391ace",
-    "name": "Config Rayvn",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 420,
-    "y": 300,
-    "wires": []
-  },
-  {
-    "id": "a81cbcc889952fb3",
-    "type": "debug",
-    "z": "84d1a0de660abb59",
-    "g": "354aca9dbc391ace",
-    "name": "Config Wasos",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 420,
-    "y": 420,
-    "wires": []
-  },
-  {
-    "id": "293cf0ecd677bac0",
-    "type": "debug",
-    "z": "84d1a0de660abb59",
-    "g": "354aca9dbc391ace",
-    "name": "correct config",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 720,
-    "y": 360,
-    "wires": []
-  },
-  {
-    "id": "4290cc6fa1aadff0",
-    "type": "join",
-    "z": "84d1a0de660abb59",
-    "g": "354aca9dbc391ace",
-    "name": "Pass when both configured",
-    "mode": "custom",
-    "build": "object",
-    "property": "payload",
-    "propertyType": "msg",
-    "key": "topic",
-    "joiner": "\\n",
-    "joinerType": "str",
-    "useparts": false,
-    "accumulate": false,
-    "timeout": "",
-    "count": "2",
-    "reduceRight": false,
-    "reduceExp": "",
-    "reduceInit": "false",
-    "reduceInitType": "bool",
-    "reduceFixup": "",
-    "x": 760,
+    "x": 190,
     "y": 400,
     "wires": [
       [
-        "293cf0ecd677bac0",
-        "e5997ab2f3eb1fb6"
+        "9b6e4d1e92c769d9",
+        "413516062738b6ec",
+        "989d45634f23b97e"
+      ],
+      [
+        "02f5aa2ff841acd1",
+        "413516062738b6ec",
+        "3f5a48b721dae9db"
       ]
     ]
   },
   {
-    "id": "5a283579df925b67",
-    "type": "inject",
+    "id": "9b6e4d1e92c769d9",
+    "type": "subflow:5da162b98b7b6b86",
     "z": "84d1a0de660abb59",
-    "g": "9ab1f6c2842073c5",
+    "g": "354aca9dbc391ace",
     "name": "",
-    "props": [],
-    "repeat": "",
-    "crontab": "",
-    "once": true,
-    "onceDelay": "0.1",
-    "topic": "",
-    "x": 190,
-    "y": 120,
+    "x": 430,
+    "y": 340,
     "wires": [
       [
-        "413516062738b6ec",
-        "d3877115a33305e6"
+        "4290cc6fa1aadff0",
+        "794b757ef07a4e19"
+      ]
+    ]
+  },
+  {
+    "id": "02f5aa2ff841acd1",
+    "type": "subflow:a7d9b521445d1bf0",
+    "z": "84d1a0de660abb59",
+    "g": "354aca9dbc391ace",
+    "name": "",
+    "x": 430,
+    "y": 460,
+    "wires": [
+      [
+        "4290cc6fa1aadff0",
+        "a81cbcc889952fb3"
       ]
     ]
   },
@@ -426,71 +202,295 @@
     ]
   },
   {
-    "id": "02f5aa2ff841acd1",
-    "type": "subflow:a7d9b521445d1bf0",
+    "id": "5a283579df925b67",
+    "type": "inject",
     "z": "84d1a0de660abb59",
-    "g": "354aca9dbc391ace",
+    "g": "9ab1f6c2842073c5",
     "name": "",
-    "x": 430,
-    "y": 460,
-    "wires": [
-      [
-        "4290cc6fa1aadff0",
-        "a81cbcc889952fb3"
-      ]
-    ]
-  },
-  {
-    "id": "9b6e4d1e92c769d9",
-    "type": "subflow:5da162b98b7b6b86",
-    "z": "84d1a0de660abb59",
-    "g": "354aca9dbc391ace",
-    "name": "",
-    "x": 430,
-    "y": 340,
-    "wires": [
-      [
-        "4290cc6fa1aadff0",
-        "794b757ef07a4e19"
-      ]
-    ]
-  },
-  {
-    "id": "f7bbfc371ab086b1",
-    "type": "subflow:99c17cced97ac339",
-    "z": "84d1a0de660abb59",
-    "g": "354aca9dbc391ace",
-    "name": "",
+    "props": [],
+    "repeat": "",
+    "crontab": "",
+    "once": true,
+    "onceDelay": "0.1",
+    "topic": "",
     "x": 190,
+    "y": 120,
+    "wires": [
+      [
+        "413516062738b6ec",
+        "d3877115a33305e6"
+      ]
+    ]
+  },
+  {
+    "id": "4290cc6fa1aadff0",
+    "type": "join",
+    "z": "84d1a0de660abb59",
+    "g": "354aca9dbc391ace",
+    "name": "Pass when both configured",
+    "mode": "custom",
+    "build": "object",
+    "property": "payload",
+    "propertyType": "msg",
+    "key": "topic",
+    "joiner": "\\n",
+    "joinerType": "str",
+    "useparts": false,
+    "accumulate": false,
+    "timeout": "",
+    "count": "2",
+    "reduceRight": false,
+    "reduceExp": "",
+    "reduceInit": "false",
+    "reduceInitType": "bool",
+    "reduceFixup": "",
+    "x": 760,
     "y": 400,
     "wires": [
       [
-        "9b6e4d1e92c769d9",
-        "413516062738b6ec",
-        "989d45634f23b97e"
-      ],
-      [
-        "02f5aa2ff841acd1",
-        "413516062738b6ec",
-        "3f5a48b721dae9db"
+        "293cf0ecd677bac0",
+        "e5997ab2f3eb1fb6"
       ]
     ]
   },
   {
-    "id": "a814dfd2fd2a6b9b",
-    "type": "function",
+    "id": "293cf0ecd677bac0",
+    "type": "debug",
+    "z": "84d1a0de660abb59",
+    "g": "354aca9dbc391ace",
+    "name": "correct config",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 720,
+    "y": 360,
+    "wires": []
+  },
+  {
+    "id": "a81cbcc889952fb3",
+    "type": "debug",
+    "z": "84d1a0de660abb59",
+    "g": "354aca9dbc391ace",
+    "name": "Config Wasos",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 420,
+    "y": 420,
+    "wires": []
+  },
+  {
+    "id": "794b757ef07a4e19",
+    "type": "debug",
+    "z": "84d1a0de660abb59",
+    "g": "354aca9dbc391ace",
+    "name": "Config Rayvn",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 420,
+    "y": 300,
+    "wires": []
+  },
+  {
+    "id": "989d45634f23b97e",
+    "type": "debug",
+    "z": "84d1a0de660abb59",
+    "g": "354aca9dbc391ace",
+    "name": "Rayvn output",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 170,
+    "y": 360,
+    "wires": []
+  },
+  {
+    "id": "3f5a48b721dae9db",
+    "type": "debug",
+    "z": "84d1a0de660abb59",
+    "g": "354aca9dbc391ace",
+    "name": "Wasos output",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 180,
+    "y": 440,
+    "wires": []
+  },
+  {
+    "id": "03c1d5a79bea3bbf",
+    "type": "subflow:0fad769721e9978c",
     "z": "84d1a0de660abb59",
     "g": "96e90febc19e0c83",
-    "name": "Set initial timestamp",
-    "func": "let timestamp = msg.payload[msg.payload.length - 1].timeCreated\n\nglobal.set(\"last_rayvn_timestamp\", timestamp)\nglobal.set(\"last_wasos_timestamp\", Date.now())\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 500,
+    "name": "",
+    "x": 300,
+    "y": 660,
+    "wires": [
+      [
+        "2efc4e48a66a9cf1",
+        "a814dfd2fd2a6b9b"
+      ]
+    ]
+  },
+  {
+    "id": "2efc4e48a66a9cf1",
+    "type": "subflow:2e632affbd071524",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "name": "",
+    "x": 520,
+    "y": 660,
+    "wires": [
+      [
+        "2be29013d9e94cd8"
+      ],
+      [
+        "e95b4372fea62cfc"
+      ]
+    ]
+  },
+  {
+    "id": "2be29013d9e94cd8",
+    "type": "subflow:fe9d5f6f9c2bdb16",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "name": "",
+    "x": 760,
     "y": 580,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "f46652973e5d016e",
+    "type": "subflow:209f3c980818c499",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "name": "",
+    "x": 1000,
+    "y": 660,
+    "wires": [
+      [
+        "6e81dde533c0b1f4"
+      ],
+      [
+        "2efc4e48a66a9cf1"
+      ]
+    ]
+  },
+  {
+    "id": "e95b4372fea62cfc",
+    "type": "subflow:9ee8527d12b415b0",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "name": "",
+    "x": 750,
+    "y": 660,
+    "wires": [
+      [
+        "f46652973e5d016e"
+      ]
+    ]
+  },
+  {
+    "id": "6e81dde533c0b1f4",
+    "type": "debug",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "name": "Initial log post",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 980,
+    "y": 620,
+    "wires": []
+  },
+  {
+    "id": "d3877115a33305e6",
+    "type": "change",
+    "z": "84d1a0de660abb59",
+    "g": "9ab1f6c2842073c5",
+    "name": "set initial master_log",
+    "rules": [
+      {
+        "t": "set",
+        "p": "master_log",
+        "pt": "global",
+        "to": "[]",
+        "tot": "json"
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 440,
+    "y": 160,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "215d734a758d3e4e",
+    "type": "change",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "name": "Enable Polling",
+    "rules": [
+      {
+        "t": "set",
+        "p": "poll_rayvn",
+        "pt": "global",
+        "to": "true",
+        "tot": "bool"
+      },
+      {
+        "t": "set",
+        "p": "poll_wasos",
+        "pt": "global",
+        "to": "true",
+        "tot": "bool"
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 300,
+    "y": 600,
     "wires": [
       []
     ]
