@@ -133,7 +133,8 @@
       [
         "05cf859b44554f59"
       ]
-    ]
+    ],
+    "info": "Builds a GET request to fetch all tags from Rayvn API.\nSets Authorization header using API key from rayvn_config."
   },
   {
     "id": "05cf859b44554f59",
@@ -175,6 +176,7 @@
     "y": 460,
     "wires": [
       []
-    ]
+    ],
+    "info": "Finds WaSOS and Parat-Bridge labels from GET /tags response\nand stores them as global variables for use across flows."
   }
 ]
