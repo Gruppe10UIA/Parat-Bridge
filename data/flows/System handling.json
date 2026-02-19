@@ -85,5 +85,96 @@
       []
     ],
     "info": "Displays the last 10 errors from the error log\r\nin a table on the Error Monitor dashboard page.\r\n\r\nUpdates every 5 seconds via the timestamp\r\ninject node. Table is replaced (not appended)\r\non each update.\r\n\r\nColumns (auto-calculated):\r\n- time, type, source, status, message\r\n"
+  },
+  {
+    "id": "635dc4639d0c5c64",
+    "type": "inject",
+    "z": "003e75aaa2880405",
+    "name": "",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": true,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 390,
+    "y": 460,
+    "wires": [
+      [
+        "560e4f7d2dcabd25"
+      ]
+    ]
+  },
+  {
+    "id": "560e4f7d2dcabd25",
+    "type": "function",
+    "z": "003e75aaa2880405",
+    "name": "function 3",
+    "func": "const rayvn_config = global.get('rayvn_config');\n\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + rayvn_config.api_key\n};\n\nmsg.url = \"https://api.rayvn.global/tags\";\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 560,
+    "y": 460,
+    "wires": [
+      [
+        "05cf859b44554f59"
+      ]
+    ]
+  },
+  {
+    "id": "05cf859b44554f59",
+    "type": "http request",
+    "z": "003e75aaa2880405",
+    "name": "",
+    "method": "GET",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 770,
+    "y": 460,
+    "wires": [
+      [
+        "e087ab69cfa2a704"
+      ]
+    ]
+  },
+  {
+    "id": "e087ab69cfa2a704",
+    "type": "function",
+    "z": "003e75aaa2880405",
+    "name": "function 4",
+    "func": "const tags = msg.payload;\n\nconst wasosLabel = tags.find(tag => tag.name === \"WaSOS\");\nconst paratBridgeLabel = tags.find(tag => tag.name === \"Parat-Bridge\");\n\nif (!wasosLabel || !paratBridgeLabel) {\n    node.warn(\"Kunne ikke finne WaSOS eller Parat-Bridge label i /tags\");\n    return null;\n}\n\nglobal.set(\"wasosLabel\", { id: wasosLabel.id, name: wasosLabel.name });\nglobal.set(\"paratBridgeLabel\", { id: paratBridgeLabel.id, name: paratBridgeLabel.name });\n\nnode.log(\"Labels satt: \" + JSON.stringify({ wasosLabel, paratBridgeLabel }));\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 960,
+    "y": 460,
+    "wires": [
+      []
+    ]
   }
 ]

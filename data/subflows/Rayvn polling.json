@@ -62,7 +62,7 @@
     "method": "GET",
     "ret": "obj",
     "paytoqs": "ignore",
-    "url": "invalid.wasos.no",
+    "url": "",
     "tls": "",
     "persist": false,
     "proxy": "",

@@ -83,7 +83,7 @@
     "method": "GET",
     "ret": "txt",
     "paytoqs": "ignore",
-    "url": "invalid.rayvn.no",
+    "url": "",
     "tls": "",
     "persist": false,
     "proxy": "",

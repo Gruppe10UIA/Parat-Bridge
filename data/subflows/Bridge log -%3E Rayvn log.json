@@ -38,7 +38,7 @@
     "type": "function",
     "z": "5ed556f2fe39e3a2",
     "name": "map Wasos log to Bridge log",
-    "func": "let rawLog = msg.payload;\n\nconst WASOS_LABEL_ID = \"8d8f4cd8-c57c-4ddd-861c-f515237c75d1\";\n\nmsg.payload = rawLog.map(({ \n    text,\n    loggedByFullName,\n    client\n}) => ({\n    text: `[${client}] ${loggedByFullName}: ${text}`,\n    keyEvent: false,\n    releasedInfo: false,\n    labels: client === \"wasos\" ? [{ id: WASOS_LABEL_ID }] : []\n}));\n\nreturn msg;",
+    "func": "let rawLog = msg.payload;\n\nconst WASOS_LABEL = global.get(\"wasosLabel\");\nconst PARAT_BRIDGE_LABEL = global.get(\"paratBridgeLabel\");\n\nif (!WASOS_LABEL || !PARAT_BRIDGE_LABEL) {\n    node.warn(\"Labels er ikke satt i global context\");\n    return null;\n}\n\nmsg.payload = rawLog.map(({\n    text,\n    loggedByFullName,\n    client\n}) => ({\n    text: `[${client}] ${loggedByFullName}: ${text}`,\n    keyEvent: false,\n    releasedInfo: false,\n    labels: client === \"wasos\"\n        ? [WASOS_LABEL, PARAT_BRIDGE_LABEL]\n        : [PARAT_BRIDGE_LABEL]\n}));\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
