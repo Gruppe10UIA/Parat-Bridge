@@ -119,7 +119,7 @@
     "id": "560e4f7d2dcabd25",
     "type": "function",
     "z": "003e75aaa2880405",
-    "name": "function 3",
+    "name": "Build GET /tags request",
     "func": "const rayvn_config = global.get('rayvn_config');\n\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + rayvn_config.api_key\n};\n\nmsg.url = \"https://api.rayvn.global/tags\";\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
@@ -127,7 +127,7 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 560,
+    "x": 610,
     "y": 460,
     "wires": [
       [
@@ -151,7 +151,7 @@
     "authType": "",
     "senderr": false,
     "headers": [],
-    "x": 770,
+    "x": 890,
     "y": 460,
     "wires": [
       [
@@ -163,7 +163,7 @@
     "id": "e087ab69cfa2a704",
     "type": "function",
     "z": "003e75aaa2880405",
-    "name": "function 4",
+    "name": "Set label globals",
     "func": "const tags = msg.payload;\n\nconst wasosLabel = tags.find(tag => tag.name === \"WaSOS\");\nconst paratBridgeLabel = tags.find(tag => tag.name === \"Parat-Bridge\");\n\nif (!wasosLabel || !paratBridgeLabel) {\n    node.warn(\"Kunne ikke finne WaSOS eller Parat-Bridge label i /tags\");\n    return null;\n}\n\nglobal.set(\"wasosLabel\", { id: wasosLabel.id, name: wasosLabel.name });\nglobal.set(\"paratBridgeLabel\", { id: paratBridgeLabel.id, name: paratBridgeLabel.name });\n\nnode.log(\"Labels satt: \" + JSON.stringify({ wasosLabel, paratBridgeLabel }));\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
@@ -171,7 +171,7 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 960,
+    "x": 1120,
     "y": 460,
     "wires": [
       []
