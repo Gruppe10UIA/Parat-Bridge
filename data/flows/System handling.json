@@ -28,7 +28,7 @@
     "topic": "",
     "payload": "",
     "payloadType": "date",
-    "x": 410,
+    "x": 270,
     "y": 260,
     "wires": [
       [
@@ -49,7 +49,7 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 650,
+    "x": 510,
     "y": 260,
     "wires": [
       [
@@ -79,7 +79,7 @@
     "mobileBreakpointType": "defaults",
     "action": "replace",
     "className": "",
-    "x": 900,
+    "x": 760,
     "y": 260,
     "wires": [
       []
@@ -107,7 +107,7 @@
     "topic": "",
     "payload": "",
     "payloadType": "date",
-    "x": 390,
+    "x": 270,
     "y": 460,
     "wires": [
       [
@@ -127,7 +127,7 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 610,
+    "x": 510,
     "y": 460,
     "wires": [
       [
@@ -152,7 +152,7 @@
     "authType": "",
     "senderr": false,
     "headers": [],
-    "x": 890,
+    "x": 750,
     "y": 460,
     "wires": [
       [
@@ -172,7 +172,7 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 1120,
+    "x": 960,
     "y": 460,
     "wires": [
       []
