@@ -116,7 +116,7 @@
     "z": "fdea0898d1f24630",
     "g": "859e4fe853cbece6",
     "name": "new Rayvn entries",
-    "active": true,
+    "active": false,
     "tosidebar": true,
     "console": false,
     "tostatus": false,
@@ -249,7 +249,7 @@
     "z": "fdea0898d1f24630",
     "name": "",
     "x": 640,
-    "y": 660,
+    "y": 640,
     "wires": [
       [
         "33a0b6eee51a333a"
@@ -270,7 +270,7 @@
     "statusVal": "",
     "statusType": "auto",
     "x": 660,
-    "y": 620,
+    "y": 600,
     "wires": []
   },
   {
@@ -297,94 +297,5 @@
     "x": 1220,
     "y": 280,
     "wires": []
-  },
-  {
-    "id": "10e3465df7ff1bec",
-    "type": "inject",
-    "z": "fdea0898d1f24630",
-    "name": "",
-    "props": [
-      {
-        "p": "payload"
-      },
-      {
-        "p": "topic",
-        "vt": "str"
-      }
-    ],
-    "repeat": "0.1",
-    "crontab": "",
-    "once": false,
-    "onceDelay": 0.1,
-    "topic": "new_messages",
-    "payload": "[{\"id\":\"839d065c-d575-410e-b61c-da4c394dd6d6\",\"text\":\"Tilkoblingen er brutt. Forsøker å gjenopprette forbindelsen.\",\"timeCreated\":1771499781803,\"loggedByFullName\":\"x46204_t15 - (Parat-Bridge)\",\"client\":\"rayvn\"}]",
-    "payloadType": "json",
-    "x": 70,
-    "y": 300,
-    "wires": [
-      []
-    ]
-  },
-  {
-    "id": "0e62fa33e83b4d32",
-    "type": "function",
-    "z": "fdea0898d1f24630",
-    "name": "function 3",
-    "func": "let count = context.get(\"counter\")\nmsg.payload[0].id = msg.payload[0].id + \"_\" + count\nmsg.payload[0].text = \"message: \" + count\ncontext.set(\"counter\", count + 1)\n\n\nif (!global.get(\"msg_list\")) {\n    global.set(\"msg_list\", [])\n}\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "// Code added here will be run once\n// whenever the node is started.\ncontext.set(\"counter\", 0)",
-    "finalize": "",
-    "libs": [],
-    "x": 240,
-    "y": 380,
-    "wires": [
-      [
-        "d1244dacec62d835"
-      ]
-    ]
-  },
-  {
-    "id": "b819db8490ed62a6",
-    "type": "inject",
-    "z": "fdea0898d1f24630",
-    "name": "",
-    "props": [
-      {
-        "p": "payload"
-      },
-      {
-        "p": "topic",
-        "vt": "str"
-      }
-    ],
-    "repeat": "",
-    "crontab": "",
-    "once": false,
-    "onceDelay": 0.1,
-    "topic": "new_messages",
-    "payload": "[{\"id\":\"079f81b3-1e08-44c9-a83c-018d218313ec\",\"text\":\"Oy!\",\"keyEvent\":false,\"releasedInfo\":false,\"timeCreated\":1768476969647,\"loggedByFullName\":\"Lene Olsen\",\"labels\":[],\"files\":[]}]",
-    "payloadType": "json",
-    "x": 90,
-    "y": 380,
-    "wires": [
-      [
-        "0e62fa33e83b4d32"
-      ]
-    ]
-  },
-  {
-    "id": "d1244dacec62d835",
-    "type": "subflow:e56a9c672a5eb8f6",
-    "z": "fdea0898d1f24630",
-    "name": "",
-    "x": 130,
-    "y": 520,
-    "wires": [
-      [
-        "e8f453cb650cc177"
-      ]
-    ]
   }
 ]

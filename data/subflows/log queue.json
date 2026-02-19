@@ -12,9 +12,6 @@
         "wires": [
           {
             "id": "b10e551af2b47fa1"
-          },
-          {
-            "id": "8788f6ce818a6577"
           }
         ]
       }
@@ -62,7 +59,6 @@
     "y": 340,
     "wires": [
       [
-        "20509a97a6128571",
         "b517dd3e71771eb0"
       ]
     ]
@@ -166,7 +162,6 @@
     "y": 120,
     "wires": [
       [
-        "8edb190c121fcc51",
         "b517dd3e71771eb0"
       ]
     ]
@@ -186,9 +181,7 @@
     "x": 1040,
     "y": 280,
     "wires": [
-      [
-        "4461d77da5387fe7"
-      ]
+      []
     ],
     "info": "Sends the last queued message when triggerd,\nuses a boolean -> sending variable to avoid retriggering during execution"
   },
@@ -208,7 +201,6 @@
     "y": 220,
     "wires": [
       [
-        "006115f685dcf065",
         "26e68ba78fe8146c"
       ],
       [

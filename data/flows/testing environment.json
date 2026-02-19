@@ -8,128 +8,6 @@
     "env": []
   },
   {
-    "id": "5c54b929df2d1af5",
-    "type": "function",
-    "z": "901ed98289cc4ecd",
-    "name": "function 1",
-    "func": "const timestamp = new Date(msg.payload.time).getTime();\n\nglobal.set(\"lastRayvnEntryTimeStamp\", timestamp);\n\nmsg.payload = timestamp;\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 720,
-    "y": 240,
-    "wires": [
-      [
-        "f3321844b8025424"
-      ]
-    ]
-  },
-  {
-    "id": "f3321844b8025424",
-    "type": "debug",
-    "z": "901ed98289cc4ecd",
-    "name": "new timestamp",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 960,
-    "y": 200,
-    "wires": []
-  },
-  {
-    "id": "33da432c1227a5ae",
-    "type": "ui-form",
-    "z": "901ed98289cc4ecd",
-    "name": "inject timestamp",
-    "group": "9df65904057aeaa7",
-    "label": "",
-    "order": 4,
-    "width": 0,
-    "height": 0,
-    "options": [
-      {
-        "label": "time",
-        "key": "time",
-        "type": "date",
-        "required": true,
-        "rows": null
-      }
-    ],
-    "formValue": {
-      "time": ""
-    },
-    "payload": "",
-    "submit": "submit",
-    "cancel": "clear",
-    "resetOnSubmit": false,
-    "topic": "payload",
-    "topicType": "msg",
-    "splitLayout": "",
-    "className": "",
-    "passthru": false,
-    "dropdownOptions": [],
-    "x": 500,
-    "y": 240,
-    "wires": [
-      [
-        "5c54b929df2d1af5"
-      ]
-    ]
-  },
-  {
-    "id": "7ab7597407334826",
-    "type": "inject",
-    "z": "901ed98289cc4ecd",
-    "name": "reset timestamp to current",
-    "props": [
-      {
-        "p": "payload"
-      }
-    ],
-    "repeat": "",
-    "crontab": "",
-    "once": false,
-    "onceDelay": 0.1,
-    "topic": "",
-    "payload": "",
-    "payloadType": "date",
-    "x": 510,
-    "y": 160,
-    "wires": [
-      [
-        "8254f6c54918e4ed"
-      ]
-    ]
-  },
-  {
-    "id": "8254f6c54918e4ed",
-    "type": "function",
-    "z": "901ed98289cc4ecd",
-    "name": "function 2",
-    "func": "const timestamp = msg.payload\n\nglobal.set(\"lastRayvnEntryTimeStamp\", timestamp);\nglobal.set(\"lastWasosEntryTimeStamp\", timestamp);\n\nmsg.payload = timestamp;\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 720,
-    "y": 160,
-    "wires": [
-      [
-        "f3321844b8025424"
-      ]
-    ]
-  },
-  {
     "id": "11c3f6f4a2cdb60c",
     "type": "inject",
     "z": "901ed98289cc4ecd",
@@ -359,63 +237,50 @@
     ]
   },
   {
-    "id": "66922d85be331de8",
-    "type": "ui-number-input",
+    "id": "1ea6f859e159bdb7",
+    "type": "function",
     "z": "901ed98289cc4ecd",
-    "group": "9df65904057aeaa7",
-    "name": "Test response",
-    "label": "Test response",
-    "order": 0,
-    "width": 0,
-    "height": 0,
-    "topic": "topic",
-    "topicType": "msg",
-    "min": 0,
-    "max": "1000",
-    "step": 1,
-    "tooltip": "",
-    "delay": 300,
-    "passthru": true,
-    "sendOnDelay": false,
-    "sendOnBlur": true,
-    "sendOnEnter": true,
-    "className": "",
-    "clearable": false,
-    "icon": "",
-    "iconPosition": "left",
-    "iconInnerPosition": "inside",
-    "spinner": "default",
-    "x": 460,
-    "y": 400,
+    "name": "Delete all global variables",
+    "func": "global.keys().forEach(key => global.set(key, undefined));\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 770,
+    "y": 420,
     "wires": [
-      [
-        "4115bf635ed27a54"
-      ]
+      []
     ]
   },
   {
-    "id": "4115bf635ed27a54",
-    "type": "change",
+    "id": "1b4fdcad46e3948c",
+    "type": "inject",
     "z": "901ed98289cc4ecd",
-    "name": "set test response code",
-    "rules": [
+    "name": "",
+    "props": [
       {
-        "t": "set",
-        "p": "test_response",
-        "pt": "global",
-        "to": "payload",
-        "tot": "msg"
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
       }
     ],
-    "action": "",
-    "property": "",
-    "from": "",
-    "to": "",
-    "reg": false,
-    "x": 710,
-    "y": 400,
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 480,
+    "y": 420,
     "wires": [
-      []
+      [
+        "1ea6f859e159bdb7"
+      ]
     ]
   }
 ]
