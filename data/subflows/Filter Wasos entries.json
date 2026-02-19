@@ -59,7 +59,7 @@
     "type": "function",
     "z": "5b8da813a76ba94b",
     "name": "Filter by callsign",
-    "func": "let data = msg.payload;\n\nlet filtered = data.filter(\n    entry => !entry.username.includes(\"[rayvn]\")\n);\n\nmsg.payload = filtered;\nreturn msg;\n",
+    "func": "let data = msg.payload;\n\nlet filtered = data.filter(\n    entry => !entry.username.includes(\"[rayvn]\") &&\n        !entry.username.includes(\"Parat-Bridge\")\n);\n\nmsg.payload = filtered;\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,

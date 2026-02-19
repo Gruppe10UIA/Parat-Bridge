@@ -72,7 +72,7 @@
     "type": "function",
     "z": "7cecb563cf8b234a",
     "name": "Build connection break notification",
-    "func": "const count = msg.failureCount;\nconst entry = msg.errorEntry;\n\n// Rate limit: notify at 5, then every 10th (15, 25, 35...)\nconst shouldNotify = count === 5 || (count > 5 && (count - 5) % 10 === 0);\n\nif (!shouldNotify) {\n    return null;\n}\n\nconst text = `Tilkoblingen er brutt. Forsøker å gjenopprette forbindelsen.`;\n\nmsg.message = text;\nmsg.payload = [{\n    content: text,\n    callsign: \"Parat-Bridge\"\n}];\ndelete msg.url;\ndelete msg.headers;\n\nreturn [msg, msg];\n\n\n",
+    "func": "const count = msg.failureCount;\nconst entry = msg.errorEntry;\n\n// Rate limit: notify at 5, then every 10th (15, 25, 35...)\nconst shouldNotify = count === 5 || (count > 5 && (count - 5) % 10 === 0);\n\nif (!shouldNotify) {\n    return null;\n}\n\nconst text = `Tilkoblingen er brutt. Forsøker å gjenopprette forbindelsen.`;\n\nconst rayvnMsg = {\n    ...msg,\n    payload: [{\n        text: `[Parat-Bridge] ${text}`,\n        keyEvent: false,\n        releasedInfo: false,\n        labels: []\n    }]\n};\n\nconst wasosMsg = {\n    ...msg,\n    payload: [{\n        content: text,\n        callsign: \"Parat-Bridge\"\n    }]\n};\n\ndelete rayvnMsg.url;\ndelete rayvnMsg.headers;\ndelete wasosMsg.url;\ndelete wasosMsg.headers;\n\nreturn [rayvnMsg, wasosMsg];",
     "outputs": 2,
     "timeout": 0,
     "noerr": 0,
