@@ -72,8 +72,8 @@
     "type": "function",
     "z": "7cecb563cf8b234a",
     "name": "Build connection break notification",
-    "func": "const count = msg.failureCount;\nconst entry = msg.errorEntry;\n\n// Rate limit: notify at 5, then every 10th (15, 25, 35...)\nconst shouldNotify = count === 5 || (count > 5 && (count - 5) % 10 === 0);\n\nif (!shouldNotify) {\n    return null;\n}\n\nconst text = `⚠️ CONNECTION BREAK: ${entry.source} has failed ${count} times. ` +\n    `Last error: [${entry.type.toUpperCase()}] ${entry.message} ` +\n    `(status: ${entry.statusCode || 'none'}) at ${entry.timestamp}`;\n\nmsg.message = text;\nmsg.payload = [{ content: text }];\ndelete msg.url;\ndelete msg.headers;\n\nreturn [msg, msg];\n",
-    "outputs": 2,
+    "func": "const count = msg.failureCount;\nconst entry = msg.errorEntry;\n\n// Rate limit: notify at 5, then every 10th (15, 25, 35...)\nconst shouldNotify = count === 5 || (count > 5 && (count - 5) % 10 === 0);\n\nif (!shouldNotify) {\n    return null;\n}\n\nconst now = Date.now();\n\n// --- Simple user message ---\nconst userText = \"[parat-bridge] ⚠️ Tilkoblingen er brutt. Forsøker å gjenopprette forbindelsen.\";\n\n// Format for Rayvn\nconst rayvnMessage = [{\n    text: userText,\n    keyEvent: false,\n    releasedInfo: false,\n    labels: []\n}];\n\n// Format for Wasos\nconst wasosMessage = [{\n    content: userText,\n    callsign: \"[parat-bridge]\",\n    createdAt: new Date(now).toISOString(),\n    isLocation: false,\n    replyMessageId: null,\n    files: []\n}];\n\n// --- Technical message for master-log ---\nconst technicalText = `[parat-bridge] [${entry.type.toUpperCase()}] ${entry.source} has failed ${count} times. ` +\n    `Last error: ${entry.message} (status: ${entry.statusCode || 'none'}) at ${entry.timestamp}`;\n\nconst masterLogEntry = [{\n    id: \"pb-err-\" + now + \"-\" + Math.random().toString(36).substr(2, 6),\n    text: technicalText,\n    timeCreated: now,\n    loggedByFullName: \"parat-bridge\",\n    client: \"parat-bridge\"\n}];\n\n// Clean-up HTTP-artefacts\ndelete msg.url;\ndelete msg.headers;\ndelete msg.statusCode;\ndelete msg.responseCookies;\n\n// Output 1: Rayvn usermessage\n// Output 2: WaSOS usermessage\n// Output 3: Master_log technicaldetail\nlet msgRayvn = { payload: rayvnMessage };\nlet msgWasos = { payload: wasosMessage };\nlet msgLog = { payload: masterLogEntry };\n\nreturn [msgRayvn, msgWasos, msgLog];\n",
+    "outputs": 3,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
@@ -87,6 +87,9 @@
       ],
       [
         "c94fdbb3457bc7bd"
+      ],
+      [
+        "8a9ad3cf53bb6855"
       ]
     ],
     "info": "Builds a connection break notification message\r\nand applies rate limiting.\r\n\r\nRate limiting:\r\n- Notifies at count = 5\r\n- Then every 10th failure (15, 25, 35...)\r\n- Returns null (stops flow) if not a notify interval\r\n\r\nOutput:\r\n- Output 1: POST to Rayvn log\r\n- Output 2: POST to Wasos chat\r\n- msg.payload: [{ content: \"⚠️ CONNECTION BREAK...\" }]\r\n- msg.message: notification text"
@@ -116,5 +119,16 @@
       []
     ],
     "info": "Sends the connection break notification\r\ndirectly to WaSOS chat via the \r\nPOST to Wasos chat subflow.\r\n\r\nTriggered by output 2 from\r\n\"Build connection break notification\".\r\n"
+  },
+  {
+    "id": "8a9ad3cf53bb6855",
+    "type": "subflow:fe9d5f6f9c2bdb16",
+    "z": "7cecb563cf8b234a",
+    "name": "",
+    "x": 1420,
+    "y": 480,
+    "wires": [
+      []
+    ]
   }
 ]

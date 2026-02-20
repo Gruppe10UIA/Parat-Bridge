@@ -282,5 +282,52 @@
         "1ea6f859e159bdb7"
       ]
     ]
+  },
+  {
+    "id": "a0c5c990cb5ae106",
+    "type": "function",
+    "z": "901ed98289cc4ecd",
+    "name": "function 1",
+    "func": "let config = global.get(\"rayvn_config\");\nconfig.api_key = \"ugyldig_nøkkel\";\nglobal.set(\"rayvn_config\", config);\nnode.warn(\"Rayvn API key satt til ugyldig verdi for testing\");\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 680,
+    "y": 180,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "f8044b97a242ebf8",
+    "type": "inject",
+    "z": "901ed98289cc4ecd",
+    "name": "Inject for wrong api key",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 440,
+    "y": 200,
+    "wires": [
+      [
+        "a0c5c990cb5ae106"
+      ]
+    ]
   }
 ]

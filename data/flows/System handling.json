@@ -97,7 +97,8 @@
     "wires": [
       [
         "a8907418fbaa0775",
-        "0bf8491c4bebb0eb"
+        "0bf8491c4bebb0eb",
+        "b97c66097e0eb5d1"
       ]
     ]
   },
@@ -114,8 +115,8 @@
     "targetType": "full",
     "statusVal": "",
     "statusType": "auto",
-    "x": 650,
-    "y": 360,
+    "x": 1080,
+    "y": 300,
     "wires": []
   },
   {
@@ -128,5 +129,51 @@
     "x": 535,
     "y": 420,
     "wires": []
+  },
+  {
+    "id": "b97c66097e0eb5d1",
+    "type": "function",
+    "z": "003e75aaa2880405",
+    "name": "function 2",
+    "func": "const now = Date.now();\n\n// User-friendly message to Wasos\nconst wasosMessage = [{\n    content: \"[parat-bridge] ⚠️ Siste melding ikke overført til Rayvn. Forsøker å gjenopprette forbindelsen.\",\n    callsign: \"[parat-bridge]\",\n    createdAt: new Date(now).toISOString(),\n    isLocation: false,\n    replyMessageId: null,\n    files: []\n}];\n\n// Technical entry for master_log\nconst masterLogEntry = [{\n    id: \"pb-queue-\" + now + \"-\" + Math.random().toString(36).substr(2, 6),\n    text: `[parat-bridge] Queue exhausted retries. ${msg.failed_messages ? msg.failed_messages.length : 0} message(s) stuck. Target: Rayvn`,\n    timeCreated: now,\n    loggedByFullName: \"parat-bridge\",\n    client: \"parat-bridge\"\n}];\n\nlet msgWasos = { payload: wasosMessage };\nlet msgLog = { payload: masterLogEntry };\n\nreturn [msgWasos, msgLog];",
+    "outputs": 2,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 960,
+    "y": 400,
+    "wires": [
+      [
+        "0621bb7ed1c86723"
+      ],
+      [
+        "8678033e827e3251"
+      ]
+    ]
+  },
+  {
+    "id": "0621bb7ed1c86723",
+    "type": "subflow:209f3c980818c499",
+    "z": "003e75aaa2880405",
+    "name": "",
+    "x": 1180,
+    "y": 360,
+    "wires": [
+      [],
+      []
+    ]
+  },
+  {
+    "id": "8678033e827e3251",
+    "type": "subflow:fe9d5f6f9c2bdb16",
+    "z": "003e75aaa2880405",
+    "name": "",
+    "x": 1140,
+    "y": 460,
+    "wires": [
+      []
+    ]
   }
 ]
