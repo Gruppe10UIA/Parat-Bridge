@@ -1,0 +1,280 @@
+[
+  {
+    "id": "d4e5f6g7h8i9j0k1",
+    "type": "subflow",
+    "name": "Fetch Rayvn images for WaSOS v4",
+    "info": "Henter bilder fra Rayvn via /files/{fileId} endepunktet.\n\nSteg 1: GET /files/{fileId} for å få signert URL\nSteg 2: GET signert URL for å hente bildedata\n\nInput: msg.payload = array av Rayvn entries\nOutput: msg.payload = samme array, entries med filer har wasosFiles[]",
+    "category": "",
+    "in": [
+      {
+        "x": 100,
+        "y": 200,
+        "wires": [
+          {
+            "id": "init_processing_v4"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 1100,
+        "y": 200,
+        "wires": [
+          {
+            "id": "check_done_v4",
+            "port": 1
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#C0DEED",
+    "icon": "font-awesome/fa-image"
+  },
+  {
+    "id": "init_processing_v4",
+    "type": "function",
+    "z": "d4e5f6g7h8i9j0k1",
+    "name": "Init processing",
+    "func": "msg.allEntries = msg.payload;\nmsg.processedEntries = [];\nmsg.currentIndex = 0;\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 260,
+    "y": 200,
+    "wires": [
+      [
+        "process_entry_v4"
+      ]
+    ]
+  },
+  {
+    "id": "process_entry_v4",
+    "type": "function",
+    "z": "d4e5f6g7h8i9j0k1",
+    "name": "Process current entry",
+    "func": "const entry = msg.allEntries[msg.currentIndex];\n\nif (entry.files && entry.files.length > 0) {\n    msg.currentEntry = entry;\n    msg.filesToFetch = entry.files;\n    msg.fetchedFiles = [];\n    msg.currentFileIndex = 0;\n    msg.hasFiles = true;\n} else {\n    entry.wasosFiles = [];\n    msg.processedEntries.push(entry);\n    msg.currentIndex++;\n    msg.hasFiles = false;\n}\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 480,
+    "y": 200,
+    "wires": [
+      [
+        "route_entry_v4"
+      ]
+    ]
+  },
+  {
+    "id": "route_entry_v4",
+    "type": "switch",
+    "z": "d4e5f6g7h8i9j0k1",
+    "name": "Has files?",
+    "property": "hasFiles",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "true"
+      },
+      {
+        "t": "false"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 2,
+    "x": 670,
+    "y": 200,
+    "wires": [
+      [
+        "prepare_file_info_request"
+      ],
+      [
+        "check_done_v4"
+      ]
+    ]
+  },
+  {
+    "id": "prepare_file_info_request",
+    "type": "function",
+    "z": "d4e5f6g7h8i9j0k1",
+    "name": "Prepare /files/{id} request",
+    "func": "const rayvn_config = global.get('rayvn_config');\nconst rayvn_url = global.get('rayvn_url');\nconst fileInfo = msg.filesToFetch[msg.currentFileIndex];\n\nif (!fileInfo || !fileInfo.id) {\n    node.warn('Fil mangler ID: ' + JSON.stringify(fileInfo));\n    msg.currentFileIndex++;\n    if (msg.currentFileIndex >= msg.filesToFetch.length) {\n        return [null, msg];\n    }\n    return [msg, null];\n}\n\n// Lagre fil-metadata\nmsg.currentFile = {\n    id: fileInfo.id,\n    filename: fileInfo.name || 'unknown',\n    extension: fileInfo.name ? fileInfo.name.split('.').pop().toLowerCase() : 'bin',\n    size: fileInfo.size,\n    originalUrl: fileInfo.url\n};\n\nconst ext = msg.currentFile.extension;\nconst mimeTypes = {\n    'png': 'image/png',\n    'jpg': 'image/jpeg',\n    'jpeg': 'image/jpeg',\n    'gif': 'image/gif',\n    'webp': 'image/webp',\n    'pdf': 'application/pdf'\n};\nmsg.currentFile.filetype = mimeTypes[ext] || 'application/octet-stream';\n\n// Bygg request til /files/{fileId}\nmsg.url = rayvn_url + '/files/' + fileInfo.id;\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + rayvn_config.api_key\n};\n\nnode.log('Henter fil-info: ' + msg.url);\n\nreturn [msg, null];",
+    "outputs": 2,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 350,
+    "y": 80,
+    "wires": [
+      [
+        "get_file_info"
+      ],
+      [
+        "finalize_entry_v4"
+      ]
+    ]
+  },
+  {
+    "id": "get_file_info",
+    "type": "http request",
+    "z": "d4e5f6g7h8i9j0k1",
+    "name": "GET /files/{id}",
+    "method": "GET",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": true,
+    "headers": [],
+    "x": 580,
+    "y": 80,
+    "wires": [
+      [
+        "handle_file_info_response"
+      ]
+    ]
+  },
+  {
+    "id": "handle_file_info_response",
+    "type": "function",
+    "z": "d4e5f6g7h8i9j0k1",
+    "name": "Handle file info response",
+    "func": "const response = msg.payload;\n\nnode.log('File info response status: ' + msg.statusCode);\nnode.log('File info response: ' + JSON.stringify(response).substring(0, 500));\n\nif (msg.statusCode !== 200) {\n    node.warn('Kunne ikke hente fil-info. Status: ' + msg.statusCode);\n    // Prøv med original URL som fallback\n    msg.signedUrl = msg.currentFile.originalUrl;\n} else if (response && response.url) {\n    // Bruk URL fra response\n    msg.signedUrl = response.url;\n    node.log('Fikk URL fra /files endpoint: ' + msg.signedUrl);\n} else {\n    // Fallback til original URL\n    node.warn('Ingen URL i response, bruker original: ' + msg.currentFile.originalUrl);\n    msg.signedUrl = msg.currentFile.originalUrl;\n}\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 790,
+    "y": 80,
+    "wires": [
+      [
+        "prepare_image_fetch_v4"
+      ]
+    ]
+  },
+  {
+    "id": "prepare_image_fetch_v4",
+    "type": "function",
+    "z": "d4e5f6g7h8i9j0k1",
+    "name": "Prepare image fetch",
+    "func": "const rayvn_config = global.get('rayvn_config');\n\nmsg.url = msg.signedUrl;\n\n// Prøv med Bearer token først\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + rayvn_config.api_key\n};\n\nnode.log('Henter bilde fra: ' + msg.url);\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 610,
+    "y": 140,
+    "wires": [
+      [
+        "fetch_image_v4"
+      ]
+    ]
+  },
+  {
+    "id": "fetch_image_v4",
+    "type": "http request",
+    "z": "d4e5f6g7h8i9j0k1",
+    "name": "GET image",
+    "method": "GET",
+    "ret": "bin",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": true,
+    "headers": [],
+    "x": 810,
+    "y": 140,
+    "wires": [
+      [
+        "handle_image_response_v4"
+      ]
+    ]
+  },
+  {
+    "id": "handle_image_response_v4",
+    "type": "function",
+    "z": "d4e5f6g7h8i9j0k1",
+    "name": "Handle image response",
+    "func": "const buffer = msg.payload;\n\nnode.log('Image fetch status: ' + msg.statusCode + ', size: ' + (buffer ? buffer.length : 0));\n\nif (buffer && buffer.length > 0 && msg.statusCode === 200) {\n    const blob = Array.from(new Uint8Array(buffer));\n    \n    const wasosFile = {\n        filename: msg.currentFile.filename,\n        extension: msg.currentFile.extension,\n        filetype: msg.currentFile.filetype,\n        blob: blob\n    };\n    \n    msg.fetchedFiles.push(wasosFile);\n    node.log('SUCCESS: Hentet bilde: ' + msg.currentFile.filename + ' (' + blob.length + ' bytes)');\n} else {\n    node.warn('FAILED: Kunne ikke hente bilde. Status: ' + msg.statusCode + ', URL: ' + msg.url);\n}\n\n// Neste fil\nmsg.currentFileIndex++;\n\nif (msg.currentFileIndex < msg.filesToFetch.length) {\n    return [msg, null];\n} else {\n    return [null, msg];\n}",
+    "outputs": 2,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 630,
+    "y": 260,
+    "wires": [
+      [
+        "prepare_file_info_request"
+      ],
+      [
+        "finalize_entry_v4"
+      ]
+    ]
+  },
+  {
+    "id": "finalize_entry_v4",
+    "type": "function",
+    "z": "d4e5f6g7h8i9j0k1",
+    "name": "Finalize entry",
+    "func": "const entry = msg.currentEntry;\nentry.wasosFiles = msg.fetchedFiles || [];\nmsg.processedEntries.push(entry);\n\nmsg.currentIndex++;\n\n// Rydd opp\ndelete msg.currentEntry;\ndelete msg.filesToFetch;\ndelete msg.fetchedFiles;\ndelete msg.currentFileIndex;\ndelete msg.currentFile;\ndelete msg.hasFiles;\ndelete msg.url;\ndelete msg.headers;\ndelete msg.statusCode;\ndelete msg.signedUrl;\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 460,
+    "y": 320,
+    "wires": [
+      [
+        "check_done_v4"
+      ]
+    ]
+  },
+  {
+    "id": "check_done_v4",
+    "type": "function",
+    "z": "d4e5f6g7h8i9j0k1",
+    "name": "Check if done",
+    "func": "if (msg.currentIndex < msg.allEntries.length) {\n    return [msg, null];\n} else {\n    msg.payload = msg.processedEntries;\n    \n    delete msg.allEntries;\n    delete msg.processedEntries;\n    delete msg.currentIndex;\n    \n    node.log('Ferdig! Prosessert ' + msg.payload.length + ' entries');\n    \n    return [null, msg];\n}",
+    "outputs": 2,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 280,
+    "y": 320,
+    "wires": [
+      [
+        "process_entry_v4"
+      ],
+      []
+    ]
+  }
+]
