@@ -87,35 +87,6 @@
     "info": "Displays the last 10 errors from the error log\r\nin a table on the Error Monitor dashboard page.\r\n\r\nUpdates every 5 seconds via the timestamp\r\ninject node. Table is replaced (not appended)\r\non each update.\r\n\r\nColumns (auto-calculated):\r\n- time, type, source, status, message\r\n"
   },
   {
-    "id": "635dc4639d0c5c64",
-    "type": "inject",
-    "z": "003e75aaa2880405",
-    "name": "",
-    "props": [
-      {
-        "p": "payload"
-      },
-      {
-        "p": "topic",
-        "vt": "str"
-      }
-    ],
-    "repeat": "",
-    "crontab": "",
-    "once": true,
-    "onceDelay": 0.1,
-    "topic": "",
-    "payload": "",
-    "payloadType": "date",
-    "x": 270,
-    "y": 460,
-    "wires": [
-      [
-        "560e4f7d2dcabd25"
-      ]
-    ]
-  },
-  {
     "id": "560e4f7d2dcabd25",
     "type": "function",
     "z": "003e75aaa2880405",
@@ -178,5 +149,19 @@
       []
     ],
     "info": "Finds WaSOS and Parat-Bridge labels from GET /tags response\nand stores them as global variables for use across flows."
+  },
+  {
+    "id": "fb7a834b9bd425aa",
+    "type": "link in",
+    "z": "003e75aaa2880405",
+    "name": "create tag",
+    "links": [],
+    "x": 235,
+    "y": 460,
+    "wires": [
+      [
+        "560e4f7d2dcabd25"
+      ]
+    ]
   }
 ]
