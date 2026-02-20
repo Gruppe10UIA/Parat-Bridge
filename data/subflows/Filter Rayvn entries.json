@@ -59,7 +59,7 @@
     "type": "function",
     "z": "0047704f35a57b0c",
     "name": "filter by label",
-    "func": "let data = msg.payload;\n\nconst PARAT_BRIDGE_LABEL = global.get(\"paratBridgeLabel\");\n\nif (!PARAT_BRIDGE_LABEL) {\n    node.error(\"paratBridgeLabel er ikke satt i global context\");\n    msg.payload = data;\n    return msg;\n}\n\nconst filtered = data.filter(\n    entry => !entry.labels.some(label => label && label.name === PARAT_BRIDGE_LABEL.name)\n);\n\nmsg.payload = filtered;\nreturn msg;",
+    "func": "let data = msg.payload;\n\nconst WASOS_LABEL = global.get(\"wasosLabel\");\nconst PARAT_BRIDGE_LABEL = global.get(\"paratBridgeLabel\");\n\nif (!WASOS_LABEL || !PARAT_BRIDGE_LABEL) {\n    node.warn(\"Labels er ikke satt i global context\");\n    msg.payload = data;\n    return msg;\n}\n\nconst filtered = data.filter(\n    entry => !entry.labels.some(label =>\n        label && (\n            label.name === WASOS_LABEL.name ||\n            label.name === PARAT_BRIDGE_LABEL.name\n        )\n    )\n);\n\nmsg.payload = filtered;\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
