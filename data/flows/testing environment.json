@@ -305,7 +305,7 @@
     "id": "f8044b97a242ebf8",
     "type": "inject",
     "z": "901ed98289cc4ecd",
-    "name": "Inject for wrong api key",
+    "name": "Inject for wrong api key - rayvn",
     "props": [
       {
         "p": "payload"
@@ -322,12 +322,59 @@
     "topic": "",
     "payload": "",
     "payloadType": "date",
-    "x": 440,
+    "x": 470,
     "y": 200,
     "wires": [
       [
         "a0c5c990cb5ae106"
       ]
+    ]
+  },
+  {
+    "id": "295aee771fea2b43",
+    "type": "inject",
+    "z": "901ed98289cc4ecd",
+    "name": "inject for wrong api key wasos",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 480,
+    "y": 80,
+    "wires": [
+      [
+        "aad75b52978c7d99"
+      ]
+    ]
+  },
+  {
+    "id": "aad75b52978c7d99",
+    "type": "function",
+    "z": "901ed98289cc4ecd",
+    "name": "function 3",
+    "func": "let config = global.get(\"wasos_config\");\nconfig.api.key = \"ugyldig_nøkkel\";\nglobal.set(\"wasos_config\", config);\nnode.warn(\"Wasos API key set to invalid value for testing\");\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 680,
+    "y": 80,
+    "wires": [
+      []
     ]
   }
 ]
