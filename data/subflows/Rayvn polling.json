@@ -104,7 +104,7 @@
     "z": "1c21db2b0b16a979",
     "name": "Rayvn Poll",
     "props": [],
-    "repeat": "2",
+    "repeat": "300",
     "crontab": "",
     "once": true,
     "onceDelay": 0.1,

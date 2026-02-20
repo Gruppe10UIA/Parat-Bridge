@@ -8,31 +8,6 @@
     "env": []
   },
   {
-    "id": "d4b8f2a40d3eff46",
-    "type": "group",
-    "z": "559975c27e81a86b",
-    "name": "Retrieve",
-    "style": {
-      "stroke": "#0070c0",
-      "fill": "#bfdbef",
-      "label": true,
-      "label-position": "n",
-      "color": "#000000"
-    },
-    "nodes": [
-      "9c083fc8c222c29d",
-      "e5047f481499ea01",
-      "ad6e4ebae620ae51",
-      "826af035abb1587d",
-      "3b1a180eac54a098",
-      "c08dff63b6bf94a4"
-    ],
-    "x": 454,
-    "y": 219,
-    "w": 852,
-    "h": 122
-  },
-  {
     "id": "7606eac92c1778e2",
     "type": "group",
     "z": "559975c27e81a86b",
@@ -57,65 +32,55 @@
     "h": 122
   },
   {
-    "id": "04b018b08a56f604",
-    "type": "debug",
+    "id": "d4b8f2a40d3eff46",
+    "type": "group",
     "z": "559975c27e81a86b",
-    "g": "7606eac92c1778e2",
-    "name": "POST to Rayvn response",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 1230,
-    "y": 460,
-    "wires": []
+    "name": "Retrieve",
+    "style": {
+      "stroke": "#0070c0",
+      "fill": "#bfdbef",
+      "label": true,
+      "label-position": "n",
+      "color": "#000000"
+    },
+    "nodes": [
+      "9c083fc8c222c29d",
+      "e5047f481499ea01",
+      "ad6e4ebae620ae51",
+      "826af035abb1587d",
+      "3b1a180eac54a098",
+      "c08dff63b6bf94a4",
+      "2955a277af1a98c5",
+      "debug_rayvn_upload",
+      "debug_wasos_fetch"
+    ],
+    "x": 394,
+    "y": 59,
+    "w": 932,
+    "h": 322
   },
   {
-    "id": "37d09b076004e699",
-    "type": "debug",
+    "id": "9c083fc8c222c29d",
+    "type": "subflow:6844cb2c3b9378da",
     "z": "559975c27e81a86b",
-    "g": "7606eac92c1778e2",
-    "name": "Rayvn log formatted entries",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 880,
-    "y": 460,
-    "wires": []
-  },
-  {
-    "id": "5adc9f55c147a330",
-    "type": "subflow:4a6a1af9b9af6b0f",
-    "z": "559975c27e81a86b",
-    "g": "7606eac92c1778e2",
+    "g": "d4b8f2a40d3eff46",
     "name": "",
-    "x": 1210,
-    "y": 500,
+    "x": 580,
+    "y": 340,
     "wires": [
       [
-        "04b018b08a56f604"
-      ],
-      [
-        "453ac9498920626e"
+        "e5047f481499ea01",
+        "ad6e4ebae620ae51"
       ]
     ]
   },
   {
-    "id": "c08dff63b6bf94a4",
+    "id": "e5047f481499ea01",
     "type": "debug",
     "z": "559975c27e81a86b",
     "g": "d4b8f2a40d3eff46",
-    "name": "Bridge log formatted entries",
-    "active": false,
+    "name": "Wasos polling response",
+    "active": true,
     "tosidebar": true,
     "console": false,
     "tostatus": false,
@@ -123,40 +88,38 @@
     "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 1140,
-    "y": 260,
+    "x": 530,
+    "y": 100,
     "wires": []
   },
   {
-    "id": "3b1a180eac54a098",
-    "type": "debug",
+    "id": "ad6e4ebae620ae51",
+    "type": "subflow:5b8da813a76ba94b",
     "z": "559975c27e81a86b",
     "g": "d4b8f2a40d3eff46",
-    "name": "Wasos filtered entries",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 840,
-    "y": 260,
-    "wires": []
-  },
-  {
-    "id": "df39f1408665a8da",
-    "type": "subflow:5ed556f2fe39e3a2",
-    "z": "559975c27e81a86b",
-    "g": "7606eac92c1778e2",
     "name": "",
-    "x": 860,
-    "y": 500,
+    "x": 850,
+    "y": 340,
     "wires": [
       [
-        "37d09b076004e699",
-        "5adc9f55c147a330"
+        "3b1a180eac54a098",
+        "2955a277af1a98c5"
+      ]
+    ]
+  },
+  {
+    "id": "826af035abb1587d",
+    "type": "subflow:a72933a33e32b28c",
+    "z": "559975c27e81a86b",
+    "g": "d4b8f2a40d3eff46",
+    "name": "",
+    "x": 1140,
+    "y": 340,
+    "wires": [
+      [
+        "453ac9498920626e",
+        "c08dff63b6bf94a4",
+        "2eade2a1db9fad2e"
       ]
     ]
   },
@@ -178,42 +141,26 @@
     ]
   },
   {
-    "id": "826af035abb1587d",
-    "type": "subflow:a72933a33e32b28c",
+    "id": "df39f1408665a8da",
+    "type": "subflow:5ed556f2fe39e3a2",
     "z": "559975c27e81a86b",
-    "g": "d4b8f2a40d3eff46",
+    "g": "7606eac92c1778e2",
     "name": "",
-    "x": 1120,
-    "y": 300,
+    "x": 860,
+    "y": 500,
     "wires": [
       [
-        "453ac9498920626e",
-        "c08dff63b6bf94a4",
-        "2eade2a1db9fad2e"
+        "37d09b076004e699",
+        "5adc9f55c147a330"
       ]
     ]
   },
   {
-    "id": "ad6e4ebae620ae51",
-    "type": "subflow:5b8da813a76ba94b",
-    "z": "559975c27e81a86b",
-    "g": "d4b8f2a40d3eff46",
-    "name": "",
-    "x": 830,
-    "y": 300,
-    "wires": [
-      [
-        "826af035abb1587d",
-        "3b1a180eac54a098"
-      ]
-    ]
-  },
-  {
-    "id": "e5047f481499ea01",
+    "id": "3b1a180eac54a098",
     "type": "debug",
     "z": "559975c27e81a86b",
     "g": "d4b8f2a40d3eff46",
-    "name": "Wasos polling response",
+    "name": "Wasos filtered entries",
     "active": false,
     "tosidebar": true,
     "console": false,
@@ -222,24 +169,80 @@
     "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 590,
-    "y": 260,
+    "x": 820,
+    "y": 300,
     "wires": []
   },
   {
-    "id": "9c083fc8c222c29d",
-    "type": "subflow:6844cb2c3b9378da",
+    "id": "c08dff63b6bf94a4",
+    "type": "debug",
     "z": "559975c27e81a86b",
     "g": "d4b8f2a40d3eff46",
-    "name": "",
-    "x": 560,
+    "name": "Bridge log formatted entries",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1160,
     "y": 300,
+    "wires": []
+  },
+  {
+    "id": "5adc9f55c147a330",
+    "type": "subflow:4a6a1af9b9af6b0f",
+    "z": "559975c27e81a86b",
+    "g": "7606eac92c1778e2",
+    "name": "",
+    "x": 1210,
+    "y": 500,
     "wires": [
       [
-        "e5047f481499ea01",
-        "ad6e4ebae620ae51"
+        "04b018b08a56f604"
+      ],
+      [
+        "453ac9498920626e"
       ]
     ]
+  },
+  {
+    "id": "37d09b076004e699",
+    "type": "debug",
+    "z": "559975c27e81a86b",
+    "g": "7606eac92c1778e2",
+    "name": "Rayvn log formatted entries",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 880,
+    "y": 460,
+    "wires": []
+  },
+  {
+    "id": "04b018b08a56f604",
+    "type": "debug",
+    "z": "559975c27e81a86b",
+    "g": "7606eac92c1778e2",
+    "name": "POST to Rayvn response",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1230,
+    "y": 460,
+    "wires": []
   },
   {
     "id": "56587a3e4c9c3c80",
@@ -262,8 +265,8 @@
     "type": "subflow:9252cc4477dcae34",
     "z": "559975c27e81a86b",
     "name": "",
-    "x": 1420,
-    "y": 300,
+    "x": 1500,
+    "y": 220,
     "wires": []
   },
   {
@@ -294,6 +297,58 @@
     "statusType": "auto",
     "x": 900,
     "y": 600,
+    "wires": []
+  },
+  {
+    "id": "2955a277af1a98c5",
+    "type": "subflow:b1c2d3e4f5a6b7c8",
+    "z": "559975c27e81a86b",
+    "g": "d4b8f2a40d3eff46",
+    "name": "",
+    "x": 1000,
+    "y": 180,
+    "wires": [
+      [
+        "826af035abb1587d",
+        "debug_wasos_fetch",
+        "debug_rayvn_upload"
+      ]
+    ]
+  },
+  {
+    "id": "debug_wasos_fetch",
+    "type": "debug",
+    "z": "559975c27e81a86b",
+    "g": "d4b8f2a40d3eff46",
+    "name": "WaSOS file fetch response",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 820,
+    "y": 120,
+    "wires": []
+  },
+  {
+    "id": "debug_rayvn_upload",
+    "type": "debug",
+    "z": "559975c27e81a86b",
+    "g": "d4b8f2a40d3eff46",
+    "name": "Rayvn upload response",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1090,
+    "y": 120,
     "wires": []
   }
 ]

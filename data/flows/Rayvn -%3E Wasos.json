@@ -231,7 +231,7 @@
     "z": "fdea0898d1f24630",
     "g": "859e4fe853cbece6",
     "name": "Rayvn polling result",
-    "active": false,
+    "active": true,
     "tosidebar": true,
     "console": false,
     "tostatus": false,
