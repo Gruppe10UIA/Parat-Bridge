@@ -120,7 +120,7 @@
     "z": "6844cb2c3b9378da",
     "name": "Wasos Poll",
     "props": [],
-    "repeat": "5400",
+    "repeat": "6180",
     "crontab": "",
     "once": true,
     "onceDelay": 0.1,
@@ -129,34 +129,10 @@
     "y": 460,
     "wires": [
       [
-        "2fd547e31f7ce19a"
-      ]
-    ],
-    "info": "Sends inject at regular intervals while the application is running."
-  },
-  {
-    "id": "2fd547e31f7ce19a",
-    "type": "switch",
-    "z": "6844cb2c3b9378da",
-    "name": "",
-    "property": "parat_bridge.connections",
-    "propertyType": "global",
-    "rules": [
-      {
-        "t": "true"
-      }
-    ],
-    "checkall": "true",
-    "repair": false,
-    "outputs": 1,
-    "x": 250,
-    "y": 460,
-    "wires": [
-      [
         "c062940d577a1a8a"
       ]
     ],
-    "info": "Allows injects to pass through if polling is enabled."
+    "info": "Sends inject at regular intervals while the application is running."
   },
   {
     "id": "428898395a2aa151",

@@ -448,7 +448,7 @@
     "position": "top right",
     "colorDefault": false,
     "color": "#19a207",
-    "displayTime": "6",
+    "displayTime": "15",
     "showCountdown": true,
     "outputs": 1,
     "allowDismiss": true,
