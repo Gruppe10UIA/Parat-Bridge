@@ -71,8 +71,8 @@
     ],
     "order": 1,
     "className": "",
-    "visible": "true",
-    "disabled": "false"
+    "visible": true,
+    "disabled": false
   },
   {
     "id": "76f825e60cbfe2c2",

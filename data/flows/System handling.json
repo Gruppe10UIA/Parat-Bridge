@@ -98,8 +98,7 @@
       [
         "a8907418fbaa0775",
         "0bf8491c4bebb0eb",
-        "b97c66097e0eb5d1",
-        "5a3de4084c781c2d"
+        "b97c66097e0eb5d1"
       ]
     ]
   },
@@ -135,19 +134,22 @@
     "id": "b97c66097e0eb5d1",
     "type": "function",
     "z": "003e75aaa2880405",
-    "name": "Userfreindly message  to Wasos when faild post to Rayvn",
-    "func": "const now = Date.now();\n\n// User-friendly message to Wasos\nconst wasosMessage = [{\n    content: \"[parat-bridge] ⚠️ Siste melding ikke overført til Rayvn. Forsøker å gjenopprette forbindelsen.\",\n    callsign: \"[parat-bridge]\",\n    createdAt: new Date(now).toISOString(),\n    isLocation: false,\n    replyMessageId: null,\n    files: []\n}];\n\n// Technical entry for master_log\nconst masterLogEntry = [{\n    id: \"pb-queue-\" + now + \"-\" + Math.random().toString(36).substr(2, 6),\n    text: `[parat-bridge] Queue exhausted retries. ${msg.failed_messages ? msg.failed_messages.length : 0} message(s) stuck. Target: Rayvn`,\n    timeCreated: now,\n    loggedByFullName: \"parat-bridge\",\n    client: \"parat-bridge\"\n}];\n\nlet msgWasos = { payload: wasosMessage };\nlet msgLog = { payload: masterLogEntry };\n\nreturn [msgWasos, msgLog];",
-    "outputs": 2,
+    "name": "Notify sender of failed delivery",
+    "func": "const now = Date.now();\nconst conn = msg.connection;\nconst failed = msg.failed_messages || [];\nconst failedEntry = failed[0] || {};\n\n// Target is the system entry tried to reach - and failed\n// Sender is in the oposite system of target\nconst target = failedEntry.target;\n\n// Technical log entry\nconst logEntry = [{\n    id: \"pb-queue-\" + now + \"-\" + Math.random().toString(36).substr(2, 6),\n    text: \"[parat-bridge] Queue exhausted retries. \" +\n          failed.length + \" message(s) failed. Target: \" + (target || \"unknown\") +\n          \". Connection: \" + (conn ? conn.label : \"unknown\"),\n    timeCreated: now,\n    loggedByFullName: \"parat-bridge\",\n    client: \"parat-bridge\",\n    connection_id: conn ? conn.id : null\n}];\n\nlet msgLog = { payload: logEntry };\n\nif (target === \"rayvn\") {\n    // Faild send to Rayvn - alert Wasos\n    const wasosMessage = [{\n        content: \"[parat-bridge] ⚠️ Melding ikke levert til Rayvn. Forsøker å gjenopprette.\",\n        callsign: \"[parat-bridge]\",\n        createdAt: new Date(now).toISOString(),\n        isLocation: false,\n        replyMessageId: null,\n        files: []\n    }];\n    let msgWasos = { payload: wasosMessage, connection: conn };\n    return [msgWasos, null, msgLog];\n\n} else if (target === \"wasos\") {\n    // Faild send to Wasos - alert Rayvn\n    const rayvnMessage = [{\n        text: \"[parat-bridge] ⚠️ Melding ikke levert til WaSOS. Forsøker å gjenopprette.\",\n        keyEvent: false,\n        releasedInfo: false,\n        labels: []\n    }];\n    let msgRayvn = { payload: rayvnMessage, connection: conn };\n    return [null, msgRayvn, msgLog];\n\n} else {\n    // Unknown target\n    node.warn(\"Unknown target for failed message: \" + target);\n    return [null, null, msgLog];\n}",
+    "outputs": 3,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 1110,
-    "y": 400,
+    "x": 690,
+    "y": 360,
     "wires": [
       [
         "0621bb7ed1c86723"
+      ],
+      [
+        "cfb1993746665070"
       ],
       [
         "8678033e827e3251"
@@ -178,33 +180,12 @@
     ]
   },
   {
-    "id": "5a3de4084c781c2d",
-    "type": "function",
-    "z": "003e75aaa2880405",
-    "name": "Userfreindly message  to Rayvn when faild post toWasos",
-    "func": "const now = Date.now();\n\n// User-friendly message to Rayvn (sender's platform)\nconst rayvnMessage = [{\n    text: \"[parat-bridge] ⚠️ Siste melding ikke overført til Wasos. Forsøker å gjenopprette forbindelsen.\",\n    keyEvent: false,\n    releasedInfo: false,\n    labels: []\n}];\n\n// Technical entry for master_log\nconst masterLogEntry = [{\n    id: \"pb-queue-\" + now + \"-\" + Math.random().toString(36).substr(2, 6),\n    text: `[parat-bridge] Queue exhausted retries for Wasos. ${msg.failed_messages ? msg.failed_messages.length : 0} message(s) stuck.`,\n    timeCreated: now,\n    loggedByFullName: \"parat-bridge\",\n    client: \"parat-bridge\"\n}];\n\nlet msgRayvn = { payload: rayvnMessage };\nlet msgLog = { payload: masterLogEntry };\n\nreturn [msgRayvn, msgLog];",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 690,
-    "y": 500,
-    "wires": [
-      [
-        "cfb1993746665070",
-        "8678033e827e3251"
-      ]
-    ]
-  },
-  {
     "id": "cfb1993746665070",
     "type": "subflow:4a6a1af9b9af6b0f",
     "z": "003e75aaa2880405",
     "name": "",
     "x": 1150,
-    "y": 580,
+    "y": 400,
     "wires": [
       [],
       []

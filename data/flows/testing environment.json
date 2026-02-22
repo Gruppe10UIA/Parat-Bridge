@@ -41,7 +41,7 @@
     "type": "function",
     "z": "901ed98289cc4ecd",
     "name": "delete master_log",
-    "func": "global.set(\"master_log\", null)",
+    "func": "const d = global.get(\"parat_bridge\");\nif (d) {\n    d.master_log = [];\n    global.set(\"parat_bridge\", d);\n}\nmsg.payload = \"Master log cleared\";\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -96,7 +96,7 @@
     "rules": [
       {
         "t": "set",
-        "p": "poll_rayvn",
+        "p": "parat_bridge.connections",
         "pt": "global",
         "to": "payload",
         "tot": "msg"
@@ -107,7 +107,7 @@
     "from": "",
     "to": "",
     "reg": false,
-    "x": 720,
+    "x": 760,
     "y": 520,
     "wires": [
       []
@@ -155,7 +155,7 @@
     "rules": [
       {
         "t": "set",
-        "p": "poll_wasos",
+        "p": "parat_bridge.connections",
         "pt": "global",
         "to": "payload",
         "tot": "msg"
@@ -166,7 +166,7 @@
     "from": "",
     "to": "",
     "reg": false,
-    "x": 720,
+    "x": 760,
     "y": 600,
     "wires": [
       []
@@ -288,7 +288,7 @@
     "type": "function",
     "z": "901ed98289cc4ecd",
     "name": "function 1",
-    "func": "let config = global.get(\"rayvn_config\");\nconfig.api_key = \"ugyldig_nøkkel\";\nglobal.set(\"rayvn_config\", config);\nnode.warn(\"Rayvn API key satt til ugyldig verdi for testing\");\nreturn msg;",
+    "func": "const pb = global.get(\"pb\");\nconst conns = pb.getActiveConnections();\nif (conns.length === 0) {\n    node.warn(\"Ingen aktive connections\");\n    return null;\n}\nconst conn = conns[0];\nconn.rayvn.api_key = \"ugyldig_nøkkel\";\npb.updateConnection(conn.id, { rayvn: conn.rayvn });\nnode.warn(\"Rayvn API key satt til ugyldig verdi for connection: \" + conn.label);\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -364,7 +364,7 @@
     "type": "function",
     "z": "901ed98289cc4ecd",
     "name": "function 3",
-    "func": "let config = global.get(\"wasos_config\");\nconfig.api.key = \"ugyldig_nøkkel\";\nglobal.set(\"wasos_config\", config);\nnode.warn(\"Wasos API key set to invalid value for testing\");\nreturn msg;",
+    "func": "const pb = global.get(\"pb\");\nconst conns = pb.getActiveConnections();\nif (conns.length === 0) {\n    node.warn(\"Ingen aktive connections\");\n    return null;\n}\nconst conn = conns[0];\nconn.wasos.api.key = \"ugyldig_nøkkel\";\npb.updateConnection(conn.id, { wasos: conn.wasos });\nnode.warn(\"WaSOS API key satt til ugyldig verdi for connection: \" + conn.label);\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,

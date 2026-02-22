@@ -38,7 +38,7 @@
     "type": "function",
     "z": "6844cb2c3b9378da",
     "name": "verify config",
-    "func": "const pb = global.get(\"pb\");\nconst conns = pb.getActiveConnections();\n\nif (conns.length === 0) {\n    return null;\n}\n\nmsg.connection = conns[0];\nreturn msg;",
+    "func": "const pb = global.get(\"pb\");\nconst conns = pb.getActiveConnections();\n\nif (conns.length === 0) {\n    return null;\n}\n\nconst messages = conns.map(conn => {\n    return { connection: conn };\n});\n\nreturn [messages];;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -120,7 +120,7 @@
     "z": "6844cb2c3b9378da",
     "name": "Wasos Poll",
     "props": [],
-    "repeat": "3900",
+    "repeat": "5400",
     "crontab": "",
     "once": true,
     "onceDelay": 0.1,
@@ -139,7 +139,7 @@
     "type": "switch",
     "z": "6844cb2c3b9378da",
     "name": "",
-    "property": "poll_wasos",
+    "property": "parat_bridge.connections",
     "propertyType": "global",
     "rules": [
       {

@@ -82,7 +82,7 @@
     "type": "function",
     "z": "1c21db2b0b16a979",
     "name": "Verify config",
-    "func": "const pb = global.get(\"pb\");\nconst conns = pb.getActiveConnections();\n\nif (conns.length === 0) {\n    return null;\n}\n\nmsg.connection = conns[0];\nreturn msg;",
+    "func": "const pb = global.get(\"pb\");\nconst conns = pb.getActiveConnections();\n\nif (conns.length === 0) {\n    return null;\n}\n\n// Send én msg per aktiv connection (sekvensiell på output 0)\nconst messages = conns.map(conn => {\n    return { connection: conn };\n});\n\nreturn [messages];",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -104,7 +104,7 @@
     "z": "1c21db2b0b16a979",
     "name": "Rayvn Poll",
     "props": [],
-    "repeat": "3900",
+    "repeat": "5400",
     "crontab": "",
     "once": true,
     "onceDelay": 0.1,
@@ -123,7 +123,7 @@
     "type": "switch",
     "z": "1c21db2b0b16a979",
     "name": "",
-    "property": "poll_rayvn",
+    "property": "parat_bridge.connections",
     "propertyType": "global",
     "rules": [
       {
