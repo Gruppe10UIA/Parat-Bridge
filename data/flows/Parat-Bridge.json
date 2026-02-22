@@ -7,56 +7,6 @@
     "info": "Configuration UI for Parat-Bridge. Handles setup of Rayvn API credentials and WaSOS login. Validates input, authenticates with both services, and stores configuration in global variables."
   },
   {
-    "id": "9ab1f6c2842073c5",
-    "type": "group",
-    "z": "84d1a0de660abb59",
-    "name": "Setting runtime constants",
-    "style": {
-      "stroke": "#92d04f",
-      "fill": "#c8e7a7",
-      "label": true,
-      "label-position": "n",
-      "color": "#000000"
-    },
-    "nodes": [
-      "413516062738b6ec",
-      "5a283579df925b67",
-      "d3877115a33305e6"
-    ],
-    "x": 94,
-    "y": 79,
-    "w": 472,
-    "h": 122
-  },
-  {
-    "id": "96e90febc19e0c83",
-    "type": "group",
-    "z": "84d1a0de660abb59",
-    "name": "Initialization",
-    "style": {
-      "stroke": "#ffff3f",
-      "fill": "#ffffbf",
-      "label": true,
-      "label-position": "n",
-      "color": "#000000"
-    },
-    "nodes": [
-      "03c1d5a79bea3bbf",
-      "2efc4e48a66a9cf1",
-      "2be29013d9e94cd8",
-      "f46652973e5d016e",
-      "e95b4372fea62cfc",
-      "6e81dde533c0b1f4",
-      "215d734a758d3e4e",
-      "e5997ab2f3eb1fb6",
-      "a814dfd2fd2a6b9b"
-    ],
-    "x": 74,
-    "y": 539,
-    "w": 1052,
-    "h": 162
-  },
-  {
     "id": "354aca9dbc391ace",
     "type": "group",
     "z": "84d1a0de660abb59",
@@ -77,12 +27,61 @@
       "a81cbcc889952fb3",
       "794b757ef07a4e19",
       "989d45634f23b97e",
-      "3f5a48b721dae9db"
+      "3f5a48b721dae9db",
+      "179a1774a3cd384f"
     ],
     "x": 74,
     "y": 259,
-    "w": 832,
-    "h": 242
+    "w": 992,
+    "h": 262
+  },
+  {
+    "id": "96e90febc19e0c83",
+    "type": "group",
+    "z": "84d1a0de660abb59",
+    "name": "Initialization",
+    "style": {
+      "stroke": "#ffff3f",
+      "fill": "#ffffbf",
+      "label": true,
+      "label-position": "n",
+      "color": "#000000"
+    },
+    "nodes": [
+      "03c1d5a79bea3bbf",
+      "2efc4e48a66a9cf1",
+      "2be29013d9e94cd8",
+      "f46652973e5d016e",
+      "e95b4372fea62cfc",
+      "6e81dde533c0b1f4",
+      "e5997ab2f3eb1fb6",
+      "a814dfd2fd2a6b9b"
+    ],
+    "x": 74,
+    "y": 539,
+    "w": 1052,
+    "h": 162
+  },
+  {
+    "id": "9ab1f6c2842073c5",
+    "type": "group",
+    "z": "84d1a0de660abb59",
+    "name": "Setting runtime constants",
+    "style": {
+      "stroke": "#92d04f",
+      "fill": "#c8e7a7",
+      "label": true,
+      "label-position": "n",
+      "color": "#000000"
+    },
+    "nodes": [
+      "5a283579df925b67",
+      "d61931ad5e5945c0"
+    ],
+    "x": 74,
+    "y": 79,
+    "w": 432,
+    "h": 82
   },
   {
     "id": "e5997ab2f3eb1fb6",
@@ -93,134 +92,192 @@
     "y": 660,
     "wires": [
       [
-        "03c1d5a79bea3bbf",
-        "215d734a758d3e4e"
+        "03c1d5a79bea3bbf"
       ]
     ]
   },
   {
-    "id": "a814dfd2fd2a6b9b",
-    "type": "function",
+    "id": "6e81dde533c0b1f4",
+    "type": "debug",
     "z": "84d1a0de660abb59",
     "g": "96e90febc19e0c83",
-    "name": "Set initial timestamp",
-    "func": "\nconst lastItem = Array.isArray(msg.payload) && msg.payload.at(-1);\nconst timestamp = lastItem?.timeCreated || Date.now();\n\nglobal.set(\"last_rayvn_timestamp\", timestamp);\nglobal.set(\"last_wasos_timestamp\", Date.now());\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 500,
+    "name": "Initial log post",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 980,
+    "y": 620,
+    "wires": []
+  },
+  {
+    "id": "e95b4372fea62cfc",
+    "type": "subflow:9ee8527d12b415b0",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "name": "",
+    "x": 750,
+    "y": 660,
+    "wires": [
+      [
+        "f46652973e5d016e"
+      ]
+    ]
+  },
+  {
+    "id": "f46652973e5d016e",
+    "type": "subflow:209f3c980818c499",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "name": "",
+    "x": 1000,
+    "y": 660,
+    "wires": [
+      [
+        "6e81dde533c0b1f4"
+      ],
+      [
+        "2efc4e48a66a9cf1"
+      ]
+    ]
+  },
+  {
+    "id": "2be29013d9e94cd8",
+    "type": "subflow:fe9d5f6f9c2bdb16",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "name": "",
+    "x": 760,
     "y": 580,
     "wires": [
       []
     ]
   },
   {
-    "id": "f7bbfc371ab086b1",
-    "type": "subflow:99c17cced97ac339",
+    "id": "2efc4e48a66a9cf1",
+    "type": "subflow:2e632affbd071524",
     "z": "84d1a0de660abb59",
-    "g": "354aca9dbc391ace",
+    "g": "96e90febc19e0c83",
     "name": "",
-    "x": 190,
-    "y": 400,
+    "x": 520,
+    "y": 660,
     "wires": [
       [
-        "9b6e4d1e92c769d9",
-        "413516062738b6ec",
-        "989d45634f23b97e"
+        "2be29013d9e94cd8"
       ],
       [
-        "02f5aa2ff841acd1",
-        "413516062738b6ec",
-        "3f5a48b721dae9db"
+        "e95b4372fea62cfc"
       ]
     ]
   },
   {
-    "id": "9b6e4d1e92c769d9",
-    "type": "subflow:5da162b98b7b6b86",
+    "id": "03c1d5a79bea3bbf",
+    "type": "subflow:0fad769721e9978c",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "name": "",
+    "x": 300,
+    "y": 660,
+    "wires": [
+      [
+        "2efc4e48a66a9cf1",
+        "a814dfd2fd2a6b9b"
+      ]
+    ]
+  },
+  {
+    "id": "3f5a48b721dae9db",
+    "type": "debug",
     "z": "84d1a0de660abb59",
     "g": "354aca9dbc391ace",
-    "name": "",
-    "x": 430,
-    "y": 340,
-    "wires": [
-      [
-        "4290cc6fa1aadff0",
-        "794b757ef07a4e19"
-      ]
-    ]
+    "name": "Wasos output",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 180,
+    "y": 480,
+    "wires": []
   },
   {
-    "id": "02f5aa2ff841acd1",
-    "type": "subflow:a7d9b521445d1bf0",
+    "id": "989d45634f23b97e",
+    "type": "debug",
     "z": "84d1a0de660abb59",
     "g": "354aca9dbc391ace",
-    "name": "",
-    "x": 430,
-    "y": 460,
-    "wires": [
-      [
-        "4290cc6fa1aadff0",
-        "a81cbcc889952fb3"
-      ]
-    ]
+    "name": "Rayvn output",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 170,
+    "y": 300,
+    "wires": []
   },
   {
-    "id": "413516062738b6ec",
-    "type": "change",
+    "id": "794b757ef07a4e19",
+    "type": "debug",
     "z": "84d1a0de660abb59",
-    "g": "9ab1f6c2842073c5",
-    "name": "set client base urls",
-    "rules": [
-      {
-        "t": "set",
-        "p": "wasos_url",
-        "pt": "global",
-        "to": "https://dev.wasos.no",
-        "tot": "str"
-      },
-      {
-        "t": "set",
-        "p": "rayvn_url",
-        "pt": "global",
-        "to": "https://api.rayvn.global",
-        "tot": "str"
-      }
-    ],
-    "action": "",
-    "property": "",
-    "from": "",
-    "to": "",
-    "reg": false,
-    "x": 430,
-    "y": 120,
-    "wires": [
-      []
-    ]
+    "g": "354aca9dbc391ace",
+    "name": "Config Rayvn",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 420,
+    "y": 300,
+    "wires": []
   },
   {
-    "id": "5a283579df925b67",
-    "type": "inject",
+    "id": "a81cbcc889952fb3",
+    "type": "debug",
     "z": "84d1a0de660abb59",
-    "g": "9ab1f6c2842073c5",
-    "name": "",
-    "props": [],
-    "repeat": "",
-    "crontab": "",
-    "once": true,
-    "onceDelay": "0.1",
-    "topic": "",
-    "x": 190,
-    "y": 120,
-    "wires": [
-      [
-        "413516062738b6ec",
-        "d3877115a33305e6"
-      ]
-    ]
+    "g": "354aca9dbc391ace",
+    "name": "Config Wasos",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 420,
+    "y": 420,
+    "wires": []
+  },
+  {
+    "id": "293cf0ecd677bac0",
+    "type": "debug",
+    "z": "84d1a0de660abb59",
+    "g": "354aca9dbc391ace",
+    "name": "correct config",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 680,
+    "y": 300,
+    "wires": []
   },
   {
     "id": "4290cc6fa1aadff0",
@@ -244,255 +301,141 @@
     "reduceInit": "false",
     "reduceInitType": "bool",
     "reduceFixup": "",
-    "x": 760,
-    "y": 400,
+    "x": 920,
+    "y": 460,
     "wires": [
       [
         "293cf0ecd677bac0",
-        "e5997ab2f3eb1fb6"
+        "179a1774a3cd384f"
       ]
     ]
   },
   {
-    "id": "293cf0ecd677bac0",
-    "type": "debug",
+    "id": "5a283579df925b67",
+    "type": "inject",
     "z": "84d1a0de660abb59",
-    "g": "354aca9dbc391ace",
-    "name": "correct config",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 720,
-    "y": 360,
-    "wires": []
-  },
-  {
-    "id": "a81cbcc889952fb3",
-    "type": "debug",
-    "z": "84d1a0de660abb59",
-    "g": "354aca9dbc391ace",
-    "name": "Config Wasos",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 420,
-    "y": 420,
-    "wires": []
-  },
-  {
-    "id": "794b757ef07a4e19",
-    "type": "debug",
-    "z": "84d1a0de660abb59",
-    "g": "354aca9dbc391ace",
-    "name": "Config Rayvn",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 420,
-    "y": 300,
-    "wires": []
-  },
-  {
-    "id": "989d45634f23b97e",
-    "type": "debug",
-    "z": "84d1a0de660abb59",
-    "g": "354aca9dbc391ace",
-    "name": "Rayvn output",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
+    "g": "9ab1f6c2842073c5",
+    "name": "",
+    "props": [],
+    "repeat": "",
+    "crontab": "",
+    "once": true,
+    "onceDelay": "0.1",
+    "topic": "",
     "x": 170,
-    "y": 360,
-    "wires": []
-  },
-  {
-    "id": "3f5a48b721dae9db",
-    "type": "debug",
-    "z": "84d1a0de660abb59",
-    "g": "354aca9dbc391ace",
-    "name": "Wasos output",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 180,
-    "y": 440,
-    "wires": []
-  },
-  {
-    "id": "03c1d5a79bea3bbf",
-    "type": "subflow:0fad769721e9978c",
-    "z": "84d1a0de660abb59",
-    "g": "96e90febc19e0c83",
-    "name": "",
-    "x": 300,
-    "y": 660,
+    "y": 120,
     "wires": [
       [
-        "2efc4e48a66a9cf1",
-        "a814dfd2fd2a6b9b"
+        "d61931ad5e5945c0"
       ]
     ]
   },
   {
-    "id": "2efc4e48a66a9cf1",
-    "type": "subflow:2e632affbd071524",
+    "id": "02f5aa2ff841acd1",
+    "type": "subflow:a7d9b521445d1bf0",
     "z": "84d1a0de660abb59",
-    "g": "96e90febc19e0c83",
+    "g": "354aca9dbc391ace",
     "name": "",
-    "x": 520,
-    "y": 660,
+    "x": 430,
+    "y": 460,
     "wires": [
       [
-        "2be29013d9e94cd8"
+        "4290cc6fa1aadff0",
+        "a81cbcc889952fb3"
+      ]
+    ]
+  },
+  {
+    "id": "9b6e4d1e92c769d9",
+    "type": "subflow:5da162b98b7b6b86",
+    "z": "84d1a0de660abb59",
+    "g": "354aca9dbc391ace",
+    "name": "",
+    "x": 430,
+    "y": 340,
+    "wires": [
+      [
+        "4290cc6fa1aadff0",
+        "794b757ef07a4e19"
+      ]
+    ]
+  },
+  {
+    "id": "f7bbfc371ab086b1",
+    "type": "subflow:99c17cced97ac339",
+    "z": "84d1a0de660abb59",
+    "g": "354aca9dbc391ace",
+    "name": "",
+    "x": 190,
+    "y": 400,
+    "wires": [
+      [
+        "9b6e4d1e92c769d9",
+        "989d45634f23b97e"
       ],
       [
-        "e95b4372fea62cfc"
+        "02f5aa2ff841acd1",
+        "3f5a48b721dae9db"
       ]
     ]
   },
   {
-    "id": "2be29013d9e94cd8",
-    "type": "subflow:fe9d5f6f9c2bdb16",
+    "id": "a814dfd2fd2a6b9b",
+    "type": "function",
     "z": "84d1a0de660abb59",
     "g": "96e90febc19e0c83",
-    "name": "",
-    "x": 760,
+    "name": "Set initial timestamp",
+    "func": "const pb = global.get(\"pb\");\nconst conn = msg.connection;\n\nif (!conn) {\n    node.warn(\"No connection on msg for initial timestamp\");\n    return msg;\n}\n\nconst lastItem = Array.isArray(msg.payload) && msg.payload.at(-1);\nconst timestamp = lastItem?.timeCreated || Date.now();\n\npb.setTimestamp(conn.id, \"rayvn\", timestamp);\npb.setTimestamp(conn.id, \"wasos\", Date.now());\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 500,
     "y": 580,
     "wires": [
       []
     ]
   },
   {
-    "id": "f46652973e5d016e",
-    "type": "subflow:209f3c980818c499",
-    "z": "84d1a0de660abb59",
-    "g": "96e90febc19e0c83",
-    "name": "",
-    "x": 1000,
-    "y": 660,
-    "wires": [
-      [
-        "6e81dde533c0b1f4"
-      ],
-      [
-        "2efc4e48a66a9cf1"
-      ]
-    ]
-  },
-  {
-    "id": "e95b4372fea62cfc",
-    "type": "subflow:9ee8527d12b415b0",
-    "z": "84d1a0de660abb59",
-    "g": "96e90febc19e0c83",
-    "name": "",
-    "x": 750,
-    "y": 660,
-    "wires": [
-      [
-        "f46652973e5d016e"
-      ]
-    ]
-  },
-  {
-    "id": "6e81dde533c0b1f4",
-    "type": "debug",
-    "z": "84d1a0de660abb59",
-    "g": "96e90febc19e0c83",
-    "name": "Initial log post",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 980,
-    "y": 620,
-    "wires": []
-  },
-  {
-    "id": "d3877115a33305e6",
-    "type": "change",
+    "id": "d61931ad5e5945c0",
+    "type": "function",
     "z": "84d1a0de660abb59",
     "g": "9ab1f6c2842073c5",
-    "name": "set initial master_log",
-    "rules": [
-      {
-        "t": "set",
-        "p": "master_log",
-        "pt": "global",
-        "to": "[]",
-        "tot": "json"
-      }
-    ],
-    "action": "",
-    "property": "",
-    "from": "",
-    "to": "",
-    "reg": false,
-    "x": 440,
-    "y": 160,
+    "name": "initialize parat bridge",
+    "func": "// ============================================================\n// NODE: \"Initialize Parat-Bridge\"\n// TYPE: function\n// LOCATION: Parat-Bridge.json\n// WIRING: inject (once) → [this] → GUI entrypoint\n// Replaces: \"set client base urls\" + \"set initial master_log\"\n// ============================================================\n\nconst BASE_URLS = {\n    rayvn: \"https://api.rayvn.global\",\n    wasos: \"https://dev.wasos.no\"\n};\n\n// Keep existing data on restart\nlet data = global.get(\"parat_bridge\") || null;\n\nif (!data) {\n    data = {\n        base_urls: BASE_URLS,\n        connections: [],\n        queue: [],\n        master_log: []\n    };\n} else {\n    data.base_urls = BASE_URLS;\n    if (!data.queue) data.queue = [];\n}\n\nglobal.set(\"parat_bridge\", data);\n\n// ===== HHelper =====\nconst pb = {\n\n    // --- Connections ---\n    getConnections: function() {\n        return global.get(\"parat_bridge\").connections || [];\n    },\n\n    getActiveConnections: function() {\n        return (global.get(\"parat_bridge\").connections || []).filter(c => c.active);\n    },\n\n    getConnection: function(connectionId) {\n        return (global.get(\"parat_bridge\").connections || []).find(c => c.id === connectionId) || null;\n    },\n\n    addConnection: function(rayvnConfig, wasosConfig) {\n        const d = global.get(\"parat_bridge\");\n        const connId = \"conn_\" + (d.connections.length + 1) + \"_\" + Date.now().toString(36);\n        const label = (rayvnConfig.log_name || \"Rayvn\") + \" ↔ \" + (wasosConfig.chatroom_name || \"WaSOS\");\n\n        const conn = {\n            id: connId,\n            label: label,\n            rayvn: {\n                api_key: rayvnConfig.api_key,\n                log_name: rayvnConfig.log_name,\n                log_id: rayvnConfig.log_id\n            },\n            wasos: {\n                username: wasosConfig.username,\n                chatroom_name: wasosConfig.chatroom_name,\n                user_id: wasosConfig.user_id || null,\n                group: wasosConfig.group || null,\n                api: {\n                    key: wasosConfig.api_key || (wasosConfig.api && wasosConfig.api.key),\n                    expires: wasosConfig.expires || (wasosConfig.api && wasosConfig.api.expires)\n                }\n            },\n            timestamps: { last_rayvn: 0, last_wasos: 0 },\n            active: true\n        };\n\n        d.connections.push(conn);\n        global.set(\"parat_bridge\", d);\n        return conn;\n    },\n\n    updateConnection: function(connectionId, updates) {\n        const d = global.get(\"parat_bridge\");\n        const conn = d.connections.find(c => c.id === connectionId);\n        if (!conn) return null;\n        Object.assign(conn, updates);\n        global.set(\"parat_bridge\", d);\n        return conn;\n    },\n\n    // --- Timestamps ---\n    setTimestamp: function(connectionId, client, timestamp) {\n        const d = global.get(\"parat_bridge\");\n        const conn = d.connections.find(c => c.id === connectionId);\n        if (!conn) return;\n        conn.timestamps[\"last_\" + client] = timestamp;\n        global.set(\"parat_bridge\", d);\n    },\n\n    // --- Queue (one array - filter on target) ---\n    enqueue: function(entry) {\n        const d = global.get(\"parat_bridge\");\n        entry.retryCount = entry.retryCount || 0;\n        entry.createdAt = entry.createdAt || new Date().toISOString();\n        entry.lastError = entry.lastError || null;\n        d.queue.push(entry);\n        global.set(\"parat_bridge\", d);\n        return entry;\n    },\n\n    dequeue: function(entryId) {\n        const d = global.get(\"parat_bridge\");\n        const idx = d.queue.findIndex(e => e.id === entryId);\n        if (idx === -1) return null;\n        const entry = d.queue.splice(idx, 1)[0];\n        global.set(\"parat_bridge\", d);\n        return entry;\n    },\n\n    getQueue: function(target) {\n        const d = global.get(\"parat_bridge\");\n        if (target) return d.queue.filter(e => e.target === target);\n        return d.queue;\n    },\n\n    incrementRetry: function(entryId, error) {\n        const d = global.get(\"parat_bridge\");\n        const entry = d.queue.find(e => e.id === entryId);\n        if (!entry) return null;\n        entry.retryCount = (entry.retryCount || 0) + 1;\n        entry.lastError = error || null;\n        global.set(\"parat_bridge\", d);\n        return entry;\n    },\n\n    // --- Master Log ---\n    addToMasterLog: function(entry, status) {\n        const d = global.get(\"parat_bridge\");\n        const logEntry = Object.assign({}, entry);\n\n        // Remove que spesific field\n        delete logEntry.retryCount;\n        delete logEntry.createdAt;\n\n        // Keep only metadat for files in que\n        if (logEntry.files && logEntry.files.length > 0) {\n            logEntry.attachments = logEntry.files.map(f => ({\n                filename: f.filename || f.name || \"unknown\",\n                size: f.size || (f.blob ? f.blob.length : 0) || 0,\n                type: f.filetype || f.type || \"unknown\"\n            }));\n            delete logEntry.files;\n        }\n        if (logEntry.rayvnFileIds) {\n            delete logEntry.rayvnFileIds;\n        }\n\n        // deliverystatus\n        logEntry.status = status || \"delivered\";\n        if (status === \"delivered\") {\n            logEntry.deliveredAt = new Date().toISOString();\n            delete logEntry.lastError;\n        } else if (status === \"failed\") {\n            logEntry.failedAt = new Date().toISOString();\n            logEntry.lastError = entry.lastError;\n        }\n\n        // Duplicate check\n        const exists = d.master_log.some(e => \n            e.id === logEntry.id && e.connection_id === logEntry.connection_id\n        );\n        if (!exists) {\n            d.master_log.push(logEntry);\n            global.set(\"parat_bridge\", d);\n        }\n        return logEntry;\n    },\n\n    getMasterLog: function(connectionId) {\n        const d = global.get(\"parat_bridge\");\n        if (connectionId) return d.master_log.filter(e => e.connection_id === connectionId);\n        return d.master_log;\n    },\n\n    // --- Utility ---\n    getBaseUrl: function(client) {\n        return global.get(\"parat_bridge\").base_urls[client];\n    }\n};\n\nglobal.set(\"pb\", pb);\nnode.log(\"Parat-Bridge initialized: \" + data.connections.length + \" connection(s), queue: \" + data.queue.length);\n\nmsg.payload = data;\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 380,
+    "y": 120,
     "wires": [
       []
     ]
   },
   {
-    "id": "215d734a758d3e4e",
-    "type": "change",
+    "id": "179a1774a3cd384f",
+    "type": "function",
     "z": "84d1a0de660abb59",
-    "g": "96e90febc19e0c83",
-    "name": "Enable Polling",
-    "rules": [
-      {
-        "t": "set",
-        "p": "poll_rayvn",
-        "pt": "global",
-        "to": "true",
-        "tot": "bool"
-      },
-      {
-        "t": "set",
-        "p": "poll_wasos",
-        "pt": "global",
-        "to": "true",
-        "tot": "bool"
-      }
-    ],
-    "action": "",
-    "property": "",
-    "from": "",
-    "to": "",
-    "reg": false,
-    "x": 300,
-    "y": 600,
+    "g": "354aca9dbc391ace",
+    "name": "Create connection",
+    "func": "// ============================================================\n// NODE: \"Create connection\"\n// TYPE: function\n// LOCATION: Parat-Bridge.json\n// WIRING: \"Pass when both configured\" → [this] → junction (→ Get Rayvn log entries)\n//\n// Join-node delivers msg.payload  to topics:\n//   { rayvn_configured: {...rayvnConfig}, wasos_configured: {...wasosConfig} }\n// ============================================================\n\nconst pb = global.get(\"pb\");\n\nconst rayvnConfig = msg.payload.rayvn_configured;\nconst wasosConfig = msg.payload.wasos_configured;\n\nif (!rayvnConfig || !wasosConfig) {\n    node.error(\"Missing config from join - check that verify sends config payload\");\n    return null;\n}\n\n// Check if connection allready exists\nconst existing = pb.getConnections().find(c =>\n    c.rayvn.log_id === rayvnConfig.log_id &&\n    c.wasos.chatroom_name === wasosConfig.chatroom_name\n);\n\nlet connection;\nif (existing) {\n    connection = pb.updateConnection(existing.id, {\n        rayvn: rayvnConfig,\n        wasos: wasosConfig,\n        active: true\n    });\n    node.log(\"Updated connection: \" + connection.label);\n} else {\n    connection = pb.addConnection(rayvnConfig, wasosConfig);\n    node.log(\"Created connection: \" + connection.label);\n}\n\nmsg.connection = connection;\nmsg.payload = connection;\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 910,
+    "y": 340,
     "wires": [
-      []
+      [
+        "e5997ab2f3eb1fb6"
+      ]
     ]
   }
 ]

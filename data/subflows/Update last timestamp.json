@@ -27,7 +27,7 @@
     "type": "function",
     "z": "9252cc4477dcae34",
     "name": "Update newest timestamp",
-    "func": "const entries = msg.payload;\n\nif (entries.length > 0) {\n    const newestEntry = entries.reduce((a, b) => a.timeCreated > b.timeCreated ? a : b);\n    global.set(`last_${newestEntry.client}_timestamp`, newestEntry.timeCreated);\n}\n\nreturn msg;",
+    "func": "const pb = global.get(\"pb\");\nconst entries = msg.payload;\n\nif (entries.length > 0) {\n    const newest = entries.reduce((a, b) => a.timeCreated > b.timeCreated ? a : b);\n    const connId = newest.connection_id || (msg.connection && msg.connection.id);\n    const client = newest.client;\n\n    if (connId && client) {\n        pb.setTimestamp(connId, client, newest.timeCreated);\n    }\n}\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,

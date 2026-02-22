@@ -302,15 +302,15 @@
     "id": "97d0149a4f42cc67",
     "type": "function",
     "z": "fdea0898d1f24630",
-    "name": "Handle Rayvn image entries",
-    "func": "let entries = msg.payload;\nlet systemMessages = [];\nlet masterLogEntries = [];\n\n// Simple URL detection\nconst urlPattern = /https?:\\/\\/\\S+/i;\n\nentries.forEach(entry => {\n    if (entry.files && entry.files.length > 0) {\n        const fileCount = entry.files.length;\n        const now = Date.now();\n        \n        // If text contains a URL, the user is likely using the workaround\n        // — skip warning, the link will come through as text\n        if (entry.text && urlPattern.test(entry.text)) {\n            return;\n        }\n        \n        // 1. Modify text for Wasos\n        const suffix = ` [Vedlegg: ${fileCount} fil(er) — direkte bilde og fil overføring fra Rayvn til Wasos er ikke tilgjengelig - Rayvn bruker har mottatt melding om å dele lenke]`;\n        entry.text = (entry.text || \"\") + suffix;\n        \n        // 2. System message to Rayvn user (with URL tip)\n        systemMessages.push({\n            text: \"[parat-bridge] ⚠️ Vedlagte bilder eller filer kan ikke videresendes automatisk til Wasos. \" +\n                  \"Tips: Høyreklikk på bildet i nettleseren → «Kopier bildeadresse» → lim inn \" +\n                  \"adressen som tekst. Da kan Wasos-brukere laste ned bildet direkte, eller åpne filen og del nettadressen til filen.\",\n            keyEvent: false,\n            releasedInfo: false,\n            labels: []\n        });\n        \n        // 3. Technical log entry for master_log\n        masterLogEntries.push({\n            id: \"pb-img-\" + now + \"-\" + Math.random().toString(36).substr(2, 6),\n            text: `[parat-bridge] Rayvn entry from ${entry.loggedByFullName} contained ${fileCount} file(s) that could not be forwarded to Wasos. Entry ID: ${entry.id}`,\n            timeCreated: now,\n            loggedByFullName: \"parat-bridge\",\n            client: \"parat-bridge\"\n        });\n    }\n});\n\nlet msg2 = systemMessages.length > 0 ? { payload: systemMessages } : null;\nlet msg3 = masterLogEntries.length > 0 ? { payload: masterLogEntries } : null;\n\nmsg.payload = entries;\nreturn [msg, msg2, msg3];",
+    "name": "Handle Rayvn attachment entries",
+    "func": "let entries = msg.payload;\nlet systemMessages = [];\nlet masterLogEntries = [];\nconst connId = msg.connection ? msg.connection.id : null;\n\nconst urlPattern = /https?:\\/\\/\\S+/i;\n\nentries.forEach(entry => {\n    if (entry.files && entry.files.length > 0) {\n        const fileCount = entry.files.length;\n        const now = Date.now();\n\n        if (entry.text && urlPattern.test(entry.text)) {\n            return;\n        }\n\n        const suffix = ` [Vedlegg: ${fileCount} fil(er) — direkte bilde og fil overføring fra Rayvn til Wasos er ikke tilgjengelig - Rayvn bruker har mottatt melding om å dele lenke]`;\n        entry.text = (entry.text || \"\") + suffix;\n\n        systemMessages.push({\n            text: \"[parat-bridge] ⚠️ Vedlagte bilder eller filer kan ikke videresendes automatisk til Wasos. \" +\n                  \"Tips: Høyreklikk på bildet i nettleseren → «Kopier bildeadresse» → lim inn \" +\n                  \"adressen som tekst. Da kan Wasos-brukere laste ned bildet direkte, eller åpne filen og del nettadressen til filen.\",\n            keyEvent: false,\n            releasedInfo: false,\n            labels: []\n        });\n\n        masterLogEntries.push({\n            id: \"pb-img-\" + now + \"-\" + Math.random().toString(36).substr(2, 6),\n            text: `[parat-bridge] Rayvn entry from ${entry.loggedByFullName} contained ${fileCount} file(s) that could not be forwarded to Wasos. Entry ID: ${entry.id}`,\n            timeCreated: now,\n            loggedByFullName: \"parat-bridge\",\n            client: \"parat-bridge\",\n            connection_id: connId\n        });\n    }\n});\n\nlet msg2 = systemMessages.length > 0 ? { payload: systemMessages, connection: msg.connection } : null;\nlet msg3 = masterLogEntries.length > 0 ? { payload: masterLogEntries } : null;\n\nmsg.payload = entries;\nreturn [msg, msg2, msg3];",
     "outputs": 3,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 660,
+    "x": 680,
     "y": 80,
     "wires": [
       [
@@ -333,17 +333,6 @@
     "y": 60,
     "wires": [
       [],
-      []
-    ]
-  },
-  {
-    "id": "b68abe9c94f047ad",
-    "type": "subflow:fe9d5f6f9c2bdb16",
-    "z": "fdea0898d1f24630",
-    "name": "",
-    "x": 1220,
-    "y": 120,
-    "wires": [
       []
     ]
   }

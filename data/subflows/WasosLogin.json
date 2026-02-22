@@ -62,7 +62,7 @@
     "type": "function",
     "z": "80f93fa22c15ece3",
     "name": "Config",
-    "func": "let username = msg.payload.wasos_username;\nlet password = msg.payload.wasos_password;\n\n// Encode to Base64 for Basic Auth\nlet auth = Buffer.from(username + \":\" + password).toString('base64');\n\nmsg.headers = {\n    'Authorization': 'Basic ' + auth\n};\n\nmsg.url = global.get(\"wasos_url\") + \"/apisec/login\";\n\n// store variables to persist after request\nmsg.config = {\n    username: username,\n    chatroom_name: msg.payload.wasos_chatroom_name\n}\n\nreturn msg;",
+    "func": "let username = msg.payload.wasos_username;\nlet password = msg.payload.wasos_password;\n\nlet auth = Buffer.from(username + \":\" + password).toString('base64');\n\nmsg.headers = {\n    'Authorization': 'Basic ' + auth\n};\n\nmsg.url = global.get(\"pb\").getBaseUrl(\"wasos\") + \"/apisec/login\";\n\nmsg.config = {\n    username: username,\n    chatroom_name: msg.payload.wasos_chatroom_name\n};\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,

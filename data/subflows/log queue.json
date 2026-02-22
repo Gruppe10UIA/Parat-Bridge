@@ -48,7 +48,7 @@
     "type": "function",
     "z": "2e632affbd071524",
     "name": "Enqueue new messages",
-    "func": "let message = msg.payload\nlet client = message.client\n\nlet queue = flow.get(\"$parent.queue\");\nqueue.push(message)\nflow.set(\"$parent.queue\", queue)\n\n// Only trigger send after the last message is enqueued\nif (msg.parts && msg.parts.index === msg.parts.count - 1) {\n    return msg;\n}\nreturn null;\n",
+    "func": "const pb = global.get(\"pb\");\nlet messages = msg.payload;\n\nif (!Array.isArray(messages)) messages = [messages];\n\nmessages.forEach(entry => {\n    if (!entry.target) {\n        entry.target = entry.client === \"rayvn\" ? \"wasos\" : \"rayvn\";\n    }\n    if (!entry.connection_id && msg.connection) {\n        entry.connection_id = msg.connection.id;\n    }\n    pb.enqueue(entry);\n});\n\n// Lagre target for Send-funksjonen\nif (messages[0]) flow.set(\"queue_target\", messages[0].target);\n\n// Trigger send kun etter siste melding i batch\nif (msg.parts && msg.parts.index !== msg.parts.count - 1) {\n    return null;\n}\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -151,7 +151,7 @@
     "type": "function",
     "z": "2e632affbd071524",
     "name": "Dequeue succsessfull post",
-    "func": "let queue = flow.get(\"$parent.queue\")\nlet msg_id = msg.msg_id\n\n// retrieve the sendt message\nlet message = queue.filter(entry => entry.id == msg_id)\n\n// dequeue the sendt message\nlet new_queue = queue.filter(entry => entry.id !== msg_id)\n\nflow.set(\"$parent.queue\", new_queue)\n\n// Return the sent message\nmsg.payload = message\n\nreturn msg\n\n",
+    "func": "const pb = global.get(\"pb\");\n\nlet dequeued = pb.dequeue(msg.msg_id);\n\nmsg.payload = dequeued ? [dequeued] : [];\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -171,7 +171,7 @@
     "type": "function",
     "z": "2e632affbd071524",
     "name": "Send message",
-    "func": "let queue = flow.get(\"$parent.queue\");\n\n// queue is empty no message sent\nif (queue.length <= 0) {\n    context.set(\"sending\", false);\n    return null;\n}\n\n// Reset flag when triggered by a response (dequeue or retry)\nif (msg.topic === \"response\") {\n    context.set(\"sending\", false);\n}\n\n// Guard: skip if already in-flight from a new_messages trigger\nif (context.get(\"sending\")) return null;\n\n// Send message\ncontext.set(\"sending\", true);\nlet message = queue[0];\nmsg.msg_id = message.id;\nmsg.payload = [message];\nreturn msg;\n",
+    "func": "const pb = global.get(\"pb\");\nconst target = flow.get(\"queue_target\");\n\nif (!target) { node.warn(\"No queue target\"); return null; }\n\nlet queue = pb.getQueue(target);\n\nif (queue.length <= 0) {\n    context.set(\"sending\", false);\n    return null;\n}\n\nif (msg.topic === \"response\") {\n    context.set(\"sending\", false);\n}\n\nif (context.get(\"sending\")) return null;\n\ncontext.set(\"sending\", true);\nlet entry = queue[0];\nmsg.msg_id = entry.id;\nmsg.payload = [entry];\nmsg.connection = pb.getConnection(entry.connection_id);\n\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -190,7 +190,7 @@
     "type": "function",
     "z": "2e632affbd071524",
     "name": "Retry",
-    "func": "let msg_id = msg.msg_id\n\nlet retry_limit = context.get(\"retry_limit\")\nlet current_id = context.get(\"current_id\")\nlet retries = context.get(\"retries\")\n\n// reset if new message\nif (!current_id || current_id !== msg_id) {\n    context.set(\"current_id\", msg_id)\n    context.set(\"retries\", 2)\n    return [null, msg]\n}\n\n// retry until retry_limit reached\nif (current_id == msg_id) {\n    if (retries <= retry_limit) {\n        context.set(\"retries\", retries +1)\n        return [null, msg]\n    } else if (retries > retry_limit) {\n        context.set(\"retries\", 0)\n        context.set(\"current_id\", \"\")\n        msg.failed_messages = flow.get(\"$parent.queue\")\n        return [msg, null]\n    }\n}",
+    "func": "const pb = global.get(\"pb\");\n\nlet retry_limit = context.get(\"retry_limit\") || 5;\nlet current_id = context.get(\"current_id\");\nlet retries = context.get(\"retries\") || 0;\n\nif (!current_id || current_id !== msg.msg_id) {\n    context.set(\"current_id\", msg.msg_id);\n    context.set(\"retries\", 1);\n    pb.incrementRetry(msg.msg_id, \"HTTP \" + (msg.statusCode || \"unknown\"));\n    return [null, msg];\n}\n\nretries = context.get(\"retries\");\n\nif (retries < retry_limit) {\n    context.set(\"retries\", retries + 1);\n    pb.incrementRetry(msg.msg_id, \"HTTP \" + (msg.statusCode || \"unknown\"));\n    return [null, msg];\n} else {\n    let failed = pb.dequeue(msg.msg_id);\n    if (failed) {\n        pb.addToMasterLog(failed, \"failed\");\n    }\n    context.set(\"retries\", 0);\n    context.set(\"current_id\", \"\");\n    msg.failed_messages = failed ? [failed] : [];\n    return [msg, null];\n}",
     "outputs": 2,
     "timeout": 0,
     "noerr": 0,
@@ -206,24 +206,6 @@
       [
         "b517dd3e71771eb0"
       ]
-    ]
-  },
-  {
-    "id": "406938de3330b8b7",
-    "type": "function",
-    "z": "2e632affbd071524",
-    "name": "initialize empty queue",
-    "func": "",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "// Code added here will be run once\n// whenever the node is started.\nflow.set(\"$parent.queue\", [])",
-    "finalize": "",
-    "libs": [],
-    "x": 260,
-    "y": 100,
-    "wires": [
-      []
     ]
   },
   {

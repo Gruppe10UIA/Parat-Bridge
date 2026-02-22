@@ -18,8 +18,8 @@
     ],
     "out": [
       {
-        "x": 1280,
-        "y": 300,
+        "x": 1300,
+        "y": 320,
         "wires": [
           {
             "id": "check_if_done",
@@ -46,7 +46,7 @@
     "finalize": "",
     "libs": [],
     "x": 180,
-    "y": 240,
+    "y": 320,
     "wires": [
       [
         "process_entry"
@@ -66,8 +66,8 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 440,
-    "y": 60,
+    "x": 420,
+    "y": 180,
     "wires": [
       [
         "prepare_wasos_fetch"
@@ -83,15 +83,15 @@
     "type": "function",
     "z": "b1c2d3e4f5a6b7c8",
     "name": "Prepare WaSOS file fetch",
-    "func": "// Rydd opp fra forrige HTTP-request\ndelete msg.statusCode;\ndelete msg.headers;\ndelete msg.responseUrl;\ndelete msg.redirectList;\ndelete msg.retry;\ndelete msg.responseCookies;\ndelete msg.payload;\n\nconst wasos_url = global.get(\"wasos_url\");\nconst wasos_config = global.get(\"wasos_config\");\nconst fileInfo = msg.filesToProcess[msg.currentFileIndex];\n\nif (!fileInfo || !fileInfo.url) {\n    node.warn(\"Fil mangler URL: \" + JSON.stringify(fileInfo));\n    msg.currentFileIndex++;\n    if (msg.currentFileIndex >= msg.filesToProcess.length) {\n        return [null, msg];\n    }\n    return [msg, null];\n}\n\nmsg.currentFile = {\n    filename: fileInfo.name || \"unknown\",\n    extension: fileInfo.extension || (fileInfo.name ? fileInfo.name.split('.').pop() : \"bin\"),\n    filetype: fileInfo.type || \"application/octet-stream\",\n    size: fileInfo.size\n};\n\nmsg.url = wasos_url + fileInfo.url;\nmsg.headers = { \"x-api-key\": wasos_config.api.key };\n\nnode.log(\"Henter fil fra WaSOS: \" + msg.url);\nreturn [msg, null];",
+    "func": "delete msg.statusCode;\ndelete msg.headers;\ndelete msg.responseUrl;\ndelete msg.redirectList;\ndelete msg.retry;\ndelete msg.responseCookies;\ndelete msg.payload;\n\nconst conn = msg.connection;\nconst wasos_url = global.get(\"pb\").getBaseUrl(\"wasos\");\nconst fileInfo = msg.filesToProcess[msg.currentFileIndex];\n\nif (!fileInfo || !fileInfo.url) {\n    node.warn(\"Fil mangler URL: \" + JSON.stringify(fileInfo));\n    msg.currentFileIndex++;\n    if (msg.currentFileIndex < msg.filesToProcess.length) {\n        return [msg, null];\n    } else {\n        return [null, msg];\n    }\n}\n\nmsg.currentFile = {\n    id: fileInfo.id,\n    name: fileInfo.name,\n    type: fileInfo.type,\n    url: fileInfo.url\n};\n\nmsg.url = wasos_url + fileInfo.url;\nmsg.headers = {\n    \"x-api-key\": conn.wasos.api.key\n};\n\nreturn [msg, null];",
     "outputs": 2,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 290,
-    "y": 420,
+    "x": 770,
+    "y": 220,
     "wires": [
       [
         "fetch_from_wasos"
@@ -118,8 +118,8 @@
     "authType": "",
     "senderr": true,
     "headers": [],
-    "x": 750,
-    "y": 400,
+    "x": 1150,
+    "y": 140,
     "wires": [
       [
         "prepare_rayvn_upload"
@@ -132,15 +132,15 @@
     "type": "function",
     "z": "b1c2d3e4f5a6b7c8",
     "name": "Prepare Rayvn upload (multipart)",
-    "func": "const rayvn_config = global.get(\"rayvn_config\");\nconst rayvn_url = global.get(\"rayvn_url\");\nconst buffer = msg.payload;\n\nif (!buffer || buffer.length === 0 || msg.statusCode !== 200) {\n    node.warn(\"Kunne ikke hente fil fra WaSOS. Status: \" + msg.statusCode);\n    msg.currentFileIndex++;\n    if (msg.currentFileIndex < msg.filesToProcess.length) {\n        return [msg, null];\n    } else {\n        return [null, msg];\n    }\n}\n\nnode.log(\"Hentet fil fra WaSOS: \" + buffer.length + \" bytes\");\n\n// Bygg multipart/form-data\nconst boundary = \"----ParatBridge\" + Date.now() + Math.random().toString(36).substr(2);\nconst filename = msg.currentFile.filename;\nconst filetype = msg.currentFile.filetype;\n\nconst headerPart = \n    \"--\" + boundary + \"\\r\\n\" +\n    'Content-Disposition: form-data; name=\"file\"; filename=\"' + filename + '\"\\r\\n' +\n    \"Content-Type: \" + filetype + \"\\r\\n\\r\\n\";\n\nconst footerPart = \"\\r\\n--\" + boundary + \"--\\r\\n\";\n\nmsg.payload = Buffer.concat([\n    Buffer.from(headerPart),\n    buffer,\n    Buffer.from(footerPart)\n]);\n\nmsg.url = rayvn_url + \"/files\";\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + rayvn_config.api_key,\n    \"Content-Type\": \"multipart/form-data; boundary=\" + boundary\n};\n\nnode.log(\"Laster opp til Rayvn /files: \" + filename);\nreturn [msg, null];",
+    "func": "const conn = msg.connection;\nconst rayvn_url = global.get(\"pb\").getBaseUrl(\"rayvn\");\nconst buffer = msg.payload;\n\nif (!buffer || buffer.length === 0 || msg.statusCode !== 200) {\n    node.warn(\"Kunne ikke hente fil fra WaSOS. Status: \" + msg.statusCode);\n    msg.currentFileIndex++;\n    if (msg.currentFileIndex < msg.filesToProcess.length) {\n        return [msg, null];\n    } else {\n        return [null, msg];\n    }\n}\n\nconst filename = msg.currentFile.name || \"file.bin\";\nconst contentType = msg.currentFile.type || \"application/octet-stream\";\n\nconst boundary = \"----PBFormBoundary\" + Date.now();\nconst header = `--${boundary}\\r\\nContent-Disposition: form-data; name=\"file\"; filename=\"${filename}\"\\r\\nContent-Type: ${contentType}\\r\\n\\r\\n`;\nconst footer = `\\r\\n--${boundary}--\\r\\n`;\n\nconst headerBuf = Buffer.from(header);\nconst footerBuf = Buffer.from(footer);\nmsg.payload = Buffer.concat([headerBuf, buffer, footerBuf]);\n\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + conn.rayvn.api_key,\n    \"Content-Type\": \"multipart/form-data; boundary=\" + boundary\n};\n\nmsg.url = rayvn_url + \"/files\";\n\nreturn [msg, null];",
     "outputs": 2,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 320,
-    "y": 600,
+    "x": 1060,
+    "y": 380,
     "wires": [
       [
         "upload_to_rayvn"
@@ -167,7 +167,7 @@
     "authType": "",
     "senderr": true,
     "headers": [],
-    "x": 740,
+    "x": 1060,
     "y": 660,
     "wires": [
       [
@@ -188,8 +188,8 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 1090,
-    "y": 580,
+    "x": 790,
+    "y": 540,
     "wires": [
       [
         "prepare_wasos_fetch"
@@ -212,8 +212,8 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 810,
-    "y": 280,
+    "x": 450,
+    "y": 460,
     "wires": [
       [
         "check_if_done"
@@ -226,15 +226,15 @@
     "type": "function",
     "z": "b1c2d3e4f5a6b7c8",
     "name": "Check if done",
-    "func": "if (msg.currentIndex < msg.allEntries.length) {\n    return [msg, null];\n} else {\n    msg.payload = msg.processedEntries;\n    delete msg.allEntries;\n    delete msg.processedEntries;\n    delete msg.currentIndex;\n    node.log(\"Image processing ferdig: \" + msg.payload.length + \" entries\");\n    return [null, msg];\n}",
+    "func": "if (msg.currentIndex < msg.allEntries.length) {\n    return [msg, null];\n} else {\n    msg.payload = msg.processedEntries;\n    delete msg.allEntries;\n    delete msg.processedEntries;\n    delete msg.currentIndex;\n    node.log(\"Image processing done: \" + msg.payload.length + \" entries\");\n    return [null, msg];\n}",
     "outputs": 2,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 1120,
-    "y": 260,
+    "x": 440,
+    "y": 320,
     "wires": [
       [
         "process_entry"
