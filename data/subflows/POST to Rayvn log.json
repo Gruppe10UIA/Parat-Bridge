@@ -73,7 +73,7 @@
     "type": "function",
     "z": "4a6a1af9b9af6b0f",
     "name": "Format header and url",
-    "func": "const conn = msg.connection;\nconst base = global.get(\"pb\").getBaseUrl(\"rayvn\");\n\nif (!conn || !conn.rayvn.api_key || !conn.rayvn.log_id) {\n    node.error(\"Rayvn not configured on connection\");\n    return null;\n}\n\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + conn.rayvn.api_key,\n    \"Content-Type\": \"application/json\",\n    \"Accept\": \"application/json\"\n};\n\nmsg.url = base + \"/logs/\" + conn.rayvn.log_id + \"/entry\";\n\nreturn msg;\n",
+    "func": "const connection = msg.connection;\n\nif (!connection || !connection.rayvn.api_key || !connection.rayvn.log_id) {\n    node.error(\"Rayvn not configured on this connection\");\n    return null;\n}\n\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + connection.rayvn.api_key,\n    \"Content-Type\": \"application/json\",\n    \"Accept\": \"application/json\"\n};\n\nmsg.url = global.get(\"parat_bridge\").base_urls.rayvn\n    + \"/logs/\" + connection.rayvn.log_id + \"/entry\";\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,

@@ -73,7 +73,7 @@
     "type": "function",
     "z": "209f3c980818c499",
     "name": "Format header and url",
-    "func": "const conn = msg.connection;\nconst base = global.get(\"pb\").getBaseUrl(\"wasos\");\n\nif (!conn || !conn.wasos.api.key || !conn.wasos.chatroom_name) {\n    node.error(\"WaSOS not configured on connection\");\n    return null;\n}\n\nmsg.url = base + \"/api/chat/messages/\" + conn.wasos.chatroom_name;\nmsg.headers = {\n    'x-api-key': conn.wasos.api.key,\n    'Content-Type': 'application/json'\n};\n\nreturn msg;",
+    "func": "const connection = msg.connection;\n\nif (!connection || !connection.wasos.api.key || !connection.wasos.chatroom_name) {\n    node.error(\"WaSOS not configured on this connection\");\n    return null;\n}\n\nmsg.url = global.get(\"parat_bridge\").base_urls.wasos\n    + \"/api/chat/messages/\" + connection.wasos.chatroom_name;\n\nmsg.headers = {\n    \"x-api-key\": connection.wasos.api.key,\n    \"Content-Type\": \"application/json\"\n};\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,

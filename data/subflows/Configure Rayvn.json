@@ -38,7 +38,7 @@
     "type": "function",
     "z": "5da162b98b7b6b86",
     "name": "Build get logs request",
-    "func": "msg.config_variables = msg.payload;\n\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + msg.payload.rayvn_api_key\n};\n\nmsg.url = global.get(\"pb\").getBaseUrl(\"rayvn\") + \"/logs\";\n\nreturn msg;\n",
+    "func": "// Store the raw form input for later use (after HTTP response)\nmsg.config_variables = msg.payload;\n\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + msg.payload.rayvn_api_key\n};\n\nmsg.url = global.get(\"parat_bridge\").base_urls.rayvn + \"/logs\";\n\nreturn msg;",
     "outputs": 1,
     "timeout": "",
     "noerr": 0,

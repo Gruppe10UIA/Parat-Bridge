@@ -76,7 +76,7 @@
     "type": "function",
     "z": "0fad769721e9978c",
     "name": "Set headers and url",
-    "func": "const conn = msg.connection;\n\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + conn.rayvn.api_key\n};\n\nmsg.url = global.get(\"pb\").getBaseUrl(\"rayvn\") + \"/logs/\" + conn.rayvn.log_id + \"/entries\";\n\nreturn msg;",
+    "func": "const connection = msg.connection;\n\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + connection.rayvn.api_key\n};\n\nmsg.url = global.get(\"parat_bridge\").base_urls.rayvn\n    + \"/logs/\" + connection.rayvn.log_id + \"/entries\";\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,

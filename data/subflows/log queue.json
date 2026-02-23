@@ -28,12 +28,22 @@
         ]
       },
       {
-        "x": 1200,
-        "y": 280,
+        "x": 1360,
+        "y": 260,
         "wires": [
           {
             "id": "b517dd3e71771eb0",
             "port": 0
+          }
+        ]
+      },
+      {
+        "x": 1120,
+        "y": 440,
+        "wires": [
+          {
+            "id": "7f466ec0b3d58872",
+            "port": 2
           }
         ]
       }
@@ -48,15 +58,15 @@
     "type": "function",
     "z": "2e632affbd071524",
     "name": "Enqueue new messages",
-    "func": "const pb = global.get(\"pb\");\nlet messages = msg.payload;\n\nif (!Array.isArray(messages)) messages = [messages];\n\nmessages.forEach(entry => {\n    if (!entry.target) {\n        entry.target = entry.client === \"rayvn\" ? \"wasos\" : \"rayvn\";\n    }\n    if (!entry.connection_id && msg.connection) {\n        entry.connection_id = msg.connection.id;\n    }\n    pb.enqueue(entry);\n});\n\n// Trigger send kun etter siste melding i batch\nif (msg.parts && msg.parts.index !== msg.parts.count - 1) {\n    return null;\n}\n\nreturn msg;",
+    "func": "const data = global.get(\"parat_bridge\");\nlet messages = msg.payload;\n\nif (!Array.isArray(messages)) messages = [messages];\n\nmessages.forEach(entry => {\n    // Determine which system this message should be sent TO\n    if (!entry.target) {\n        entry.target = (entry.client === \"rayvn\") ? \"wasos\" : \"rayvn\";\n    }\n\n    // Ensure every entry is linked to a connection\n    if (!entry.connection_id && msg.connection) {\n        entry.connection_id = msg.connection.id;\n    }\n\n    // Add queue metadata for retry tracking\n    entry.retryCount = entry.retryCount || 0;\n    entry.createdAt = entry.createdAt || new Date().toISOString();\n    entry.lastError = entry.lastError || null;\n\n    // Find the owning connection and add to its queue\n    const connection = data.connections.find(c => c.id === entry.connection_id);\n\n    if (connection) {\n        connection.queue.push(entry);\n    } else {\n        node.warn(\"No connection found for entry with connection_id: \" + entry.connection_id);\n    }\n});\n\nglobal.set(\"parat_bridge\", data);\n\n// When receiving a split batch, only trigger send after the last part\nif (msg.parts && msg.parts.index !== msg.parts.count - 1) {\n    return null;\n}\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 690,
-    "y": 340,
+    "x": 730,
+    "y": 400,
     "wires": [
       [
         "b517dd3e71771eb0"
@@ -135,8 +145,8 @@
     "checkall": "true",
     "repair": false,
     "outputs": 2,
-    "x": 510,
-    "y": 180,
+    "x": 430,
+    "y": 160,
     "wires": [
       [
         "2a7cc21f4ee7dbe5"
@@ -150,15 +160,15 @@
     "id": "2a7cc21f4ee7dbe5",
     "type": "function",
     "z": "2e632affbd071524",
-    "name": "Dequeue succsessfull post",
-    "func": "const pb = global.get(\"pb\");\n\nlet dequeued = pb.dequeue(msg.msg_id);\n\nmsg.payload = dequeued ? [dequeued] : [];\nreturn msg;\n",
+    "name": "Dequeue successful post",
+    "func": "const data = global.get(\"parat_bridge\");\nconst connectionId = msg.connection ? msg.connection.id : null;\n\nlet dequeuedEntry = null;\n\nif (connectionId) {\n    const connection = data.connections.find(c => c.id === connectionId);\n\n    if (connection) {\n        const entryIndex = connection.queue.findIndex(e => e.id === msg.msg_id);\n\n        if (entryIndex !== -1) {\n            dequeuedEntry = connection.queue.splice(entryIndex, 1)[0];\n            global.set(\"parat_bridge\", data);\n        }\n    }\n}\n\nmsg.payload = dequeuedEntry ? [dequeuedEntry] : [];\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 760,
+    "x": 750,
     "y": 120,
     "wires": [
       [
@@ -171,15 +181,15 @@
     "type": "function",
     "z": "2e632affbd071524",
     "name": "Send message",
-    "func": "const pb = global.get(\"pb\");\nconst queue = pb.getQueue();\n\nif (queue.length <= 0) {\n    context.set(\"sending\", false);\n    return null;\n}\n\nif (msg.topic === \"response\") {\n    context.set(\"sending\", false);\n}\n\nif (context.get(\"sending\")) return null;\n\n// Get blocked connections list\nconst blocked = context.get(\"blocked_connections\") || {};\nconst now = Date.now();\nconst BLOCK_TTL = 30000; // 30 sekunder\n\n// Clean expired blocks\nfor (const connId in blocked) {\n    if (now - blocked[connId] > BLOCK_TTL) {\n        delete blocked[connId];\n    }\n}\ncontext.set(\"blocked_connections\", blocked);\n\n// Find first entry where connection is not blocked \nconst entry = queue.find(e => !blocked[e.connection_id]);\n\nif (!entry) {\n    // all entries are for same blocked connection\n    context.set(\"sending\", false);\n    return null;\n}\n\ncontext.set(\"sending\", true);\nmsg.msg_id = entry.id;\nmsg.payload = [entry];\nmsg.connection = pb.getConnection(entry.connection_id);\n\nreturn msg;",
+    "func": "const data = global.get(\"parat_bridge\");\n\n// Collect all queued entries across active connections into a flat list\n// Each item carries a reference to its owning connection\nconst allQueuedEntries = [];\n\ndata.connections.forEach(connection => {\n    if (!connection.active) return;\n\n    connection.queue.forEach(entry => {\n        allQueuedEntries.push({ entry, connection });\n    });\n});\n\nif (allQueuedEntries.length === 0) {\n    context.set(\"sending\", false);\n    return null;\n}\n\n// Release the sending lock when we get a response back\nif (msg.topic === \"response\") {\n    context.set(\"sending\", false);\n}\n\n// Only send one message at a time — wait for response before next\nif (context.get(\"sending\")) return null;\n\n// Manage temporarily blocked connections (after max retries)\nconst blockedConnections = context.get(\"blocked_connections\") || {};\nconst now = Date.now();\nconst BLOCK_DURATION_MS = 30000; // 30 seconds\n\n// Clean up expired blocks\nfor (const connectionId in blockedConnections) {\n    if (now - blockedConnections[connectionId] > BLOCK_DURATION_MS) {\n        delete blockedConnections[connectionId];\n    }\n}\ncontext.set(\"blocked_connections\", blockedConnections);\n\n// Find the first entry whose connection is not currently blocked\nconst nextToSend = allQueuedEntries.find(\n    item => !blockedConnections[item.connection.id]\n);\n\nif (!nextToSend) {\n    // All queued entries belong to blocked connections — wait\n    context.set(\"sending\", false);\n    return null;\n}\n\ncontext.set(\"sending\", true);\nmsg.msg_id = nextToSend.entry.id;\nmsg.payload = [nextToSend.entry];\nmsg.connection = nextToSend.connection;\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
-    "initialize": "// Code added here will be run once\n// whenever the node is started.\n\ncontext.set(\"sending\", false)",
+    "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 1040,
-    "y": 280,
+    "x": 1180,
+    "y": 260,
     "wires": [
       []
     ],
@@ -190,22 +200,23 @@
     "type": "function",
     "z": "2e632affbd071524",
     "name": "Retry",
-    "func": "const pb = global.get(\"pb\");\n\nlet retry_limit = context.get(\"retry_limit\") || 5;\nlet current_id = context.get(\"current_id\");\nlet retries = context.get(\"retries\") || 0;\n\nif (!current_id || current_id !== msg.msg_id) {\n    context.set(\"current_id\", msg.msg_id);\n    context.set(\"retries\", 1);\n    pb.incrementRetry(msg.msg_id, \"HTTP \" + (msg.statusCode || \"unknown\"));\n    return [null, msg];\n}\n\nretries = context.get(\"retries\");\n\nif (retries < retry_limit) {\n    context.set(\"retries\", retries + 1);\n    pb.incrementRetry(msg.msg_id, \"HTTP \" + (msg.statusCode || \"unknown\"));\n    return [null, msg];\n} else {\n    let failed = pb.dequeue(msg.msg_id);\n    if (failed) {\n        pb.addToMasterLog(failed, \"failed\");\n\n        // Temporary block to let entries with another connection-id through\n        const blocked = context.get(\"blocked_connections\") || {};\n        blocked[failed.connection_id] = Date.now();\n        context.set(\"blocked_connections\", blocked);\n    }\n    context.set(\"retries\", 0);\n    context.set(\"current_id\", \"\");\n    msg.failed_messages = failed ? [failed] : [];\n    return [msg, null];\n}",
-    "outputs": 2,
+    "func": "const data = global.get(\"parat_bridge\");\n\nconst RETRY_LIMIT = context.get(\"retry_limit\") || 5;\nlet currentMessageId = context.get(\"current_id\");\nlet attemptCount = context.get(\"retries\") || 0;\n\nconst connectionId = msg.connection ? msg.connection.id : null;\n\n// --- Helper: increment retry count on the queued entry ---\nfunction recordRetryAttempt() {\n    if (!connectionId) return;\n\n    const connection = data.connections.find(c => c.id === connectionId);\n    if (!connection) return;\n\n    const entry = connection.queue.find(e => e.id === msg.msg_id);\n    if (!entry) return;\n\n    entry.retryCount = (entry.retryCount || 0) + 1;\n    entry.lastError = \"HTTP \" + (msg.statusCode || \"unknown\");\n    global.set(\"parat_bridge\", data);\n}\n\n// --- New message or same message retrying? ---\nif (!currentMessageId || currentMessageId !== msg.msg_id) {\n    // First failure for this message — start tracking\n    context.set(\"current_id\", msg.msg_id);\n    context.set(\"retries\", 1);\n    recordRetryAttempt();\n    return [null, msg, null]; // Output 1: retry\n}\n\nattemptCount = context.get(\"retries\");\n\nif (attemptCount < RETRY_LIMIT) {\n    // Still have retries left — try again\n    context.set(\"retries\", attemptCount + 1);\n    recordRetryAttempt();\n    return [null, msg, null]; // Output 1: retry\n}\n\n// --- Max retries exhausted — give up on this message ---\n\n// Remove from connection's queue\nlet failedEntry = null;\nif (connectionId) {\n    const connection = data.connections.find(c => c.id === connectionId);\n    if (connection) {\n        const entryIndex = connection.queue.findIndex(e => e.id === msg.msg_id);\n        if (entryIndex !== -1) {\n            failedEntry = connection.queue.splice(entryIndex, 1)[0];\n            global.set(\"parat_bridge\", data);\n        }\n    }\n}\n\n// Temporarily block this connection so other connections can proceed\nif (failedEntry) {\n    const blockedConnections = context.get(\"blocked_connections\") || {};\n    blockedConnections[failedEntry.connection_id] = Date.now();\n    context.set(\"blocked_connections\", blockedConnections);\n}\n\n// Reset retry state for the next message\ncontext.set(\"retries\", 0);\ncontext.set(\"current_id\", \"\");\n\n// Check: is this a system notification? If so, do NOT trigger another notification (loop prevention)\nconst isSystemMessage = failedEntry && failedEntry.client === \"parat-bridge\";\n\nmsg.failed_messages = failedEntry ? [failedEntry] : [];\nmsg.payload = failedEntry ? [failedEntry] : [];\nmsg.status = \"failed\";\n\nif (isSystemMessage) {\n    // System message failed — log it, but don't try to notify (would cause infinite loop)\n    return [null, null, msg]; // Output 2: master_log only\n} else {\n    // User message failed — notify sender AND log the failure\n    return [msg, null, msg]; // Output 0: System handling + Output 2: master_log\n}",
+    "outputs": 3,
     "timeout": 0,
     "noerr": 0,
     "initialize": "// Code added here will be run once\n// whenever the node is started.\n\ncontext.set(\"retry_limit\", 10)\ncontext.set(\"retries\", 0)\ncontext.set(\"current_id\", \"\")",
     "finalize": "",
     "libs": [],
-    "x": 710,
-    "y": 220,
+    "x": 870,
+    "y": 240,
     "wires": [
       [
         "26e68ba78fe8146c"
       ],
       [
         "b517dd3e71771eb0"
-      ]
+      ],
+      []
     ]
   },
   {
@@ -272,8 +283,8 @@
     "targetType": "full",
     "statusVal": "",
     "statusType": "auto",
-    "x": 1040,
-    "y": 220,
+    "x": 1180,
+    "y": 360,
     "wires": []
   },
   {
@@ -303,8 +314,8 @@
     ],
     "linkType": "static",
     "timeout": "10",
-    "x": 1090,
-    "y": 180,
+    "x": 1250,
+    "y": 160,
     "wires": [
       []
     ]

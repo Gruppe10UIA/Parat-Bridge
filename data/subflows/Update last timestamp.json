@@ -27,7 +27,7 @@
     "type": "function",
     "z": "9252cc4477dcae34",
     "name": "Update newest timestamp",
-    "func": "const pb = global.get(\"pb\");\nconst entries = msg.payload;\n\nif (entries.length > 0) {\n    const newest = entries.reduce((a, b) => a.timeCreated > b.timeCreated ? a : b);\n    const connId = newest.connection_id || (msg.connection && msg.connection.id);\n    const client = newest.client;\n\n    if (connId && client) {\n        pb.setTimestamp(connId, client, newest.timeCreated);\n    }\n}\n\nreturn msg;",
+    "func": "// Find the newest entry in this batch and update the connection's timestamp\n// so that the next poll only fetches entries newer than this one\nconst entries = msg.payload;\n\nif (entries.length > 0) {\n    const newestEntry = entries.reduce((a, b) =>\n        a.timeCreated > b.timeCreated ? a : b\n    );\n\n    const connectionId = newestEntry.connection_id\n        || (msg.connection && msg.connection.id);\n    const sourceSystem = newestEntry.client;\n\n    if (connectionId && sourceSystem) {\n        const data = global.get(\"parat_bridge\");\n        const connection = data.connections.find(c => c.id === connectionId);\n\n        if (connection) {\n            connection.timestamps[\"last_\" + sourceSystem] = newestEntry.timeCreated;\n            global.set(\"parat_bridge\", data);\n        }\n    }\n}\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
