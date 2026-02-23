@@ -120,7 +120,7 @@
     "z": "6844cb2c3b9378da",
     "name": "Wasos Poll",
     "props": [],
-    "repeat": "6180",
+    "repeat": "2",
     "crontab": "",
     "once": true,
     "onceDelay": 0.1,
