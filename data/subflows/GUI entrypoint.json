@@ -90,7 +90,7 @@
     "payload": "",
     "submit": "submit",
     "cancel": "clear",
-    "resetOnSubmit": true,
+    "resetOnSubmit": false,
     "topic": "payload",
     "topicType": "msg",
     "splitLayout": false,

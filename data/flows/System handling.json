@@ -32,7 +32,8 @@
     "y": 260,
     "wires": [
       [
-        "666d47d1dca16efb"
+        "666d47d1dca16efb",
+        "87c89a4224ca60f2"
       ]
     ],
     "info": "Triggers the error log fetch every 5 seconds.\r\nEnsures the dashboard table stays up to date\r\nwith the latest errors from global context.\r\n"
@@ -115,8 +116,8 @@
     "targetType": "full",
     "statusVal": "",
     "statusType": "auto",
-    "x": 740,
-    "y": 580,
+    "x": 700,
+    "y": 320,
     "wires": []
   },
   {
@@ -188,6 +189,53 @@
     "y": 400,
     "wires": [
       [],
+      []
+    ]
+  },
+  {
+    "id": "87c89a4224ca60f2",
+    "type": "function",
+    "z": "003e75aaa2880405",
+    "name": "Format connections table",
+    "func": "const data = global.get(\"parat_bridge\");\nconst connections = (data && data.connections) || [];\n\nmsg.payload = connections.map(connection => ({\n    \"Forbindelse\": connection.name,\n    \"Status\": connection.active ? \"✅ Aktiv\" : \"⏸️ Inaktiv\"\n}));\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 690,
+    "y": 160,
+    "wires": [
+      [
+        "2e3345ef91740485"
+      ]
+    ]
+  },
+  {
+    "id": "2e3345ef91740485",
+    "type": "ui-table",
+    "z": "003e75aaa2880405",
+    "group": "76f825e60cbfe2c2",
+    "name": "Connection table",
+    "label": "",
+    "order": 3,
+    "width": 0,
+    "height": 0,
+    "maxrows": "8",
+    "passthru": false,
+    "autocols": true,
+    "showSearch": true,
+    "deselect": true,
+    "selectionType": "none",
+    "columns": [],
+    "mobileBreakpoint": "sm",
+    "mobileBreakpointType": "defaults",
+    "action": "replace",
+    "className": "",
+    "x": 970,
+    "y": 160,
+    "wires": [
       []
     ]
   }
