@@ -53,16 +53,14 @@
       "f46652973e5d016e",
       "e95b4372fea62cfc",
       "6e81dde533c0b1f4",
-      "a814dfd2fd2a6b9b",
       "7cf27d9c1bf7f451",
-      "26d173a1b01010e2",
       "03c1f0752644b9c0",
       "77a8f1f8e1e48a64",
       "5aae3e127cfffafe"
     ],
-    "x": 54,
+    "x": 14,
     "y": 559,
-    "w": 1312,
+    "w": 1352,
     "h": 242
   },
   {
@@ -79,26 +77,13 @@
     },
     "nodes": [
       "5a283579df925b67",
-      "d61931ad5e5945c0"
+      "d61931ad5e5945c0",
+      "1cf402a0d8609d2e"
     ],
     "x": 74,
-    "y": 59,
-    "w": 432,
-    "h": 82
-  },
-  {
-    "id": "26d173a1b01010e2",
-    "type": "junction",
-    "z": "84d1a0de660abb59",
-    "g": "96e90febc19e0c83",
-    "x": 80,
-    "y": 660,
-    "wires": [
-      [
-        "7cf27d9c1bf7f451",
-        "03c1d5a79bea3bbf"
-      ]
-    ]
+    "y": 19,
+    "w": 452,
+    "h": 122
   },
   {
     "id": "6e81dde533c0b1f4",
@@ -185,7 +170,7 @@
     "z": "84d1a0de660abb59",
     "g": "96e90febc19e0c83",
     "name": "",
-    "x": 280,
+    "x": 420,
     "y": 680,
     "wires": [
       [
@@ -310,7 +295,7 @@
     "wires": [
       [
         "293cf0ecd677bac0",
-        "26d173a1b01010e2"
+        "7cf27d9c1bf7f451"
       ]
     ]
   },
@@ -327,10 +312,11 @@
     "onceDelay": "0.1",
     "topic": "",
     "x": 170,
-    "y": 100,
+    "y": 60,
     "wires": [
       [
-        "d61931ad5e5945c0"
+        "d61931ad5e5945c0",
+        "1cf402a0d8609d2e"
       ]
     ]
   },
@@ -384,25 +370,6 @@
     ]
   },
   {
-    "id": "a814dfd2fd2a6b9b",
-    "type": "function",
-    "z": "84d1a0de660abb59",
-    "g": "96e90febc19e0c83",
-    "name": "Set initial timestamp",
-    "func": "// After fetching initial Rayvn log entries, set the starting timestamps\n// so that polling only picks up NEW entries from this point forward\nconst connection = msg.connection;\n\nif (!connection) {\n    node.warn(\"No connection on msg for initial timestamp\");\n    return msg;\n}\n\nconst data = global.get(\"parat_bridge\");\nconst conn = data.connections.find(c => c.id === connection.id);\n\nif (conn) {\n    const lastEntry = Array.isArray(msg.payload) && msg.payload.at(-1);\n    conn.timestamps.last_rayvn = lastEntry?.timeCreated || Date.now();\n    conn.timestamps.last_wasos = Date.now();\n    global.set(\"parat_bridge\", data);\n}\n\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 660,
-    "y": 760,
-    "wires": [
-      []
-    ]
-  },
-  {
     "id": "d61931ad5e5945c0",
     "type": "function",
     "z": "84d1a0de660abb59",
@@ -416,7 +383,7 @@
     "finalize": "",
     "libs": [],
     "x": 380,
-    "y": 100,
+    "y": 60,
     "wires": [
       []
     ]
@@ -427,7 +394,7 @@
     "z": "84d1a0de660abb59",
     "g": "96e90febc19e0c83",
     "name": "",
-    "x": 560,
+    "x": 440,
     "y": 620,
     "wires": []
   },
@@ -437,10 +404,11 @@
     "z": "84d1a0de660abb59",
     "g": "96e90febc19e0c83",
     "name": "",
-    "x": 300,
-    "y": 620,
+    "x": 160,
+    "y": 680,
     "wires": [
       [
+        "03c1d5a79bea3bbf",
         "03c1f0752644b9c0"
       ]
     ]
@@ -501,6 +469,30 @@
       [
         "2efc4e48a66a9cf1"
       ]
+    ]
+  },
+  {
+    "id": "1cf402a0d8609d2e",
+    "type": "function",
+    "z": "84d1a0de660abb59",
+    "g": "9ab1f6c2842073c5",
+    "name": "Initialize system functions",
+    "func": "\n// global hash function\n\nglobal.set('utils', {\n    hash_code: (str) => {\n        return crypto.createHash('sha256').update(str).digest('hex');\n    }\n});\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [
+      {
+        "var": "crypto",
+        "module": "crypto"
+      }
+    ],
+    "x": 390,
+    "y": 100,
+    "wires": [
+      []
     ]
   }
 ]
