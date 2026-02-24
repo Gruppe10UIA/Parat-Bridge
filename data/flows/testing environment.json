@@ -40,8 +40,8 @@
     "id": "d33647ad91e47105",
     "type": "function",
     "z": "901ed98289cc4ecd",
-    "name": "delete master_log",
-    "func": "const d = global.get(\"parat_bridge\");\nif (d) {\n    d.master_log = [];\n    global.set(\"parat_bridge\", d);\n}\nmsg.payload = \"Master log cleared\";\nreturn msg;",
+    "name": "Clear master_log",
+    "func": "// Clear the master_log for all connections (for testing/debugging only)\nconst data = global.get(\"parat_bridge\");\n\nif (data) {\n    data.connections.forEach(connection => {\n        connection.master_log = [];\n    });\n    global.set(\"parat_bridge\", data);\n}\n\nmsg.payload = \"Master log cleared for all connections\";\nreturn msg;;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -287,15 +287,15 @@
     "id": "a0c5c990cb5ae106",
     "type": "function",
     "z": "901ed98289cc4ecd",
-    "name": "function 1",
-    "func": "const pb = global.get(\"pb\");\nconst conns = pb.getActiveConnections();\nif (conns.length === 0) {\n    node.warn(\"Ingen aktive connections\");\n    return null;\n}\nconst conn = conns[0];\nconn.rayvn.api_key = \"ugyldig_nøkkel\";\npb.updateConnection(conn.id, { rayvn: conn.rayvn });\nnode.warn(\"Rayvn API key satt til ugyldig verdi for connection: \" + conn.label);\nreturn msg;",
+    "name": "Invalidate Rayvn API key",
+    "func": "// Set the Rayvn API key to an invalid value on the first active connection\n// Used to test error handling and retry logic\nconst data = global.get(\"parat_bridge\");\nconst activeConnections = data.connections.filter(c => c.active);\n\nif (activeConnections.length === 0) {\n    node.warn(\"No active connections to invalidate\");\n    return null;\n}\n\nconst targetConnection = activeConnections[0];\ntargetConnection.rayvn.api_key = \"invalid_key_for_testing\";\nglobal.set(\"parat_bridge\", data);\n\nnode.warn(\"Rayvn API key invalidated for connection: \" + targetConnection.label);\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 680,
+    "x": 730,
     "y": 180,
     "wires": [
       []
@@ -322,7 +322,7 @@
     "topic": "",
     "payload": "",
     "payloadType": "date",
-    "x": 470,
+    "x": 290,
     "y": 200,
     "wires": [
       [
@@ -351,7 +351,7 @@
     "topic": "",
     "payload": "",
     "payloadType": "date",
-    "x": 480,
+    "x": 360,
     "y": 80,
     "wires": [
       [
@@ -363,15 +363,15 @@
     "id": "aad75b52978c7d99",
     "type": "function",
     "z": "901ed98289cc4ecd",
-    "name": "function 3",
-    "func": "const pb = global.get(\"pb\");\nconst conns = pb.getActiveConnections();\nif (conns.length === 0) {\n    node.warn(\"Ingen aktive connections\");\n    return null;\n}\nconst conn = conns[0];\nconn.wasos.api.key = \"ugyldig_nøkkel\";\npb.updateConnection(conn.id, { wasos: conn.wasos });\nnode.warn(\"WaSOS API key satt til ugyldig verdi for connection: \" + conn.label);\nreturn msg;",
+    "name": "Invalidate WaSOS API key",
+    "func": "// Set the WaSOS API key to an invalid value on the first active connection\n// Used to test error handling and retry logic\nconst data = global.get(\"parat_bridge\");\nconst activeConnections = data.connections.filter(c => c.active);\n\nif (activeConnections.length === 0) {\n    node.warn(\"No active connections to invalidate\");\n    return null;\n}\n\nconst targetConnection = activeConnections[0];\ntargetConnection.wasos.api.key = \"invalid_key_for_testing\";\nglobal.set(\"parat_bridge\", data);\n\nnode.warn(\"WaSOS API key invalidated for connection: \" + targetConnection.label);\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 680,
+    "x": 740,
     "y": 80,
     "wires": [
       []

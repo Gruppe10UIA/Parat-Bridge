@@ -1,0 +1,118 @@
+[
+  {
+    "id": "3241f77fe5e4f9ea",
+    "type": "subflow",
+    "name": "GUI information input",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 50,
+        "y": 30,
+        "wires": [
+          {
+            "id": "0d1b61e1d01e093e"
+          },
+          {
+            "id": "1be93f7f78b94fea"
+          }
+        ]
+      }
+    ],
+    "out": [],
+    "env": [],
+    "meta": {},
+    "color": "#DDAA99"
+  },
+  {
+    "id": "1e407a0ff8bdcd9a",
+    "type": "ui-notification",
+    "z": "3241f77fe5e4f9ea",
+    "ui": "eb785a65aeb88688",
+    "position": "top right",
+    "colorDefault": false,
+    "color": "#19a207",
+    "displayTime": "15",
+    "showCountdown": true,
+    "outputs": 1,
+    "allowDismiss": true,
+    "dismissText": "Close",
+    "allowConfirm": false,
+    "confirmText": "Confirm",
+    "raw": false,
+    "className": "",
+    "name": "Notify connection created",
+    "x": 570,
+    "y": 100,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "0d1b61e1d01e093e",
+    "type": "function",
+    "z": "3241f77fe5e4f9ea",
+    "name": "Format connection notification",
+    "func": "msg.payload = \"Forbindelse opprettet: \" + msg.connection.label;\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 270,
+    "y": 80,
+    "wires": [
+      [
+        "1e407a0ff8bdcd9a"
+      ]
+    ]
+  },
+  {
+    "id": "1be93f7f78b94fea",
+    "type": "function",
+    "z": "3241f77fe5e4f9ea",
+    "name": "Format connection table",
+    "func": "// Build the table data for the dashboard connection overview\nconst connections = global.get(\"parat_bridge\").connections;\n\nmsg.payload = connections.map(connection => ({\n    \"Forbindelse\": connection.label,\n    \"Status\": connection.active ? \"✅ Aktiv\" : \"⏸️ Inaktiv\"\n}));\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 430,
+    "y": 180,
+    "wires": [
+      [
+        "4200f78d0f7622d1"
+      ]
+    ]
+  },
+  {
+    "id": "4200f78d0f7622d1",
+    "type": "ui-table",
+    "z": "3241f77fe5e4f9ea",
+    "group": "76f825e60cbfe2c2",
+    "name": "Connection table",
+    "label": "",
+    "order": 1,
+    "width": 0,
+    "height": 0,
+    "maxrows": "8",
+    "passthru": false,
+    "autocols": true,
+    "showSearch": true,
+    "deselect": true,
+    "selectionType": "none",
+    "columns": [],
+    "mobileBreakpoint": "sm",
+    "mobileBreakpointType": "defaults",
+    "action": "append",
+    "className": "",
+    "x": 670,
+    "y": 180,
+    "wires": [
+      []
+    ]
+  }
+]

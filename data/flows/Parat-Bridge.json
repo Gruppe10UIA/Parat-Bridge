@@ -7,33 +7,25 @@
     "info": "Configuration UI for Parat-Bridge. Handles setup of Rayvn API credentials and WaSOS login. Validates input, authenticates with both services, and stores configuration in global variables."
   },
   {
-    "id": "354aca9dbc391ace",
+    "id": "9ab1f6c2842073c5",
     "type": "group",
     "z": "84d1a0de660abb59",
-    "name": "Configuration",
+    "name": "Setting runtime constants",
     "style": {
-      "stroke": "#001f60",
-      "fill": "#bfc7d7",
+      "stroke": "#92d04f",
+      "fill": "#c8e7a7",
       "label": true,
-      "color": "#000000",
-      "label-position": "n"
+      "label-position": "n",
+      "color": "#000000"
     },
     "nodes": [
-      "f7bbfc371ab086b1",
-      "9b6e4d1e92c769d9",
-      "02f5aa2ff841acd1",
-      "4290cc6fa1aadff0",
-      "293cf0ecd677bac0",
-      "a81cbcc889952fb3",
-      "794b757ef07a4e19",
-      "989d45634f23b97e",
-      "3f5a48b721dae9db",
-      "179a1774a3cd384f"
+      "5a283579df925b67",
+      "d61931ad5e5945c0"
     ],
     "x": 74,
-    "y": 259,
-    "w": 992,
-    "h": 262
+    "y": 79,
+    "w": 432,
+    "h": 82
   },
   {
     "id": "96e90febc19e0c83",
@@ -63,25 +55,33 @@
     "h": 169.5
   },
   {
-    "id": "9ab1f6c2842073c5",
+    "id": "354aca9dbc391ace",
     "type": "group",
     "z": "84d1a0de660abb59",
-    "name": "Setting runtime constants",
+    "name": "Configuration",
     "style": {
-      "stroke": "#92d04f",
-      "fill": "#c8e7a7",
+      "stroke": "#001f60",
+      "fill": "#bfc7d7",
       "label": true,
-      "label-position": "n",
-      "color": "#000000"
+      "color": "#000000",
+      "label-position": "n"
     },
     "nodes": [
-      "5a283579df925b67",
-      "d61931ad5e5945c0"
+      "f7bbfc371ab086b1",
+      "9b6e4d1e92c769d9",
+      "02f5aa2ff841acd1",
+      "4290cc6fa1aadff0",
+      "293cf0ecd677bac0",
+      "a81cbcc889952fb3",
+      "794b757ef07a4e19",
+      "989d45634f23b97e",
+      "3f5a48b721dae9db",
+      "179a1774a3cd384f"
     ],
     "x": 74,
-    "y": 79,
-    "w": 432,
-    "h": 82
+    "y": 259,
+    "w": 992,
+    "h": 262
   },
   {
     "id": "e5997ab2f3eb1fb6",
@@ -97,188 +97,133 @@
     ]
   },
   {
-    "id": "6e81dde533c0b1f4",
-    "type": "debug",
+    "id": "179a1774a3cd384f",
+    "type": "function",
     "z": "84d1a0de660abb59",
-    "g": "96e90febc19e0c83",
-    "name": "Initial log post",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 980,
-    "y": 620,
-    "wires": []
-  },
-  {
-    "id": "e95b4372fea62cfc",
-    "type": "subflow:9ee8527d12b415b0",
-    "z": "84d1a0de660abb59",
-    "g": "96e90febc19e0c83",
-    "name": "",
-    "x": 750,
-    "y": 660,
+    "g": "354aca9dbc391ace",
+    "name": "Create connection",
+    "func": "const data = global.get(\"parat_bridge\");\n\nconst rayvnConfig = msg.payload.rayvn_configured;\nconst wasosConfig = msg.payload.wasos_configured;\n\nif (!rayvnConfig || !wasosConfig) {\n    node.error(\"Missing configuration — join node did not deliver both systems\");\n    return null;\n}\n\n// Check if this exact pairing already exists\nconst existingConnection = data.connections.find(c =>\n    c.rayvn.log_id === rayvnConfig.log_id &&\n    c.wasos.chatroom_name === wasosConfig.chatroom_name\n);\n\nlet connection;\n\nif (existingConnection) {\n    // Update credentials for existing connection (e.g. after token refresh)\n    existingConnection.rayvn = {\n        api_key: rayvnConfig.api_key,\n        log_name: rayvnConfig.log_name,\n        log_id: rayvnConfig.log_id\n    };\n    existingConnection.wasos = {\n        username: wasosConfig.username,\n        chatroom_name: wasosConfig.chatroom_name,\n        user_id: wasosConfig.user_id || null,\n        group: wasosConfig.group || null,\n        api: {\n            key: wasosConfig.api_key || (wasosConfig.api && wasosConfig.api.key),\n            expires: wasosConfig.expires || (wasosConfig.api && wasosConfig.api.expires)\n        }\n    };\n    existingConnection.active = true;\n    connection = existingConnection;\n    node.log(\"Updated existing connection: \" + connection.label);\n} else {\n    // Create new connection with unique ID\n    const connectionId = \"conn_\" + (data.connections.length + 1) + \"_\" + Date.now().toString(36);\n\n    connection = {\n        id: connectionId,\n        label: (rayvnConfig.log_name || \"Rayvn\") + \" ↔ \" + (wasosConfig.chatroom_name || \"WaSOS\"),\n        rayvn: {\n            api_key: rayvnConfig.api_key,\n            log_name: rayvnConfig.log_name,\n            log_id: rayvnConfig.log_id\n        },\n        wasos: {\n            username: wasosConfig.username,\n            chatroom_name: wasosConfig.chatroom_name,\n            user_id: wasosConfig.user_id || null,\n            group: wasosConfig.group || null,\n            api: {\n                key: wasosConfig.api_key || (wasosConfig.api && wasosConfig.api.key),\n                expires: wasosConfig.expires || (wasosConfig.api && wasosConfig.api.expires)\n            }\n        },\n        timestamps: { last_rayvn: 0, last_wasos: 0 },\n        active: true,\n        queue: [],\n        master_log: []\n    };\n\n    data.connections.push(connection);\n    node.log(\"Created new connection: \" + connection.label);\n}\n\nglobal.set(\"parat_bridge\", data);\n\nmsg.connection = connection;\nmsg.payload = connection;\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 910,
+    "y": 340,
     "wires": [
       [
-        "f46652973e5d016e"
+        "e5997ab2f3eb1fb6",
+        "03c1f0752644b9c0"
       ]
     ]
   },
   {
-    "id": "f46652973e5d016e",
-    "type": "subflow:209f3c980818c499",
+    "id": "d61931ad5e5945c0",
+    "type": "function",
     "z": "84d1a0de660abb59",
-    "g": "96e90febc19e0c83",
-    "name": "",
-    "x": 1000,
-    "y": 660,
+    "g": "9ab1f6c2842073c5",
+    "name": "initialize parat bridge",
+    "func": "// Base URLs for all API calls — single source of truth\nconst BASE_URLS = {\n    rayvn: \"https://api.rayvn.global\",\n    wasos: \"https://dev.wasos.no\"\n};\n\n// Preserve existing data across restarts\nlet data = global.get(\"parat_bridge\") || null;\n\nif (!data) {\n    // Fresh install — create empty structure\n    data = {\n        base_urls: BASE_URLS,\n        connections: []\n    };\n} else {\n    // Existing install — update base URLs, keep connections intact\n    data.base_urls = BASE_URLS;\n\n    // --- MIGRATION: Move global queue to per-connection queues ---\n    // TODO: Remove this block after all connections have been recreated (added 2026-02-24)\n    if (data.queue && data.queue.length > 0) {\n        data.queue.forEach(entry => {\n            const connection = data.connections.find(c => c.id === entry.connection_id);\n            if (connection) {\n                if (!connection.queue) connection.queue = [];\n                connection.queue.push(entry);\n            }\n        });\n        delete data.queue;\n    }\n\n    // --- MIGRATION: Move global master_log to per-connection master_logs ---\n    // TODO: Remove this block after all connections have been recreated (added 2026-02-24)\n    if (data.master_log && data.master_log.length > 0) {\n        data.master_log.forEach(entry => {\n            const connection = data.connections.find(c => c.id === entry.connection_id);\n            if (connection) {\n                if (!connection.master_log) connection.master_log = [];\n                connection.master_log.push(entry);\n            }\n        });\n        delete data.master_log;\n    }\n\n    // Ensure every connection has queue and master_log arrays\n    data.connections.forEach(connection => {\n        if (!connection.queue) connection.queue = [];\n        if (!connection.master_log) connection.master_log = [];\n    });\n}\n\nglobal.set(\"parat_bridge\", data);\n\n// Clean up the old pb helper object from previous version\nglobal.set(\"pb\", undefined);\n\nnode.log(\"Parat-Bridge initialized: \" + data.connections.length + \" connection(s)\");\nmsg.payload = data;\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 380,
+    "y": 120,
     "wires": [
-      [
-        "6e81dde533c0b1f4"
-      ],
-      [
-        "2efc4e48a66a9cf1"
-      ]
+      []
     ]
   },
   {
-    "id": "2be29013d9e94cd8",
-    "type": "subflow:fe9d5f6f9c2bdb16",
+    "id": "a814dfd2fd2a6b9b",
+    "type": "function",
     "z": "84d1a0de660abb59",
     "g": "96e90febc19e0c83",
-    "name": "",
-    "x": 760,
+    "name": "Set initial timestamp",
+    "func": "// After fetching initial Rayvn log entries, set the starting timestamps\n// so that polling only picks up NEW entries from this point forward\nconst connection = msg.connection;\n\nif (!connection) {\n    node.warn(\"No connection on msg for initial timestamp\");\n    return msg;\n}\n\nconst data = global.get(\"parat_bridge\");\nconst conn = data.connections.find(c => c.id === connection.id);\n\nif (conn) {\n    const lastEntry = Array.isArray(msg.payload) && msg.payload.at(-1);\n    conn.timestamps.last_rayvn = lastEntry?.timeCreated || Date.now();\n    conn.timestamps.last_wasos = Date.now();\n    global.set(\"parat_bridge\", data);\n}\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 500,
     "y": 580,
     "wires": [
       []
     ]
   },
   {
-    "id": "2efc4e48a66a9cf1",
-    "type": "subflow:2e632affbd071524",
+    "id": "f7bbfc371ab086b1",
+    "type": "subflow:99c17cced97ac339",
     "z": "84d1a0de660abb59",
-    "g": "96e90febc19e0c83",
+    "g": "354aca9dbc391ace",
     "name": "",
-    "x": 520,
-    "y": 660,
+    "x": 190,
+    "y": 400,
     "wires": [
       [
-        "2be29013d9e94cd8"
+        "9b6e4d1e92c769d9",
+        "989d45634f23b97e"
       ],
       [
-        "e95b4372fea62cfc"
-      ],
-      []
-    ]
-  },
-  {
-    "id": "03c1d5a79bea3bbf",
-    "type": "subflow:0fad769721e9978c",
-    "z": "84d1a0de660abb59",
-    "g": "96e90febc19e0c83",
-    "name": "",
-    "x": 300,
-    "y": 660,
-    "wires": [
-      [
-        "2efc4e48a66a9cf1",
-        "a814dfd2fd2a6b9b"
+        "02f5aa2ff841acd1",
+        "3f5a48b721dae9db"
       ]
     ]
   },
   {
-    "id": "3f5a48b721dae9db",
-    "type": "debug",
+    "id": "9b6e4d1e92c769d9",
+    "type": "subflow:5da162b98b7b6b86",
     "z": "84d1a0de660abb59",
     "g": "354aca9dbc391ace",
-    "name": "Wasos output",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 180,
-    "y": 480,
-    "wires": []
+    "name": "",
+    "x": 430,
+    "y": 340,
+    "wires": [
+      [
+        "4290cc6fa1aadff0",
+        "794b757ef07a4e19"
+      ]
+    ]
   },
   {
-    "id": "989d45634f23b97e",
-    "type": "debug",
+    "id": "02f5aa2ff841acd1",
+    "type": "subflow:a7d9b521445d1bf0",
     "z": "84d1a0de660abb59",
     "g": "354aca9dbc391ace",
-    "name": "Rayvn output",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
+    "name": "",
+    "x": 430,
+    "y": 460,
+    "wires": [
+      [
+        "4290cc6fa1aadff0",
+        "a81cbcc889952fb3"
+      ]
+    ]
+  },
+  {
+    "id": "5a283579df925b67",
+    "type": "inject",
+    "z": "84d1a0de660abb59",
+    "g": "9ab1f6c2842073c5",
+    "name": "",
+    "props": [],
+    "repeat": "",
+    "crontab": "",
+    "once": true,
+    "onceDelay": "0.1",
+    "topic": "",
     "x": 170,
-    "y": 300,
-    "wires": []
-  },
-  {
-    "id": "794b757ef07a4e19",
-    "type": "debug",
-    "z": "84d1a0de660abb59",
-    "g": "354aca9dbc391ace",
-    "name": "Config Rayvn",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 420,
-    "y": 300,
-    "wires": []
-  },
-  {
-    "id": "a81cbcc889952fb3",
-    "type": "debug",
-    "z": "84d1a0de660abb59",
-    "g": "354aca9dbc391ace",
-    "name": "Config Wasos",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 420,
-    "y": 420,
-    "wires": []
-  },
-  {
-    "id": "293cf0ecd677bac0",
-    "type": "debug",
-    "z": "84d1a0de660abb59",
-    "g": "354aca9dbc391ace",
-    "name": "correct config",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 680,
-    "y": 300,
-    "wires": []
+    "y": 120,
+    "wires": [
+      [
+        "d61931ad5e5945c0"
+      ]
+    ]
   },
   {
     "id": "4290cc6fa1aadff0",
@@ -312,224 +257,195 @@
     ]
   },
   {
-    "id": "5a283579df925b67",
-    "type": "inject",
+    "id": "293cf0ecd677bac0",
+    "type": "debug",
     "z": "84d1a0de660abb59",
-    "g": "9ab1f6c2842073c5",
-    "name": "",
-    "props": [],
-    "repeat": "",
-    "crontab": "",
-    "once": true,
-    "onceDelay": "0.1",
-    "topic": "",
+    "g": "354aca9dbc391ace",
+    "name": "correct config",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 680,
+    "y": 300,
+    "wires": []
+  },
+  {
+    "id": "a81cbcc889952fb3",
+    "type": "debug",
+    "z": "84d1a0de660abb59",
+    "g": "354aca9dbc391ace",
+    "name": "Config Wasos",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 420,
+    "y": 420,
+    "wires": []
+  },
+  {
+    "id": "794b757ef07a4e19",
+    "type": "debug",
+    "z": "84d1a0de660abb59",
+    "g": "354aca9dbc391ace",
+    "name": "Config Rayvn",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 420,
+    "y": 300,
+    "wires": []
+  },
+  {
+    "id": "989d45634f23b97e",
+    "type": "debug",
+    "z": "84d1a0de660abb59",
+    "g": "354aca9dbc391ace",
+    "name": "Rayvn output",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
     "x": 170,
-    "y": 120,
-    "wires": [
-      [
-        "d61931ad5e5945c0"
-      ]
-    ]
+    "y": 300,
+    "wires": []
   },
   {
-    "id": "02f5aa2ff841acd1",
-    "type": "subflow:a7d9b521445d1bf0",
+    "id": "3f5a48b721dae9db",
+    "type": "debug",
     "z": "84d1a0de660abb59",
     "g": "354aca9dbc391ace",
-    "name": "",
-    "x": 430,
-    "y": 460,
-    "wires": [
-      [
-        "4290cc6fa1aadff0",
-        "a81cbcc889952fb3"
-      ]
-    ]
+    "name": "Wasos output",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 180,
+    "y": 480,
+    "wires": []
   },
   {
-    "id": "9b6e4d1e92c769d9",
-    "type": "subflow:5da162b98b7b6b86",
-    "z": "84d1a0de660abb59",
-    "g": "354aca9dbc391ace",
-    "name": "",
-    "x": 430,
-    "y": 340,
-    "wires": [
-      [
-        "4290cc6fa1aadff0",
-        "794b757ef07a4e19"
-      ]
-    ]
-  },
-  {
-    "id": "f7bbfc371ab086b1",
-    "type": "subflow:99c17cced97ac339",
-    "z": "84d1a0de660abb59",
-    "g": "354aca9dbc391ace",
-    "name": "",
-    "x": 190,
-    "y": 400,
-    "wires": [
-      [
-        "9b6e4d1e92c769d9",
-        "989d45634f23b97e"
-      ],
-      [
-        "02f5aa2ff841acd1",
-        "3f5a48b721dae9db"
-      ]
-    ]
-  },
-  {
-    "id": "a814dfd2fd2a6b9b",
-    "type": "function",
+    "id": "03c1d5a79bea3bbf",
+    "type": "subflow:0fad769721e9978c",
     "z": "84d1a0de660abb59",
     "g": "96e90febc19e0c83",
-    "name": "Set initial timestamp",
-    "func": "// After fetching initial Rayvn log entries, set the starting timestamps\n// so that polling only picks up NEW entries from this point forward\nconst connection = msg.connection;\n\nif (!connection) {\n    node.warn(\"No connection on msg for initial timestamp\");\n    return msg;\n}\n\nconst data = global.get(\"parat_bridge\");\nconst conn = data.connections.find(c => c.id === connection.id);\n\nif (conn) {\n    const lastEntry = Array.isArray(msg.payload) && msg.payload.at(-1);\n    conn.timestamps.last_rayvn = lastEntry?.timeCreated || Date.now();\n    conn.timestamps.last_wasos = Date.now();\n    global.set(\"parat_bridge\", data);\n}\n\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 500,
+    "name": "",
+    "x": 300,
+    "y": 660,
+    "wires": [
+      [
+        "2efc4e48a66a9cf1",
+        "a814dfd2fd2a6b9b"
+      ]
+    ]
+  },
+  {
+    "id": "2efc4e48a66a9cf1",
+    "type": "subflow:2e632affbd071524",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "name": "",
+    "x": 520,
+    "y": 660,
+    "wires": [
+      [
+        "2be29013d9e94cd8"
+      ],
+      [
+        "e95b4372fea62cfc"
+      ],
+      []
+    ]
+  },
+  {
+    "id": "2be29013d9e94cd8",
+    "type": "subflow:fe9d5f6f9c2bdb16",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "name": "",
+    "x": 760,
     "y": 580,
     "wires": [
       []
     ]
   },
   {
-    "id": "d61931ad5e5945c0",
-    "type": "function",
+    "id": "f46652973e5d016e",
+    "type": "subflow:209f3c980818c499",
     "z": "84d1a0de660abb59",
-    "g": "9ab1f6c2842073c5",
-    "name": "initialize parat bridge",
-    "func": "// Base URLs for all API calls — single source of truth\nconst BASE_URLS = {\n    rayvn: \"https://api.rayvn.global\",\n    wasos: \"https://dev.wasos.no\"\n};\n\n// Preserve existing data across restarts\nlet data = global.get(\"parat_bridge\") || null;\n\nif (!data) {\n    // Fresh install — create empty structure\n    data = {\n        base_urls: BASE_URLS,\n        connections: []\n    };\n} else {\n    // Existing install — update base URLs, keep connections intact\n    data.base_urls = BASE_URLS;\n\n    // --- MIGRATION: Move global queue to per-connection queues ---\n    // TODO: Remove this block after all connections have been recreated (added 2026-02-24)\n    if (data.queue && data.queue.length > 0) {\n        data.queue.forEach(entry => {\n            const connection = data.connections.find(c => c.id === entry.connection_id);\n            if (connection) {\n                if (!connection.queue) connection.queue = [];\n                connection.queue.push(entry);\n            }\n        });\n        delete data.queue;\n    }\n\n    // --- MIGRATION: Move global master_log to per-connection master_logs ---\n    // TODO: Remove this block after all connections have been recreated (added 2026-02-24)\n    if (data.master_log && data.master_log.length > 0) {\n        data.master_log.forEach(entry => {\n            const connection = data.connections.find(c => c.id === entry.connection_id);\n            if (connection) {\n                if (!connection.master_log) connection.master_log = [];\n                connection.master_log.push(entry);\n            }\n        });\n        delete data.master_log;\n    }\n\n    // Ensure every connection has queue and master_log arrays\n    data.connections.forEach(connection => {\n        if (!connection.queue) connection.queue = [];\n        if (!connection.master_log) connection.master_log = [];\n    });\n}\n\nglobal.set(\"parat_bridge\", data);\n\n// Clean up the old pb helper object from previous version\nglobal.set(\"pb\", undefined);\n\nnode.log(\"Parat-Bridge initialized: \" + data.connections.length + \" connection(s)\");\nmsg.payload = data;\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 380,
+    "g": "96e90febc19e0c83",
+    "name": "",
+    "x": 1000,
+    "y": 660,
+    "wires": [
+      [
+        "6e81dde533c0b1f4"
+      ],
+      [
+        "2efc4e48a66a9cf1"
+      ]
+    ]
+  },
+  {
+    "id": "e95b4372fea62cfc",
+    "type": "subflow:9ee8527d12b415b0",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "name": "",
+    "x": 750,
+    "y": 660,
+    "wires": [
+      [
+        "f46652973e5d016e"
+      ]
+    ]
+  },
+  {
+    "id": "6e81dde533c0b1f4",
+    "type": "debug",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "name": "Initial log post",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 980,
+    "y": 620,
+    "wires": []
+  },
+  {
+    "id": "03c1f0752644b9c0",
+    "type": "subflow:3241f77fe5e4f9ea",
+    "z": "84d1a0de660abb59",
+    "x": 1100,
     "y": 120,
-    "wires": [
-      []
-    ]
-  },
-  {
-    "id": "179a1774a3cd384f",
-    "type": "function",
-    "z": "84d1a0de660abb59",
-    "g": "354aca9dbc391ace",
-    "name": "Create connection",
-    "func": "const data = global.get(\"parat_bridge\");\n\nconst rayvnConfig = msg.payload.rayvn_configured;\nconst wasosConfig = msg.payload.wasos_configured;\n\nif (!rayvnConfig || !wasosConfig) {\n    node.error(\"Missing configuration — join node did not deliver both systems\");\n    return null;\n}\n\n// Check if this exact pairing already exists\nconst existingConnection = data.connections.find(c =>\n    c.rayvn.log_id === rayvnConfig.log_id &&\n    c.wasos.chatroom_name === wasosConfig.chatroom_name\n);\n\nlet connection;\n\nif (existingConnection) {\n    // Update credentials for existing connection (e.g. after token refresh)\n    existingConnection.rayvn = {\n        api_key: rayvnConfig.api_key,\n        log_name: rayvnConfig.log_name,\n        log_id: rayvnConfig.log_id\n    };\n    existingConnection.wasos = {\n        username: wasosConfig.username,\n        chatroom_name: wasosConfig.chatroom_name,\n        user_id: wasosConfig.user_id || null,\n        group: wasosConfig.group || null,\n        api: {\n            key: wasosConfig.api_key || (wasosConfig.api && wasosConfig.api.key),\n            expires: wasosConfig.expires || (wasosConfig.api && wasosConfig.api.expires)\n        }\n    };\n    existingConnection.active = true;\n    connection = existingConnection;\n    node.log(\"Updated existing connection: \" + connection.label);\n} else {\n    // Create new connection with unique ID\n    const connectionId = \"conn_\" + (data.connections.length + 1) + \"_\" + Date.now().toString(36);\n\n    connection = {\n        id: connectionId,\n        label: (rayvnConfig.log_name || \"Rayvn\") + \" ↔ \" + (wasosConfig.chatroom_name || \"WaSOS\"),\n        rayvn: {\n            api_key: rayvnConfig.api_key,\n            log_name: rayvnConfig.log_name,\n            log_id: rayvnConfig.log_id\n        },\n        wasos: {\n            username: wasosConfig.username,\n            chatroom_name: wasosConfig.chatroom_name,\n            user_id: wasosConfig.user_id || null,\n            group: wasosConfig.group || null,\n            api: {\n                key: wasosConfig.api_key || (wasosConfig.api && wasosConfig.api.key),\n                expires: wasosConfig.expires || (wasosConfig.api && wasosConfig.api.expires)\n            }\n        },\n        timestamps: { last_rayvn: 0, last_wasos: 0 },\n        active: true,\n        queue: [],\n        master_log: []\n    };\n\n    data.connections.push(connection);\n    node.log(\"Created new connection: \" + connection.label);\n}\n\nglobal.set(\"parat_bridge\", data);\n\nmsg.connection = connection;\nmsg.payload = connection;\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 910,
-    "y": 340,
-    "wires": [
-      [
-        "e5997ab2f3eb1fb6",
-        "0d1b61e1d01e093e",
-        "1be93f7f78b94fea"
-      ]
-    ]
-  },
-  {
-    "id": "1e407a0ff8bdcd9a",
-    "type": "ui-notification",
-    "z": "84d1a0de660abb59",
-    "ui": "eb785a65aeb88688",
-    "position": "top right",
-    "colorDefault": false,
-    "color": "#19a207",
-    "displayTime": "15",
-    "showCountdown": true,
-    "outputs": 1,
-    "allowDismiss": true,
-    "dismissText": "Close",
-    "allowConfirm": false,
-    "confirmText": "Confirm",
-    "raw": false,
-    "className": "",
-    "name": "Notify connection created",
-    "x": 1170,
-    "y": 80,
-    "wires": [
-      []
-    ]
-  },
-  {
-    "id": "0d1b61e1d01e093e",
-    "type": "function",
-    "z": "84d1a0de660abb59",
-    "name": "Format connection notification",
-    "func": "msg.payload = \"Forbindelse opprettet: \" + msg.connection.label;\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 870,
-    "y": 60,
-    "wires": [
-      [
-        "1e407a0ff8bdcd9a"
-      ]
-    ]
-  },
-  {
-    "id": "1be93f7f78b94fea",
-    "type": "function",
-    "z": "84d1a0de660abb59",
-    "name": "Format connection table",
-    "func": "const pb = global.get(\"pb\");\nconst conns = pb.getConnections();\n\nmsg.payload = conns.map(c => ({\n    \"Navn\": c.label,\n    \"Status\": c.active ? \"✅ Aktiv\" : \"⏸️ Inaktiv\",\n    \"ID\": c.id\n}));\n\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 1030,
-    "y": 160,
-    "wires": [
-      [
-        "4200f78d0f7622d1"
-      ]
-    ]
-  },
-  {
-    "id": "4200f78d0f7622d1",
-    "type": "ui-table",
-    "z": "84d1a0de660abb59",
-    "group": "76f825e60cbfe2c2",
-    "name": "Connection table",
-    "label": "",
-    "order": 1,
-    "width": 0,
-    "height": 0,
-    "maxrows": "8",
-    "passthru": false,
-    "autocols": true,
-    "showSearch": true,
-    "deselect": true,
-    "selectionType": "none",
-    "columns": [],
-    "mobileBreakpoint": "sm",
-    "mobileBreakpointType": "defaults",
-    "action": "append",
-    "className": "",
-    "x": 1210,
-    "y": 260,
-    "wires": [
-      []
-    ]
+    "wires": []
   }
 ]
