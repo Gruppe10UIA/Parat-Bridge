@@ -2,13 +2,13 @@
   {
     "id": "3241f77fe5e4f9ea",
     "type": "subflow",
-    "name": "GUI information input",
+    "name": "GUI Connections Dashboard",
     "info": "",
     "category": "",
     "in": [
       {
-        "x": 50,
-        "y": 30,
+        "x": 120,
+        "y": 280,
         "wires": [
           {
             "id": "0d1b61e1d01e093e"
@@ -42,8 +42,8 @@
     "raw": false,
     "className": "",
     "name": "Notify connection created",
-    "x": 570,
-    "y": 100,
+    "x": 650,
+    "y": 340,
     "wires": [
       []
     ]
@@ -60,8 +60,8 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 270,
-    "y": 80,
+    "x": 390,
+    "y": 340,
     "wires": [
       [
         "1e407a0ff8bdcd9a"
@@ -80,8 +80,8 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 430,
-    "y": 180,
+    "x": 370,
+    "y": 240,
     "wires": [
       [
         "4200f78d0f7622d1"
@@ -109,8 +109,8 @@
     "mobileBreakpointType": "defaults",
     "action": "append",
     "className": "",
-    "x": 670,
-    "y": 180,
+    "x": 610,
+    "y": 240,
     "wires": [
       []
     ]
