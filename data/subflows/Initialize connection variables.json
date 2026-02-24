@@ -1,0 +1,112 @@
+[
+  {
+    "id": "c45e2eb6a51516d0",
+    "type": "subflow",
+    "name": "Initialize connection variables",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 60,
+        "y": 260,
+        "wires": [
+          {
+            "id": "16722a3309164940"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 760,
+        "y": 180,
+        "wires": [
+          {
+            "id": "179a1774a3cd384f",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#DDAA99"
+  },
+  {
+    "id": "179a1774a3cd384f",
+    "type": "function",
+    "z": "c45e2eb6a51516d0",
+    "name": "Create connection",
+    "func": "const data = global.get(\"parat_bridge\");\n\nconst rayvn_config = msg.payload.rayvn_configured;\nconst wasos_config = msg.payload.wasos_configured;\n\nif (!rayvn_config || !wasos_config) {\n    node.error(\"Missing configuration — join node did not deliver both systems\");\n    return null;\n}\n\n// Check if this exact pairing already exists\nconst existing_connection = data.connections.find(c =>\n    c.rayvn.log_id === rayvn_config.log_id &&\n    c.wasos.chatroom_name === wasos_config.chatroom_name\n);\n\nlet connection;\n\nif (existing_connection) {\n    // Update credentials for existing connection (e.g. after token refresh)\n    existing_connection.rayvn = {\n        api_key: rayvn_config.api_key,\n        log_name: rayvn_config.log_name,\n        log_id: rayvn_config.log_id\n    };\n    existing_connection.wasos = {\n        username: wasos_config.username,\n        chatroom_name: wasos_config.chatroom_name,\n        user_id: wasos_config.user_id || null,\n        group: wasos_config.group || null,\n        api: {\n            key: wasos_config.api_key || (wasos_config.api && wasos_config.api.key),\n            expires: wasos_config.expires || (wasos_config.api && wasos_config.api.expires)\n        }\n    };\n    existing_connection.active = true;\n    connection = existing_connection;\n    node.log(\"Updated existing connection: \" + connection.label);\n} else {\n    // Create new connection with unique ID\n\n    connection = {\n        id: String.hashCode(rayvn_config.log_id + wasos_config.chatroom_name),\n        name: rayvn_config.log_name + \"_\" + wasos_config.chatroom_name,\n        time_created: Date.now(),\n        label: (rayvn_config.log_name || \"Rayvn\") + \" ↔ \" + (wasos_config.chatroom_name || \"WaSOS\"),\n        rayvn: {\n            api_key: rayvn_config.api_key,\n            log_name: rayvn_config.log_name,\n            log_id: rayvn_config.log_id,\n            timestamp: Date.now()\n        },\n        wasos: {\n            username: wasos_config.username,\n            chatroom_name: wasos_config.chatroom_name,\n            user_id: wasos_config.user_id || null,\n            group: wasos_config.group || null,\n            timestamp: Date.now(),\n            api: {\n                key: wasos_config.api_key || (wasos_config.api && wasos_config.api.key),\n                expires: wasos_config.expires || (wasos_config.api && wasos_config.api.expires)\n            }\n        },\n\n        active: true,\n        master_log: []\n    };\n\n    data.connections.push(connection);\n    node.log(\"Created new connection: \" + connection.label);\n}\n\nglobal.set(\"parat_bridge\", data);\n\nmsg.connection = connection;\nmsg.payload = connection;\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 510,
+    "y": 100,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "16722a3309164940",
+    "type": "function",
+    "z": "c45e2eb6a51516d0",
+    "name": "Filter new connection",
+    "func": "const data = global.get(\"parat_bridge\");\n\nconst rayvn_log_id = msg.payload.rayvn_configured.log_id;\nconst wasos_chat = msg.payload.wasos_configured.chatroom_name;\n\nif (!rayvn_log_id || !wasos_chat) {\n    node.error(\"Missing configuration)\")\n    return [null, null]\n}\n\nconst connection_id = String.hashCode(rayvn_log_id + wasos_chat)\n\n// Check if this exact pairing already exists\nconst existing = data.connections.find(c => c.id === connection_id);\n\nif (existing) {\n    msg.connection = existing; \n    return [msg, null];\n} else {\n    return [null, msg];\n}",
+    "outputs": 2,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 250,
+    "y": 260,
+    "wires": [
+      [
+        "c01250aae3b70e37"
+      ],
+      [
+        "41fae6f422d56752"
+      ]
+    ]
+  },
+  {
+    "id": "c01250aae3b70e37",
+    "type": "function",
+    "z": "c45e2eb6a51516d0",
+    "name": "Update existing connection",
+    "func": "const rayvn_config = msg.payload.rayvn_configured;\nconst wasos_config = msg.payload.wasos_configured;\n\nmsg.connection.rayvn = {\n    api_key: rayvn_config.api_key,\n    log_name: rayvn_config.log_name,\n    timestamp: Date.now(),\n    log_id: rayvn_config.log_id\n};\nmsg.connection.wasos = {\n    username: wasos_config.username,\n    user_id: wasos_config.user_id,\n    timestamp: Date.now(),\n    group: wasos_config.group,\n    api: {\n        key: wasos_config.api.key,\n        expires: wasos_config.api.expires\n    }\n};\nmsg.connection.active = true;\n\nglobal.set(\"parat_bridge\", global.get(\"parat_bridge\"));\nnode.log(\"Updated existing connection: \" + msg.connection.label);\n\nmsg.payload = msg.connection;\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 560,
+    "y": 240,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "41fae6f422d56752",
+    "type": "function",
+    "z": "c45e2eb6a51516d0",
+    "name": "Create new connection",
+    "func": "const rayvn_config = msg.payload.rayvn_configured;\nconst wasos_config = msg.payload.wasos_configured;\n\nconst connection = {\n    id: String.hashCode(rayvn_config.log_id + wasos_config.chatroom_name),\n    name: rayvn_config.log_name + \"_\" + wasos_config.chatroom_name,\n    time_created: Date.now(),\n    rayvn: {\n        api_key: rayvn_config.api_key,\n        log_name: rayvn_config.log_name,\n        log_id: rayvn_config.log_id,\n        timestamp: Date.now()\n    },\n    wasos: {\n        username: wasos_config.username,\n        user_id: wasos_config.user_id,\n        chatroom_name: wasos_config.chatroom_name,\n        group: wasos_config.group,\n        timestamp: Date.now(),\n        api: {\n            key: wasos_config.api.key,\n            expires: wasos_config.api.expires\n        }\n    },\n    active: true,\n    master_log: [],\n};\n\n// \nconst data = global.get(\"parat_bridge\");\ndata.connections.push(connection);\nglobal.set(\"parat_bridge\", data);\n\nnode.log(\"Created new connection: \" + connection.label);\n\nmsg.connection = connection;\nmsg.payload = connection;\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 540,
+    "y": 300,
+    "wires": [
+      []
+    ]
+  }
+]

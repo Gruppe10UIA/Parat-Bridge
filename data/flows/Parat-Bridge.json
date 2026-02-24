@@ -27,13 +27,11 @@
       "a81cbcc889952fb3",
       "794b757ef07a4e19",
       "989d45634f23b97e",
-      "3f5a48b721dae9db",
-      "179a1774a3cd384f",
-      "03c1f0752644b9c0"
+      "3f5a48b721dae9db"
     ],
     "x": 74,
-    "y": 259,
-    "w": 1032,
+    "y": 179,
+    "w": 792,
     "h": 242
   },
   {
@@ -55,13 +53,17 @@
       "f46652973e5d016e",
       "e95b4372fea62cfc",
       "6e81dde533c0b1f4",
-      "e5997ab2f3eb1fb6",
-      "a814dfd2fd2a6b9b"
+      "a814dfd2fd2a6b9b",
+      "7cf27d9c1bf7f451",
+      "26d173a1b01010e2",
+      "03c1f0752644b9c0",
+      "77a8f1f8e1e48a64",
+      "5aae3e127cfffafe"
     ],
-    "x": 74,
-    "y": 539,
-    "w": 1052,
-    "h": 169.5
+    "x": 54,
+    "y": 559,
+    "w": 1312,
+    "h": 242
   },
   {
     "id": "9ab1f6c2842073c5",
@@ -80,19 +82,20 @@
       "d61931ad5e5945c0"
     ],
     "x": 74,
-    "y": 79,
+    "y": 59,
     "w": 432,
     "h": 82
   },
   {
-    "id": "e5997ab2f3eb1fb6",
+    "id": "26d173a1b01010e2",
     "type": "junction",
     "z": "84d1a0de660abb59",
     "g": "96e90febc19e0c83",
-    "x": 100,
+    "x": 80,
     "y": 660,
     "wires": [
       [
+        "7cf27d9c1bf7f451",
         "03c1d5a79bea3bbf"
       ]
     ]
@@ -111,8 +114,8 @@
     "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 980,
-    "y": 620,
+    "x": 1220,
+    "y": 640,
     "wires": []
   },
   {
@@ -121,11 +124,11 @@
     "z": "84d1a0de660abb59",
     "g": "96e90febc19e0c83",
     "name": "",
-    "x": 750,
-    "y": 660,
+    "x": 850,
+    "y": 680,
     "wires": [
       [
-        "f46652973e5d016e"
+        "77a8f1f8e1e48a64"
       ]
     ]
   },
@@ -135,8 +138,8 @@
     "z": "84d1a0de660abb59",
     "g": "96e90febc19e0c83",
     "name": "",
-    "x": 1000,
-    "y": 660,
+    "x": 1240,
+    "y": 680,
     "wires": [
       [
         "6e81dde533c0b1f4"
@@ -152,8 +155,8 @@
     "z": "84d1a0de660abb59",
     "g": "96e90febc19e0c83",
     "name": "",
-    "x": 760,
-    "y": 580,
+    "x": 860,
+    "y": 600,
     "wires": [
       []
     ]
@@ -164,8 +167,8 @@
     "z": "84d1a0de660abb59",
     "g": "96e90febc19e0c83",
     "name": "",
-    "x": 520,
-    "y": 660,
+    "x": 620,
+    "y": 680,
     "wires": [
       [
         "2be29013d9e94cd8"
@@ -182,12 +185,11 @@
     "z": "84d1a0de660abb59",
     "g": "96e90febc19e0c83",
     "name": "",
-    "x": 240,
-    "y": 660,
+    "x": 280,
+    "y": 680,
     "wires": [
       [
-        "2efc4e48a66a9cf1",
-        "a814dfd2fd2a6b9b"
+        "2efc4e48a66a9cf1"
       ]
     ]
   },
@@ -206,7 +208,7 @@
     "statusVal": "",
     "statusType": "auto",
     "x": 180,
-    "y": 440,
+    "y": 360,
     "wires": []
   },
   {
@@ -224,7 +226,7 @@
     "statusVal": "",
     "statusType": "auto",
     "x": 170,
-    "y": 360,
+    "y": 280,
     "wires": []
   },
   {
@@ -242,7 +244,7 @@
     "statusVal": "",
     "statusType": "auto",
     "x": 420,
-    "y": 300,
+    "y": 220,
     "wires": []
   },
   {
@@ -260,7 +262,7 @@
     "statusVal": "",
     "statusType": "auto",
     "x": 420,
-    "y": 420,
+    "y": 340,
     "wires": []
   },
   {
@@ -278,7 +280,7 @@
     "statusVal": "",
     "statusType": "auto",
     "x": 700,
-    "y": 360,
+    "y": 280,
     "wires": []
   },
   {
@@ -304,11 +306,11 @@
     "reduceInitType": "bool",
     "reduceFixup": "",
     "x": 720,
-    "y": 400,
+    "y": 320,
     "wires": [
       [
         "293cf0ecd677bac0",
-        "179a1774a3cd384f"
+        "26d173a1b01010e2"
       ]
     ]
   },
@@ -325,7 +327,7 @@
     "onceDelay": "0.1",
     "topic": "",
     "x": 170,
-    "y": 120,
+    "y": 100,
     "wires": [
       [
         "d61931ad5e5945c0"
@@ -339,7 +341,7 @@
     "g": "354aca9dbc391ace",
     "name": "",
     "x": 430,
-    "y": 460,
+    "y": 380,
     "wires": [
       [
         "4290cc6fa1aadff0",
@@ -354,7 +356,7 @@
     "g": "354aca9dbc391ace",
     "name": "",
     "x": 430,
-    "y": 340,
+    "y": 260,
     "wires": [
       [
         "4290cc6fa1aadff0",
@@ -369,7 +371,7 @@
     "g": "354aca9dbc391ace",
     "name": "",
     "x": 190,
-    "y": 400,
+    "y": 320,
     "wires": [
       [
         "9b6e4d1e92c769d9",
@@ -394,8 +396,8 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 500,
-    "y": 580,
+    "x": 660,
+    "y": 760,
     "wires": [
       []
     ]
@@ -414,41 +416,91 @@
     "finalize": "",
     "libs": [],
     "x": 380,
-    "y": 120,
+    "y": 100,
     "wires": [
       []
-    ]
-  },
-  {
-    "id": "179a1774a3cd384f",
-    "type": "function",
-    "z": "84d1a0de660abb59",
-    "g": "354aca9dbc391ace",
-    "name": "Create connection",
-    "func": "const data = global.get(\"parat_bridge\");\n\nconst rayvnConfig = msg.payload.rayvn_configured;\nconst wasosConfig = msg.payload.wasos_configured;\n\nif (!rayvnConfig || !wasosConfig) {\n    node.error(\"Missing configuration — join node did not deliver both systems\");\n    return null;\n}\n\n// Check if this exact pairing already exists\nconst existingConnection = data.connections.find(c =>\n    c.rayvn.log_id === rayvnConfig.log_id &&\n    c.wasos.chatroom_name === wasosConfig.chatroom_name\n);\n\nlet connection;\n\nif (existingConnection) {\n    // Update credentials for existing connection (e.g. after token refresh)\n    existingConnection.rayvn = {\n        api_key: rayvnConfig.api_key,\n        log_name: rayvnConfig.log_name,\n        log_id: rayvnConfig.log_id\n    };\n    existingConnection.wasos = {\n        username: wasosConfig.username,\n        chatroom_name: wasosConfig.chatroom_name,\n        user_id: wasosConfig.user_id || null,\n        group: wasosConfig.group || null,\n        api: {\n            key: wasosConfig.api_key || (wasosConfig.api && wasosConfig.api.key),\n            expires: wasosConfig.expires || (wasosConfig.api && wasosConfig.api.expires)\n        }\n    };\n    existingConnection.active = true;\n    connection = existingConnection;\n    node.log(\"Updated existing connection: \" + connection.label);\n} else {\n    // Create new connection with unique ID\n    const connectionId = \"conn_\" + (data.connections.length + 1) + \"_\" + Date.now().toString(36);\n\n    connection = {\n        id: connectionId,\n        label: (rayvnConfig.log_name || \"Rayvn\") + \" ↔ \" + (wasosConfig.chatroom_name || \"WaSOS\"),\n        rayvn: {\n            api_key: rayvnConfig.api_key,\n            log_name: rayvnConfig.log_name,\n            log_id: rayvnConfig.log_id\n        },\n        wasos: {\n            username: wasosConfig.username,\n            chatroom_name: wasosConfig.chatroom_name,\n            user_id: wasosConfig.user_id || null,\n            group: wasosConfig.group || null,\n            api: {\n                key: wasosConfig.api_key || (wasosConfig.api && wasosConfig.api.key),\n                expires: wasosConfig.expires || (wasosConfig.api && wasosConfig.api.expires)\n            }\n        },\n        timestamps: { last_rayvn: 0, last_wasos: 0 },\n        active: true,\n        queue: [],\n        master_log: []\n    };\n\n    data.connections.push(connection);\n    node.log(\"Created new connection: \" + connection.label);\n}\n\nglobal.set(\"parat_bridge\", data);\n\nmsg.connection = connection;\nmsg.payload = connection;\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 990,
-    "y": 400,
-    "wires": [
-      [
-        "e5997ab2f3eb1fb6",
-        "03c1f0752644b9c0"
-      ]
     ]
   },
   {
     "id": "03c1f0752644b9c0",
     "type": "subflow:3241f77fe5e4f9ea",
     "z": "84d1a0de660abb59",
-    "g": "354aca9dbc391ace",
+    "g": "96e90febc19e0c83",
     "name": "",
-    "x": 980,
-    "y": 320,
+    "x": 560,
+    "y": 620,
     "wires": []
+  },
+  {
+    "id": "7cf27d9c1bf7f451",
+    "type": "subflow:c45e2eb6a51516d0",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "name": "",
+    "x": 300,
+    "y": 620,
+    "wires": [
+      [
+        "03c1f0752644b9c0"
+      ]
+    ]
+  },
+  {
+    "id": "77a8f1f8e1e48a64",
+    "type": "switch",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "name": "",
+    "property": "bypass_initiall_post",
+    "propertyType": "global",
+    "rules": [
+      {
+        "t": "false"
+      },
+      {
+        "t": "true"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 2,
+    "x": 1030,
+    "y": 680,
+    "wires": [
+      [
+        "f46652973e5d016e"
+      ],
+      [
+        "5aae3e127cfffafe"
+      ]
+    ]
+  },
+  {
+    "id": "5aae3e127cfffafe",
+    "type": "change",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "name": "",
+    "rules": [
+      {
+        "t": "set",
+        "p": "result",
+        "pt": "msg",
+        "to": "true",
+        "tot": "bool"
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 1100,
+    "y": 760,
+    "wires": [
+      [
+        "2efc4e48a66a9cf1"
+      ]
+    ]
   }
 ]

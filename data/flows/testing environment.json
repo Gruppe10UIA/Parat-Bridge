@@ -61,7 +61,7 @@
     "name": "Rayvn polling",
     "label": "Rayvn polling toggle",
     "group": "9df65904057aeaa7",
-    "order": 2,
+    "order": 3,
     "width": 0,
     "height": 0,
     "passthru": false,
@@ -120,7 +120,7 @@
     "name": "Wasos polling",
     "label": "Wasos polling toggle",
     "group": "9df65904057aeaa7",
-    "order": 1,
+    "order": 2,
     "width": 0,
     "height": 0,
     "passthru": false,
@@ -322,8 +322,8 @@
     "topic": "",
     "payload": "",
     "payloadType": "date",
-    "x": 290,
-    "y": 200,
+    "x": 310,
+    "y": 180,
     "wires": [
       [
         "a0c5c990cb5ae106"
@@ -373,6 +373,65 @@
     "libs": [],
     "x": 740,
     "y": 80,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "b21700737dedc292",
+    "type": "ui-switch",
+    "z": "901ed98289cc4ecd",
+    "name": "bypass_initiall_post",
+    "label": "bypass_initiall_post",
+    "group": "9df65904057aeaa7",
+    "order": 1,
+    "width": 0,
+    "height": 0,
+    "passthru": false,
+    "decouple": false,
+    "topic": "payload",
+    "topicType": "msg",
+    "style": "",
+    "className": "",
+    "layout": "row-left",
+    "clickableArea": "switch",
+    "onvalue": "true",
+    "onvalueType": "bool",
+    "onicon": "",
+    "oncolor": "",
+    "offvalue": "false",
+    "offvalueType": "bool",
+    "officon": "",
+    "offcolor": "",
+    "x": 570,
+    "y": 240,
+    "wires": [
+      [
+        "637113a78a36de82"
+      ]
+    ]
+  },
+  {
+    "id": "637113a78a36de82",
+    "type": "change",
+    "z": "901ed98289cc4ecd",
+    "name": "",
+    "rules": [
+      {
+        "t": "set",
+        "p": "bypass_initiall_post",
+        "pt": "global",
+        "to": "payload",
+        "tot": "msg"
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 840,
+    "y": 240,
     "wires": [
       []
     ]

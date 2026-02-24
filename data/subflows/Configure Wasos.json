@@ -51,7 +51,7 @@
     "type": "function",
     "z": "a7d9b521445d1bf0",
     "name": "Build wasos_config",
-    "func": "let wasos_config = {\n    username: msg.config.username,\n    user_id: msg.payload.profileId,\n    chatroom_name: msg.config.chatroom_name,\n    api: {\n        key: msg.payload.nonce,\n        expires: msg.payload.refresh_expires\n    },\n    group: msg.payload.groups\n};\n\n// Lagre på msg – ingen global variabel\nmsg.wasos_config = wasos_config;\nmsg.payload = wasos_config;\nreturn msg;",
+    "func": "let wasos_config = {\n    username: msg.config.username,\n    user_id: msg.payload.profileId || null,\n    chatroom_name: msg.config.chatroom_name,\n    api: {\n        key: msg.payload.nonce,\n        expires: msg.payload.refresh_expires || null\n    },\n    group: msg.payload.groups || null\n};\n\n// Lagre på msg – ingen global variabel\nmsg.wasos_config = wasos_config;\nmsg.payload = wasos_config;\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,

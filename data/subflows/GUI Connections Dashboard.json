@@ -22,7 +22,8 @@
     "out": [],
     "env": [],
     "meta": {},
-    "color": "#DDAA99"
+    "color": "#3FADB5",
+    "icon": "font-awesome/fa-list"
   },
   {
     "id": "1e407a0ff8bdcd9a",
@@ -95,7 +96,7 @@
     "group": "76f825e60cbfe2c2",
     "name": "Connection table",
     "label": "",
-    "order": 1,
+    "order": 2,
     "width": 0,
     "height": 0,
     "maxrows": "8",
