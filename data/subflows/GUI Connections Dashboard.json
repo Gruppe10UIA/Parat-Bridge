@@ -12,9 +12,6 @@
         "wires": [
           {
             "id": "0d1b61e1d01e093e"
-          },
-          {
-            "id": "1be93f7f78b94fea"
           }
         ]
       }
@@ -44,7 +41,7 @@
     "className": "",
     "name": "Notify connection created",
     "x": 650,
-    "y": 340,
+    "y": 280,
     "wires": [
       []
     ]
@@ -62,59 +59,11 @@
     "finalize": "",
     "libs": [],
     "x": 390,
-    "y": 340,
+    "y": 280,
     "wires": [
       [
         "1e407a0ff8bdcd9a"
       ]
-    ]
-  },
-  {
-    "id": "1be93f7f78b94fea",
-    "type": "function",
-    "z": "3241f77fe5e4f9ea",
-    "name": "Format connection table",
-    "func": "// Build the table data for the dashboard connection overview\nconst connections = global.get(\"parat_bridge\").connections;\n\nmsg.payload = connections.map(connection => ({\n    \"Forbindelse\": connection.name,\n    \"Status\": connection.active ? \"✅ Aktiv\" : \"⏸️ Inaktiv\"\n}));\n\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 370,
-    "y": 240,
-    "wires": [
-      [
-        "4200f78d0f7622d1"
-      ]
-    ]
-  },
-  {
-    "id": "4200f78d0f7622d1",
-    "type": "ui-table",
-    "z": "3241f77fe5e4f9ea",
-    "d": true,
-    "group": "76f825e60cbfe2c2",
-    "name": "Connection table",
-    "label": "",
-    "order": 2,
-    "width": 0,
-    "height": 0,
-    "maxrows": "8",
-    "passthru": false,
-    "autocols": true,
-    "showSearch": true,
-    "deselect": true,
-    "selectionType": "none",
-    "columns": [],
-    "mobileBreakpoint": "sm",
-    "mobileBreakpointType": "defaults",
-    "action": "append",
-    "className": "",
-    "x": 610,
-    "y": 240,
-    "wires": [
-      []
     ]
   }
 ]

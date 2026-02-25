@@ -21,7 +21,7 @@
         "vt": "str"
       }
     ],
-    "repeat": "5",
+    "repeat": "1",
     "crontab": "",
     "once": true,
     "onceDelay": 0.1,
@@ -197,7 +197,7 @@
     "type": "function",
     "z": "003e75aaa2880405",
     "name": "Format connections table",
-    "func": "const data = global.get(\"parat_bridge\");\nconst connections = (data && data.connections) || [];\n\nmsg.payload = connections.map(connection => ({\n    \"Forbindelse\": connection.name,\n    \"Status\": connection.active ? \"✅ Aktiv\" : \"⏸️ Inaktiv\"\n}));\n\nreturn msg;\n",
+    "func": "const connections = global.get(\"parat_bridge.connections\");\n\nmsg.payload = Object.values(connections).map(conn => ({\n    \"Klient 1\": `${conn.clients[0].client_system} — ${conn.clients[0].name}`,\n    \"Klient 2\": `${conn.clients[1].client_system} — ${conn.clients[1].name}`,\n    status:     conn.active ? \"🟢 aktiv\" : \"🔴 inaktiv\",\n    created:    new Date(conn.time_created).toLocaleString()\n}));\n\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,

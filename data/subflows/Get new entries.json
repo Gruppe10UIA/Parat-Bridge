@@ -2,21 +2,17 @@
   {
     "id": "7613a77a1b834225",
     "type": "subflow",
-    "name": "Polling",
+    "name": "Get new entries",
     "info": "",
     "category": "",
     "in": [],
     "out": [
       {
-        "x": 1380,
-        "y": 260,
+        "x": 1540,
+        "y": 480,
         "wires": [
           {
-            "id": "117c225f8da1d516",
-            "port": 0
-          },
-          {
-            "id": "209aa58cf9adf184",
+            "id": "ea7ebf58285971a8",
             "port": 0
           }
         ]
@@ -41,11 +37,11 @@
     "nodes": [
       "3259b5f5961e83f1",
       "1d0194e0031045d5",
-      "209aa58cf9adf184"
+      "c5d7db6374aeaab0"
     ],
-    "x": 594,
+    "x": 614,
     "y": 219,
-    "w": 652,
+    "w": 832,
     "h": 82
   },
   {
@@ -66,8 +62,20 @@
     ],
     "x": 614,
     "y": 119,
-    "w": 572,
+    "w": 812,
     "h": 82
+  },
+  {
+    "id": "65844de6217a1621",
+    "type": "junction",
+    "z": "7613a77a1b834225",
+    "x": 1500,
+    "y": 260,
+    "wires": [
+      [
+        "94cdd66cf607a970"
+      ]
+    ]
   },
   {
     "id": "e79abe64c9510751",
@@ -75,7 +83,7 @@
     "z": "7613a77a1b834225",
     "name": "",
     "props": [],
-    "repeat": "2",
+    "repeat": "10",
     "crontab": "",
     "once": true,
     "onceDelay": 0.1,
@@ -93,7 +101,7 @@
     "type": "function",
     "z": "7613a77a1b834225",
     "name": "Pass active connections",
-    "func": "\nlet connections = global.get(\"parat_bridge.connections\")\n\n\n\n\nreturn msg;",
+    "func": "// Get all active connections from global state\nconst connections = global.get(\"parat_bridge.connections\");\nconst active_connections = Object.values(connections).filter(c => c.active);\n\nif (active_connections.length === 0) { return null; }\n\nconst messages = [];\n\nactive_connections.forEach(connection => {\n    connection.clients.forEach(client => {\n\n        // Find the target by excluding self using the unique identifier\n        const target = connection.clients\n            .find(c => c.identifier !== client.identifier);\n\n        messages.push({\n            topic:      client.client_system,   // routes to correct request builder\n            connection: connection,\n            metadata: {\n                source:          client,\n                target:          target,\n                connection_name: connection.name\n            }\n        });\n    });\n});\n\nreturn [messages];\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -114,7 +122,7 @@
     "z": "7613a77a1b834225",
     "g": "b3661a068358d936",
     "name": "Build Rayvn Entry Request",
-    "func": "const connection = msg.connection;\n\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + connection.rayvn.api_key\n};\n\nmsg.url = global.get(\"parat_bridge\").base_urls.rayvn\n    + \"/logs/\" + connection.rayvn.log_id + \"/entries\";\n\nreturn msg;",
+    "func": "const client = msg.metadata.source;\n\n\nmsg.url = global.get(\"parat_bridge\").base_urls.rayvn\n    + \"/logs/\" + client.client_specific.log_id + \"/entries\";\n\nmsg.headers = { \"Authorization\": \"Bearer \" + client.client_specific.api_key };\n\n\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -147,10 +155,12 @@
     "authType": "",
     "senderr": true,
     "headers": [],
-    "x": 1070,
+    "x": 1310,
     "y": 160,
     "wires": [
-      []
+      [
+        "65844de6217a1621"
+      ]
     ],
     "info": "Fetches all log entries from Rayvn API with GET request. Returns an array of entries that are processed further in the flow."
   },
@@ -185,15 +195,15 @@
     "type": "function",
     "z": "7613a77a1b834225",
     "g": "177507af4fbbde0c",
-    "name": "Headers function",
-    "func": "const connection = msg.connection;\n\nmsg.headers = {\n    \"x-api-key\": connection.wasos.api.key\n};\n\nmsg.url = global.get(\"parat_bridge\").base_urls.wasos\n    + \"/api/chat/messages/\" + connection.wasos.chatroom_name + \"?limit=5\";\n\nreturn msg;",
+    "name": "Build Wasos /chat/messages/ request",
+    "func": "const client = msg.metadata.source;\n\n\nmsg.headers = { \"x-api-key\": client.client_specific.api.key };\nmsg.url = global.get(\"parat_bridge\").base_urls.wasos\n    + \"/api/chat/messages/\" + client.client_specific.chatroom_name + \"?limit=50\";\n\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 710,
+    "x": 790,
     "y": 260,
     "wires": [
       [
@@ -209,7 +219,7 @@
     "g": "177507af4fbbde0c",
     "name": "Get Wasos Chat Messages",
     "method": "GET",
-    "ret": "txt",
+    "ret": "obj",
     "paytoqs": "ignore",
     "url": "",
     "tls": "",
@@ -219,29 +229,14 @@
     "authType": "",
     "senderr": true,
     "headers": [],
-    "x": 960,
+    "x": 1100,
     "y": 260,
     "wires": [
       [
-        "209aa58cf9adf184"
+        "c5d7db6374aeaab0"
       ]
     ],
     "info": "Fetches chat messages from WaSOS API with GET request. Returns text (JSON) that needs to be parsed further."
-  },
-  {
-    "id": "209aa58cf9adf184",
-    "type": "json",
-    "z": "7613a77a1b834225",
-    "g": "177507af4fbbde0c",
-    "name": "",
-    "property": "payload",
-    "action": "obj",
-    "pretty": true,
-    "x": 1170,
-    "y": 260,
-    "wires": [
-      []
-    ]
   },
   {
     "id": "08b97ed44f272d94",
@@ -267,7 +262,7 @@
         "vt": "str"
       }
     ],
-    "checkall": "true",
+    "checkall": "false",
     "repair": false,
     "outputs": 3,
     "x": 470,
@@ -280,6 +275,89 @@
         "3259b5f5961e83f1"
       ],
       []
+    ]
+  },
+  {
+    "id": "c742e6faf67ffe65",
+    "type": "subflow:35dc868e3a5c1ab2",
+    "z": "7613a77a1b834225",
+    "name": "",
+    "x": 810,
+    "y": 480,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "94cdd66cf607a970",
+    "type": "split",
+    "z": "7613a77a1b834225",
+    "name": "",
+    "splt": "\\n",
+    "spltType": "str",
+    "arraySplt": 1,
+    "arraySpltType": "len",
+    "stream": false,
+    "addname": "",
+    "property": "payload",
+    "x": 630,
+    "y": 480,
+    "wires": [
+      [
+        "c742e6faf67ffe65"
+      ]
+    ]
+  },
+  {
+    "id": "c5d7db6374aeaab0",
+    "type": "function",
+    "z": "7613a77a1b834225",
+    "g": "177507af4fbbde0c",
+    "name": "Unwrap reponses",
+    "func": "msg.payload = msg.payload.messages;\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 1330,
+    "y": 260,
+    "wires": [
+      [
+        "65844de6217a1621"
+      ]
+    ]
+  },
+  {
+    "id": "ea7ebf58285971a8",
+    "type": "function",
+    "z": "7613a77a1b834225",
+    "name": "Attach metadata and prune msg object",
+    "func": "return {\n    _msgid: msg._msgid,\n    entry: {\n        id:        msg.payload.id,\n        text:      msg.payload.text,\n        timestamp: msg.payload.timestamp,\n        author:    msg.payload.author,\n        files:     msg.payload.files,\n        labels:    msg.payload.labels,\n        metadata: {\n            source:     msg.metadata.source,\n            target:     msg.metadata.target,\n            connection: msg.connection\n        }\n    }\n};\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 1330,
+    "y": 480,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "8e7999633660b2fd",
+    "type": "subflow:0047704f35a57b0c",
+    "z": "7613a77a1b834225",
+    "name": "",
+    "x": 1030,
+    "y": 480,
+    "wires": [
+      [
+        "ea7ebf58285971a8"
+      ]
     ]
   }
 ]
