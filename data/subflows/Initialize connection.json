@@ -1,0 +1,99 @@
+[
+  {
+    "id": "c45e2eb6a51516d0",
+    "type": "subflow",
+    "name": "Initialize connection",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 60,
+        "y": 260,
+        "wires": [
+          {
+            "id": "16722a3309164940"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 760,
+        "y": 260,
+        "wires": [
+          {
+            "id": "c01250aae3b70e37",
+            "port": 0
+          },
+          {
+            "id": "41fae6f422d56752",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#F3B567",
+    "icon": "node-red/cog.svg"
+  },
+  {
+    "id": "16722a3309164940",
+    "type": "function",
+    "z": "c45e2eb6a51516d0",
+    "name": "Filter new connection",
+    "func": "const utils = global.get(\"utils\");\nconst clients = msg.payload;\n\nif (!clients || clients.length === 0) {\n    node.error(\"Missing client configurations\");\n    return [null, null];\n}\n\n// Build stable key and check if this connection already exists\nconst name        = utils.build_connection_name(clients);\nconst connections = global.get(\"parat_bridge.connections\");\n\nmsg.clients         = clients;\nmsg.connection_name = name;\n\n// Output 1 → update connection, Output 2 → create new connection\nif (connections[name]) {\n    return [msg, null];\n} else {\n    return [null, msg];\n}\n",
+    "outputs": 2,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 250,
+    "y": 260,
+    "wires": [
+      [
+        "c01250aae3b70e37"
+      ],
+      [
+        "41fae6f422d56752"
+      ]
+    ]
+  },
+  {
+    "id": "c01250aae3b70e37",
+    "type": "function",
+    "z": "c45e2eb6a51516d0",
+    "name": "Update existing connection",
+    "func": "const name        = msg.connection_name;\nconst connections = global.get(\"parat_bridge.connections\");\n\n// Refresh clients and ensure connection is marked active\nconnections[name].clients = msg.clients;\nconnections[name].active  = true;\nglobal.set(\"parat_bridge.connections\", connections);\n\nnode.log(\"Updated existing connection: \" + name);\n\nmsg.payload = connections[name];\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 540,
+    "y": 220,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "41fae6f422d56752",
+    "type": "function",
+    "z": "c45e2eb6a51516d0",
+    "name": "Create new connection",
+    "func": "const name    = msg.connection_name;\nconst clients = msg.clients;\n\nconst connection = {\n    name:         name,\n    time_created: Date.now(),\n    clients:      clients,\n    active:       true,\n    master_log:   []\n};\n\nconst connections = global.get(\"parat_bridge.connections\");\nconnections[name] = connection;\nglobal.set(\"parat_bridge.connections\", connections);\n\nnode.log(\"Created new connection: \" + name);\n\nmsg.payload = connection;\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 300,
+    "wires": [
+      []
+    ]
+  }
+]

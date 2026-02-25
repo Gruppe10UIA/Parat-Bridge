@@ -2,7 +2,7 @@
   {
     "id": "84d1a0de660abb59",
     "type": "tab",
-    "label": "Parat-Bridge",
+    "label": "Entrypoint",
     "disabled": false,
     "info": "Configuration UI for Parat-Bridge. Handles setup of Rayvn API credentials and WaSOS login. Validates input, authenticates with both services, and stores configuration in global variables."
   },
@@ -29,8 +29,8 @@
       "989d45634f23b97e",
       "3f5a48b721dae9db"
     ],
-    "x": 74,
-    "y": 179,
+    "x": 14,
+    "y": 239,
     "w": 792,
     "h": 242
   },
@@ -56,7 +56,8 @@
       "7cf27d9c1bf7f451",
       "03c1f0752644b9c0",
       "77a8f1f8e1e48a64",
-      "5aae3e127cfffafe"
+      "5aae3e127cfffafe",
+      "e6785e6cf6e666cf"
     ],
     "x": 14,
     "y": 559,
@@ -191,8 +192,8 @@
     "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 180,
-    "y": 360,
+    "x": 120,
+    "y": 420,
     "wires": []
   },
   {
@@ -209,8 +210,8 @@
     "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 170,
-    "y": 280,
+    "x": 110,
+    "y": 340,
     "wires": []
   },
   {
@@ -219,7 +220,7 @@
     "z": "84d1a0de660abb59",
     "g": "354aca9dbc391ace",
     "name": "Config Rayvn",
-    "active": false,
+    "active": true,
     "tosidebar": true,
     "console": false,
     "tostatus": false,
@@ -227,8 +228,8 @@
     "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 420,
-    "y": 220,
+    "x": 360,
+    "y": 280,
     "wires": []
   },
   {
@@ -237,7 +238,7 @@
     "z": "84d1a0de660abb59",
     "g": "354aca9dbc391ace",
     "name": "Config Wasos",
-    "active": false,
+    "active": true,
     "tosidebar": true,
     "console": false,
     "tostatus": false,
@@ -245,8 +246,8 @@
     "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 420,
-    "y": 340,
+    "x": 360,
+    "y": 400,
     "wires": []
   },
   {
@@ -255,7 +256,7 @@
     "z": "84d1a0de660abb59",
     "g": "354aca9dbc391ace",
     "name": "correct config",
-    "active": false,
+    "active": true,
     "tosidebar": true,
     "console": false,
     "tostatus": false,
@@ -263,8 +264,8 @@
     "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 700,
-    "y": 280,
+    "x": 640,
+    "y": 340,
     "wires": []
   },
   {
@@ -274,7 +275,7 @@
     "g": "354aca9dbc391ace",
     "name": "Pass when both configured",
     "mode": "custom",
-    "build": "object",
+    "build": "array",
     "property": "payload",
     "propertyType": "msg",
     "key": "topic",
@@ -289,8 +290,8 @@
     "reduceInit": "false",
     "reduceInitType": "bool",
     "reduceFixup": "",
-    "x": 720,
-    "y": 320,
+    "x": 660,
+    "y": 380,
     "wires": [
       [
         "293cf0ecd677bac0",
@@ -325,8 +326,8 @@
     "z": "84d1a0de660abb59",
     "g": "354aca9dbc391ace",
     "name": "",
-    "x": 430,
-    "y": 380,
+    "x": 370,
+    "y": 440,
     "wires": [
       [
         "4290cc6fa1aadff0",
@@ -340,8 +341,8 @@
     "z": "84d1a0de660abb59",
     "g": "354aca9dbc391ace",
     "name": "",
-    "x": 430,
-    "y": 260,
+    "x": 370,
+    "y": 320,
     "wires": [
       [
         "4290cc6fa1aadff0",
@@ -355,8 +356,8 @@
     "z": "84d1a0de660abb59",
     "g": "354aca9dbc391ace",
     "name": "",
-    "x": 190,
-    "y": 320,
+    "x": 130,
+    "y": 380,
     "wires": [
       [
         "9b6e4d1e92c769d9",
@@ -374,7 +375,7 @@
     "z": "84d1a0de660abb59",
     "g": "9ab1f6c2842073c5",
     "name": "initialize parat bridge",
-    "func": "// Base URLs for all API calls\nconst BASE_URLS = {\n    rayvn: \"https://api.rayvn.global\",\n    wasos: \"https://dev.wasos.no\"\n};\n\n// Preserve existing data across restarts\nlet data = global.get(\"parat_bridge\") || null;\n\nif (!data) {\n    // Fresh install — create empty structure\n    data = {\n        base_urls: BASE_URLS,\n        connections: []\n    };\n} else {\n    // Existing install — update base URLs, keep connections intact\n    data.base_urls = BASE_URLS;\n}\n\nglobal.set(\"parat_bridge\", data);\n\nnode.log(\"Parat-Bridge initialized: \" + data.connections.length + \" connection(s)\");\nmsg.payload = data;\nreturn msg;",
+    "func": "// Base URLs for all API calls\nconst BASE_URLS = {\n    rayvn: \"https://api.rayvn.global\",\n    wasos: \"https://dev.wasos.no\"\n};\n\n// Preserve existing data across restarts\nlet data = global.get(\"parat_bridge\") || null;\n\nif (!data) {\n    // Fresh install — create empty structure\n    data = {\n        base_urls: BASE_URLS,\n        connections: {}\n    };\n} else {\n    // Existing install — update base URLs, keep connections intact\n    data.base_urls = BASE_URLS;\n}\n\nglobal.set(\"parat_bridge\", data);\n\nnode.log(\"Parat-Bridge initialized: \" + data.connections.length + \" connection(s)\");\nmsg.payload = data;\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -403,12 +404,13 @@
     "z": "84d1a0de660abb59",
     "g": "96e90febc19e0c83",
     "name": "",
-    "x": 160,
+    "x": 130,
     "y": 680,
     "wires": [
       [
         "03c1d5a79bea3bbf",
-        "03c1f0752644b9c0"
+        "03c1f0752644b9c0",
+        "e6785e6cf6e666cf"
       ]
     ]
   },
@@ -476,7 +478,7 @@
     "z": "84d1a0de660abb59",
     "g": "9ab1f6c2842073c5",
     "name": "Initialize system functions",
-    "func": "\n// global hash function\n\nglobal.set('utils', {\n    hash_code: (str) => {\n        return crypto.createHash('sha256').update(str).digest('hex');\n    }\n});\n",
+    "func": "global.set('utils', {\n\n    /*\n        Builds a stable, unique connection key from an array of client objects.\n        Sorts by client_system alphabetically before mapping to guarantee the same\n        key regardless of the order clients arrive in.\n        Format: \"system:identifier_system:identifier\"\n        Example: \"rayvn:log-uuid_wasos:46204-Rayvn\"\n    */\n    build_connection_name: (clients) => {\n        return [...clients]\n            .sort((a, b) => a.client_system.localeCompare(b.client_system))\n            .map(c => `${c.client_system}:${c.identifier}`)\n            .join(\"_\");\n    }\n\n});\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -493,5 +495,23 @@
     "wires": [
       []
     ]
+  },
+  {
+    "id": "e6785e6cf6e666cf",
+    "type": "debug",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "name": "debug 1",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 130,
+    "y": 620,
+    "wires": []
   }
 ]
