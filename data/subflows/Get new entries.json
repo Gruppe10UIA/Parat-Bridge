@@ -20,7 +20,8 @@
     ],
     "env": [],
     "meta": {},
-    "color": "#DDAA99"
+    "color": "#C0DEED",
+    "icon": "node-red/bridge.svg"
   },
   {
     "id": "177507af4fbbde0c",
@@ -101,7 +102,7 @@
     "type": "function",
     "z": "7613a77a1b834225",
     "name": "Pass active connections",
-    "func": "// Get all active connections from global state\nconst connections = global.get(\"parat_bridge.connections\");\nconst active_connections = Object.values(connections).filter(c => c.active);\n\nif (active_connections.length === 0) { return null; }\n\nconst messages = [];\n\nactive_connections.forEach(connection => {\n    connection.clients.forEach(client => {\n\n        // Find the target by excluding self using the unique identifier\n        const target = connection.clients\n            .find(c => c.identifier !== client.identifier);\n\n        messages.push({\n            topic:      client.client_system,   // routes to correct request builder\n            connection: connection,\n            metadata: {\n                source:          client,\n                target:          target,\n                connection_name: connection.name\n            }\n        });\n    });\n});\n\nreturn [messages];\n",
+    "func": "\n// Get all acive connections from connections Object\nconst connections = global.get(\"parat_bridge.connections\");\nconst active_connections = Object.values(connections).filter(c => c.active);\n\nif (active_connections.length === 0) { return null; }\n\nconst messages = [];\n\n// Loop over each active connection\nactive_connections.forEach(connection => {\n    // loop over each client in connection\n    Object.values(connection.clients).forEach(client => {\n\n        // Find the target by excluding self using the unique identifier\n        const target = Object.values(connection.clients)\n            .find(c => c.identifier !== client.identifier);\n\n        // Build the message and attach metadata\n        messages.push({\n            topic: client.client_system,   // routes to correct request builder\n            metadata: {\n                source: client,\n                target: target,\n                connection: connection\n            }\n        });\n    });\n});\n\n// send each message one at a time\nreturn [messages];\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -112,7 +113,8 @@
     "y": 220,
     "wires": [
       [
-        "08b97ed44f272d94"
+        "08b97ed44f272d94",
+        "a024fb98ebd5fa71"
       ]
     ]
   },
@@ -285,7 +287,9 @@
     "x": 810,
     "y": 480,
     "wires": [
-      []
+      [
+        "8e7999633660b2fd"
+      ]
     ]
   },
   {
@@ -334,7 +338,7 @@
     "type": "function",
     "z": "7613a77a1b834225",
     "name": "Attach metadata and prune msg object",
-    "func": "return {\n    _msgid: msg._msgid,\n    entry: {\n        id:        msg.payload.id,\n        text:      msg.payload.text,\n        timestamp: msg.payload.timestamp,\n        author:    msg.payload.author,\n        files:     msg.payload.files,\n        labels:    msg.payload.labels,\n        metadata: {\n            source:     msg.metadata.source,\n            target:     msg.metadata.target,\n            connection: msg.connection\n        }\n    }\n};\n",
+    "func": "return {\n    _msgid: msg._msgid,\n    entry: {\n        id:        msg.payload.id,\n        text:      msg.payload.text,\n        timestamp: msg.payload.timestamp,\n        author:    msg.payload.author,\n        files:     msg.payload.files,\n        labels:    msg.payload.labels,\n        metadata:  msg.metadata\n    }\n};\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -359,5 +363,22 @@
         "ea7ebf58285971a8"
       ]
     ]
+  },
+  {
+    "id": "a024fb98ebd5fa71",
+    "type": "debug",
+    "z": "7613a77a1b834225",
+    "name": "debug 2",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 450,
+    "y": 140,
+    "wires": []
   }
 ]

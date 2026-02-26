@@ -1,0 +1,75 @@
+[
+  {
+    "id": "0047704f35a57b0c",
+    "type": "subflow",
+    "name": "Filter new entries",
+    "info": "Filters Rayvn log entries to only include new entries. Removes entries older than the last sync timestamp and excludes entries with WaSOS label to prevent duplicates.",
+    "category": "",
+    "in": [
+      {
+        "x": 340,
+        "y": 320,
+        "wires": [
+          {
+            "id": "1bb4b5ee32a3022c"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 680,
+        "y": 320,
+        "wires": [
+          {
+            "id": "1bb4b5ee32a3022c",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#E9967A",
+    "icon": "font-awesome/fa-minus-circle"
+  },
+  {
+    "id": "1bb4b5ee32a3022c",
+    "type": "function",
+    "z": "0047704f35a57b0c",
+    "name": "Filter",
+    "func": "const entry  = msg.payload;\nconst source = msg.metadata.source;\n\n// Skip entries older than last succesfull fetch\nif (entry.timestamp <= source.timestamp) return null;\n\n// Loop prevention — skip entries forwarded by the bridge\nconst callsigns = Object.values(msg.metadata.connection.clients).map(c => `[${c.client_system}]`);\nif (callsigns.some(s => entry.author.includes(s))) return null;\n\n// Skip parat-bridge system messages\nif (entry.text && entry.text.startsWith(\"[parat-bridge]\")) return null;\n\n// Insert Label check here\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 490,
+    "y": 320,
+    "wires": [
+      [
+        "fe9efa5238d364ea"
+      ]
+    ],
+    "info": "Filters messges based on timestamp and labels to only pass through new messages that has not been seen"
+  },
+  {
+    "id": "fe9efa5238d364ea",
+    "type": "function",
+    "z": "0047704f35a57b0c",
+    "name": "update timestamp",
+    "func": "\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 730,
+    "y": 240,
+    "wires": [
+      []
+    ]
+  }
+]
