@@ -1,0 +1,100 @@
+[
+  {
+    "id": "e97e0c90387d0adc",
+    "type": "subflow",
+    "name": "GET Wasos messages",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 60,
+        "y": 80,
+        "wires": [
+          {
+            "id": "3259b5f5961e83f1"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 1000,
+        "y": 80,
+        "wires": [
+          {
+            "id": "c5d7db6374aeaab0",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#E9967A",
+    "icon": "font-awesome/fa-envelope-o"
+  },
+  {
+    "id": "3259b5f5961e83f1",
+    "type": "function",
+    "z": "e97e0c90387d0adc",
+    "name": "Build Wasos /chat/messages/ request",
+    "func": "const client = msg.metadata.source;\n\n\nmsg.headers = { \"x-api-key\": client.client_specific.api.key };\nmsg.url = global.get(\"parat_bridge\").base_urls.wasos\n    + \"/api/chat/messages/\" + client.client_specific.chatroom_name + \"?limit=50\";\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 290,
+    "y": 80,
+    "wires": [
+      [
+        "1d0194e0031045d5"
+      ]
+    ],
+    "info": "Builds HTTP request to fetch chat messages from WaSOS. Sets x-api-key header and constructs URL from wasosChatroomUrl with ?limit=50 parameter to fetch the last 50 messages."
+  },
+  {
+    "id": "1d0194e0031045d5",
+    "type": "http request",
+    "z": "e97e0c90387d0adc",
+    "name": "Get Wasos Chat Messages",
+    "method": "GET",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": true,
+    "headers": [],
+    "x": 600,
+    "y": 80,
+    "wires": [
+      [
+        "c5d7db6374aeaab0"
+      ]
+    ],
+    "info": "Fetches chat messages from WaSOS API with GET request. Returns text (JSON) that needs to be parsed further."
+  },
+  {
+    "id": "c5d7db6374aeaab0",
+    "type": "function",
+    "z": "e97e0c90387d0adc",
+    "name": "Unwrap reponses",
+    "func": "msg.payload = msg.payload.messages;\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 830,
+    "y": 80,
+    "wires": [
+      []
+    ]
+  }
+]

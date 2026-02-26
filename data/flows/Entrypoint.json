@@ -48,21 +48,15 @@
     },
     "nodes": [
       "03c1d5a79bea3bbf",
-      "2efc4e48a66a9cf1",
-      "2be29013d9e94cd8",
-      "f46652973e5d016e",
-      "e95b4372fea62cfc",
-      "6e81dde533c0b1f4",
       "7cf27d9c1bf7f451",
       "03c1f0752644b9c0",
-      "77a8f1f8e1e48a64",
-      "5aae3e127cfffafe",
-      "e6785e6cf6e666cf"
+      "e6785e6cf6e666cf",
+      "a7ccd4d8c49ceaff"
     ],
     "x": 14,
-    "y": 559,
-    "w": 1352,
-    "h": 242
+    "y": 579,
+    "w": 772,
+    "h": 142
   },
   {
     "id": "9ab1f6c2842073c5",
@@ -87,94 +81,16 @@
     "h": 122
   },
   {
-    "id": "6e81dde533c0b1f4",
-    "type": "debug",
-    "z": "84d1a0de660abb59",
-    "g": "96e90febc19e0c83",
-    "name": "Initial log post",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 1220,
-    "y": 640,
-    "wires": []
-  },
-  {
-    "id": "e95b4372fea62cfc",
-    "type": "subflow:9ee8527d12b415b0",
-    "z": "84d1a0de660abb59",
-    "g": "96e90febc19e0c83",
-    "name": "",
-    "x": 850,
-    "y": 680,
-    "wires": [
-      [
-        "77a8f1f8e1e48a64"
-      ]
-    ]
-  },
-  {
-    "id": "f46652973e5d016e",
-    "type": "subflow:209f3c980818c499",
-    "z": "84d1a0de660abb59",
-    "g": "96e90febc19e0c83",
-    "name": "",
-    "x": 1240,
-    "y": 680,
-    "wires": [
-      [
-        "6e81dde533c0b1f4"
-      ],
-      [
-        "2efc4e48a66a9cf1"
-      ]
-    ]
-  },
-  {
-    "id": "2be29013d9e94cd8",
-    "type": "subflow:fe9d5f6f9c2bdb16",
-    "z": "84d1a0de660abb59",
-    "g": "96e90febc19e0c83",
-    "name": "",
-    "x": 860,
-    "y": 600,
-    "wires": [
-      []
-    ]
-  },
-  {
-    "id": "2efc4e48a66a9cf1",
-    "type": "subflow:2e632affbd071524",
-    "z": "84d1a0de660abb59",
-    "g": "96e90febc19e0c83",
-    "name": "",
-    "x": 620,
-    "y": 680,
-    "wires": [
-      [
-        "2be29013d9e94cd8"
-      ],
-      [
-        "e95b4372fea62cfc"
-      ]
-    ]
-  },
-  {
     "id": "03c1d5a79bea3bbf",
     "type": "subflow:0fad769721e9978c",
     "z": "84d1a0de660abb59",
     "g": "96e90febc19e0c83",
     "name": "",
-    "x": 420,
+    "x": 430,
     "y": 680,
     "wires": [
       [
-        "2efc4e48a66a9cf1"
+        "a7ccd4d8c49ceaff"
       ]
     ]
   },
@@ -375,7 +291,7 @@
     "z": "84d1a0de660abb59",
     "g": "9ab1f6c2842073c5",
     "name": "initialize parat bridge",
-    "func": "// Base URLs for all API calls\nconst BASE_URLS = {\n    rayvn: \"https://api.rayvn.global\",\n    wasos: \"https://dev.wasos.no\"\n};\n\n// Preserve existing data across restarts\nlet data = global.get(\"parat_bridge\") || null;\n\nif (!data) {\n    // Fresh install — create empty structure\n    data = {\n        base_urls: BASE_URLS,\n        connections: {}\n    };\n} else {\n    // Existing install — update base URLs, keep connections intact\n    data.base_urls = BASE_URLS;\n}\n\nglobal.set(\"parat_bridge\", data);\n\nnode.log(\"Parat-Bridge initialized: \" + Object.keys(data.connections).length + \" connection(s)\");\nmsg.payload = data;\nreturn msg;",
+    "func": "// Base URLs for all API calls\nconst BASE_URLS = {\n    rayvn: \"https://api.rayvn.global\",\n    wasos: \"https://dev.wasos.no\"\n};\n\n// Preserve existing data across restarts\nlet data = global.get(\"parat_bridge\") || null;\n\nif (!data) {\n    // Fresh install — create empty structure\n    data = {\n        base_urls: BASE_URLS,\n        connections: {},\n        queue: {\n            in_flight_connections: [],\n            entry_queue: []\n        }\n    };\n} else {\n    // Existing install — update base URLs, keep connections and queue intact\n    data.base_urls = BASE_URLS;\n    data.msg_queue = data.msg_queue || [];\n}\n\nglobal.set(\"parat_bridge\", data);\n\nnode.log(\"Parat-Bridge initialized: \" + Object.keys(data.connections).length + \" connection(s)\");\nmsg.payload = data;\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -411,64 +327,6 @@
         "03c1d5a79bea3bbf",
         "03c1f0752644b9c0",
         "e6785e6cf6e666cf"
-      ]
-    ]
-  },
-  {
-    "id": "77a8f1f8e1e48a64",
-    "type": "switch",
-    "z": "84d1a0de660abb59",
-    "g": "96e90febc19e0c83",
-    "name": "",
-    "property": "bypass_initiall_post",
-    "propertyType": "global",
-    "rules": [
-      {
-        "t": "false"
-      },
-      {
-        "t": "true"
-      }
-    ],
-    "checkall": "true",
-    "repair": false,
-    "outputs": 2,
-    "x": 1030,
-    "y": 680,
-    "wires": [
-      [
-        "f46652973e5d016e"
-      ],
-      [
-        "5aae3e127cfffafe"
-      ]
-    ]
-  },
-  {
-    "id": "5aae3e127cfffafe",
-    "type": "change",
-    "z": "84d1a0de660abb59",
-    "g": "96e90febc19e0c83",
-    "name": "",
-    "rules": [
-      {
-        "t": "set",
-        "p": "result",
-        "pt": "msg",
-        "to": "true",
-        "tot": "bool"
-      }
-    ],
-    "action": "",
-    "property": "",
-    "from": "",
-    "to": "",
-    "reg": false,
-    "x": 1100,
-    "y": 760,
-    "wires": [
-      [
-        "2efc4e48a66a9cf1"
       ]
     ]
   },
@@ -512,6 +370,20 @@
     "statusType": "auto",
     "x": 130,
     "y": 620,
+    "wires": []
+  },
+  {
+    "id": "a7ccd4d8c49ceaff",
+    "type": "link out",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "name": "initial log post",
+    "mode": "link",
+    "links": [
+      "9fe2d9086d510cb5"
+    ],
+    "x": 745,
+    "y": 680,
     "wires": []
   }
 ]

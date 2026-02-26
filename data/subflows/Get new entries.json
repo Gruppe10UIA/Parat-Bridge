@@ -8,8 +8,8 @@
     "in": [],
     "out": [
       {
-        "x": 1540,
-        "y": 480,
+        "x": 950,
+        "y": 460,
         "wires": [
           {
             "id": "ea7ebf58285971a8",
@@ -22,61 +22,6 @@
     "meta": {},
     "color": "#C0DEED",
     "icon": "node-red/bridge.svg"
-  },
-  {
-    "id": "177507af4fbbde0c",
-    "type": "group",
-    "z": "7613a77a1b834225",
-    "name": "Get Wasos Messages",
-    "style": {
-      "stroke": "#92d04f",
-      "fill": "#e3f3d3",
-      "label": true,
-      "label-position": "n",
-      "color": "#000000"
-    },
-    "nodes": [
-      "3259b5f5961e83f1",
-      "1d0194e0031045d5",
-      "c5d7db6374aeaab0"
-    ],
-    "x": 614,
-    "y": 219,
-    "w": 832,
-    "h": 82
-  },
-  {
-    "id": "b3661a068358d936",
-    "type": "group",
-    "z": "7613a77a1b834225",
-    "name": "Get Rayvn Entries",
-    "style": {
-      "stroke": "#001f60",
-      "fill": "#bfc7d7",
-      "label": true,
-      "label-position": "n",
-      "color": "#000000"
-    },
-    "nodes": [
-      "117c225f8da1d516",
-      "9e2296996ea77181"
-    ],
-    "x": 614,
-    "y": 119,
-    "w": 812,
-    "h": 82
-  },
-  {
-    "id": "65844de6217a1621",
-    "type": "junction",
-    "z": "7613a77a1b834225",
-    "x": 1500,
-    "y": 260,
-    "wires": [
-      [
-        "94cdd66cf607a970"
-      ]
-    ]
   },
   {
     "id": "e79abe64c9510751",
@@ -118,54 +63,6 @@
     ]
   },
   {
-    "id": "9e2296996ea77181",
-    "type": "function",
-    "z": "7613a77a1b834225",
-    "g": "b3661a068358d936",
-    "name": "Build Rayvn Entry Request",
-    "func": "const client = msg.metadata.source;\n\n\nmsg.url = global.get(\"parat_bridge\").base_urls.rayvn\n    + \"/logs/\" + client.client_specific.log_id + \"/entries\";\n\nmsg.headers = { \"Authorization\": \"Bearer \" + client.client_specific.api_key };\n\n\nreturn msg;\n",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 760,
-    "y": 160,
-    "wires": [
-      [
-        "117c225f8da1d516"
-      ]
-    ],
-    "info": "Builds an HTTP request to fetch log entries from Rayvn. Sets Authorization header with Bearer token from rayvnConfig.apiKey and builds URL to /logs/{logId}/entries endpoint."
-  },
-  {
-    "id": "117c225f8da1d516",
-    "type": "http request",
-    "z": "7613a77a1b834225",
-    "g": "b3661a068358d936",
-    "name": "Get Rayvn Entries",
-    "method": "GET",
-    "ret": "obj",
-    "paytoqs": "ignore",
-    "url": "",
-    "tls": "",
-    "persist": false,
-    "proxy": "",
-    "insecureHTTPParser": false,
-    "authType": "",
-    "senderr": true,
-    "headers": [],
-    "x": 1310,
-    "y": 160,
-    "wires": [
-      [
-        "65844de6217a1621"
-      ]
-    ],
-    "info": "Fetches all log entries from Rayvn API with GET request. Returns an array of entries that are processed further in the flow."
-  },
-  {
     "id": "6c9f36725782f795",
     "type": "subflow:7cecb563cf8b234a",
     "z": "7613a77a1b834225",
@@ -190,54 +87,6 @@
       ]
     ],
     "info": "Catches all errors from nodes in this subflow\r\nand forwards them to the centralized \r\nError Handler subflow for classification,\r\nlogging and notification."
-  },
-  {
-    "id": "3259b5f5961e83f1",
-    "type": "function",
-    "z": "7613a77a1b834225",
-    "g": "177507af4fbbde0c",
-    "name": "Build Wasos /chat/messages/ request",
-    "func": "const client = msg.metadata.source;\n\n\nmsg.headers = { \"x-api-key\": client.client_specific.api.key };\nmsg.url = global.get(\"parat_bridge\").base_urls.wasos\n    + \"/api/chat/messages/\" + client.client_specific.chatroom_name + \"?limit=50\";\n\nreturn msg;\n",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 790,
-    "y": 260,
-    "wires": [
-      [
-        "1d0194e0031045d5"
-      ]
-    ],
-    "info": "Builds HTTP request to fetch chat messages from WaSOS. Sets x-api-key header and constructs URL from wasosChatroomUrl with ?limit=50 parameter to fetch the last 50 messages."
-  },
-  {
-    "id": "1d0194e0031045d5",
-    "type": "http request",
-    "z": "7613a77a1b834225",
-    "g": "177507af4fbbde0c",
-    "name": "Get Wasos Chat Messages",
-    "method": "GET",
-    "ret": "obj",
-    "paytoqs": "ignore",
-    "url": "",
-    "tls": "",
-    "persist": false,
-    "proxy": "",
-    "insecureHTTPParser": false,
-    "authType": "",
-    "senderr": true,
-    "headers": [],
-    "x": 1100,
-    "y": 260,
-    "wires": [
-      [
-        "c5d7db6374aeaab0"
-      ]
-    ],
-    "info": "Fetches chat messages from WaSOS API with GET request. Returns text (JSON) that needs to be parsed further."
   },
   {
     "id": "08b97ed44f272d94",
@@ -270,10 +119,10 @@
     "y": 220,
     "wires": [
       [
-        "9e2296996ea77181"
+        "8673cf0ab571261b"
       ],
       [
-        "3259b5f5961e83f1"
+        "f8d5272182de5652"
       ],
       []
     ]
@@ -283,8 +132,8 @@
     "type": "subflow:35dc868e3a5c1ab2",
     "z": "7613a77a1b834225",
     "name": "",
-    "x": 810,
-    "y": 480,
+    "x": 220,
+    "y": 460,
     "wires": [
       [
         "8e7999633660b2fd"
@@ -303,32 +152,11 @@
     "stream": false,
     "addname": "",
     "property": "payload",
-    "x": 630,
-    "y": 480,
+    "x": 1010,
+    "y": 220,
     "wires": [
       [
         "c742e6faf67ffe65"
-      ]
-    ]
-  },
-  {
-    "id": "c5d7db6374aeaab0",
-    "type": "function",
-    "z": "7613a77a1b834225",
-    "g": "177507af4fbbde0c",
-    "name": "Unwrap reponses",
-    "func": "msg.payload = msg.payload.messages;\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 1330,
-    "y": 260,
-    "wires": [
-      [
-        "65844de6217a1621"
       ]
     ]
   },
@@ -344,8 +172,8 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 1330,
-    "y": 480,
+    "x": 740,
+    "y": 460,
     "wires": [
       []
     ]
@@ -355,11 +183,37 @@
     "type": "subflow:0047704f35a57b0c",
     "z": "7613a77a1b834225",
     "name": "",
-    "x": 1030,
-    "y": 480,
+    "x": 440,
+    "y": 460,
     "wires": [
       [
         "ea7ebf58285971a8"
+      ]
+    ]
+  },
+  {
+    "id": "8673cf0ab571261b",
+    "type": "subflow:a1b5b8de4109fab7",
+    "z": "7613a77a1b834225",
+    "name": "",
+    "x": 760,
+    "y": 160,
+    "wires": [
+      [
+        "94cdd66cf607a970"
+      ]
+    ]
+  },
+  {
+    "id": "f8d5272182de5652",
+    "type": "subflow:e97e0c90387d0adc",
+    "z": "7613a77a1b834225",
+    "name": "",
+    "x": 760,
+    "y": 220,
+    "wires": [
+      [
+        "94cdd66cf607a970"
       ]
     ]
   }
