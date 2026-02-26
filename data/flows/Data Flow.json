@@ -54,7 +54,7 @@
     "type": "subflow:5b554f0e5b6f4d30",
     "z": "63f37bd7273e3fc7",
     "name": "",
-    "x": 700,
+    "x": 720,
     "y": 340,
     "wires": []
   },
@@ -70,7 +70,8 @@
     "y": 240,
     "wires": [
       [
-        "60f0362e2b1b92d7"
+        "60f0362e2b1b92d7",
+        "b5f695b7a6ef54ef"
       ]
     ]
   },
@@ -78,8 +79,8 @@
     "id": "db679d3889005678",
     "type": "debug",
     "z": "63f37bd7273e3fc7",
-    "name": "debug 3",
-    "active": true,
+    "name": "New entries",
+    "active": false,
     "tosidebar": true,
     "console": false,
     "tostatus": false,
@@ -87,7 +88,7 @@
     "targetType": "full",
     "statusVal": "",
     "statusType": "auto",
-    "x": 400,
+    "x": 410,
     "y": 260,
     "wires": []
   },
@@ -95,7 +96,7 @@
     "id": "e9fbb69f62711663",
     "type": "debug",
     "z": "63f37bd7273e3fc7",
-    "name": "debug 2",
+    "name": "log queue output",
     "active": true,
     "tosidebar": true,
     "console": false,
@@ -104,8 +105,25 @@
     "targetType": "full",
     "statusVal": "",
     "statusType": "auto",
-    "x": 680,
+    "x": 630,
     "y": 420,
+    "wires": []
+  },
+  {
+    "id": "b5f695b7a6ef54ef",
+    "type": "debug",
+    "z": "63f37bd7273e3fc7",
+    "name": "Initial entries",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 410,
+    "y": 200,
     "wires": []
   }
 ]

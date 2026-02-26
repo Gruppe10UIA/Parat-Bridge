@@ -1,0 +1,114 @@
+[
+  {
+    "id": "a9600579fb00971d",
+    "type": "subflow",
+    "name": "Bridge entry to client",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 60,
+        "y": 200,
+        "wires": [
+          {
+            "id": "d41907671d0ee736"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 600,
+        "y": 200,
+        "wires": [
+          {
+            "id": "43624267893092ec",
+            "port": 0
+          },
+          {
+            "id": "d9a2a4e281b70f68",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#DDAA99"
+  },
+  {
+    "id": "d41907671d0ee736",
+    "type": "switch",
+    "z": "a9600579fb00971d",
+    "name": "",
+    "property": "entry.metadata.target.client_system",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "eq",
+        "v": "wasos",
+        "vt": "str"
+      },
+      {
+        "t": "eq",
+        "v": "rayvn",
+        "vt": "str"
+      },
+      {
+        "t": "eq",
+        "v": "cim",
+        "vt": "str"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 3,
+    "x": 210,
+    "y": 200,
+    "wires": [
+      [
+        "d9a2a4e281b70f68"
+      ],
+      [
+        "43624267893092ec"
+      ],
+      []
+    ]
+  },
+  {
+    "id": "d9a2a4e281b70f68",
+    "type": "function",
+    "z": "a9600579fb00971d",
+    "name": "Bridge to Wasos",
+    "func": "const entry  = msg.entry;\nconst source = entry.metadata.source;\n\nmsg.metadata = entry.metadata;\nmsg.payload  = {\n    content:        entry.text,\n    callsign:       `[${source.client_system}] ${entry.author}`,\n    isLocation:     false,\n    replyMessageId: null,\n    files:          []\n};\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 420,
+    "y": 160,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "43624267893092ec",
+    "type": "function",
+    "z": "a9600579fb00971d",
+    "name": "Bridge to Rayvn",
+    "func": "const entry  = msg.entry;\nconst source = entry.metadata.source;\n\nmsg.metadata = entry.metadata;\nmsg.payload  = {\n    text:             `[${source.client_system}] ${entry.author}: ${entry.text || \"[attachment]\"}`,\n    keyEvent:         false,\n    releasedInfo:     false,\n    loggedByFullName: `[${source.client_system}] ${entry.author}`,\n    labels:           [{\n        id:       source.identifier,\n        name:     `[${source.client_system}]: ${source.name}`,\n        colorHex: \"#22AA22\"\n    }],\n    files:            entry.files || []\n};\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 420,
+    "y": 200,
+    "wires": [
+      []
+    ]
+  }
+]

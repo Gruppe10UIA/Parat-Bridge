@@ -40,8 +40,8 @@
     "id": "d33647ad91e47105",
     "type": "function",
     "z": "901ed98289cc4ecd",
-    "name": "Clear master_log",
-    "func": "// Clear the master_log for all connections (for testing/debugging only)\nconst data = global.get(\"parat_bridge\");\n\nif (data) {\n    data.connections.forEach(connection => {\n        connection.master_log = [];\n    });\n    global.set(\"parat_bridge\", data);\n}\n\nmsg.payload = \"Master log cleared for all connections\";\nreturn msg;;",
+    "name": "Clear connections",
+    "func": "// Clear the master_log for all connections (for testing/debugging only)\nglobal.set(\"parat_bridge.connections\", {});\n\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -432,6 +432,53 @@
     "reg": false,
     "x": 840,
     "y": 240,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "7599a5403e4464da",
+    "type": "inject",
+    "z": "901ed98289cc4ecd",
+    "name": "",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 480,
+    "y": 360,
+    "wires": [
+      [
+        "6ab5875f1ef2d20d"
+      ]
+    ]
+  },
+  {
+    "id": "6ab5875f1ef2d20d",
+    "type": "function",
+    "z": "901ed98289cc4ecd",
+    "name": "Clear queue",
+    "func": "const queue      = global.get(\"parat_bridge.queue.entry_queue\");\nconst in_flight  = global.get(\"parat_bridge.queue.in_flight_connections\");\nconst parat      = global.get(\"parat_bridge\");\n\nnode.warn(\"queue: \" + JSON.stringify(queue));\nnode.warn(\"in_flight: \" + JSON.stringify(in_flight));\nnode.warn(\"parat_bridge.queue exists: \" + !!(parat && parat.queue));\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 690,
+    "y": 360,
     "wires": [
       []
     ]

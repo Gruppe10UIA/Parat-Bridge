@@ -2,7 +2,7 @@
   {
     "id": "35dc868e3a5c1ab2",
     "type": "subflow",
-    "name": "Transform message",
+    "name": "Client to bridge entry",
     "info": "",
     "category": "",
     "in": [
@@ -18,7 +18,7 @@
     ],
     "out": [
       {
-        "x": 700,
+        "x": 680,
         "y": 240,
         "wires": [
           {
@@ -64,7 +64,7 @@
     "checkall": "false",
     "repair": false,
     "outputs": 3,
-    "x": 250,
+    "x": 230,
     "y": 240,
     "wires": [
       [
@@ -88,7 +88,7 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 460,
+    "x": 440,
     "y": 180,
     "wires": [
       []
@@ -106,7 +106,7 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 460,
+    "x": 440,
     "y": 240,
     "wires": [
       []

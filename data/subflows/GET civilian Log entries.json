@@ -11,18 +11,18 @@
         "y": 80,
         "wires": [
           {
-            "id": "7d371c3c153e1167"
+            "id": "bed882f2444ea140"
           }
         ]
       }
     ],
     "out": [
       {
-        "x": 600,
+        "x": 720,
         "y": 180,
         "wires": [
           {
-            "id": "cb79364a16a2822e",
+            "id": "ea497d5ba41aa790",
             "port": 0
           }
         ]
@@ -51,10 +51,12 @@
     "type": "subflow:35dc868e3a5c1ab2",
     "z": "0fad769721e9978c",
     "name": "",
-    "x": 440,
+    "x": 380,
     "y": 180,
     "wires": [
-      []
+      [
+        "ea497d5ba41aa790"
+      ]
     ]
   },
   {
@@ -82,7 +84,7 @@
     "type": "function",
     "z": "0fad769721e9978c",
     "name": "Sort by time",
-    "func": "msg.payload.sort((a, b) => a.timeCreated - b.timeCreated);\n\nreturn msg;\n",
+    "func": "msg.payload.sort((a, b) => a.timeCreated - b.timeCreated);\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -98,23 +100,41 @@
     ]
   },
   {
-    "id": "7d371c3c153e1167",
+    "id": "bed882f2444ea140",
     "type": "function",
     "z": "0fad769721e9978c",
-    "name": "Build metadata",
-    "func": "const connection = msg.payload;\nconst clients    = Object.values(connection.clients);\nconst target     = clients.find(c => c.client_system === \"wasos\");\nconst source     = clients.find(c => c.client_system !== \"wasos\");\n\nif (!source || !target) { return null; }\n\nreturn {\n    topic: source.client_system,\n    metadata: {\n        source:     source,\n        target:     target,\n        connection: connection\n    }\n};\n",
+    "name": "Attach metadata",
+    "func": "const connection = msg.payload;\nconst clients    = Object.values(connection.clients);\nconst target     = clients.find(c => c.client_system === \"wasos\");\nconst source     = clients.find(c => c.client_system !== \"wasos\");\n\nmsg.topic    = source.client_system;\nmsg.metadata = {\n    source:     source,\n    target:     target,\n    connection: connection\n};\n\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 200,
+    "x": 180,
     "y": 80,
     "wires": [
       [
         "a9ed933686706740"
       ]
+    ]
+  },
+  {
+    "id": "ea497d5ba41aa790",
+    "type": "function",
+    "z": "0fad769721e9978c",
+    "name": "Prune msg",
+    "func": "return {\n    _msgid: msg._msgid,\n    entry: {\n        id:        msg.payload.id,\n        text:      msg.payload.text,\n        timestamp: msg.payload.timestamp,\n        author:    msg.payload.author,\n        files:     msg.payload.files,\n        labels:    msg.payload.labels,\n        metadata:  msg.metadata\n    }\n};\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 590,
+    "y": 180,
+    "wires": [
+      []
     ]
   }
 ]

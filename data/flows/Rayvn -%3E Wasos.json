@@ -45,15 +45,14 @@
       "color": "#000000"
     },
     "nodes": [
-      "e8f453cb650cc177",
       "d9951ddcbdc5971e",
       "7cddce93b0c1de1d",
       "abe5d62bc9ae2a47",
       "c80cdddcb40c9aab"
     ],
-    "x": 234,
+    "x": 494,
     "y": 439,
-    "w": 892,
+    "w": 632,
     "h": 122
   },
   {
@@ -158,9 +157,7 @@
       [
         "c80cdddcb40c9aab"
       ],
-      [
-        "e8f453cb650cc177"
-      ]
+      []
     ],
     "info": "This subflow takes a formatted Wasos chat\r\npackage and Makes a POST request to the\r\nWasos client"
   },
@@ -178,24 +175,6 @@
         "7cddce93b0c1de1d"
       ]
     ]
-  },
-  {
-    "id": "e8f453cb650cc177",
-    "type": "subflow:2e632affbd071524",
-    "z": "fdea0898d1f24630",
-    "g": "4217539236797617",
-    "name": "",
-    "x": 320,
-    "y": 520,
-    "wires": [
-      [
-        "edcb8d65c7a805ec"
-      ],
-      [
-        "d9951ddcbdc5971e"
-      ]
-    ],
-    "info": "subflow, is currently a placeholder, but\r\nshould in the future be responsible for queueing"
   },
   {
     "id": "e0ea47ed88577046",
@@ -223,7 +202,6 @@
     "y": 280,
     "wires": [
       [
-        "e8f453cb650cc177",
         "4a1c55ec94f7f562",
         "6e481c7cb1720cf7"
       ]
