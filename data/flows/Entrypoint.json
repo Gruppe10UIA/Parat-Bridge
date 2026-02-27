@@ -52,7 +52,8 @@
       "03c1f0752644b9c0",
       "e6785e6cf6e666cf",
       "a7ccd4d8c49ceaff",
-      "be554d1eb57375c1"
+      "be554d1eb57375c1",
+      "04f5f011a9914dfd"
     ],
     "x": 74,
     "y": 399,
@@ -70,7 +71,7 @@
     "wires": [
       [
         "be554d1eb57375c1",
-        "a7ccd4d8c49ceaff"
+        "04f5f011a9914dfd"
       ]
     ]
   },
@@ -319,5 +320,33 @@
     "x": 740,
     "y": 440,
     "wires": []
+  },
+  {
+    "id": "04f5f011a9914dfd",
+    "type": "switch",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "name": "stop on testing",
+    "property": "bypass_initiall_post",
+    "propertyType": "global",
+    "rules": [
+      {
+        "t": "true"
+      },
+      {
+        "t": "else"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 2,
+    "x": 780,
+    "y": 480,
+    "wires": [
+      [],
+      [
+        "a7ccd4d8c49ceaff"
+      ]
+    ]
   }
 ]
