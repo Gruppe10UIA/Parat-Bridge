@@ -3,7 +3,7 @@
     "id": "e97e0c90387d0adc",
     "type": "subflow",
     "name": "GET Wasos messages",
-    "info": "",
+    "info": "Fetches recent chat messages from a WaSOS chatroom via the REST API.\n\n### Input\n`msg.metadata.source` = WaSOS Client\n\n### Logic\nBuilds `GET /api/chat/messages/{chatroom_name}?limit=50` with `x-api-key` from `source.client_specific`. Unwraps `msg.payload.messages`.\n\n### Output\n`msg.payload` = array of raw WaSOS message objects",
     "category": "",
     "in": [
       {

@@ -3,7 +3,7 @@
     "id": "c45e2eb6a51516d0",
     "type": "subflow",
     "name": "Initialize connection",
-    "info": "",
+    "info": "Creates or updates a connection in `parat_bridge.connections`.\n\n### Input\n`msg.payload` = `{ [identifier]: Client, ... }` (client objects keyed by identifier)\n\n### Logic\n1. Build stable connection name from clients\n2. Check if connection already exists\n3. **Existing** -> refresh clients, set active, flag retry_failed if needed\n4. **New** -> create full connection object with empty master_log and failed_entries\n\n### Output\n`msg.payload` = Connection object",
     "category": "",
     "in": [
       {
@@ -38,7 +38,7 @@
     "type": "function",
     "z": "c45e2eb6a51516d0",
     "name": "Filter new connection",
-    "func": "const utils = global.get(\"utils\");\nconst clients = msg.payload;\n\nif (!clients || Object.keys(clients).length === 0) {\n    node.error(\"Missing client configurations\");\n    return [null, null];\n}\n\n// Build stable key and check if this connection already exists\nconst name = utils.build_connection_name(Object.values(clients));\nconst connections = global.get(\"parat_bridge.connections\");\n\nmsg.clients         = clients;\nmsg.connection_name = name;\n\n// Output 1 → update connection, Output 2 → create new connection\nif (connections[name]) {\n    return [msg, null];\n} else {\n    return [null, msg];\n}\n",
+    "func": "const utils = global.get(\"utils\");\nconst clients = msg.payload;\n\nif (!clients || Object.keys(clients).length === 0) {\n    node.error(\"Missing client configurations\");\n    return [null, null];\n}\n\n// Build stable key and check if this connection already exists\nconst name = utils.build_connection_name(Object.values(clients));\nconst connections = global.get(\"parat_bridge.connections\");\n\nmsg.clients         = clients;\nmsg.connection_name = name;\n\n// Output 1 \u2192 update connection, Output 2 \u2192 create new connection\nif (connections[name]) {\n    return [msg, null];\n} else {\n    return [null, msg];\n}\n",
     "outputs": 2,
     "timeout": 0,
     "noerr": 0,

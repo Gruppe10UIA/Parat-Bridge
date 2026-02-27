@@ -3,7 +3,7 @@
     "id": "0fad769721e9978c",
     "type": "subflow",
     "name": "GET civilian Log entries",
-    "info": "",
+    "info": "Fetches initial log entries when a connection is first established. Uses the same normalization pipeline as Get new entries.\n\n### Input\n`msg.payload` = Connection object\n\n### Logic\n1. Determine source (non-wasos) and target (wasos) from connection clients\n2. Attach metadata with connection_name\n3. Fetch via GET subflow -> sort by time -> split -> normalize -> prune\n\n### Output\nSame as Get new entries: Entry with Metadata, topic `new_message`\n\n### Note\nCurrently hardcodes source as non-wasos client. Will need adjustment for non-wasos<->non-wasos connections.",
     "category": "",
     "in": [
       {

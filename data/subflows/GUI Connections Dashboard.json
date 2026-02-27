@@ -3,7 +3,7 @@
     "id": "3241f77fe5e4f9ea",
     "type": "subflow",
     "name": "GUI Connections Dashboard",
-    "info": "",
+    "info": "Displays a UI notification when a new connection is established.\n\n### Input\nAny message (from Initialize connection output)\n\n### Output\nNone (notification only)",
     "category": "",
     "in": [
       {

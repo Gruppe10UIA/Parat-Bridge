@@ -3,7 +3,7 @@
     "id": "80f93fa22c15ece3",
     "type": "subflow",
     "name": "WasosLogin",
-    "info": "makes a login request to get the api key",
+    "info": "Authenticates against the WaSOS API using Basic auth.\n\n### Input\n`msg.payload = { wasos_username, wasos_password, wasos_chatroom_name }`\n\n### Logic\nBase64-encodes `username:password`, sends POST to `/apisec/login`. Carries `msg.config = { username, chatroom_name }` through the request.\n\n### Output\n`msg.payload` = login response (nonce, profileId, groups, refresh_expires), `msg.config` preserved",
     "category": "",
     "in": [
       {

@@ -3,7 +3,7 @@
     "id": "4a6a1af9b9af6b0f",
     "type": "subflow",
     "name": "POST to Rayvn log",
-    "info": "Posts log entries to the Rayvn API. Formats authorization headers with Bearer token, splits arrays into individual entries, and sends each as a separate POST request.",
+    "info": "Posts a bridged entry to the Rayvn log API.\n\n### Input\n`msg.payload` = Rayvn POST body, `msg.metadata.target` = Rayvn Client\n\n### Logic\nSets `Authorization: Bearer {api_key}`, URL `/logs/{log_id}/entry`, sends POST. 500ms delay between requests.\n\n### Output\n`msg.topic = \"response\"`, `msg.result = true/false`, `msg.statusCode`",
     "category": "",
     "in": [
       {

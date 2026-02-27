@@ -3,7 +3,7 @@
     "id": "5da162b98b7b6b86",
     "type": "subflow",
     "name": "Configure Rayvn",
-    "info": "configures the rayvn connection by getting the log id based on the log name and then storing all config variable to the global context",
+    "info": "Validates Rayvn credentials, resolves log name to log ID, and builds a standard Client object.\n\n### Input\n`msg.payload = { rayvn_api_key, rayvn_log_name }`\n\n### Logic\n1. Verify input fields are non-empty\n2. GET `/logs` with Bearer token\n3. Find log by name -> extract log ID\n4. Build Client object with `client_system: \"rayvn\"`\n5. Verify required fields (identifier, api_key, log_id)\n\n### Output\n`msg.payload` = Rayvn Client object, `msg.topic = \"rayvn\"`",
     "category": "",
     "in": [
       {

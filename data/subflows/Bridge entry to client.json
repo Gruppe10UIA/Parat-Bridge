@@ -3,7 +3,7 @@
     "id": "a9600579fb00971d",
     "type": "subflow",
     "name": "Bridge entry to client",
-    "info": "",
+    "info": "Converts a bridge entry into the target client's POST body format. Routes by `msg.entry.metadata.target.client_system`.\n\n### Input\n`msg.entry` = Entry with Metadata\n\n### WaSOS output\n`{ content, callsign: \"[source:name] author\", isLocation: false, replyMessageId: null, files: [] }`\n\n### Rayvn output\n`{ text: \"[source:name] author: text\", keyEvent: false, releasedInfo: false, loggedByFullName, labels: [], files }`",
     "category": "",
     "in": [
       {

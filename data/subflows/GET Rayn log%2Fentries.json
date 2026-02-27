@@ -3,7 +3,7 @@
     "id": "a1b5b8de4109fab7",
     "type": "subflow",
     "name": "GET Rayn log/entries",
-    "info": "",
+    "info": "Fetches all log entries from a Rayvn log via the REST API.\n\n### Input\n`msg.metadata.source` = Rayvn Client\n\n### Logic\nBuilds `GET /logs/{log_id}/entries` with `Authorization: Bearer {api_key}` from `source.client_specific`.\n\n### Output\n`msg.payload` = array of raw Rayvn entry objects",
     "category": "",
     "in": [
       {

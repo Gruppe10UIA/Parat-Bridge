@@ -3,7 +3,7 @@
     "id": "0047704f35a57b0c",
     "type": "subflow",
     "name": "Filter new entries",
-    "info": "Filters Rayvn log entries to only include new entries. Removes entries older than the last sync timestamp and excludes entries with WaSOS label to prevent duplicates.",
+    "info": "Filters entries to only pass genuinely new, non-looped messages. Updates source timestamp after each accepted entry.\n\n### Filter rules (in order)\n1. **Stale** — `entry.timestamp <= source.timestamp` → drop\n2. **Already bridged** — `entry.text` starts with `[wasos:`, `[rayvn:`, or `[cim:` → drop (cross-connection loop prevention)\n3. **Target callsign** — `entry.author` contains target's callsign → drop (direct loop prevention)\n4. **System message** — `entry.text` starts with `[parat_bridge:parat_bridge]` → drop\n5. **Label match** — `entry.labels` contains target's identifier → drop\n\n### Input\n`msg.payload` = bridge entry, `msg.metadata` = { source, target, connection_name }\n\n### Output\nSame as input (passthrough). Drops non-matching entries by returning null.",
     "category": "",
     "in": [
       {
@@ -38,7 +38,7 @@
     "type": "function",
     "z": "0047704f35a57b0c",
     "name": "Filter",
-    "func": "const entry  = msg.payload;\nconst source = msg.metadata.source;\nconst utils  = global.get(\"utils\");\n\n// Skip entries older than last successful fetch\nif (entry.timestamp <= source.timestamp) return null;\n\n// Loop prevention — skip entries forwarded by the target (i.e. posted by us)\nconst target_callsign = utils.build_callsign(msg.metadata.target);\nif (entry.author.includes(target_callsign)) return null;\n\n// Skip parat_bridge system messages\nif (entry.text && entry.text.startsWith(utils.build_callsign({ client_system: \"parat_bridge\", name: \"parat_bridge\" }))) return null;\n\n// Skip entries with a label matching the target identifier\nif ((entry.labels || []).some(l => l.id === msg.metadata.target.identifier)) return null;\n\nreturn msg;\n",
+    "func": "const entry  = msg.payload;\nconst source = msg.metadata.source;\nconst utils  = global.get(\"utils\");\n\n// Stale check\nif (entry.timestamp <= source.timestamp) return null;\n\n// Drop already-bridged messages (prevents cross-connection loops)\nconst bridgePattern = /^\\[(?:wasos|rayvn|cim):/;\nif (entry.text && bridgePattern.test(entry.text)) return null;\n\n// Drop messages posted by the target (direct loop prevention)\nconst target_callsign = utils.build_callsign(msg.metadata.target);\nif (entry.author.includes(target_callsign)) return null;\n\n// Drop parat_bridge system messages\nif (entry.text && entry.text.startsWith(utils.build_callsign({ client_system: \"parat_bridge\", name: \"parat_bridge\" }))) return null;\n\n// Drop entries already labeled with target identifier\nif ((entry.labels || []).some(l => l.id === msg.metadata.target.identifier)) return null;\n\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,

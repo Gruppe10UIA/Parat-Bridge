@@ -3,7 +3,7 @@
     "id": "35dc868e3a5c1ab2",
     "type": "subflow",
     "name": "Client to bridge entry",
-    "info": "",
+    "info": "Normalizes raw client entries into the standard bridge entry format. Routes by `msg.metadata.source.client_system`.\n\n### Input\n`msg.payload` = single raw entry (Rayvn or WaSOS format), `msg.metadata` = standard metadata\n\n### Rayvn mapping\n`{ id, text, timeCreated->timestamp, loggedByFullName->author, files, labels }`\n\n### WaSOS mapping\n`{ id, content->text, createdAt->timestamp, username->author, files, labels: [] }`\n\n### Output\n`msg.payload = { id, text, timestamp, author, files, labels }`",
     "category": "",
     "in": [
       {

@@ -3,7 +3,7 @@
     "id": "a7d9b521445d1bf0",
     "type": "subflow",
     "name": "Configure Wasos",
-    "info": "Uses the username and password to get the wasos api key\nsets the wasos configuration to the global variables",
+    "info": "Validates WaSOS credentials, logs in to get API key, and builds a standard Client object.\n\n### Input\n`msg.payload = { wasos_username, wasos_password, wasos_chatroom_name }`\n\n### Logic\n1. Verify input fields are non-empty\n2. Login via WasosLogin subflow (Basic auth)\n3. Build Client object with `client_system: \"wasos\"` from login response\n4. Verify required fields (identifier, chatroom_name, api.key)\n\n### Output\n`msg.payload` = WaSOS Client object, `msg.topic = \"wasos\"`",
     "category": "",
     "in": [
       {

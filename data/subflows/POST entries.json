@@ -3,7 +3,7 @@
     "id": "5b554f0e5b6f4d30",
     "type": "subflow",
     "name": "POST entries",
-    "info": "",
+    "info": "Routes entries to the correct POST subflow based on target system.\n\n### Input\n`msg.entry` = Entry with Metadata\n\n### Logic\nSwitch on `msg.entry.metadata.target.client_system` -> POST to Rayvn log or POST to Wasos chat.\n\n### Output 1\nRayvn POST response\n\n### Output 2\nWaSOS POST response",
     "category": "",
     "in": [
       {

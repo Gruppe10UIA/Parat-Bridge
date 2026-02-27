@@ -3,7 +3,7 @@
     "id": "fe9d5f6f9c2bdb16",
     "type": "subflow",
     "name": "Append entries to master_log",
-    "info": "This is a reusable subflow, that adds\nformatted log entries to the masterLog",
+    "info": "Appends delivered entries to the connection's master log. Deduplicates by entry ID and slims metadata before storing.\n\n### Input\n`msg.entry` = Entry with Metadata (full Client objects in metadata)\n\n### Logic\n1. **Duplicate check** - drops if entry ID already in `conn.master_log`\n2. **Append** - stamps `deliveredAt`, replaces source/target with identifier strings, pushes to log\n\n### Stored format\n`{ id, text, timestamp, author, files, labels, deliveredAt, metadata: { source: string, target: string, connection_name } }`\n\n### Output\nPassthrough (same msg)",
     "category": "",
     "in": [
       {
@@ -38,7 +38,7 @@
     "type": "function",
     "z": "fe9d5f6f9c2bdb16",
     "name": "append new entries",
-    "func": "// Look up the connection to append to\nconst connection_name = msg.entry.metadata.connection_name;\nconst data = global.get(\"parat_bridge\");\nconst conn = data.connections[connection_name];\n\nif (!conn) {\n    node.warn(\"Cannot log entry — no connection found: \" + connection_name);\n    return null;\n}\n\n// Stamp delivery time and slim down metadata before storing\nconst logEntry = Object.assign({}, msg.entry);\nlogEntry.deliveredAt = new Date().toISOString();\nlogEntry.metadata = {\n    source:          msg.entry.metadata.source.identifier,\n    target:          msg.entry.metadata.target.identifier,\n    connection_name: connection_name\n};\n\nconn.master_log.push(logEntry);\nglobal.set(\"parat_bridge\", data);\n\nreturn msg;\n",
+    "func": "// Look up the connection to append to\nconst connection_name = msg.entry.metadata.connection_name;\nconst data = global.get(\"parat_bridge\");\nconst conn = data.connections[connection_name];\n\nif (!conn) {\n    node.warn(\"Cannot log entry — no connection found: \" + connection_name);\n    return null;\n}\n\n// Stamp delivery time and slim down metadata before storing\nconst logEntry = Object.assign({}, msg.entry);\nlogEntry.delivered_at = Date.now();\nlogEntry.metadata = {\n    source:          msg.entry.metadata.source.identifier,\n    target:          msg.entry.metadata.target.identifier,\n    connection_name: connection_name\n};\n\nconn.master_log.push(logEntry);\nglobal.set(\"parat_bridge\", data);\n\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
