@@ -38,7 +38,7 @@
     "type": "function",
     "z": "a72933a33e32b28c",
     "name": "map Wasos log to Bridge log",
-    "func": "let rawLog = msg.payload;\n\nmsg.payload = rawLog.map(({ \n    id,\n    content,\n    createdAt,\n    username\n}) => ({\n    id,\n    text: content,\n    timeCreated: new Date(createdAt).getTime(),\n    loggedByFullName: username,\n    client: \"wasos\"\n}));\n\nreturn msg;\n",
+    "func": "let rawLog = msg.payload;\nconst connId = msg.connection.id;\n\nmsg.payload = rawLog.map(({\n    id,\n    content,\n    createdAt,\n    username,\n    files,\n    rayvnFileIds\n}) => ({\n    id,\n    text: content,\n    timeCreated: new Date(createdAt).getTime(),\n    loggedByFullName: username,\n    client: \"wasos\",\n    target: \"rayvn\",\n    connection_id: connId,\n    files: files || [],\n    rayvnFileIds: rayvnFileIds || []\n}));\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,

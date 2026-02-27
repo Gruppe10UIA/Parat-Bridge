@@ -1,0 +1,115 @@
+[
+  {
+    "id": "a9600579fb00971d",
+    "type": "subflow",
+    "name": "Bridge entry to client",
+    "info": "Converts a bridge entry into the target client's POST body format. Routes by `msg.entry.metadata.target.client_system`.\n\n### Input\n`msg.entry` = Entry with Metadata\n\n### WaSOS output\n`{ content, callsign: \"[source:name] author\", isLocation: false, replyMessageId: null, files: [] }`\n\n### Rayvn output\n`{ text: \"[source:name] author: text\", keyEvent: false, releasedInfo: false, loggedByFullName, labels: [], files }`",
+    "category": "",
+    "in": [
+      {
+        "x": 60,
+        "y": 200,
+        "wires": [
+          {
+            "id": "d41907671d0ee736"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 600,
+        "y": 200,
+        "wires": [
+          {
+            "id": "43624267893092ec",
+            "port": 0
+          },
+          {
+            "id": "d9a2a4e281b70f68",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#D8BFD8",
+    "icon": "font-awesome/fa-file-text-o"
+  },
+  {
+    "id": "d41907671d0ee736",
+    "type": "switch",
+    "z": "a9600579fb00971d",
+    "name": "",
+    "property": "entry.metadata.target.client_system",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "eq",
+        "v": "wasos",
+        "vt": "str"
+      },
+      {
+        "t": "eq",
+        "v": "rayvn",
+        "vt": "str"
+      },
+      {
+        "t": "eq",
+        "v": "cim",
+        "vt": "str"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 3,
+    "x": 210,
+    "y": 200,
+    "wires": [
+      [
+        "d9a2a4e281b70f68"
+      ],
+      [
+        "43624267893092ec"
+      ],
+      []
+    ]
+  },
+  {
+    "id": "d9a2a4e281b70f68",
+    "type": "function",
+    "z": "a9600579fb00971d",
+    "name": "Bridge to Wasos",
+    "func": "const entry  = msg.entry;\nconst source = entry.metadata.source;\nconst utils = global.get(\"utils\")\n\nmsg.metadata = entry.metadata;\nmsg.payload  = {\n    content:        entry.text,\n    callsign:       `${utils.build_callsign(source)} ${entry.author}`,\n    isLocation:     false,\n    replyMessageId: null,\n    files:          []\n};\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 420,
+    "y": 160,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "43624267893092ec",
+    "type": "function",
+    "z": "a9600579fb00971d",
+    "name": "Bridge to Rayvn",
+    "func": "const entry  = msg.entry;\nconst source = entry.metadata.source;\nconst utils = global.get(\"utils\")\n\nmsg.metadata = entry.metadata;\nmsg.payload  = {\n    text:             `${utils.build_callsign(source)} ${entry.author}: ${entry.text || \"\"}`,\n    keyEvent:         false,\n    releasedInfo:     false,\n    loggedByFullName: `${utils.build_callsign(source)} ${entry.author}`,\n    labels:           [],\n    files:            entry.files || []\n};\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 420,
+    "y": 200,
+    "wires": [
+      []
+    ]
+  }
+]

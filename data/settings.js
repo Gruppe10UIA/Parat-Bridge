@@ -5,8 +5,14 @@ module.exports = {
         }
     },
     contextStorage: {
-        default: {
-            module: "memory"
+        memory: { module: "memory" },
+        file: {
+            module: "localfilesystem",
+            config: {
+                dir: "/data/bridge-files",
+                flushInterval: 5
+            }
         }
     }
 }
+

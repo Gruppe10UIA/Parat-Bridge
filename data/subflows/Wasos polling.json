@@ -38,7 +38,7 @@
     "type": "function",
     "z": "6844cb2c3b9378da",
     "name": "verify config",
-    "func": "let config = global.get('wasos_config');\n\n\nif (!config.api.key || !config.chatroom_name) {\n    node.error('wasos not configure. polling not possible');\n    return null;\n}\n\nreturn msg;",
+    "func": "// Get all active connections and emit one message per connection\n// Each message carries its own connection config — no shared global state\nconst activeConnections = global.get(\"parat_bridge\").connections.filter(c => c.active);\n\nif (activeConnections.length === 0) {\n    return null;\n}\n\nconst messages = activeConnections.map(connection => {\n    return { connection: connection };\n});\n\nreturn [messages];",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -59,7 +59,7 @@
     "type": "function",
     "z": "6844cb2c3b9378da",
     "name": "Headers function",
-    "func": "let config = global.get(\"wasos_config\")\nlet path = '/api/chat/messages/'\nlet url = global.get(\"wasos_url\");\n\n\nmsg.headers = {\n    'x-api-key': config.api.key\n};\nmsg.url = url + path + config.chatroom_name + '?limit=50';\n\nreturn msg;",
+    "func": "const connection = msg.connection;\n\nmsg.headers = {\n    \"x-api-key\": connection.wasos.api.key\n};\n\nmsg.url = global.get(\"parat_bridge\").base_urls.wasos\n    + \"/api/chat/messages/\" + connection.wasos.chatroom_name + \"?limit=5\";\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -120,7 +120,7 @@
     "z": "6844cb2c3b9378da",
     "name": "Wasos Poll",
     "props": [],
-    "repeat": "2",
+    "repeat": "10800",
     "crontab": "",
     "once": true,
     "onceDelay": 0.1,
@@ -129,34 +129,10 @@
     "y": 460,
     "wires": [
       [
-        "2fd547e31f7ce19a"
-      ]
-    ],
-    "info": "Sends inject at regular intervals while the application is running."
-  },
-  {
-    "id": "2fd547e31f7ce19a",
-    "type": "switch",
-    "z": "6844cb2c3b9378da",
-    "name": "",
-    "property": "poll_wasos",
-    "propertyType": "global",
-    "rules": [
-      {
-        "t": "true"
-      }
-    ],
-    "checkall": "true",
-    "repair": false,
-    "outputs": 1,
-    "x": 250,
-    "y": 460,
-    "wires": [
-      [
         "c062940d577a1a8a"
       ]
     ],
-    "info": "Allows injects to pass through if polling is enabled."
+    "info": "Sends inject at regular intervals while the application is running."
   },
   {
     "id": "428898395a2aa151",
@@ -175,7 +151,7 @@
     "name": "",
     "scope": null,
     "uncaught": false,
-    "x": 520,
+    "x": 380,
     "y": 260,
     "wires": [
       [

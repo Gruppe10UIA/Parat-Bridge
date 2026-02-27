@@ -1,0 +1,80 @@
+[
+  {
+    "id": "a1b5b8de4109fab7",
+    "type": "subflow",
+    "name": "GET Rayn log/entries",
+    "info": "Fetches all log entries from a Rayvn log via the REST API.\n\n### Input\n`msg.metadata.source` = Rayvn Client\n\n### Logic\nBuilds `GET /logs/{log_id}/entries` with `Authorization: Bearer {api_key}` from `source.client_specific`.\n\n### Output\n`msg.payload` = array of raw Rayvn entry objects",
+    "category": "",
+    "in": [
+      {
+        "x": 60,
+        "y": 80,
+        "wires": [
+          {
+            "id": "9e2296996ea77181"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 700,
+        "y": 80,
+        "wires": [
+          {
+            "id": "117c225f8da1d516",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#E9967A",
+    "icon": "font-awesome/fa-envelope-o"
+  },
+  {
+    "id": "9e2296996ea77181",
+    "type": "function",
+    "z": "a1b5b8de4109fab7",
+    "name": "Build Rayvn Entry Request",
+    "func": "const client = msg.metadata.source;\n\n\nmsg.url = global.get(\"parat_bridge\").base_urls.rayvn\n    + \"/logs/\" + client.client_specific.log_id + \"/entries\";\n\nmsg.headers = { \"Authorization\": \"Bearer \" + client.client_specific.api_key };\n\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 260,
+    "y": 80,
+    "wires": [
+      [
+        "117c225f8da1d516"
+      ]
+    ],
+    "info": "Builds an HTTP request to fetch log entries from Rayvn. Sets Authorization header with Bearer token from rayvnConfig.apiKey and builds URL to /logs/{logId}/entries endpoint."
+  },
+  {
+    "id": "117c225f8da1d516",
+    "type": "http request",
+    "z": "a1b5b8de4109fab7",
+    "name": "Get Rayvn Entries",
+    "method": "GET",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": true,
+    "headers": [],
+    "x": 530,
+    "y": 80,
+    "wires": [
+      []
+    ],
+    "info": "Fetches all log entries from Rayvn API with GET request. Returns an array of entries that are processed further in the flow."
+  }
+]

@@ -3,7 +3,7 @@
     "id": "7cecb563cf8b234a",
     "type": "subflow",
     "name": "Error Handler",
-    "info": "This subflow is a centralized errorhandler\r\nfor all HTTP request nodes in Parat-Bridge.\r\n\r\nReceives errors from catch-nodes in all\r\nsubflows and:\r\n1. Classifies the error(network, auth, not_found, rate_limit, server, client)\r\n2. Logs the error to global context (error_log) writes to disc.\r\n3. Counts errors per classification (failure_counts)\r\n4. Sends notification to Rayvn and Wasos when more than 5 continuing errors from the same source happens.\r\n    - Notifies again at 15, 25, 35... (every 10 error after first notification.)\r\n\r\n",
+    "info": "Centralized error handler for all HTTP request failures across the system.\n\n### Input\nCatch node error message (`msg.error`, `msg.statusCode`, `msg.url`)\n\n### Logic\n1. **Classify** - network (0/null), auth (401/403), not_found (404), rate_limit (429), server (500+), client (400-499)\n2. **Log** - push to `global.error_log[]` (max 100 entries, FIFO)\n3. **Count** - increment `global.failure_counts[source_node]`\n4. **Notify** - at 5, 15, 25, 35... consecutive failures, build notification message\n\n### Output\nNone (side effects only: global context writes, optional notification via subflow)",
     "category": "",
     "in": [
       {
@@ -72,8 +72,8 @@
     "type": "function",
     "z": "7cecb563cf8b234a",
     "name": "Build connection break notification",
-    "func": "const count = msg.failureCount;\nconst entry = msg.errorEntry;\n\n// Rate limit: notify at 5, then every 10th (15, 25, 35...)\nconst shouldNotify = count === 5 || (count > 5 && (count - 5) % 10 === 0);\n\nif (!shouldNotify) {\n    return null;\n}\n\nconst text = `⚠️ CONNECTION BREAK: ${entry.source} has failed ${count} times. ` +\n    `Last error: [${entry.type.toUpperCase()}] ${entry.message} ` +\n    `(status: ${entry.statusCode || 'none'}) at ${entry.timestamp}`;\n\nmsg.message = text;\nmsg.payload = [{ content: text }];\ndelete msg.url;\ndelete msg.headers;\n\nreturn [msg, msg];\n",
-    "outputs": 2,
+    "func": "const count = msg.failureCount;\nconst entry = msg.errorEntry;\n\nconst shouldNotify = count === 5 || (count > 5 && (count - 5) % 10 === 0);\n\nif (!shouldNotify) {\n    return null;\n}\n\nconst now = Date.now();\n\nconst text = `[parat-bridge] [${entry.type.toUpperCase()}] ${entry.source} has failed ${count} times. ` +\n    `Last error: ${entry.message} (status: ${entry.statusCode || 'none'}) at ${entry.timestamp}`;\n\nmsg.payload = [{\n    id: \"pb-err-\" + now + \"-\" + Math.random().toString(36).substr(2, 6),\n    text: text,\n    timeCreated: now,\n    loggedByFullName: \"parat-bridge\",\n    client: \"parat-bridge\"\n}];\n\nreturn msg;",
+    "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
@@ -83,38 +83,21 @@
     "y": 320,
     "wires": [
       [
-        "460c049d9a376213"
-      ],
-      [
-        "c94fdbb3457bc7bd"
+        "8a9ad3cf53bb6855"
       ]
     ],
-    "info": "Builds a connection break notification message\r\nand applies rate limiting.\r\n\r\nRate limiting:\r\n- Notifies at count = 5\r\n- Then every 10th failure (15, 25, 35...)\r\n- Returns null (stops flow) if not a notify interval\r\n\r\nOutput:\r\n- Output 1: POST to Rayvn log\r\n- Output 2: POST to Wasos chat\r\n- msg.payload: [{ content: \"⚠️ CONNECTION BREAK...\" }]\r\n- msg.message: notification text"
+    "info": "Builds a connection break notification message\r\nand applies rate limiting.\r\n\r\nRate limiting:\r\n- Notifies at count = 5\r\n- Then every 10th failure (15, 25, 35...)\r\n- Returns null (stops flow) if not a notify interval\r\n\r\nOutput:\r\n- Output 1: POST to Rayvn log\r\n- Output 2: POST to Wasos chat\r\n- msg.payload: [{ content: \"\u26a0\ufe0f CONNECTION BREAK...\" }]\r\n- msg.message: notification text"
   },
   {
-    "id": "460c049d9a376213",
-    "type": "subflow:4a6a1af9b9af6b0f",
+    "id": "8a9ad3cf53bb6855",
+    "type": "subflow:fe9d5f6f9c2bdb16",
     "z": "7cecb563cf8b234a",
+    "d": true,
     "name": "",
-    "x": 1450,
-    "y": 280,
+    "x": 1420,
+    "y": 480,
     "wires": [
-      [],
       []
-    ],
-    "info": "Sends the connection break notification \r\nto the Rayvn log via the POST to Rayvn log subflow.\r\n\r\nTriggered by output 1 from \r\n\"Build connection break notification\"."
-  },
-  {
-    "id": "c94fdbb3457bc7bd",
-    "type": "subflow:209f3c980818c499",
-    "z": "7cecb563cf8b234a",
-    "name": "",
-    "x": 1460,
-    "y": 360,
-    "wires": [
-      [],
-      []
-    ],
-    "info": "Sends the connection break notification\r\ndirectly to WaSOS chat via the \r\nPOST to Wasos chat subflow.\r\n\r\nTriggered by output 2 from\r\n\"Build connection break notification\".\r\n"
+    ]
   }
 ]

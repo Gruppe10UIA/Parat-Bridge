@@ -3,7 +3,7 @@
     "id": "4a6a1af9b9af6b0f",
     "type": "subflow",
     "name": "POST to Rayvn log",
-    "info": "Posts log entries to the Rayvn API. Formats authorization headers with Bearer token, splits arrays into individual entries, and sends each as a separate POST request.",
+    "info": "Posts a bridged entry to the Rayvn log API.\n\n### Input\n`msg.payload` = Rayvn POST body, `msg.metadata.target` = Rayvn Client\n\n### Logic\nSets `Authorization: Bearer {api_key}`, URL `/logs/{log_id}/entry`, sends POST. 500ms delay between requests.\n\n### Output\n`msg.topic = \"response\"`, `msg.result = true/false`, `msg.statusCode`",
     "category": "",
     "in": [
       {
@@ -18,8 +18,8 @@
     ],
     "out": [
       {
-        "x": 860,
-        "y": 420,
+        "x": 660,
+        "y": 400,
         "wires": [
           {
             "id": "edcc87d1f40195de",
@@ -28,8 +28,8 @@
         ]
       },
       {
-        "x": 860,
-        "y": 500,
+        "x": 660,
+        "y": 480,
         "wires": [
           {
             "id": "f8d5ca9b4e03584d",
@@ -59,8 +59,8 @@
     "authType": "",
     "senderr": true,
     "headers": [],
-    "x": 600,
-    "y": 420,
+    "x": 400,
+    "y": 400,
     "wires": [
       [
         "f8d5ca9b4e03584d"
@@ -73,7 +73,7 @@
     "type": "function",
     "z": "4a6a1af9b9af6b0f",
     "name": "Format header and url",
-    "func": "const rayvn_config = global.get('rayvn_config')\nconst path = \"/logs/\" + rayvn_config.log_id + \"/entry\"\n\nif (!rayvn_config.api_key || !rayvn_config.log_id) {\n    node.error('Rayvn not configured. Please submit Rayvn configuration first.');\n    return null;\n}\n\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + rayvn_config.api_key,\n    \"Content-Type\": \"application/json\",\n    \"Accept\": \"application/json\"\n};\n\nmsg.url = global.get(\"rayvn_url\") + path;\n\nreturn msg;\n",
+    "func": "const target = msg.metadata.target;\n\nif (!target || !target.api_key || !target.client_specific.log_id) {\n    node.error(\"Rayvn not configured on this connection\");\n    return null;\n}\n\nmsg.url = global.get(\"parat_bridge\").base_urls.rayvn\n    + \"/logs/\" + target.client_specific.log_id + \"/entry\";\n\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + target.api_key,\n    \"Content-Type\":  \"application/json\",\n    \"Accept\":        \"application/json\"\n};\n\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -84,30 +84,10 @@
     "y": 300,
     "wires": [
       [
-        "9b381619b4b4fd2a"
+        "509a0e1abbf14248"
       ]
     ],
     "info": "Builds HTTP request headers and URL for Rayvn API. Sets Authorization header with Bearer token from rayvnConfig.apiKey and constructs URL to /logs/{logId}/entry endpoint. Returns null if not configured."
-  },
-  {
-    "id": "9b381619b4b4fd2a",
-    "type": "split",
-    "z": "4a6a1af9b9af6b0f",
-    "name": "array to single entries",
-    "splt": "\\n",
-    "spltType": "str",
-    "arraySplt": 1,
-    "arraySpltType": "len",
-    "stream": false,
-    "addname": "",
-    "property": "payload",
-    "x": 580,
-    "y": 300,
-    "wires": [
-      [
-        "509a0e1abbf14248"
-      ]
-    ]
   },
   {
     "id": "f8d5ca9b4e03584d",
@@ -121,8 +101,8 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 560,
-    "y": 500,
+    "x": 360,
+    "y": 480,
     "wires": [
       []
     ]
@@ -133,7 +113,7 @@
     "z": "4a6a1af9b9af6b0f",
     "name": "",
     "pauseType": "delay",
-    "timeout": "100",
+    "timeout": "50",
     "timeoutUnits": "milliseconds",
     "rate": "1",
     "nbRateUnits": "1",
@@ -144,8 +124,8 @@
     "drop": false,
     "allowrate": false,
     "outputs": 1,
-    "x": 310,
-    "y": 420,
+    "x": 570,
+    "y": 300,
     "wires": [
       [
         "edcc87d1f40195de"

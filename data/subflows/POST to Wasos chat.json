@@ -3,7 +3,7 @@
     "id": "209f3c980818c499",
     "type": "subflow",
     "name": "POST to Wasos chat",
-    "info": "Posts chat messages to the WaSOS API. Formats x-api-key headers, splits arrays into individual messages, and sends each as a separate POST request.",
+    "info": "Posts a bridged entry to the WaSOS chat API.\n\n### Input\n`msg.payload` = WaSOS POST body, `msg.metadata.target` = WaSOS Client\n\n### Logic\nSets `x-api-key` header, URL `/api/chat/messages/{chatroom_name}`, sends POST. 500ms delay between requests.\n\n### Output\n`msg.topic = \"response\"`, `msg.result = true/false`, `msg.statusCode`",
     "category": "",
     "in": [
       {
@@ -18,8 +18,8 @@
     ],
     "out": [
       {
-        "x": 820,
-        "y": 320,
+        "x": 700,
+        "y": 300,
         "wires": [
           {
             "id": "41621a8a87543cf1",
@@ -28,8 +28,8 @@
         ]
       },
       {
-        "x": 820,
-        "y": 400,
+        "x": 700,
+        "y": 380,
         "wires": [
           {
             "id": "d8ba5952c6f01ecb",
@@ -59,8 +59,8 @@
     "authType": "",
     "senderr": true,
     "headers": [],
-    "x": 590,
-    "y": 320,
+    "x": 470,
+    "y": 300,
     "wires": [
       [
         "d8ba5952c6f01ecb"
@@ -73,7 +73,7 @@
     "type": "function",
     "z": "209f3c980818c499",
     "name": "Format header and url",
-    "func": "let wasos_api_key = global.get('wasos_config.api.key');\nlet wasos_url = global.get('wasos_url');\nlet wasos_chatroom = global.get('wasos_config.chatroom_name')\nlet path = \"/api/chat/messages/\"\n\nif (!wasos_api_key || !wasos_chatroom) {\n    node.error('WaSOS not configured');\n    return null;\n}\n\nmsg.url = wasos_url + path + wasos_chatroom;\nmsg.headers = {\n    'x-api-key': wasos_api_key,\n    'Content-Type': 'application/json'\n};\n\nreturn msg;",
+    "func": "const target = msg.metadata.target;\n\nif (!target || !target.api_key || !target.client_specific.chatroom_name) {\n    node.error(\"WaSOS not configured on this connection\");\n    return null;\n}\n\nmsg.url = global.get(\"parat_bridge\").base_urls.wasos\n    + \"/api/chat/messages/\" + target.client_specific.chatroom_name;\n\nmsg.headers = {\n    \"x-api-key\":    target.api_key,\n    \"Content-Type\": \"application/json\"\n};\n\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -84,30 +84,10 @@
     "y": 200,
     "wires": [
       [
-        "4b9eb1abd60ed246"
+        "c3ddcb7e014d64ed"
       ]
     ],
     "info": "Builds HTTP request headers and URL for WaSOS API. Sets x-api-key header from wasos_apikey and uses wasosChatroomUrl as the endpoint. Returns null if not configured."
-  },
-  {
-    "id": "4b9eb1abd60ed246",
-    "type": "split",
-    "z": "209f3c980818c499",
-    "name": "array to single entries",
-    "splt": "\\n",
-    "spltType": "str",
-    "arraySplt": 1,
-    "arraySpltType": "len",
-    "stream": false,
-    "addname": "",
-    "property": "payload",
-    "x": 620,
-    "y": 200,
-    "wires": [
-      [
-        "c3ddcb7e014d64ed"
-      ]
-    ]
   },
   {
     "id": "c3ddcb7e014d64ed",
@@ -126,8 +106,8 @@
     "drop": false,
     "allowrate": false,
     "outputs": 1,
-    "x": 330,
-    "y": 320,
+    "x": 590,
+    "y": 200,
     "wires": [
       [
         "41621a8a87543cf1"
@@ -146,8 +126,8 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 620,
-    "y": 400,
+    "x": 500,
+    "y": 380,
     "wires": [
       []
     ]

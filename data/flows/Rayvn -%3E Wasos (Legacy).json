@@ -2,7 +2,7 @@
   {
     "id": "fdea0898d1f24630",
     "type": "tab",
-    "label": "Rayvn -> Wasos",
+    "label": "Rayvn -> Wasos (Legacy)",
     "disabled": false,
     "info": "Sync flow from Rayvn to WaSOS. Polls Rayvn API, filters new entries, converts to Bridge format, appends to masterLog, then converts to WaSOS format and posts to WaSOS chat.",
     "env": []
@@ -45,15 +45,14 @@
       "color": "#000000"
     },
     "nodes": [
-      "e8f453cb650cc177",
       "d9951ddcbdc5971e",
       "7cddce93b0c1de1d",
       "abe5d62bc9ae2a47",
       "c80cdddcb40c9aab"
     ],
-    "x": 234,
+    "x": 494,
     "y": 439,
-    "w": 892,
+    "w": 632,
     "h": 122
   },
   {
@@ -62,7 +61,7 @@
     "z": "fdea0898d1f24630",
     "g": "859e4fe853cbece6",
     "name": "Rayvn polling result",
-    "active": false,
+    "active": true,
     "tosidebar": true,
     "console": false,
     "tostatus": false,
@@ -158,9 +157,7 @@
       [
         "c80cdddcb40c9aab"
       ],
-      [
-        "e8f453cb650cc177"
-      ]
+      []
     ],
     "info": "This subflow takes a formatted Wasos chat\r\npackage and Makes a POST request to the\r\nWasos client"
   },
@@ -180,27 +177,10 @@
     ]
   },
   {
-    "id": "e8f453cb650cc177",
-    "type": "subflow:2e632affbd071524",
-    "z": "fdea0898d1f24630",
-    "g": "4217539236797617",
-    "name": "",
-    "x": 320,
-    "y": 520,
-    "wires": [
-      [
-        "edcb8d65c7a805ec"
-      ],
-      [
-        "d9951ddcbdc5971e"
-      ]
-    ],
-    "info": "subflow, is currently a placeholder, but\r\nshould in the future be responsible for queueing"
-  },
-  {
     "id": "e0ea47ed88577046",
     "type": "subflow:1c21db2b0b16a979",
     "z": "fdea0898d1f24630",
+    "d": true,
     "g": "859e4fe853cbece6",
     "name": "",
     "x": 340,
@@ -222,7 +202,6 @@
     "y": 280,
     "wires": [
       [
-        "e8f453cb650cc177",
         "4a1c55ec94f7f562",
         "6e481c7cb1720cf7"
       ]
@@ -238,8 +217,8 @@
     "y": 280,
     "wires": [
       [
-        "336a09e1fa63bcb2",
-        "73ba40e05157c072"
+        "73ba40e05157c072",
+        "97d0149a4f42cc67"
       ]
     ]
   },
@@ -297,5 +276,43 @@
     "x": 1220,
     "y": 280,
     "wires": []
+  },
+  {
+    "id": "97d0149a4f42cc67",
+    "type": "function",
+    "z": "fdea0898d1f24630",
+    "name": "Handle Rayvn attachment entries",
+    "func": "let entries = msg.payload;\nlet systemMessages = [];\nlet masterLogEntries = [];\nconst connId = msg.connection ? msg.connection.id : null;\n\nconst urlPattern = /https?:\\/\\/\\S+/i;\n\nentries.forEach(entry => {\n    if (entry.files && entry.files.length > 0) {\n        const fileCount = entry.files.length;\n        const now = Date.now();\n\n        if (entry.text && urlPattern.test(entry.text)) {\n            return;\n        }\n\n        const suffix = ` [Vedlegg: ${fileCount} fil(er) — direkte bilde og fil overføring fra Rayvn til Wasos er ikke tilgjengelig - Rayvn bruker har mottatt melding om å dele lenke]`;\n        entry.text = (entry.text || \"\") + suffix;\n\n        systemMessages.push({\n            text: \"[parat-bridge] ⚠️ Vedlagte bilder eller filer kan ikke videresendes automatisk til Wasos. \" +\n                  \"Tips: Høyreklikk på bildet i nettleseren → «Kopier bildeadresse» → lim inn \" +\n                  \"adressen som tekst. Da kan Wasos-brukere laste ned bildet direkte, eller åpne filen og del nettadressen til filen.\",\n            keyEvent: false,\n            releasedInfo: false,\n            labels: []\n        });\n\n        masterLogEntries.push({\n            id: \"pb-img-\" + now + \"-\" + Math.random().toString(36).substr(2, 6),\n            text: `[parat-bridge] Rayvn entry from ${entry.loggedByFullName} contained ${fileCount} file(s) that could not be forwarded to Wasos. Entry ID: ${entry.id}`,\n            timeCreated: now,\n            loggedByFullName: \"parat-bridge\",\n            client: \"parat-bridge\",\n            connection_id: connId\n        });\n    }\n});\n\nlet msg2 = systemMessages.length > 0 ? { payload: systemMessages, connection: msg.connection } : null;\nlet msg3 = masterLogEntries.length > 0 ? { payload: masterLogEntries } : null;\n\nmsg.payload = entries;\nreturn [msg, msg2, msg3];",
+    "outputs": 3,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 680,
+    "y": 80,
+    "wires": [
+      [
+        "336a09e1fa63bcb2"
+      ],
+      [
+        "e41588d55bab71c5"
+      ],
+      [
+        "edcb8d65c7a805ec"
+      ]
+    ]
+  },
+  {
+    "id": "e41588d55bab71c5",
+    "type": "subflow:4a6a1af9b9af6b0f",
+    "z": "fdea0898d1f24630",
+    "name": "",
+    "x": 1030,
+    "y": 60,
+    "wires": [
+      [],
+      []
+    ]
   }
 ]

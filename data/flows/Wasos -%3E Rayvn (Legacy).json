@@ -2,7 +2,7 @@
   {
     "id": "559975c27e81a86b",
     "type": "tab",
-    "label": "Wasos -> Rayvn",
+    "label": "Wasos -> Rayvn (Legacy)",
     "disabled": false,
     "info": "Sync flow from WaSOS to Rayvn. Polls WaSOS API, filters new messages, converts to Bridge format, appends to masterLog, then converts to Rayvn format and posts to Rayvn log.",
     "env": []
@@ -25,12 +25,15 @@
       "ad6e4ebae620ae51",
       "826af035abb1587d",
       "3b1a180eac54a098",
-      "c08dff63b6bf94a4"
+      "c08dff63b6bf94a4",
+      "2955a277af1a98c5",
+      "debug_rayvn_upload",
+      "debug_wasos_fetch"
     ],
-    "x": 454,
-    "y": 219,
-    "w": 852,
-    "h": 122
+    "x": 394,
+    "y": 59,
+    "w": 932,
+    "h": 322
   },
   {
     "id": "7606eac92c1778e2",
@@ -45,16 +48,66 @@
       "color": "#000000"
     },
     "nodes": [
-      "453ac9498920626e",
-      "df39f1408665a8da",
-      "5adc9f55c147a330",
       "37d09b076004e699",
-      "04b018b08a56f604"
+      "04b018b08a56f604",
+      "94a214f057f3ec9d"
     ],
-    "x": 454,
+    "x": 734,
     "y": 419,
-    "w": 932,
+    "w": 652,
     "h": 122
+  },
+  {
+    "id": "debug_rayvn_upload",
+    "type": "debug",
+    "z": "559975c27e81a86b",
+    "g": "d4b8f2a40d3eff46",
+    "name": "Rayvn upload response",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1090,
+    "y": 120,
+    "wires": []
+  },
+  {
+    "id": "debug_wasos_fetch",
+    "type": "debug",
+    "z": "559975c27e81a86b",
+    "g": "d4b8f2a40d3eff46",
+    "name": "WaSOS file fetch response",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 820,
+    "y": 120,
+    "wires": []
+  },
+  {
+    "id": "2955a277af1a98c5",
+    "type": "subflow:b1c2d3e4f5a6b7c8",
+    "z": "559975c27e81a86b",
+    "g": "d4b8f2a40d3eff46",
+    "name": "",
+    "x": 1000,
+    "y": 180,
+    "wires": [
+      [
+        "826af035abb1587d",
+        "debug_wasos_fetch",
+        "debug_rayvn_upload"
+      ]
+    ]
   },
   {
     "id": "04b018b08a56f604",
@@ -62,7 +115,7 @@
     "z": "559975c27e81a86b",
     "g": "7606eac92c1778e2",
     "name": "POST to Rayvn response",
-    "active": false,
+    "active": true,
     "tosidebar": true,
     "console": false,
     "tostatus": false,
@@ -93,23 +146,6 @@
     "wires": []
   },
   {
-    "id": "5adc9f55c147a330",
-    "type": "subflow:4a6a1af9b9af6b0f",
-    "z": "559975c27e81a86b",
-    "g": "7606eac92c1778e2",
-    "name": "",
-    "x": 1210,
-    "y": 500,
-    "wires": [
-      [
-        "04b018b08a56f604"
-      ],
-      [
-        "453ac9498920626e"
-      ]
-    ]
-  },
-  {
     "id": "c08dff63b6bf94a4",
     "type": "debug",
     "z": "559975c27e81a86b",
@@ -123,8 +159,8 @@
     "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 1140,
-    "y": 260,
+    "x": 1160,
+    "y": 300,
     "wires": []
   },
   {
@@ -141,41 +177,9 @@
     "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 840,
-    "y": 260,
+    "x": 820,
+    "y": 300,
     "wires": []
-  },
-  {
-    "id": "df39f1408665a8da",
-    "type": "subflow:5ed556f2fe39e3a2",
-    "z": "559975c27e81a86b",
-    "g": "7606eac92c1778e2",
-    "name": "",
-    "x": 860,
-    "y": 500,
-    "wires": [
-      [
-        "37d09b076004e699",
-        "5adc9f55c147a330"
-      ]
-    ]
-  },
-  {
-    "id": "453ac9498920626e",
-    "type": "subflow:2e632affbd071524",
-    "z": "559975c27e81a86b",
-    "g": "7606eac92c1778e2",
-    "name": "",
-    "x": 540,
-    "y": 500,
-    "wires": [
-      [
-        "564429d39322f007"
-      ],
-      [
-        "df39f1408665a8da"
-      ]
-    ]
   },
   {
     "id": "826af035abb1587d",
@@ -183,11 +187,10 @@
     "z": "559975c27e81a86b",
     "g": "d4b8f2a40d3eff46",
     "name": "",
-    "x": 1120,
-    "y": 300,
+    "x": 1140,
+    "y": 340,
     "wires": [
       [
-        "453ac9498920626e",
         "c08dff63b6bf94a4",
         "2eade2a1db9fad2e"
       ]
@@ -199,12 +202,12 @@
     "z": "559975c27e81a86b",
     "g": "d4b8f2a40d3eff46",
     "name": "",
-    "x": 830,
-    "y": 300,
+    "x": 850,
+    "y": 340,
     "wires": [
       [
-        "826af035abb1587d",
-        "3b1a180eac54a098"
+        "3b1a180eac54a098",
+        "2955a277af1a98c5"
       ]
     ]
   },
@@ -214,7 +217,7 @@
     "z": "559975c27e81a86b",
     "g": "d4b8f2a40d3eff46",
     "name": "Wasos polling response",
-    "active": false,
+    "active": true,
     "tosidebar": true,
     "console": false,
     "tostatus": false,
@@ -222,18 +225,19 @@
     "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 590,
-    "y": 260,
+    "x": 530,
+    "y": 100,
     "wires": []
   },
   {
     "id": "9c083fc8c222c29d",
     "type": "subflow:6844cb2c3b9378da",
     "z": "559975c27e81a86b",
+    "d": true,
     "g": "d4b8f2a40d3eff46",
     "name": "",
-    "x": 560,
-    "y": 300,
+    "x": 580,
+    "y": 340,
     "wires": [
       [
         "e5047f481499ea01",
@@ -262,8 +266,8 @@
     "type": "subflow:9252cc4477dcae34",
     "z": "559975c27e81a86b",
     "name": "",
-    "x": 1420,
-    "y": 300,
+    "x": 1500,
+    "y": 220,
     "wires": []
   },
   {
@@ -295,5 +299,16 @@
     "x": 900,
     "y": 600,
     "wires": []
+  },
+  {
+    "id": "94a214f057f3ec9d",
+    "type": "subflow:5b554f0e5b6f4d30",
+    "z": "559975c27e81a86b",
+    "g": "7606eac92c1778e2",
+    "x": 1040,
+    "y": 500,
+    "wires": [
+      []
+    ]
   }
 ]

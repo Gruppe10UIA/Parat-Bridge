@@ -28,3 +28,6 @@ lib/
 
 # Claude
 .claude/
+
+# Parat-Bridge runtime data
+data/bridge-files/

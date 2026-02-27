@@ -3,7 +3,7 @@
     "id": "99c17cced97ac339",
     "type": "subflow",
     "name": "GUI entrypoint",
-    "info": "The GUI entrypoint subflow handles the front end elements and outputs the user input\n\n* The form sends all required rayvn and wasos credentials\n* The split input variables splits the rayvn and wasos credentials into their own output.\n* which are then routed to indivitual outputs from the subflow",
+    "info": "Dashboard form for creating new connections. Accepts Rayvn and WaSOS credentials and splits them into separate outputs.\n\n### Input\nNone (ui-form submit)\n\n### Output 1 (Rayvn)\n`msg.payload = { rayvn_api_key, rayvn_log_name }`\n\n### Output 2 (WaSOS)\n`msg.payload = { wasos_username, wasos_password, wasos_chatroom_name }`",
     "category": "",
     "in": [],
     "out": [
@@ -45,7 +45,7 @@
     "height": 0,
     "options": [
       {
-        "label": "Rayvn API nøkkel",
+        "label": "Rayvn API n\u00f8kkel",
         "key": "rayvn_api_key",
         "type": "text",
         "required": true,
