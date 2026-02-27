@@ -18,8 +18,8 @@
     ],
     "out": [
       {
-        "x": 820,
-        "y": 320,
+        "x": 700,
+        "y": 300,
         "wires": [
           {
             "id": "41621a8a87543cf1",
@@ -28,8 +28,8 @@
         ]
       },
       {
-        "x": 820,
-        "y": 400,
+        "x": 700,
+        "y": 380,
         "wires": [
           {
             "id": "d8ba5952c6f01ecb",
@@ -59,8 +59,8 @@
     "authType": "",
     "senderr": true,
     "headers": [],
-    "x": 590,
-    "y": 320,
+    "x": 470,
+    "y": 300,
     "wires": [
       [
         "d8ba5952c6f01ecb"
@@ -73,7 +73,7 @@
     "type": "function",
     "z": "209f3c980818c499",
     "name": "Format header and url",
-    "func": "const connection = msg.connection;\n\nif (!connection || !connection.wasos.api.key || !connection.wasos.chatroom_name) {\n    node.error(\"WaSOS not configured on this connection\");\n    return null;\n}\n\nmsg.url = global.get(\"parat_bridge\").base_urls.wasos\n    + \"/api/chat/messages/\" + connection.wasos.chatroom_name;\n\nmsg.headers = {\n    \"x-api-key\": connection.wasos.api.key,\n    \"Content-Type\": \"application/json\"\n};\n\nreturn msg;",
+    "func": "const target = msg.metadata.target;\n\nif (!target || !target.api_key || !target.client_specific.chatroom_name) {\n    node.error(\"WaSOS not configured on this connection\");\n    return null;\n}\n\nmsg.url = global.get(\"parat_bridge\").base_urls.wasos\n    + \"/api/chat/messages/\" + target.client_specific.chatroom_name;\n\nmsg.headers = {\n    \"x-api-key\":    target.api_key,\n    \"Content-Type\": \"application/json\"\n};\n\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -84,30 +84,10 @@
     "y": 200,
     "wires": [
       [
-        "4b9eb1abd60ed246"
+        "c3ddcb7e014d64ed"
       ]
     ],
     "info": "Builds HTTP request headers and URL for WaSOS API. Sets x-api-key header from wasos_apikey and uses wasosChatroomUrl as the endpoint. Returns null if not configured."
-  },
-  {
-    "id": "4b9eb1abd60ed246",
-    "type": "split",
-    "z": "209f3c980818c499",
-    "name": "array to single entries",
-    "splt": "\\n",
-    "spltType": "str",
-    "arraySplt": 1,
-    "arraySpltType": "len",
-    "stream": false,
-    "addname": "",
-    "property": "payload",
-    "x": 620,
-    "y": 200,
-    "wires": [
-      [
-        "c3ddcb7e014d64ed"
-      ]
-    ]
   },
   {
     "id": "c3ddcb7e014d64ed",
@@ -126,8 +106,8 @@
     "drop": false,
     "allowrate": false,
     "outputs": 1,
-    "x": 330,
-    "y": 320,
+    "x": 590,
+    "y": 200,
     "wires": [
       [
         "41621a8a87543cf1"
@@ -146,8 +126,8 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 620,
-    "y": 400,
+    "x": 500,
+    "y": 380,
     "wires": [
       []
     ]

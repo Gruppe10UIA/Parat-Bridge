@@ -104,7 +104,7 @@
     "type": "function",
     "z": "5da162b98b7b6b86",
     "name": "Build Rayvn config",
-    "func": "// resolved from log name in previous node\nconst log_id = msg.payload;\n\nconst rayvn_config = {\n    // Standard client contract fields\n    client_system: \"rayvn\",\n    identifier:    log_id,\n    name:          msg.config_variables.rayvn_log_name,\n    timestamp:     Date.now(),\n    client_specific: {\n        // Rayvn-specific fields\n        api_key:  msg.config_variables.rayvn_api_key,\n        log_name: msg.config_variables.rayvn_log_name,\n        log_id:   log_id\n    }\n};\n\nmsg.payload = rayvn_config;\nreturn msg;\n",
+    "func": "// resolved from log name in previous node\nconst log_id = msg.payload;\n\nconst rayvn_config = {\n    // Standard client contract fields\n    client_system: \"rayvn\",\n    api_key: msg.config_variables.rayvn_api_key,\n    identifier:    log_id,\n    name:          msg.config_variables.rayvn_log_name,\n    timestamp:     Date.now(),\n    client_specific: {\n        // Rayvn-specific fields\n        api_key:  msg.config_variables.rayvn_api_key,\n        log_name: msg.config_variables.rayvn_log_name,\n        log_id:   log_id\n    }\n};\n\nmsg.payload = rayvn_config;\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,

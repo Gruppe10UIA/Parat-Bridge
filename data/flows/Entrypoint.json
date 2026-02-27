@@ -53,10 +53,10 @@
       "e6785e6cf6e666cf",
       "a7ccd4d8c49ceaff"
     ],
-    "x": 14,
-    "y": 579,
+    "x": 74,
+    "y": 519,
     "w": 672,
-    "h": 142
+    "h": 122
   },
   {
     "id": "9ab1f6c2842073c5",
@@ -73,11 +73,12 @@
     "nodes": [
       "5a283579df925b67",
       "d61931ad5e5945c0",
-      "1cf402a0d8609d2e"
+      "1cf402a0d8609d2e",
+      "6337e6c1b807bf20"
     ],
-    "x": 74,
-    "y": 19,
-    "w": 452,
+    "x": 154,
+    "y": 79,
+    "w": 522,
     "h": 122
   },
   {
@@ -86,8 +87,8 @@
     "z": "84d1a0de660abb59",
     "g": "96e90febc19e0c83",
     "name": "",
-    "x": 430,
-    "y": 680,
+    "x": 490,
+    "y": 600,
     "wires": [
       [
         "a7ccd4d8c49ceaff"
@@ -227,8 +228,8 @@
     "once": true,
     "onceDelay": "0.1",
     "topic": "",
-    "x": 170,
-    "y": 60,
+    "x": 250,
+    "y": 120,
     "wires": [
       [
         "d61931ad5e5945c0",
@@ -291,17 +292,19 @@
     "z": "84d1a0de660abb59",
     "g": "9ab1f6c2842073c5",
     "name": "initialize parat bridge",
-    "func": "// Base URLs for all API calls\nconst BASE_URLS = {\n    rayvn: \"https://api.rayvn.global\",\n    wasos: \"https://dev.wasos.no\"\n};\n\n// Preserve existing data across restarts\nlet data = global.get(\"parat_bridge\") || null;\n\nif (!data) {\n    // Fresh install — create empty structure\n    data = {\n        base_urls: BASE_URLS,\n        connections: {},\n        queue: {\n            in_flight_connections: [],\n            entry_queue: []\n        }\n    };\n} else {\n    // Existing install — update base URLs, keep connections and queue intact\n    data.base_urls = BASE_URLS;\n    data.msg_queue = data.msg_queue || [];\n}\n\nglobal.set(\"parat_bridge\", data);\n\nnode.log(\"Parat-Bridge initialized: \" + Object.keys(data.connections).length + \" connection(s)\");\nmsg.payload = data;\nreturn msg;",
+    "func": "// Base URLs for all API calls\nconst BASE_URLS = {\n    rayvn: \"https://api.rayvn.global\",\n    wasos: \"https://dev.wasos.no\"\n};\n\n// Preserve existing data across restarts\nlet data = global.get(\"parat_bridge\") || null;\n\nif (!data) {\n    // Fresh install — create empty structure\n    data = {\n        base_urls: BASE_URLS,\n        connections: {},\n        queue: {\n            in_flight_connections: [],\n            entry_queue: []\n        }\n    };\n} else {\n    // Existing install — update base URLs, keep connections and queue intact\n    data.base_urls = BASE_URLS;\n    data.msg_queue = data.msg_queue || [];\n}\n\nglobal.set(\"parat_bridge\", data);\n\nnode.log(\"Parat_Bridge initialized: \" + Object.keys(data.connections).length + \" connection(s)\");\nmsg.payload = data;\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 380,
-    "y": 60,
+    "x": 460,
+    "y": 120,
     "wires": [
-      []
+      [
+        "6337e6c1b807bf20"
+      ]
     ]
   },
   {
@@ -310,8 +313,8 @@
     "z": "84d1a0de660abb59",
     "g": "96e90febc19e0c83",
     "name": "",
-    "x": 440,
-    "y": 620,
+    "x": 500,
+    "y": 560,
     "wires": []
   },
   {
@@ -320,8 +323,8 @@
     "z": "84d1a0de660abb59",
     "g": "96e90febc19e0c83",
     "name": "",
-    "x": 130,
-    "y": 680,
+    "x": 190,
+    "y": 600,
     "wires": [
       [
         "03c1d5a79bea3bbf",
@@ -336,20 +339,15 @@
     "z": "84d1a0de660abb59",
     "g": "9ab1f6c2842073c5",
     "name": "Initialize system functions",
-    "func": "global.set('utils', {\n\n    /*\n        Builds a stable, unique connection key from an array of client objects.\n        Sorts by client_system alphabetically before mapping to guarantee the same\n        key regardless of the order clients arrive in.\n        Format: \"system:identifier_system:identifier\"\n        Example: \"rayvn:log-uuid_wasos:46204-Rayvn\"\n    */\n    build_connection_name: (clients) => {\n        return [...clients]\n            .sort((a, b) => a.client_system.localeCompare(b.client_system))\n            .map(c => `${c.client_system}:${c.identifier}`)\n            .join(\"_\");\n    }\n\n});\n",
+    "func": "global.set('utils', {\n\n    /*\n        Builds a stable, unique connection key from an array of client objects.\n        Sorts by client_system alphabetically before mapping to guarantee the same\n        key regardless of the order clients arrive in.\n        Format: \"system:identifier_system:identifier\"\n        Example: \"rayvn:log-uuid_wasos:46204-Rayvn\"\n    */\n    build_connection_name: (clients) => {\n        return [...clients]\n            .sort((a, b) => a.client_system.localeCompare(b.client_system))\n            .map(c => `${c.client_system}:${c.identifier}`)\n            .join(\"_\");\n    },\n\n    build_label: (client) => {\n        const colors = {\n            wasos:          \"#1f871f\",\n            rayvn:          \"#000000\",\n            parat_bridge: \"#b80d18\"\n        };\n        return {\n            id:       client.identifier,\n            name:     `[${client.client_system}]: ${client.name}`,\n            colorHex: colors[client.client_system] || \"#888888\"\n        };\n    }\n\n});\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
-    "libs": [
-      {
-        "var": "crypto",
-        "module": "crypto"
-      }
-    ],
-    "x": 390,
-    "y": 100,
+    "libs": [],
+    "x": 470,
+    "y": 160,
     "wires": [
       []
     ]
@@ -368,8 +366,8 @@
     "targetType": "full",
     "statusVal": "",
     "statusType": "auto",
-    "x": 170,
-    "y": 640,
+    "x": 230,
+    "y": 560,
     "wires": []
   },
   {
@@ -382,8 +380,20 @@
     "links": [
       "9fe2d9086d510cb5"
     ],
-    "x": 645,
-    "y": 680,
+    "x": 705,
+    "y": 600,
+    "wires": []
+  },
+  {
+    "id": "6337e6c1b807bf20",
+    "type": "link out",
+    "z": "84d1a0de660abb59",
+    "g": "9ab1f6c2842073c5",
+    "name": "link out 2",
+    "mode": "link",
+    "links": [],
+    "x": 635,
+    "y": 120,
     "wires": []
   }
 ]

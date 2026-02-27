@@ -34,7 +34,8 @@
     ],
     "env": [],
     "meta": {},
-    "color": "#DDAA99"
+    "color": "#D8BFD8",
+    "icon": "font-awesome/fa-file-text-o"
   },
   {
     "id": "d41907671d0ee736",
@@ -98,7 +99,7 @@
     "type": "function",
     "z": "a9600579fb00971d",
     "name": "Bridge to Rayvn",
-    "func": "const entry  = msg.entry;\nconst source = entry.metadata.source;\n\nmsg.metadata = entry.metadata;\nmsg.payload  = {\n    text:             `[${source.client_system}] ${entry.author}: ${entry.text || \"[attachment]\"}`,\n    keyEvent:         false,\n    releasedInfo:     false,\n    loggedByFullName: `[${source.client_system}] ${entry.author}`,\n    labels:           [{\n        id:       source.identifier,\n        name:     `[${source.client_system}]: ${source.name}`,\n        colorHex: \"#22AA22\"\n    }],\n    files:            entry.files || []\n};\n\nreturn msg;\n",
+    "func": "const entry  = msg.entry;\nconst source = entry.metadata.source;\nconst utils = global.get(\"utils\")\n\nmsg.metadata = entry.metadata;\nmsg.payload  = {\n    text:             `[${source.client_system}] ${entry.author}: ${entry.text || \"[attachment]\"}`,\n    keyEvent:         false,\n    releasedInfo:     false,\n    loggedByFullName: `[${source.client_system}] ${entry.author}`,\n    labels:           [utils.build_label(source)],\n    files:            entry.files || []\n};\n\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
