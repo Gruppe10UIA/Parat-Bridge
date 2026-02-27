@@ -99,7 +99,7 @@
     "type": "function",
     "z": "a9600579fb00971d",
     "name": "Bridge to Rayvn",
-    "func": "const entry  = msg.entry;\nconst source = entry.metadata.source;\nconst utils = global.get(\"utils\")\n\nmsg.metadata = entry.metadata;\nmsg.payload  = {\n    text:             `${utils.build_callsign(source)} ${entry.author}: ${entry.text || \"\"}`,\n    keyEvent:         false,\n    releasedInfo:     false,\n    loggedByFullName: `${utils.build_callsign(source)} ${entry.author}`,\n    labels:           [utils.build_label(source)],\n    files:            entry.files || []\n};\n\nreturn msg;\n",
+    "func": "const entry  = msg.entry;\nconst source = entry.metadata.source;\nconst utils = global.get(\"utils\")\n\nmsg.metadata = entry.metadata;\nmsg.payload  = {\n    text:             `${utils.build_callsign(source)} ${entry.author}: ${entry.text || \"\"}`,\n    keyEvent:         false,\n    releasedInfo:     false,\n    loggedByFullName: `${utils.build_callsign(source)} ${entry.author}`,\n    labels:           [],\n    files:            entry.files || []\n};\n\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,

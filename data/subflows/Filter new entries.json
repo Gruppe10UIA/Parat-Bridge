@@ -38,7 +38,7 @@
     "type": "function",
     "z": "0047704f35a57b0c",
     "name": "Filter",
-    "func": "const entry  = msg.payload;\nconst source = msg.metadata.source;\nconst utils  = global.get(\"utils\");\n\n// Skip entries older than last successful fetch\nif (entry.timestamp <= source.timestamp) return null;\n\n// Loop prevention — skip entries forwarded by the target (i.e. posted by us)\nconst target_callsign = utils.build_callsign(msg.metadata.target);\nif (entry.author.startsWith(target_callsign)) return null;\n\n// Skip parat_bridge system messages\nif (entry.text && entry.text.startsWith(utils.build_callsign({ client_system: \"parat_bridge\", name: \"parat_bridge\" }))) return null;\n\n// Skip entries with a label matching the target identifier\nif ((entry.labels || []).some(l => l.id === msg.metadata.target.identifier)) return null;\n\nreturn msg;\n",
+    "func": "const entry  = msg.payload;\nconst source = msg.metadata.source;\nconst utils  = global.get(\"utils\");\n\n// Skip entries older than last successful fetch\nif (entry.timestamp <= source.timestamp) return null;\n\n// Loop prevention — skip entries forwarded by the target (i.e. posted by us)\nconst target_callsign = utils.build_callsign(msg.metadata.target);\nif (entry.author.includes(target_callsign)) return null;\n\n// Skip parat_bridge system messages\nif (entry.text && entry.text.startsWith(utils.build_callsign({ client_system: \"parat_bridge\", name: \"parat_bridge\" }))) return null;\n\n// Skip entries with a label matching the target identifier\nif ((entry.labels || []).some(l => l.id === msg.metadata.target.identifier)) return null;\n\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
