@@ -51,11 +51,12 @@
       "7cf27d9c1bf7f451",
       "03c1f0752644b9c0",
       "e6785e6cf6e666cf",
-      "a7ccd4d8c49ceaff"
+      "a7ccd4d8c49ceaff",
+      "be554d1eb57375c1"
     ],
     "x": 74,
     "y": 519,
-    "w": 672,
+    "w": 792,
     "h": 122
   },
   {
@@ -91,7 +92,8 @@
     "y": 600,
     "wires": [
       [
-        "a7ccd4d8c49ceaff"
+        "a7ccd4d8c49ceaff",
+        "be554d1eb57375c1"
       ]
     ]
   },
@@ -292,7 +294,7 @@
     "z": "84d1a0de660abb59",
     "g": "9ab1f6c2842073c5",
     "name": "initialize parat bridge",
-    "func": "// Base URLs for all API calls\nconst BASE_URLS = {\n    rayvn: \"https://api.rayvn.global\",\n    wasos: \"https://dev.wasos.no\"\n};\n\n// Preserve existing data across restarts\nlet data = global.get(\"parat_bridge\") || null;\n\nif (!data) {\n    // Fresh install — create empty structure\n    data = {\n        base_urls: BASE_URLS,\n        connections: {},\n        queue: {\n            in_flight_connections: [],\n            entry_queue: []\n        }\n    };\n} else {\n    // Existing install — update base URLs, keep connections and queue intact\n    data.base_urls = BASE_URLS;\n    data.msg_queue = data.msg_queue || [];\n}\n\nglobal.set(\"parat_bridge\", data);\n\nnode.log(\"Parat_Bridge initialized: \" + Object.keys(data.connections).length + \" connection(s)\");\nmsg.payload = data;\nreturn msg;",
+    "func": "// Base URLs for all API calls\nconst BASE_URLS = {\n    rayvn: \"https://api.rayvn.global\",\n    wasos: \"https://dev.wasos.no\"\n};\n\n// Preserve existing data across restarts\nlet data = global.get(\"parat_bridge\") || null;\n\nif (!data) {\n    // Fresh install — create empty structure\n    data = {\n        base_urls: BASE_URLS,\n        connections: {},\n        queue: {\n            in_flight_connections: [],\n            entry_queue: []\n        }\n    };\n} else {\n    // Existing install — update base URLs, keep connections and queue intact\n    data.base_urls = BASE_URLS;\n}\n\nglobal.set(\"parat_bridge\", data);\n\nnode.log(\"Parat_Bridge initialized: \" + Object.keys(data.connections).length + \" connection(s)\");\nmsg.payload = data;\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -339,7 +341,7 @@
     "z": "84d1a0de660abb59",
     "g": "9ab1f6c2842073c5",
     "name": "Initialize system functions",
-    "func": "global.set('utils', {\n\n    /*\n        Builds a stable, unique connection key from an array of client objects.\n        Sorts by client_system alphabetically before mapping to guarantee the same\n        key regardless of the order clients arrive in.\n        Format: \"system:identifier_system:identifier\"\n        Example: \"rayvn:log-uuid_wasos:46204-Rayvn\"\n    */\n    build_connection_name: (clients) => {\n        return [...clients]\n            .sort((a, b) => a.client_system.localeCompare(b.client_system))\n            .map(c => `${c.client_system}:${c.identifier}`)\n            .join(\"_\");\n    },\n\n    build_label: (client) => {\n        const colors = {\n            wasos:          \"#1f871f\",\n            rayvn:          \"#000000\",\n            parat_bridge: \"#b80d18\"\n        };\n        return {\n            id:       client.identifier,\n            name:     `[${client.client_system}]: ${client.name}`,\n            colorHex: colors[client.client_system] || \"#888888\"\n        };\n    }\n\n});\n",
+    "func": "global.set('utils', {\n\n    /*\n        Builds a stable, unique connection key from an array of client objects.\n        Sorts by client_system alphabetically before mapping to guarantee the same\n        key regardless of the order clients arrive in.\n        Format: \"system:identifier_system:identifier\"\n        Example: \"rayvn:log-uuid_wasos:46204-Rayvn\"\n    */\n    build_connection_name: (clients) => {\n        return [...clients]\n            .sort((a, b) => a.client_system.localeCompare(b.client_system))\n            .map(c => `${c.client_system}:${c.identifier}`)\n            .join(\"_\");\n    },\n\n    build_label: (client) => {\n        const colors = {\n            wasos:          \"#1f871f\",\n            rayvn:          \"#000000\",\n            parat_bridge: \"#b80d18\"\n        };\n        return {\n            id:       client.identifier,\n            name:     `[${client.client_system}]: ${client.name}`,\n            colorHex: colors[client.client_system] || \"#888888\"\n        };\n    },\n\n    build_callsign: (client) => `[${client.client_system}:${client.name}]`\n});\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -358,7 +360,7 @@
     "z": "84d1a0de660abb59",
     "g": "96e90febc19e0c83",
     "name": "Initialize connection",
-    "active": true,
+    "active": false,
     "tosidebar": true,
     "console": false,
     "tostatus": false,
@@ -394,6 +396,24 @@
     "links": [],
     "x": 635,
     "y": 120,
+    "wires": []
+  },
+  {
+    "id": "be554d1eb57375c1",
+    "type": "debug",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "name": "initial log entries",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 740,
+    "y": 560,
     "wires": []
   }
 ]

@@ -470,7 +470,7 @@
     "type": "function",
     "z": "901ed98289cc4ecd",
     "name": "Clear queue",
-    "func": "const queue      = global.get(\"parat_bridge.queue.entry_queue\");\nconst in_flight  = global.get(\"parat_bridge.queue.in_flight_connections\");\nconst parat      = global.get(\"parat_bridge\");\n\nnode.warn(\"queue: \" + JSON.stringify(queue));\nnode.warn(\"in_flight: \" + JSON.stringify(in_flight));\nnode.warn(\"parat_bridge.queue exists: \" + !!(parat && parat.queue));\nreturn msg;\n",
+    "func": "global.set(\"parat_bridge.queue.in_flight_connections\", [])\nglobal.set(\"parat_bridge.queue.entry_queue\", [])\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
