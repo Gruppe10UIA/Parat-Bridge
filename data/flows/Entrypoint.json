@@ -60,29 +60,6 @@
     "h": 122
   },
   {
-    "id": "9ab1f6c2842073c5",
-    "type": "group",
-    "z": "84d1a0de660abb59",
-    "name": "Setting runtime constants",
-    "style": {
-      "stroke": "#92d04f",
-      "fill": "#c8e7a7",
-      "label": true,
-      "label-position": "n",
-      "color": "#000000"
-    },
-    "nodes": [
-      "5a283579df925b67",
-      "d61931ad5e5945c0",
-      "1cf402a0d8609d2e",
-      "6337e6c1b807bf20"
-    ],
-    "x": 154,
-    "y": 79,
-    "w": 522,
-    "h": 122
-  },
-  {
     "id": "03c1d5a79bea3bbf",
     "type": "subflow:0fad769721e9978c",
     "z": "84d1a0de660abb59",
@@ -219,27 +196,6 @@
     ]
   },
   {
-    "id": "5a283579df925b67",
-    "type": "inject",
-    "z": "84d1a0de660abb59",
-    "g": "9ab1f6c2842073c5",
-    "name": "",
-    "props": [],
-    "repeat": "",
-    "crontab": "",
-    "once": true,
-    "onceDelay": "0.1",
-    "topic": "",
-    "x": 250,
-    "y": 120,
-    "wires": [
-      [
-        "d61931ad5e5945c0",
-        "1cf402a0d8609d2e"
-      ]
-    ]
-  },
-  {
     "id": "02f5aa2ff841acd1",
     "type": "subflow:a7d9b521445d1bf0",
     "z": "84d1a0de660abb59",
@@ -289,27 +245,6 @@
     ]
   },
   {
-    "id": "d61931ad5e5945c0",
-    "type": "function",
-    "z": "84d1a0de660abb59",
-    "g": "9ab1f6c2842073c5",
-    "name": "initialize parat bridge",
-    "func": "// Base URLs for all API calls\nconst BASE_URLS = {\n    rayvn: \"https://api.rayvn.global\",\n    wasos: \"https://dev.wasos.no\"\n};\n\n// Preserve existing data across restarts\nlet data = global.get(\"parat_bridge\") || null;\n\nif (!data) {\n    // Fresh install — create empty structure\n    data = {\n        base_urls: BASE_URLS,\n        connections: {},\n        queue: {\n            in_flight_connections: [],\n            entry_queue: []\n        }\n    };\n} else {\n    // Existing install — update base URLs, keep connections and queue intact\n    data.base_urls = BASE_URLS;\n}\n\nglobal.set(\"parat_bridge\", data);\n\nnode.log(\"Parat_Bridge initialized: \" + Object.keys(data.connections).length + \" connection(s)\");\nmsg.payload = data;\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 460,
-    "y": 120,
-    "wires": [
-      [
-        "6337e6c1b807bf20"
-      ]
-    ]
-  },
-  {
     "id": "03c1f0752644b9c0",
     "type": "subflow:3241f77fe5e4f9ea",
     "z": "84d1a0de660abb59",
@@ -333,25 +268,6 @@
         "03c1f0752644b9c0",
         "e6785e6cf6e666cf"
       ]
-    ]
-  },
-  {
-    "id": "1cf402a0d8609d2e",
-    "type": "function",
-    "z": "84d1a0de660abb59",
-    "g": "9ab1f6c2842073c5",
-    "name": "Initialize system functions",
-    "func": "global.set('utils', {\n\n    /*\n        Builds a stable, unique connection key from an array of client objects.\n        Sorts by client_system alphabetically before mapping to guarantee the same\n        key regardless of the order clients arrive in.\n        Format: \"system:identifier_system:identifier\"\n        Example: \"rayvn:log-uuid_wasos:46204-Rayvn\"\n    */\n    build_connection_name: (clients) => {\n        return [...clients]\n            .sort((a, b) => a.client_system.localeCompare(b.client_system))\n            .map(c => `${c.client_system}:${c.identifier}`)\n            .join(\"_\");\n    },\n\n    build_label: (client) => {\n        const colors = {\n            wasos:          \"#1f871f\",\n            rayvn:          \"#000000\",\n            parat_bridge: \"#b80d18\"\n        };\n        return {\n            id:       client.identifier,\n            name:     `[${client.client_system}]: ${client.name}`,\n            colorHex: colors[client.client_system] || \"#888888\"\n        };\n    },\n\n    build_callsign: (client) => `[${client.client_system}:${client.name}]`\n});\n",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 470,
-    "y": 160,
-    "wires": [
-      []
     ]
   },
   {
@@ -384,18 +300,6 @@
     ],
     "x": 705,
     "y": 600,
-    "wires": []
-  },
-  {
-    "id": "6337e6c1b807bf20",
-    "type": "link out",
-    "z": "84d1a0de660abb59",
-    "g": "9ab1f6c2842073c5",
-    "name": "link out 2",
-    "mode": "link",
-    "links": [],
-    "x": 635,
-    "y": 120,
     "wires": []
   },
   {

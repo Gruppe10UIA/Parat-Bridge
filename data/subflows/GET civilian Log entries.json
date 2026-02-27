@@ -104,7 +104,7 @@
     "type": "function",
     "z": "0fad769721e9978c",
     "name": "Attach metadata",
-    "func": "const connection = msg.payload;\nconst clients    = Object.values(connection.clients);\nconst target     = clients.find(c => c.client_system === \"wasos\");\nconst source     = clients.find(c => c.client_system !== \"wasos\");\n\nmsg.topic    = source.client_system;\nmsg.metadata = {\n    source:     source,\n    target:     target,\n    connection: connection\n};\n\nreturn msg;\n",
+    "func": "const connection = msg.payload;\nconst clients    = Object.values(connection.clients);\nconst target     = clients.find(c => c.client_system === \"wasos\");\nconst source     = clients.find(c => c.client_system !== \"wasos\");\n\nmsg.topic    = source.client_system;\nmsg.metadata = {\n    source:     source,\n    target:     target,\n    connection_name: connection.name\n};\n\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,

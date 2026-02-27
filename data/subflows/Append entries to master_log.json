@@ -38,7 +38,7 @@
     "type": "function",
     "z": "fe9d5f6f9c2bdb16",
     "name": "append new entries",
-    "func": "// Look up the connection to append to\nconst connection_name = msg.entry.metadata.connection_name;\nconst data = global.get(\"parat_bridge\");\nconst conn = data.connections[connection_name];\n\nif (!conn) {\n    node.warn(\"Cannot log entry — no connection found: \" + connection_name);\n    return null;\n}\n\n// Stamp delivery time and push to the connection's log\nconst logEntry = Object.assign({}, msg.entry);\nlogEntry.deliveredAt = new Date().toISOString();\n\nconn.master_log.push(logEntry);\nglobal.set(\"parat_bridge\", data);\n\nreturn msg;\n",
+    "func": "// Look up the connection to append to\nconst connection_name = msg.entry.metadata.connection_name;\nconst data = global.get(\"parat_bridge\");\nconst conn = data.connections[connection_name];\n\nif (!conn) {\n    node.warn(\"Cannot log entry — no connection found: \" + connection_name);\n    return null;\n}\n\n// Stamp delivery time and slim down metadata before storing\nconst logEntry = Object.assign({}, msg.entry);\nlogEntry.deliveredAt = new Date().toISOString();\nlogEntry.metadata = {\n    source:          msg.entry.metadata.source.identifier,\n    target:          msg.entry.metadata.target.identifier,\n    connection_name: connection_name\n};\n\nconn.master_log.push(logEntry);\nglobal.set(\"parat_bridge\", data);\n\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,

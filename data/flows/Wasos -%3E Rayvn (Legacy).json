@@ -2,7 +2,7 @@
   {
     "id": "559975c27e81a86b",
     "type": "tab",
-    "label": "Wasos -> Rayvn",
+    "label": "Wasos -> Rayvn (Legacy)",
     "disabled": false,
     "info": "Sync flow from WaSOS to Rayvn. Polls WaSOS API, filters new messages, converts to Bridge format, appends to masterLog, then converts to Rayvn format and posts to Rayvn log.",
     "env": []
