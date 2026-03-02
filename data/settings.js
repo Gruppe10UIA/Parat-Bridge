@@ -5,8 +5,7 @@ module.exports = {
         }
     },
     contextStorage: {
-        memory: { module: "memory" },
-        file: {
+        default: {
             module: "localfilesystem",
             config: {
                 dir: "/data/bridge-files",
@@ -15,4 +14,3 @@ module.exports = {
         }
     }
 }
-
