@@ -9,7 +9,7 @@ module.exports = {
             module: "localfilesystem",
             config: {
                 dir: "/data/bridge-files",
-                flushInterval: 5
+                flushInterval: 1
             }
         }
     }

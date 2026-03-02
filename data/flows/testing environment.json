@@ -378,40 +378,6 @@
     ]
   },
   {
-    "id": "b21700737dedc292",
-    "type": "ui-switch",
-    "z": "901ed98289cc4ecd",
-    "name": "bypass_initiall_post",
-    "label": "bypass_initiall_post",
-    "group": "9df65904057aeaa7",
-    "order": 1,
-    "width": 0,
-    "height": 0,
-    "passthru": false,
-    "decouple": false,
-    "topic": "payload",
-    "topicType": "msg",
-    "style": "",
-    "className": "",
-    "layout": "row-left",
-    "clickableArea": "switch",
-    "onvalue": "true",
-    "onvalueType": "bool",
-    "onicon": "",
-    "oncolor": "",
-    "offvalue": "false",
-    "offvalueType": "bool",
-    "officon": "",
-    "offcolor": "",
-    "x": 570,
-    "y": 240,
-    "wires": [
-      [
-        "637113a78a36de82"
-      ]
-    ]
-  },
-  {
     "id": "637113a78a36de82",
     "type": "change",
     "z": "901ed98289cc4ecd",
@@ -481,6 +447,56 @@
     "y": 360,
     "wires": [
       []
+    ]
+  },
+  {
+    "id": "5669841249caa58d",
+    "type": "inject",
+    "z": "901ed98289cc4ecd",
+    "name": "",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "true",
+    "payloadType": "bool",
+    "x": 390,
+    "y": 240,
+    "wires": [
+      [
+        "637113a78a36de82"
+      ]
+    ]
+  },
+  {
+    "id": "a9e31bfd6398f4b7",
+    "type": "inject",
+    "z": "901ed98289cc4ecd",
+    "name": "",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "false",
+    "payloadType": "bool",
+    "x": 570,
+    "y": 240,
+    "wires": [
+      [
+        "637113a78a36de82"
+      ]
     ]
   }
 ]
