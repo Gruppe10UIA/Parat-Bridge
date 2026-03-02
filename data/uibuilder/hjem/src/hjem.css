@@ -1,0 +1,168 @@
+/* ===== TWO-COLUMN LAYOUT ===== */
+
+#app-content {
+    display: flex;
+    gap: 1px;
+    height: calc(100vh - 56px);
+}
+
+#form-section,
+#connections-section {
+    flex: 1 1 0;
+    background: #fff;
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+#form-section {
+    border-right: 1px solid #ddd;
+}
+
+/* ===== SECTION HEADINGS ===== */
+
+#form-section h2,
+#connections-header h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 1.5rem;
+}
+
+/* ===== FORM ===== */
+
+#connection-form fieldset {
+    border: none;
+    margin-bottom: 1.5rem;
+}
+
+#connection-form legend {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #888;
+    margin-bottom: 0.75rem;
+}
+
+.form-field {
+    margin-bottom: 1rem;
+}
+
+.form-field label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #444;
+    margin-bottom: 0.35rem;
+}
+
+.form-field input {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    font-size: 0.9rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: #fafafa;
+    color: #1a1a1a;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.form-field input:focus {
+    outline: none;
+    border-color: #0070c0;
+    box-shadow: 0 0 0 3px rgba(0, 112, 192, 0.12);
+    background: #fff;
+}
+
+.form-field input:invalid:not(:placeholder-shown):not(:focus) {
+    border-color: #d44;
+}
+
+/* ===== FORM ACTIONS ===== */
+
+.form-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.form-actions button {
+    padding: 0.6rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background 0.15s, box-shadow 0.15s;
+}
+
+#btn-submit {
+    background: #0070c0;
+    color: #fff;
+}
+
+#btn-submit:hover {
+    background: #005a9e;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+#btn-submit:active {
+    background: #004a85;
+}
+
+#btn-clear {
+    background: #fff;
+    color: #555;
+    border-color: #ccc;
+}
+
+#btn-clear:hover {
+    background: #f0f0f0;
+}
+
+/* ===== FORM FEEDBACK ===== */
+
+#form-feedback:empty {
+    display: none;
+}
+
+#form-feedback {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+}
+
+/* ===== CONNECTIONS PANEL ===== */
+
+#connections-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #eee;
+}
+
+#connections-header h2 {
+    margin-bottom: 0;
+}
+
+/* ===== CONNECTION LIST ===== */
+
+#connections-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    min-height: 300px;
+}
+
+/* Placeholder when no connections exist */
+#connections-list:empty::after {
+    content: "Ingen koblinger ennå";
+    display: block;
+    text-align: center;
+    color: #aaa;
+    font-size: 0.9rem;
+    padding: 3rem 0;
+}
