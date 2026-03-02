@@ -29,7 +29,7 @@
     "payload": "",
     "payloadType": "date",
     "x": 480,
-    "y": 320,
+    "y": 340,
     "wires": [
       [
         "d33647ad91e47105"
@@ -49,191 +49,9 @@
     "finalize": "",
     "libs": [],
     "x": 710,
-    "y": 320,
+    "y": 340,
     "wires": [
       []
-    ]
-  },
-  {
-    "id": "2bb096b5fa147299",
-    "type": "ui-switch",
-    "z": "901ed98289cc4ecd",
-    "name": "Rayvn polling",
-    "label": "Rayvn polling toggle",
-    "group": "9df65904057aeaa7",
-    "order": 3,
-    "width": 0,
-    "height": 0,
-    "passthru": false,
-    "decouple": false,
-    "topic": "payload",
-    "topicType": "msg",
-    "style": "",
-    "className": "",
-    "layout": "row-left",
-    "clickableArea": "switch",
-    "onvalue": "true",
-    "onvalueType": "bool",
-    "onicon": "",
-    "oncolor": "",
-    "offvalue": "false",
-    "offvalueType": "bool",
-    "officon": "",
-    "offcolor": "",
-    "x": 460,
-    "y": 520,
-    "wires": [
-      [
-        "2f8dbf7319072a1d"
-      ]
-    ]
-  },
-  {
-    "id": "2f8dbf7319072a1d",
-    "type": "change",
-    "z": "901ed98289cc4ecd",
-    "name": "",
-    "rules": [
-      {
-        "t": "set",
-        "p": "parat_bridge.connections",
-        "pt": "global",
-        "to": "payload",
-        "tot": "msg"
-      }
-    ],
-    "action": "",
-    "property": "",
-    "from": "",
-    "to": "",
-    "reg": false,
-    "x": 760,
-    "y": 520,
-    "wires": [
-      []
-    ]
-  },
-  {
-    "id": "18d492fbf4b111ee",
-    "type": "ui-switch",
-    "z": "901ed98289cc4ecd",
-    "name": "Wasos polling",
-    "label": "Wasos polling toggle",
-    "group": "9df65904057aeaa7",
-    "order": 2,
-    "width": 0,
-    "height": 0,
-    "passthru": false,
-    "decouple": false,
-    "topic": "payload",
-    "topicType": "msg",
-    "style": "",
-    "className": "",
-    "layout": "row-left",
-    "clickableArea": "switch",
-    "onvalue": "true",
-    "onvalueType": "bool",
-    "onicon": "",
-    "oncolor": "",
-    "offvalue": "false",
-    "offvalueType": "bool",
-    "officon": "",
-    "offcolor": "",
-    "x": 460,
-    "y": 600,
-    "wires": [
-      [
-        "7e8d761d15eec31b"
-      ]
-    ]
-  },
-  {
-    "id": "7e8d761d15eec31b",
-    "type": "change",
-    "z": "901ed98289cc4ecd",
-    "name": "",
-    "rules": [
-      {
-        "t": "set",
-        "p": "parat_bridge.connections",
-        "pt": "global",
-        "to": "payload",
-        "tot": "msg"
-      }
-    ],
-    "action": "",
-    "property": "",
-    "from": "",
-    "to": "",
-    "reg": false,
-    "x": 760,
-    "y": 600,
-    "wires": [
-      []
-    ]
-  },
-  {
-    "id": "47564cb87057cee1",
-    "type": "link out",
-    "z": "901ed98289cc4ecd",
-    "name": "Test inject Wasos -> rayvn",
-    "mode": "link",
-    "links": [
-      "56587a3e4c9c3c80"
-    ],
-    "x": 675,
-    "y": 700,
-    "wires": []
-  },
-  {
-    "id": "08c66198a731c5f3",
-    "type": "inject",
-    "z": "901ed98289cc4ecd",
-    "name": "Inject Wasos -> Rayvn",
-    "props": [],
-    "repeat": "",
-    "crontab": "",
-    "once": false,
-    "onceDelay": 0.1,
-    "topic": "",
-    "x": 440,
-    "y": 700,
-    "wires": [
-      [
-        "47564cb87057cee1"
-      ]
-    ]
-  },
-  {
-    "id": "4f2504777076bc4d",
-    "type": "link out",
-    "z": "901ed98289cc4ecd",
-    "name": "Test inject Rayvn -> Wasos",
-    "mode": "link",
-    "links": [
-      "116e8fe2105b1f4b"
-    ],
-    "x": 675,
-    "y": 760,
-    "wires": []
-  },
-  {
-    "id": "815081454d899fe0",
-    "type": "inject",
-    "z": "901ed98289cc4ecd",
-    "name": "Inject Rayvn -> Wasos",
-    "props": [],
-    "repeat": "",
-    "crontab": "",
-    "once": false,
-    "onceDelay": 0.1,
-    "topic": "",
-    "x": 440,
-    "y": 760,
-    "wires": [
-      [
-        "4f2504777076bc4d"
-      ]
     ]
   },
   {
@@ -249,7 +67,7 @@
     "finalize": "",
     "libs": [],
     "x": 770,
-    "y": 420,
+    "y": 440,
     "wires": [
       []
     ]
@@ -276,7 +94,7 @@
     "payload": "",
     "payloadType": "date",
     "x": 480,
-    "y": 420,
+    "y": 440,
     "wires": [
       [
         "1ea6f859e159bdb7"
@@ -396,7 +214,7 @@
     "from": "",
     "to": "",
     "reg": false,
-    "x": 840,
+    "x": 790,
     "y": 240,
     "wires": [
       []
@@ -424,7 +242,7 @@
     "payload": "",
     "payloadType": "date",
     "x": 480,
-    "y": 360,
+    "y": 380,
     "wires": [
       [
         "6ab5875f1ef2d20d"
@@ -444,7 +262,7 @@
     "finalize": "",
     "libs": [],
     "x": 690,
-    "y": 360,
+    "y": 380,
     "wires": [
       []
     ]
@@ -491,11 +309,79 @@
     "topic": "",
     "payload": "false",
     "payloadType": "bool",
-    "x": 570,
+    "x": 550,
     "y": 240,
     "wires": [
       [
         "637113a78a36de82"
+      ]
+    ]
+  },
+  {
+    "id": "3344af3fc619b8c2",
+    "type": "function",
+    "z": "901ed98289cc4ecd",
+    "name": "toggle polling",
+    "func": "const connections = global.get(\"parat_bridge.connections\");\nconst active = !!msg.payload;\n\nfor (const key of Object.keys(connections)) {\n    connections[key].active = active;\n}\n\nglobal.set(\"parat_bridge.connections\", connections);\n\nmsg.payload = { active, count: Object.keys(connections).length };\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 730,
+    "y": 280,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "3af810cd2b8c7c55",
+    "type": "inject",
+    "z": "901ed98289cc4ecd",
+    "name": "",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "true",
+    "payloadType": "bool",
+    "x": 390,
+    "y": 280,
+    "wires": [
+      [
+        "3344af3fc619b8c2"
+      ]
+    ]
+  },
+  {
+    "id": "5a33be84971f6df4",
+    "type": "inject",
+    "z": "901ed98289cc4ecd",
+    "name": "",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "false",
+    "payloadType": "bool",
+    "x": 550,
+    "y": 280,
+    "wires": [
+      [
+        "3344af3fc619b8c2"
       ]
     ]
   }
