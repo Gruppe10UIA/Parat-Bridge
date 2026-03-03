@@ -30,4 +30,4 @@ lib/
 .claude/
 
 # Parat-Bridge runtime data
-#data/bridge-files/
+data/bridge-files/
