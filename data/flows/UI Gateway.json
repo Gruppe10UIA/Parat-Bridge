@@ -91,9 +91,9 @@
     "id": "db6428985cf334dd",
     "type": "link in",
     "z": "34e8d908673ae2de",
-    "name": "Connection Link in to UIB",
+    "name": "Connections Link in to UIB",
     "links": [
-      "b312495726a91ffd"
+      "b0cba41bee5fa427"
     ],
     "x": 55,
     "y": 140,

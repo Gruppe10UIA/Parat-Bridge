@@ -116,6 +116,12 @@ function renderConnectionsList(connections) {
 
 // ===== Initialization =====
 
+/** Track known connection count to detect new additions. */
+let knownConnectionCount = 0
+
+/** Track whether a form submission is pending. */
+let submitting = false
+
 /** Attach form listener and register incoming message handlers. */
 function initHjem() {
     const form = document.getElementById('connection-form')
@@ -128,15 +134,28 @@ function initHjem() {
         const data = collectFormData(form)
         send('form/submit', data)
         showFeedback(feedback, 'Sender...', 'success')
+        submitting = true
     })
 
     onMessage('form/feedback', (payload) => {
         const type = payload.success ? 'success' : 'error'
         showFeedback(feedback, payload.message, type)
         if (payload.success) form.reset()
+        submitting = false
     })
 
-    onMessage('connections/update', renderConnectionsList)
+    onMessage('connections/update', (connections) => {
+        const count = Object.keys(connections).length
+
+        if (submitting && count > knownConnectionCount) {
+            clearFeedback(feedback)
+            form.reset()
+            submitting = false
+        }
+
+        knownConnectionCount = count
+        renderConnectionsList(connections)
+    })
 }
 
 export { initHjem }
