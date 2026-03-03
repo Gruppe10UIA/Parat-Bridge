@@ -29,8 +29,8 @@
     "title": "",
     "descr": "",
     "editurl": "",
-    "x": 180,
-    "y": 120,
+    "x": 420,
+    "y": 140,
     "wires": [
       [
         "1ad06dbe0f3f56b6"
@@ -50,8 +50,8 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 400,
-    "y": 120,
+    "x": 640,
+    "y": 140,
     "wires": [
       [
         "ee7dab60e6fc914e"
@@ -70,8 +70,8 @@
     "links": [
       "f63d35f5fb7dc607"
     ],
-    "x": 605,
-    "y": 80,
+    "x": 845,
+    "y": 100,
     "wires": []
   },
   {
@@ -83,8 +83,44 @@
     "links": [
       "c3faa9283c8ae054"
     ],
-    "x": 605,
-    "y": 160,
+    "x": 845,
+    "y": 180,
     "wires": []
+  },
+  {
+    "id": "db6428985cf334dd",
+    "type": "link in",
+    "z": "34e8d908673ae2de",
+    "name": "Connection Link in to UIB",
+    "links": [
+      "b312495726a91ffd"
+    ],
+    "x": 55,
+    "y": 140,
+    "wires": [
+      [
+        "9b8cc8053d27ab79"
+      ]
+    ]
+  },
+  {
+    "id": "9b8cc8053d27ab79",
+    "type": "function",
+    "z": "34e8d908673ae2de",
+    "name": "Send Connections to UIB",
+    "func": "var connections = global.get('parat_bridge.connections') || {};\nmsg = {\n    topic: 'connections/update',\n    payload: connections\n};\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 210,
+    "y": 140,
+    "wires": [
+      [
+        "0f3e40c8a408c8e4"
+      ]
+    ]
   }
 ]

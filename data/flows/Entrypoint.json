@@ -150,7 +150,8 @@
       [
         "03c1d5a79bea3bbf",
         "03c1f0752644b9c0",
-        "e6785e6cf6e666cf"
+        "e6785e6cf6e666cf",
+        "b312495726a91ffd"
       ]
     ]
   },
@@ -378,5 +379,18 @@
         "02f5aa2ff841acd1"
       ]
     ]
+  },
+  {
+    "id": "b312495726a91ffd",
+    "type": "link out",
+    "z": "84d1a0de660abb59",
+    "name": "Connection Link out to UIB",
+    "mode": "link",
+    "links": [
+      "db6428985cf334dd"
+    ],
+    "x": 365,
+    "y": 580,
+    "wires": []
   }
 ]
