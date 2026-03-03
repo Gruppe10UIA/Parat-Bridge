@@ -12,9 +12,10 @@
     <link type="text/css" rel="stylesheet" href="./index.css" media="all">
     <link type="text/css" rel="stylesheet" href="./hjem.css" media="all">
 
-    <!-- UIbuilder client library -->
+    <!-- UIbuilder client library (IIFE, attaches to window.uibuilder) -->
     <script defer src="../uibuilder/uibuilder.iife.min.js"></script>
-    <script defer src="./index.js"></script>
+    <!-- App modules -->
+    <script type="module" src="./index.js"></script>
 </head>
 <body>
 
