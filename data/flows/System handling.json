@@ -72,12 +72,14 @@
     "nodes": [
       "5a283579df925b67",
       "d61931ad5e5945c0",
-      "1cf402a0d8609d2e"
+      "1cf402a0d8609d2e",
+      "12270b45091cde86",
+      "06d0c3f37f271e4d"
     ],
     "x": 54,
-    "y": 19,
-    "w": 672,
-    "h": 82
+    "y": -1,
+    "w": 992,
+    "h": 142
   },
   {
     "id": "5cfcc740a3ba2cfa",
@@ -161,7 +163,7 @@
     "z": "003e75aaa2880405",
     "g": "9ab1f6c2842073c5",
     "name": "Initialize system functions",
-    "func": "global.set('utils', {\n\n    /*\n        Builds a stable, unique connection key from an array of client objects.\n        Sorts by client_system alphabetically before mapping to guarantee the same\n        key regardless of the order clients arrive in.\n        Format: \"system:identifier_system:identifier\"\n        Example: \"rayvn:log-uuid_wasos:46204-Rayvn\"\n    */\n    build_connection_name: (clients) => {\n        return [...clients]\n            .sort((a, b) => a.client_system.localeCompare(b.client_system))\n            .map(c => `${c.client_system}:${c.identifier}`)\n            .join(\"_\");\n    },\n\n    build_label: (client) => {\n        const colors = {\n            wasos:          \"#1f871f\",\n            rayvn:          \"#000000\",\n            parat_bridge: \"#b80d18\"\n        };\n        return {\n            id:       client.identifier,\n            name:     `[${client.client_system}]: ${client.name}`,\n            colorHex: colors[client.client_system] || \"#888888\"\n        };\n    },\n\n    build_callsign: (client) => `[${client.client_system}:${client.name}]`\n});\n\n/*\n    Crash-safe queue persistence.\n    \n    The queue lives in global context (memory) during runtime.\n    After each mutation, queue_io.persist() snapshots both\n    entry_queue and in_flight_connections to disk atomically\n    using write-file-atomic (temp file → fsync → rename).\n    \n    The file is only read on startup to restore state after\n    a crash. On normal operation, all reads come from memory.\n*/\n\nconst writeFileAtomicSync = writeFileAtomic.sync;\nconst QUEUE_FILE = '/data/bridge-files/queue.json';\n\nglobal.set('queue_io', {\n    persist: () => {\n        const state = {\n            entry_queue:           global.get(\"parat_bridge.queue.entry_queue\") || [],\n            in_flight_connections: global.get(\"parat_bridge.queue.in_flight_connections\") || []\n        };\n        writeFileAtomicSync(QUEUE_FILE, JSON.stringify(state));\n    },\n    read: () => JSON.parse(fs.readFileSync(QUEUE_FILE, 'utf8')),\n    QUEUE_FILE\n});\n\nreturn msg",
+    "func": "global.set('utils', {\n\n    /*\n        Builds a stable, unique connection key from an array of client objects.\n        Sorts by client_system alphabetically before mapping to guarantee the same\n        key regardless of the order clients arrive in.\n        Format: \"system:identifier_system:identifier\"\n        Example: \"rayvn:log-uuid_wasos:46204-Rayvn\"\n    */\n    build_connection_name: (clients) => {\n        return [...clients]\n            .sort((a, b) => a.client_system.localeCompare(b.client_system))\n            .map(c => `${c.client_system}:${c.identifier}`)\n            .join(\"_\");\n    },\n\n    build_label: (client) => {\n        const colors = {\n            wasos:          \"#1f871f\",\n            rayvn:          \"#000000\",\n            parat_bridge: \"#b80d18\"\n        };\n        return {\n            id:       client.identifier,\n            name:     `[${client.client_system}]: ${client.name}`,\n            colorHex: colors[client.client_system] || \"#888888\"\n        };\n    },\n\n    build_callsign: (client) => `[${client.client_system}:${client.name}]`\n});\n\n/*\n    Crash-safe queue persistence.\n    \n    The queue lives in global context (memory) during runtime.\n    After each mutation, queue_io.persist() snapshots both\n    entry_queue and in_flight_connections to disk atomically\n    using write-file-atomic (temp file → fsync → rename).\n    \n    The file is only read on startup to restore state after\n    a crash. On normal operation, all reads come from memory.\n*/\n\nconst writeFileAtomicSync = writeFileAtomic.sync;\nconst QUEUE_FILE = '/data/bridge-files/queue.json';\n\nglobal.set('queue_io', {\n    persist: () => {\n        const state = {\n            entry_queue:           global.get(\"parat_bridge.queue.entry_queue\") || [],\n            in_flight_connections: global.get(\"parat_bridge.queue.in_flight_connections\") || []\n        };\n        writeFileAtomicSync(QUEUE_FILE, JSON.stringify(state));\n    },\n    read: () => JSON.parse(fs.readFileSync(QUEUE_FILE, 'utf8')),\n    QUEUE_FILE\n});\n\n/*\n    Saves each connection as a separate JSON file in\n    /data/bridge-files/connections/. Writes are atomic\n    (temp file → rename) so crashes can't corrupt a file.\n    \n    persist(name)  — save one connection to disk\n    remove(name)   — delete one connection's file\n    readAll()      — read all files, return { name: connection }\n*/\n\nconst CONNECTIONS_DIR = '/data/bridge-files/connections/';\nconst sanitizeFilename = (name) => name.replace(/:/g, '_');\n\nglobal.set('connections_io', {\n    persist: (connection_name) => {\n        const connection = global.get(`parat_bridge.connections.${connection_name}`);\n        if (!connection) return;\n        writeFileAtomicSync(CONNECTIONS_DIR + sanitizeFilename(connection_name) + '.json', JSON.stringify(connection));\n    },\n    remove: (connection_name) => {\n        try { fs.unlinkSync(CONNECTIONS_DIR + sanitizeFilename(connection_name) + '.json'); } catch (e) {}\n    },\n    readAll: () => {\n        const connections = {};\n        try {\n            fs.readdirSync(CONNECTIONS_DIR)\n                .filter(f => f.endsWith('.json'))\n                .forEach(f => {\n                    const data = JSON.parse(fs.readFileSync(CONNECTIONS_DIR + f, 'utf8'));\n                    connections[data.name] = data;\n                });\n        } catch (e) {}\n        return connections;\n    },\n    CONNECTIONS_DIR\n});\n\n\nreturn msg",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -191,17 +193,20 @@
     "z": "003e75aaa2880405",
     "g": "9ab1f6c2842073c5",
     "name": "initialize parat bridge",
-    "func": "const BASE_URLS = {\n    rayvn: \"https://api.rayvn.global\",\n    wasos: \"https://dev.wasos.no\"\n};\n\nlet data = global.get(\"parat_bridge\");\n\nif (!data || typeof data !== \"object\") {\n    data = {\n        base_urls: BASE_URLS,\n        connections: {},\n        queue: {\n            in_flight_connections: [],\n            entry_queue: []\n        }\n    };\n} else {\n    data.base_urls = BASE_URLS;\n    if (!data.connections) data.connections = {};\n    if (!data.queue) data.queue = {};\n    if (!data.queue.entry_queue) data.queue.entry_queue = [];\n    if (!data.queue.in_flight_connections) data.queue.in_flight_connections = [];\n}\n\nglobal.set(\"parat_bridge\", data);\n\nnode.log(\"Parat_Bridge initialized: \" + Object.keys(data.connections).length + \" connection(s)\");\nmsg.payload = data;\nreturn msg;\n",
+    "func": "/*\n    Sets the parat_bridge global structure.\n    On first run: creates the full skeleton.\n    On restart: preserves existing data, refreshes base_urls,\n    ensures all sub-properties exist.\n    Connections and queue are populated by their own init nodes.\n*/\n\nconst BASE_URLS = {\n    rayvn: \"https://api.rayvn.global\",\n    wasos: \"https://dev.wasos.no\"\n};\n\nlet data = global.get(\"parat_bridge\");\n\nif (!data || typeof data !== \"object\") {\n    data = {\n        base_urls:   BASE_URLS,\n        connections: {},\n        queue: {\n            in_flight_connections: [],\n            entry_queue: []\n        }\n    };\n} else {\n    data.base_urls = BASE_URLS;\n    if (!data.connections) data.connections = {};\n    if (!data.queue) data.queue = {};\n    if (!data.queue.entry_queue) data.queue.entry_queue = [];\n    if (!data.queue.in_flight_connections) data.queue.in_flight_connections = [];\n}\n\nglobal.set(\"parat_bridge\", data);\n\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 600,
+    "x": 640,
     "y": 60,
     "wires": [
-      []
+      [
+        "12270b45091cde86",
+        "06d0c3f37f271e4d"
+      ]
     ]
   },
   {
@@ -461,6 +466,44 @@
     "y": 840,
     "wires": [
       [],
+      []
+    ]
+  },
+  {
+    "id": "12270b45091cde86",
+    "type": "function",
+    "z": "003e75aaa2880405",
+    "g": "9ab1f6c2842073c5",
+    "name": "Initialize queue",
+    "func": "/*\n    Reads the crash-safe queue file from /data/bridge-files/queue.json.\n    Always clears in_flight_connections — no POST survives a restart.\n    On first run (no file): keeps the empty queue from parat_bridge init.\n*/\n\nconst queue_io = global.get(\"queue_io\");\n\ntry {\n    const saved = queue_io.read();\n    global.set(\"parat_bridge.queue\", {\n        entry_queue:           saved.entry_queue || [],\n        in_flight_connections: []\n    });\n    node.log(\"Restored \" + (saved.entry_queue || []).length + \" queue entries from disk\");\n} catch (e) {\n    global.set(\"parat_bridge.queue.in_flight_connections\", []);\n    node.log(\"No queue file found — using \" + (global.get(\"parat_bridge.queue.entry_queue\") || []).length + \" entries from context\");\n}\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 900,
+    "y": 40,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "06d0c3f37f271e4d",
+    "type": "function",
+    "z": "003e75aaa2880405",
+    "g": "9ab1f6c2842073c5",
+    "name": "Initialize connections",
+    "func": "/*\n    Reads connection files from /data/bridge-files/connections/.\n    Each connection is a separate crash-safe JSON file.\n    On first run (no files): keeps the empty {} from parat_bridge init.\n*/\n\nconst connection_io = global.get(\"connection_io\");\n\ntry {\n    const connections = connection_io.readAll();\n    global.set(\"parat_bridge.connections\", connections);\n    node.log(\"Restored \" + Object.keys(connections).length + \" connection(s) from disk\");\n} catch (e) {\n    node.log(\"No connection files found — using \" + Object.keys(global.get(\"parat_bridge.connections\")).length + \" connection(s) from context\");\n}\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 920,
+    "y": 100,
+    "wires": [
       []
     ]
   }
