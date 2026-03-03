@@ -1,11 +1,5 @@
 /* ===== TWO-COLUMN LAYOUT ===== */
 
-#app-content {
-    display: flex;
-    gap: 1px;
-    height: calc(100vh - 56px);
-}
-
 #form-section,
 #connections-section {
     flex: 1 1 0;

@@ -63,3 +63,52 @@ body {
     color: #1a1a1a;
     font-weight: 600;
 }
+
+/* ===== SPA PAGE SWITCHING ===== */
+
+.page {
+    display: none;
+}
+
+#page-hjem.active {
+    display: flex;
+    gap: 1px;
+    height: calc(100vh - 56px);
+}
+
+#page-error.active,
+#page-log-status.active {
+    display: block;
+    padding: 2rem;
+    height: calc(100vh - 56px);
+    overflow-y: auto;
+    background: #fff;
+}
+
+/* ===== TABLES (Error & Log Status) ===== */
+
+#error-table,
+#connections-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+#error-table th,
+#connections-table th {
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #888;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 2px solid #ddd;
+}
+
+#error-table td,
+#connections-table td {
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid #eee;
+    color: #1a1a1a;
+}

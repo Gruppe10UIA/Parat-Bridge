@@ -11,9 +11,9 @@
   "uibuilder": {
     "packages": {}
   },
-  "_id": "uib_root@TEMPLATE",
   "path": "/data/uibuilder",
   "devDependencies": {},
   "peerDependencies": {},
+  "_id": "uib_root@7.5.0",
   "dependencies": {}
 }
