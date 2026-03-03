@@ -174,11 +174,9 @@
     "y": 220,
     "wires": [
       [
-        "9b6e4d1e92c769d9",
         "989d45634f23b97e"
       ],
       [
-        "02f5aa2ff841acd1",
         "3f5a48b721dae9db"
       ]
     ]
@@ -346,6 +344,38 @@
       [
         "be554d1eb57375c1",
         "04f5f011a9914dfd"
+      ]
+    ]
+  },
+  {
+    "id": "f63d35f5fb7dc607",
+    "type": "link in",
+    "z": "84d1a0de660abb59",
+    "name": "UIB Link in to Configure Rayvn",
+    "links": [
+      "ee7dab60e6fc914e"
+    ],
+    "x": 155,
+    "y": 60,
+    "wires": [
+      [
+        "9b6e4d1e92c769d9"
+      ]
+    ]
+  },
+  {
+    "id": "c3faa9283c8ae054",
+    "type": "link in",
+    "z": "84d1a0de660abb59",
+    "name": "UIB Link in to Configure WaSOS",
+    "links": [
+      "4da735d9ab626fa3"
+    ],
+    "x": 145,
+    "y": 360,
+    "wires": [
+      [
+        "02f5aa2ff841acd1"
       ]
     ]
   }

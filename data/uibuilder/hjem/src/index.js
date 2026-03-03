@@ -1,6 +1,7 @@
 /** @file App entry point. SPA navigation and module initialization. */
 
 import { startListening } from './uib-bridge.js'
+import { initHjem } from './hjem.js'
 
 // ===== SPA Navigation =====
 
@@ -28,3 +29,4 @@ function initNavigation() {
 
 initNavigation()
 startListening()
+initHjem()

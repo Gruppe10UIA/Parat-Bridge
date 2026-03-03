@@ -482,35 +482,5 @@
     "wires": [
       []
     ]
-  },
-  {
-    "id": "2fda44028724f44b",
-    "type": "uibuilder",
-    "z": "901ed98289cc4ecd",
-    "name": "",
-    "topic": "",
-    "url": "hjem",
-    "okToGo": true,
-    "fwdInMessages": false,
-    "allowScripts": false,
-    "allowStyles": false,
-    "copyIndex": true,
-    "templateFolder": "blank",
-    "extTemplate": "",
-    "showfolder": false,
-    "oldUrl": "ui",
-    "reload": false,
-    "sourceFolder": "src",
-    "deployedVersion": "7.5.0",
-    "showMsgUib": false,
-    "title": "",
-    "descr": "",
-    "editurl": "",
-    "x": 180,
-    "y": 1120,
-    "wires": [
-      [],
-      []
-    ]
   }
 ]
