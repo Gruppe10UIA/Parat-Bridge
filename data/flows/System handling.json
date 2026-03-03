@@ -76,8 +76,8 @@
     ],
     "x": 54,
     "y": 19,
-    "w": 452,
-    "h": 122
+    "w": 672,
+    "h": 82
   },
   {
     "id": "5cfcc740a3ba2cfa",
@@ -161,7 +161,7 @@
     "z": "003e75aaa2880405",
     "g": "9ab1f6c2842073c5",
     "name": "Initialize system functions",
-    "func": "global.set('utils', {\n\n    /*\n        Builds a stable, unique connection key from an array of client objects.\n        Sorts by client_system alphabetically before mapping to guarantee the same\n        key regardless of the order clients arrive in.\n        Format: \"system:identifier_system:identifier\"\n        Example: \"rayvn:log-uuid_wasos:46204-Rayvn\"\n    */\n    build_connection_name: (clients) => {\n        return [...clients]\n            .sort((a, b) => a.client_system.localeCompare(b.client_system))\n            .map(c => `${c.client_system}:${c.identifier}`)\n            .join(\"_\");\n    },\n\n    build_label: (client) => {\n        const colors = {\n            wasos:          \"#1f871f\",\n            rayvn:          \"#000000\",\n            parat_bridge: \"#b80d18\"\n        };\n        return {\n            id:       client.identifier,\n            name:     `[${client.client_system}]: ${client.name}`,\n            colorHex: colors[client.client_system] || \"#888888\"\n        };\n    },\n\n    build_callsign: (client) => `[${client.client_system}:${client.name}]`\n});\n\n/*\n    Crash-safe queue persistence.\n    \n    The queue lives in global context (memory) during runtime.\n    After each mutation, queue_io.persist() snapshots both\n    entry_queue and in_flight_connections to disk atomically\n    using write-file-atomic (temp file → fsync → rename).\n    \n    The file is only read on startup to restore state after\n    a crash. On normal operation, all reads come from memory.\n*/\n\nconst writeFileAtomicSync = writeFileAtomic.sync;\nconst QUEUE_FILE = '/data/bridge-files/queue.json';\n\nglobal.set('queue_io', {\n    persist: () => {\n        const state = {\n            entry_queue:           global.get(\"parat_bridge.queue.entry_queue\") || [],\n            in_flight_connections: global.get(\"parat_bridge.queue.in_flight_connections\") || []\n        };\n        writeFileAtomicSync(QUEUE_FILE, JSON.stringify(state));\n    },\n    read: () => JSON.parse(fs.readFileSync(QUEUE_FILE, 'utf8')),\n    QUEUE_FILE\n});\n\n",
+    "func": "global.set('utils', {\n\n    /*\n        Builds a stable, unique connection key from an array of client objects.\n        Sorts by client_system alphabetically before mapping to guarantee the same\n        key regardless of the order clients arrive in.\n        Format: \"system:identifier_system:identifier\"\n        Example: \"rayvn:log-uuid_wasos:46204-Rayvn\"\n    */\n    build_connection_name: (clients) => {\n        return [...clients]\n            .sort((a, b) => a.client_system.localeCompare(b.client_system))\n            .map(c => `${c.client_system}:${c.identifier}`)\n            .join(\"_\");\n    },\n\n    build_label: (client) => {\n        const colors = {\n            wasos:          \"#1f871f\",\n            rayvn:          \"#000000\",\n            parat_bridge: \"#b80d18\"\n        };\n        return {\n            id:       client.identifier,\n            name:     `[${client.client_system}]: ${client.name}`,\n            colorHex: colors[client.client_system] || \"#888888\"\n        };\n    },\n\n    build_callsign: (client) => `[${client.client_system}:${client.name}]`\n});\n\n/*\n    Crash-safe queue persistence.\n    \n    The queue lives in global context (memory) during runtime.\n    After each mutation, queue_io.persist() snapshots both\n    entry_queue and in_flight_connections to disk atomically\n    using write-file-atomic (temp file → fsync → rename).\n    \n    The file is only read on startup to restore state after\n    a crash. On normal operation, all reads come from memory.\n*/\n\nconst writeFileAtomicSync = writeFileAtomic.sync;\nconst QUEUE_FILE = '/data/bridge-files/queue.json';\n\nglobal.set('queue_io', {\n    persist: () => {\n        const state = {\n            entry_queue:           global.get(\"parat_bridge.queue.entry_queue\") || [],\n            in_flight_connections: global.get(\"parat_bridge.queue.in_flight_connections\") || []\n        };\n        writeFileAtomicSync(QUEUE_FILE, JSON.stringify(state));\n    },\n    read: () => JSON.parse(fs.readFileSync(QUEUE_FILE, 'utf8')),\n    QUEUE_FILE\n});\n\nreturn msg",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -178,9 +178,11 @@
       }
     ],
     "x": 370,
-    "y": 100,
+    "y": 60,
     "wires": [
-      []
+      [
+        "d61931ad5e5945c0"
+      ]
     ]
   },
   {
@@ -196,7 +198,7 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 360,
+    "x": 600,
     "y": 60,
     "wires": [
       []
@@ -218,7 +220,6 @@
     "y": 60,
     "wires": [
       [
-        "d61931ad5e5945c0",
         "1cf402a0d8609d2e"
       ]
     ]
