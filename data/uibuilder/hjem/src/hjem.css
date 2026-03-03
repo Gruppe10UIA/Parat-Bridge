@@ -1,11 +1,19 @@
 /* ===== TWO-COLUMN LAYOUT ===== */
 
-#form-section,
-#connections-section {
+#form-section {
     flex: 1 1 0;
     background: #fff;
     padding: 2rem;
     overflow-y: auto;
+}
+
+#connections-section {
+    flex: 1 1 0;
+    background: #fff;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
 #form-section {
@@ -160,7 +168,8 @@
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-    min-height: 300px;
+    flex: 1 1 0;
+    overflow-y: auto;
 }
 
 /* Placeholder when no connections exist */
@@ -260,4 +269,18 @@
 .btn-action:disabled {
     opacity: 0.45;
     cursor: not-allowed;
+}
+
+/* ===== BULK ACTIONS BAR ===== */
+
+#connections-bulk-actions {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 0.75rem;
+    border-top: 1px solid #eee;
+    flex-shrink: 0;
+}
+
+#connections-bulk-actions.hidden {
+    display: none;
 }

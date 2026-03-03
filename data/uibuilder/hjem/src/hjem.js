@@ -104,6 +104,19 @@ function renderConnectionCard(connection) {
  * Clear and rebuild the connections list from a connections object.
  * @param {object} connections - Connections object keyed by connection name.
  */
+/**
+ * Show or hide the bulk actions bar based on connection count.
+ * @param {number} count - Number of connections.
+ */
+function toggleBulkActions(count) {
+    const bar = document.getElementById('connections-bulk-actions')
+    bar.classList.toggle('hidden', count === 0)
+}
+
+/**
+ * Clear and rebuild the connections list from a connections object.
+ * @param {object} connections - Connections object keyed by connection name.
+ */
 function renderConnectionsList(connections) {
     const list = document.getElementById('connections-list')
     list.innerHTML = ''
@@ -112,6 +125,8 @@ function renderConnectionsList(connections) {
     entries.forEach((connection) => {
         list.appendChild(renderConnectionCard(connection))
     })
+
+    toggleBulkActions(entries.length)
 }
 
 // ===== Initialization =====
