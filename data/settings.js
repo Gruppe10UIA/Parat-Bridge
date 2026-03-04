@@ -7,11 +7,7 @@ module.exports = {
     },
     contextStorage: {
         default: {
-            module: "localfilesystem",
-            config: {
-                dir: "/data/bridge-files",
-                flushInterval: 1
-            }
+            module: require("/data/costom-scripts/bridge-context-store")
         }
     }
 }
