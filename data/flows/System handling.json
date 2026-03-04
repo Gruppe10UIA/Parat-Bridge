@@ -74,12 +74,11 @@
       "d61931ad5e5945c0",
       "1cf402a0d8609d2e",
       "12270b45091cde86",
-      "06d0c3f37f271e4d",
-      "a5fbb2e4714bf790"
+      "06d0c3f37f271e4d"
     ],
     "x": 54,
     "y": 19,
-    "w": 1152,
+    "w": 932,
     "h": 142
   },
   {
@@ -171,7 +170,7 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 590,
+    "x": 370,
     "y": 80,
     "wires": [
       [
@@ -192,7 +191,7 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 840,
+    "x": 620,
     "y": 80,
     "wires": [
       [
@@ -217,7 +216,7 @@
     "y": 80,
     "wires": [
       [
-        "a5fbb2e4714bf790"
+        "1cf402a0d8609d2e"
       ]
     ]
   },
@@ -479,7 +478,7 @@
         "module": "fs"
       }
     ],
-    "x": 1060,
+    "x": 840,
     "y": 60,
     "wires": [
       []
@@ -503,40 +502,10 @@
         "module": "fs"
       }
     ],
-    "x": 1080,
+    "x": 860,
     "y": 120,
     "wires": [
       []
-    ]
-  },
-  {
-    "id": "a5fbb2e4714bf790",
-    "type": "function",
-    "z": "003e75aaa2880405",
-    "g": "9ab1f6c2842073c5",
-    "name": "Initialize overrides",
-    "func": "/*\n    Overrides global.set and global.get for automatic disk persistence.\n    Runs before all other nodes in the startup sequence.\n    \n    parat_bridge.connections.*  →  memory + persist to /data/bridge-files/connections/<name>.json\n    parat_bridge.queue.*        →  memory + persist to /data/bridge-files/queue.json\n    files.<filename>            →  /data/bridge-files/files/<filename> only (no memory)\n    everything else             →  unchanged\n*/\n\nconst writeAtomic = writeFileAtomic.sync;\n\n// Guard against re-deploy: store originals on first run only\nif (!global._originalSet) {\n    global._originalSet = global.set.bind(global);\n    global._originalGet = global.get.bind(global);\n}\n\nconst originalSet = global.set.bind(global);\nconst originalGet = global.get.bind(global);\n\nconst BASE_DIR       = '/data/bridge-files/';\nconst QUEUE_FILE     = BASE_DIR + 'queue.json';\nconst CONNECTIONS_DIR = BASE_DIR + 'connections/';\nconst FILES_DIR      = BASE_DIR + 'files/';\n\nconst sanitize = (name) => name.replace(/:/g, '_');\n\n[CONNECTIONS_DIR, FILES_DIR].forEach(dir => {\n    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });\n});\n\nfunction persistConnection(name) {\n    const connection = originalGet(`parat_bridge.connections.${name}`);\n    if (connection) {\n        writeAtomic(CONNECTIONS_DIR + sanitize(name) + '.json', JSON.stringify(connection));\n    }\n}\n\nfunction persistAllConnections() {\n    const allConns = originalGet('parat_bridge.connections') || {};\n    // remove stale files\n    fs.readdirSync(CONNECTIONS_DIR).filter(f => f.endsWith('.json')).forEach(f => {\n        const name = f.replace(/\\.json$/, '');\n        if (!allConns[name] && !Object.keys(allConns).some(k => sanitize(k) === name)) {\n            fs.unlinkSync(CONNECTIONS_DIR + f);\n        }\n    });\n    // write each connection\n    for (const [connName, connData] of Object.entries(allConns)) {\n        writeAtomic(CONNECTIONS_DIR + sanitize(connName) + '.json', JSON.stringify(connData));\n    }\n}\n\n// --- set override ---\n\nglobal.set = (path, value, ...args) => {\n    \n    if (typeof path !== 'string') return originalSet(path, value, ...args);\n\n    const parts = path.split('.');\n\n    // redirect files to disk and bypass memory\n    if (parts[0] === 'files' && parts.length > 1) {\n        fs.writeFileSync(FILES_DIR + sanitize(parts.slice(1).join('.')), value);\n        return;\n    }\n\n    originalSet(path, value, ...args);\n    node.warn(\"SET: \" + path);    // <-- debug line\n\n    // persist connections\n    if (parts[0] === 'parat_bridge') {\n        if (parts[1] === 'connections') {\n            if (parts[2]) {\n                // global.set(\"parat_bridge.connections.<name>\", ...) or deeper\n                persistConnection(parts[2]);\n            } else {\n                // global.set(\"parat_bridge.connections\", ...)\n                persistAllConnections();\n            }\n        } else if (parts.length === 1) {\n            // global.set(\"parat_bridge\", ...) — root object\n            persistAllConnections();\n        }\n    }\n\n    // persist queue\n    if (parts[0] === 'parat_bridge' && (parts[1] === 'queue' || parts.length === 1)) {\n        writeAtomic(QUEUE_FILE, JSON.stringify({\n            entry_queue: originalGet('parat_bridge.queue.entry_queue') || []\n        }));\n    }\n};\n\n// --- get override ---\n\nglobal.get = (path, ...args) => {\n    if (typeof path === 'string') {\n        const parts = path.split('.');\n        if (parts[0] === 'files' && parts.length > 1) {\n            const filePath = FILES_DIR + sanitize(parts.slice(1).join('.'));\n            if (fs.existsSync(filePath)) return fs.readFileSync(filePath);\n            return null;\n        }\n    }\n    return originalGet(path, ...args);\n};\n\nreturn msg;\n",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [
-      {
-        "var": "writeFileAtomic",
-        "module": "write-file-atomic"
-      },
-      {
-        "var": "fs",
-        "module": "fs"
-      }
-    ],
-    "x": 350,
-    "y": 80,
-    "wires": [
-      [
-        "1cf402a0d8609d2e"
-      ]
     ]
   }
 ]
