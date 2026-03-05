@@ -14,7 +14,8 @@ context-store/
 ├── handlers/
 │   ├── memory.js         In-memory read/write (nested dot-path traversal)
 │   ├── files.js          Binary file storage (disk-only, no memory)
-│   └── persist.js        Queue + connection persistence (atomic writes)
+│   ├── persist.js        Queue + connection persistence (atomic writes)
+│   └── loader.js         Startup loader (pre-loads connections + queue from disk)
 └── README.md             This file
 ```
 
@@ -28,6 +29,12 @@ context-store/
 | `parat_bridge` | yes | both queue + all connections | atomic |
 | `files.<filename>` | **no** | `files/<filename>` | standard |
 | anything else | yes | **no** | — |
+
+## Startup
+
+When Node-RED starts, the context store's `open()` method runs before any flows are deployed. It calls `loadBridgeData()` (from `handlers/loader.js`) to read all persisted connections and queue entries from disk into the in-memory cache.
+
+This means Node-RED function nodes can immediately use `global.get("parat_bridge.connections")` etc. without worrying about load order or race conditions — the data is already there.
 
 ## Disk locations
 

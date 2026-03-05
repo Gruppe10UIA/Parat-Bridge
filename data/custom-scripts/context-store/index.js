@@ -22,6 +22,7 @@ const fs = require('fs');
 const { getNestedValue, setNestedValue } = require('./handlers/memory');
 const { isFileKey, readFile, writeFile }  = require('./handlers/files');
 const { persist }                         = require('./handlers/persist');
+const { loadBridgeData }                  = require('./handlers/loader');
 
 // --- Directory setup ---
 // Ensures the storage directories exist on startup.
@@ -51,8 +52,11 @@ function BridgeStore(config) {
 // These methods are required by the Node-RED Context Store interface.
 // See: https://nodered.org/docs/api/context/
 
-/** Called when Node-RED starts. Nothing to initialize — resolve immediately. */
+/** Called when Node-RED starts. Pre-loads persisted data into cache. */
 BridgeStore.prototype.open = function() {
+    const scopeCache = {};
+    this.cache['global'] = scopeCache;
+    scopeCache.parat_bridge = loadBridgeData();
     return Promise.resolve();
 };
 

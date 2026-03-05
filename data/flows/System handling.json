@@ -76,7 +76,7 @@
     ],
     "x": 54,
     "y": 39,
-    "w": 692,
+    "w": 652,
     "h": 82
   },
   {
@@ -161,18 +161,13 @@
     "z": "003e75aaa2880405",
     "g": "9ab1f6c2842073c5",
     "name": "Initialize system functions",
-    "func": "global.set('utils', {\n\n    build_connection_name: (clients) => {\n        return [...clients]\n            .sort((a, b) => a.client_system.localeCompare(b.client_system))\n            .map(c => `${c.client_system}-${c.identifier}`)\n            .join(\"_\");\n    },\n\n    build_label: (client) => {\n        const colors = {\n            wasos:        \"#1f871f\",\n            rayvn:        \"#000000\",\n            parat_bridge: \"#b80d18\"\n        };\n        return {\n            id:       client.identifier,\n            name:     `[${client.client_system}]: ${client.name}`,\n            colorHex: colors[client.client_system] || \"#888888\"\n        };\n    },\n\n    build_callsign: (client) => `[${client.client_system}:${client.name}]`\n});\n\n\n// Helper functions to access disk \n\nconst CONNECTIONS_DIR = '/data/bridge-files/connections/';\nconst QUEUE_FILE = '/data/bridge-files/queue.json';\n\nglobal.set('disk', {\n\n    readConnections: () => {\n        const connections = {};\n        fs.readdirSync(CONNECTIONS_DIR)\n            .filter(f => f.endsWith('.json'))\n            .forEach(f => {\n                const data = JSON.parse(fs.readFileSync(CONNECTIONS_DIR + f, 'utf8'));\n                connections[data.name] = data;\n            });\n        return connections;\n    },\n\n    readQueue: () => {\n        if (!fs.existsSync(QUEUE_FILE)) return [];\n        const saved = JSON.parse(fs.readFileSync(QUEUE_FILE, 'utf8'));\n        return saved.entry_queue || [];\n    }\n\n});\n\n\n\n\nreturn msg;\n",
+    "func": "global.set('utils', {\n\n    build_connection_name: (clients) => {\n        return [...clients]\n            .sort((a, b) => a.client_system.localeCompare(b.client_system))\n            .map(c => `${c.client_system}-${c.identifier}`)\n            .join(\"_\");\n    },\n\n    build_label: (client) => {\n        const colors = {\n            wasos:        \"#1f871f\",\n            rayvn:        \"#000000\",\n            parat_bridge: \"#b80d18\"\n        };\n        return {\n            id:       client.identifier,\n            name:     `[${client.client_system}]: ${client.name}`,\n            colorHex: colors[client.client_system] || \"#888888\"\n        };\n    },\n\n    build_callsign: (client) => `[${client.client_system}:${client.name}]`\n});\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
-    "libs": [
-      {
-        "var": "fs",
-        "module": "fs"
-      }
-    ],
+    "libs": [],
     "x": 370,
     "y": 80,
     "wires": [
@@ -186,15 +181,15 @@
     "type": "function",
     "z": "003e75aaa2880405",
     "g": "9ab1f6c2842073c5",
-    "name": "initialize parat bridge",
-    "func": "/*\n    Sets the parat_bridge global structure.\n    On first run: creates the full skeleton.\n    On restart: preserves existing data, refreshes base_urls,\n    ensures all sub-properties exist.\n    Connections and queue are populated by their own init nodes.\n*/\n\nconst disk = global.get('disk');\n\nglobal.set(\"parat_bridge\", {\n    base_urls: {\n        rayvn: \"https://api.rayvn.global\",\n        wasos: \"https://dev.wasos.no\"\n    },\n    connections: disk.readConnections(),\n    queue: {\n        in_flight_connections: [],\n        entry_queue: disk.readQueue()\n    }\n});\n\nconst conns = Object.keys(global.get(\"parat_bridge.connections\")).length;\nconst queue = global.get(\"parat_bridge.queue.entry_queue\").length;\nnode.log(\"Restored \" + conns + \" connection(s) and \" + queue + \" queue entries from disk\");\n\nreturn msg;\n\n",
+    "name": "Initialize context",
+    "func": "\n// Initialize context — sets runtime config only\n// Connections and queue are already in cache (loaded by context store on open)\nconst pb = global.get(\"parat_bridge\") || {};\n\npb.base_urls = {\n    rayvn: \"https://api.rayvn.global\",\n    wasos: \"https://dev.wasos.no\"\n};\n\nif (!pb.queue) pb.queue = { in_flight_connections: [], entry_queue: [] };\npb.queue.in_flight_connections = [];  // always reset on startup\n\nglobal.set(\"parat_bridge\", pb);\n\nconst conns = Object.keys(global.get(\"parat_bridge.connections\") || {}).length;\nconst queue = (global.get(\"parat_bridge.queue.entry_queue\") || []).length;\nnode.log(\"Active: \" + conns + \" connection(s), \" + queue + \" queued entries\");\n\nreturn msg;\n\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 620,
+    "x": 600,
     "y": 80,
     "wires": [
       []
