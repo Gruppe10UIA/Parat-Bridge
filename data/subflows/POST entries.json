@@ -1,9 +1,9 @@
 [
   {
-    "id": "5b554f0e5b6f4d30",
+    "id": "d39ed2eaf3d0fa7e",
     "type": "subflow",
     "name": "POST entries",
-    "info": "Routes entries to the correct POST subflow based on target system.\n\n### Input\n`msg.entry` = Entry with Metadata\n\n### Logic\nSwitch on `msg.entry.metadata.target.client_system` -> POST to Rayvn log or POST to Wasos chat.\n\n### Output 1\nRayvn POST response\n\n### Output 2\nWaSOS POST response",
+    "info": "Routes entries to the correct POST subflow based on target system.\n\n### Input\n`msg.entry` = Entry with Metadata\n\n### Logic\n- Bridge entry to client converts entry to POST body (uploads Rayvn files inline)\n- Switch on `msg.metadata.target.client_system` → POST to Rayvn log or POST to Wasos chat\n- After Rayvn POST: checks `entry._failed_files` and emits notification if any failed\n\n### Output 1\nRayvn or WaSOS POST response\n\n### Output 2\nNotification payload for Build attachment notification (only when uploads failed)",
     "category": "",
     "in": [
       {
@@ -11,22 +11,36 @@
         "y": 180,
         "wires": [
           {
-            "id": "854554a6bb86e48c"
+            "id": "960ed173a4597234"
           }
         ]
       }
     ],
     "out": [
       {
-        "x": 1080,
-        "y": 180,
+        "x": 1160,
+        "y": 80,
         "wires": [
           {
-            "id": "5adc9f55c147a330",
+            "id": "5154e732cdefc917",
             "port": 1
           },
           {
-            "id": "8e48a46d6f60d162",
+            "id": "5f0eabe0bb3ce3bc",
+            "port": 0
+          }
+        ]
+      },
+      {
+        "x": 1160,
+        "y": 280,
+        "wires": [
+          {
+            "id": "5f0eabe0bb3ce3bc",
+            "port": 1
+          },
+          {
+            "id": "b8a25cd9f8d4140c",
             "port": 1
           }
         ]
@@ -38,51 +52,9 @@
     "icon": "font-awesome/fa-send"
   },
   {
-    "id": "5adc9f55c147a330",
-    "type": "subflow:4a6a1af9b9af6b0f",
-    "z": "5b554f0e5b6f4d30",
-    "name": "",
-    "x": 770,
-    "y": 180,
-    "wires": [
-      [],
-      []
-    ]
-  },
-  {
-    "id": "854554a6bb86e48c",
-    "type": "subflow:a9600579fb00971d",
-    "z": "5b554f0e5b6f4d30",
-    "name": "",
-    "x": 280,
-    "y": 180,
-    "wires": [
-      [
-        "5f6de5b415820c6e"
-      ]
-    ]
-  },
-  {
-    "id": "a02e0cb7a7356f3d",
-    "type": "debug",
-    "z": "5b554f0e5b6f4d30",
-    "name": "debug 1",
-    "active": true,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "true",
-    "targetType": "full",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 620,
-    "y": 360,
-    "wires": []
-  },
-  {
-    "id": "5f6de5b415820c6e",
+    "id": "3229a673a7c53d56",
     "type": "switch",
-    "z": "5b554f0e5b6f4d30",
+    "z": "d39ed2eaf3d0fa7e",
     "name": "",
     "property": "metadata.target.client_system",
     "propertyType": "msg",
@@ -106,27 +78,73 @@
     "checkall": "true",
     "repair": false,
     "outputs": 3,
-    "x": 510,
-    "y": 180,
+    "x": 770,
+    "y": 140,
     "wires": [
       [
-        "8e48a46d6f60d162"
+        "5154e732cdefc917"
       ],
       [
-        "5adc9f55c147a330"
+        "5f0eabe0bb3ce3bc"
       ],
       []
     ]
   },
   {
-    "id": "8e48a46d6f60d162",
-    "type": "subflow:209f3c980818c499",
-    "z": "5b554f0e5b6f4d30",
+    "id": "5154e732cdefc917",
+    "type": "subflow:c52035853d082eb0",
+    "z": "d39ed2eaf3d0fa7e",
     "name": "",
-    "x": 780,
-    "y": 120,
+    "x": 970,
+    "y": 200,
     "wires": [
       [],
+      []
+    ]
+  },
+  {
+    "id": "960ed173a4597234",
+    "type": "subflow:ebdd2af39b259744",
+    "z": "d39ed2eaf3d0fa7e",
+    "name": "",
+    "x": 290,
+    "y": 180,
+    "wires": [
+      [
+        "b8a25cd9f8d4140c"
+      ]
+    ]
+  },
+  {
+    "id": "5f0eabe0bb3ce3bc",
+    "type": "subflow:488d4a1e957f1fb1",
+    "z": "d39ed2eaf3d0fa7e",
+    "name": "",
+    "x": 960,
+    "y": 80,
+    "wires": [
+      [],
+      []
+    ]
+  },
+  {
+    "id": "b8a25cd9f8d4140c",
+    "type": "function",
+    "z": "d39ed2eaf3d0fa7e",
+    "name": "Known attatchment errors",
+    "func": "/**\n * Check for pre-known file failures before routing to target system.\n * These are files marked by Classify attachments as skipped\n * (oversized, non_transferable, cim_not_implemented).\n *\n * Patches payload.text with notice and emits notification on output 2.\n * Removes skipped files from payload so target system gets clean entry.\n *\n * Output 1: msg continues (always)\n * Output 2: notification payload (only when pre-known failures exist)\n */\nconst entry   = msg.entry;\nconst files   = (entry && entry.files) || [];\nconst skipped = files.filter(f => f.skipped);\n\nif (skipped.length === 0) return [msg, null];\n\nconst succeeded = files.filter(f => !f.skipped).length;\nconst total     = files.length;\n\n// Patch text notice so target system receives it\nconst notice = \" [\" + skipped.length + \"/\" + total + \" vedlegg ikke overført. Avsender mottar instruks om alternativ håndtering]\"\nmsg.payload.text = (msg.payload.text || \"\") + notice;\n\n// Remove skipped files from payload\nmsg.payload.files = (msg.payload.files || []).filter(f => !f.skipped);\n\n// Determine notification type\nconst has_oversized        = skipped.some(f => f.reason === \"oversized\");\nconst has_non_transferable = skipped.some(f => f.reason === \"non_transferable\");\n\nlet type = \"upload_failed\";\nif (has_non_transferable && !has_oversized) type = \"non_transferable\";\nelse if (has_oversized && !has_non_transferable) type = \"oversized_files\";\n\nconst notification = {\n    payload: {\n        type,\n        entry_id:     entry.id,\n        file_names:   skipped.map(f => f.name || \"ukjent fil\"),\n        file_count:   skipped.length,\n        total_files:  total,\n        succeeded,\n        entry_author: entry.author,\n        metadata:     msg.metadata\n    }\n};\n\nreturn [msg, notification];",
+    "outputs": 2,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 570,
+    "y": 180,
+    "wires": [
+      [
+        "3229a673a7c53d56"
+      ],
       []
     ]
   }

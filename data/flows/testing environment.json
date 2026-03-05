@@ -459,5 +459,57 @@
         "ddde7cf731a7ebd4"
       ]
     ]
+  },
+  {
+    "id": "4bb221810c3a9cba",
+    "type": "function",
+    "z": "901ed98289cc4ecd",
+    "name": "Reset all runtime data",
+    "func": "/**\n * Reset all runtime data for testing.\n * Sletter filer, connections, queue fra disk og nullstiller global context.\n */\n\nconst FILES_DIR       = '/data/bridge-files/files/';\nconst CONNECTIONS_DIR = '/data/bridge-files/connections/';\nconst QUEUE_FILE      = '/data/bridge-files/queue.json';\n\nlet deleted = { files: 0, connections: 0, queue: false };\n\n// Slett filer\nif (fs.existsSync(FILES_DIR)) {\n    fs.readdirSync(FILES_DIR).forEach(f => {\n        fs.unlinkSync(FILES_DIR + f);\n        deleted.files++;\n    });\n}\n\n// Slett connection-filer\nif (fs.existsSync(CONNECTIONS_DIR)) {\n    fs.readdirSync(CONNECTIONS_DIR).forEach(f => {\n        fs.unlinkSync(CONNECTIONS_DIR + f);\n        deleted.connections++;\n    });\n}\n\n// Slett queue-fil\nif (fs.existsSync(QUEUE_FILE)) {\n    fs.unlinkSync(QUEUE_FILE);\n    deleted.queue = true;\n}\n\n// Nullstill global context\nglobal.set(\"parat_bridge.connections\", {});\nglobal.set(\"parat_bridge.queue\", { entry_queue: [] });\n\nnode.warn(`Reset fullført: ${deleted.files} filer, ${deleted.connections} connections, queue: ${deleted.queue}`);\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [
+      {
+        "var": "fs",
+        "module": "fs"
+      }
+    ],
+    "x": 740,
+    "y": 560,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "fb620198c7dcae1a",
+    "type": "inject",
+    "z": "901ed98289cc4ecd",
+    "name": "",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 480,
+    "y": 560,
+    "wires": [
+      [
+        "4bb221810c3a9cba"
+      ]
+    ]
   }
 ]

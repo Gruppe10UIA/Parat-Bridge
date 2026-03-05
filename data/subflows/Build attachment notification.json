@@ -1,0 +1,73 @@
+[
+  {
+    "id": "n1a2b3c4d5e6f7a8",
+    "type": "subflow",
+    "name": "Build attachment notification",
+    "info": "Builds a user-facing notification entry about file handling issues.\n\n### Input\n`msg.payload` = notification object with:\n- `type`: 'non_transferable' | 'oversized_files' | 'upload_failed'\n- `metadata`: { source, target, connection_name }\n- Additional fields depending on type\n\n### Output\nA queue-ready message with `topic: 'new_message'` and a bridge entry\naddressed FROM parat_bridge TO the original sender's system.\nThe entry has `client_system: 'parat_bridge'` so the Filter subflow\ndrops it when polled back (prevents re-bridging loop).\n\n### Notification types\n- **non_transferable**: advises sender to share file links manually\n- **oversized_files**: names the files that exceeded the size limit\n- **upload_failed**: names the files rejected by the target system",
+    "category": "",
+    "in": [
+      {
+        "x": 60,
+        "y": 160,
+        "wires": [
+          {
+            "id": "n1a2_build_text"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 700,
+        "y": 160,
+        "wires": [
+          {
+            "id": "n1a2_build_entry",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#E9967A"
+  },
+  {
+    "id": "n1a2_build_text",
+    "type": "function",
+    "z": "n1a2b3c4d5e6f7a8",
+    "name": "Build notification text",
+    "func": "/**\n * Build the user-facing notification text based on the event type.\n *\n * Check if entry id already triggered attatchment notification (otherwise Wasos would recieve notification for each connected log)\n * Each message type provides specific, actionable guidance\n * to help the sender resolve the file transfer issue.\n */\n\n \nconst event = msg.payload;\nconst entry_id = event.entry_id;\nlet text;\n\nif (entry_id) {\n    const notified = flow.get(\"_notified_attachments\") || {};\n    const key = entry_id + \"_\" + event.type;\n    \n    if (notified[key]) {\n        return null; // Already notified for this entry\n    }\n    \n    notified[key] = true;\n    flow.set(\"_notified_attachments\", notified);\n}\n\nswitch (event.type) {\n    case \"non_transferable\":\n        text = \"⚠️ \" + event.file_count + \" vedlagte fil(er) kan ikke overføres automatisk. \"\n             + \"Tips: Høyreklikk på bildet → «Kopier bildeadresse» \"\n             + \"→ lim inn adressen som tekst.\";\n        break;\n\n    case \"oversized_files\":\n        text = \"⚠️ \" + event.file_names.length + \" vedlegg for store for mottakersystemet: \"\n             + event.file_names.join(\", \") + \". \"\n             + \"Maks filstørrelse er ca. 1 MB. Prøv å komprimere eller dele opp filene.\";\n        break;\n\n    case \"upload_failed\":\n        text = \"⚠️ \" + event.file_names.length + \" av \" + event.total_files\n             + \" vedlegg ble avvist av mottakersystemet: \"\n             + event.file_names.join(\", \") + \".\";\n        if (event.succeeded > 0) {\n            text += \" \" + event.succeeded + \" vedlegg ble levert.\";\n        }\n        break;\n\n    default:\n        node.warn(\"Unknown attachment notification type: \" + event.type);\n        text = \"⚠️ Det oppstod en feil med vedleggshåndtering.\";\n}\n\nmsg._notification_text = text;\nmsg._event = event;\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": "",
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 260,
+    "y": 160,
+    "wires": [
+      [
+        "n1a2_build_entry"
+      ]
+    ]
+  },
+  {
+    "id": "n1a2_build_entry",
+    "type": "function",
+    "z": "n1a2b3c4d5e6f7a8",
+    "name": "Build queue-ready entry",
+    "func": "/**\n * Wrap the notification text in a bridge entry format\n * that can be sent through the queue to the sender's system.\n *\n * The entry is addressed FROM parat_bridge TO the sender.\n * This means it goes to the same system the sender used,\n * so they see the notification in their own interface.\n *\n * client_system is set to 'parat_bridge' so the Filter subflow\n * recognises and drops it when polled back, preventing loops.\n *\n * Returns a clean object — no inherited properties.\n */\nconst event    = msg._event;\nconst metadata = event.metadata;\nconst now      = Date.now();\n\nreturn {\n    topic: \"new_message\",\n    entry: {\n        id:        \"pb-att-\" + now + \"-\" + Math.random().toString(36).substr(2, 6),\n        text:      msg._notification_text,\n        timestamp: now,\n        author:    \"System-melding\",\n        files:     [],\n        labels:    [],\n        metadata: {\n            source: {\n                client_system: \"parat_bridge\",\n                name:          \"parat_bridge\",\n                identifier:    \"parat_bridge\"\n            },\n            target:          metadata.source,\n            connection_name: metadata.connection_name\n        }\n    }\n};",
+    "outputs": 1,
+    "timeout": "",
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 530,
+    "y": 160,
+    "wires": [
+      []
+    ]
+  }
+]

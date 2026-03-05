@@ -1,0 +1,204 @@
+[
+  {
+    "id": "e3f90dc1120210b3",
+    "type": "subflow",
+    "name": "Classify attachments",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 60,
+        "y": 380,
+        "wires": [
+          {
+            "id": "861920e6da77a587"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 1240,
+        "y": 400,
+        "wires": [
+          {
+            "id": "7515c1a927ac4bc9",
+            "port": 0
+          },
+          {
+            "id": "51925a92c788e512",
+            "port": 0
+          },
+          {
+            "id": "c234face7cd8758d",
+            "port": 0
+          },
+          {
+            "id": "d65bbc4a1b0a2d69",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#DDAA99"
+  },
+  {
+    "id": "861920e6da77a587",
+    "type": "switch",
+    "z": "e3f90dc1120210b3",
+    "name": "Route by source system",
+    "property": "metadata.source.client_system",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "eq",
+        "v": "wasos",
+        "vt": "str"
+      },
+      {
+        "t": "eq",
+        "v": "rayvn",
+        "vt": "str"
+      },
+      {
+        "t": "eq",
+        "v": "cim",
+        "vt": "str"
+      }
+    ],
+    "checkall": "false",
+    "repair": false,
+    "outputs": 3,
+    "x": 250,
+    "y": 400,
+    "wires": [
+      [
+        "c9a1b84f17ea3f54"
+      ],
+      [
+        "0cd215ad4675bb2b"
+      ],
+      [
+        "d65bbc4a1b0a2d69"
+      ]
+    ]
+  },
+  {
+    "id": "c9a1b84f17ea3f54",
+    "type": "function",
+    "z": "e3f90dc1120210b3",
+    "name": "Check file sizes (WaSOS)",
+    "func": "/**\n * For WaSOS files, check if any exceed the target system's upload limit.\n * Oversized files are marked with skipped: true, reason: 'oversized'.\n * They remain in payload.files so POST to Rayvn log can report them.\n * Output 1- pass files smaller than 1mb\n * Output 2 - mark files larger than 1mb\n */\nconst MAX_UPLOAD_BYTES = 1048576; // 1 MB\n\nconst files = msg.payload.files || [];\nlet has_oversized = false;\n\nmsg.payload.files = files.map(file => {\n    if (file.size && file.size > MAX_UPLOAD_BYTES) {\n        has_oversized = true;\n        return { ...file, skipped: true, reason: \"oversized\" };\n    }\n    return file;\n});\n\nif (has_oversized) {\n    return [null, msg];\n} else {\n    return [msg, null];\n}",
+    "outputs": 2,
+    "timeout": "",
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 590,
+    "y": 240,
+    "wires": [
+      [
+        "7515c1a927ac4bc9"
+      ],
+      [
+        "51925a92c788e512"
+      ]
+    ]
+  },
+  {
+    "id": "0cd215ad4675bb2b",
+    "type": "function",
+    "z": "e3f90dc1120210b3",
+    "name": "Check for manual URL (Rayvn)",
+    "func": "/**\n * For Rayvn files: check if the user already shared a link manually.\n * If a URL is in the text, clear files silently — no notification needed.\n *\n * Output 1: No URL → genuinely non-transferable (only attatchment)\n * Output 2: URL found → user shared link, clean up silently\n */\nconst url_pattern = /(?:https?:\\/\\/|ftp:\\/\\/|www\\.)\\S+/i;\nconst has_url = msg.payload.text && url_pattern.test(msg.payload.text);\n\nif (has_url) {\n    msg.payload.files = [];\n    return [null, msg];\n} else {\n    return [msg, null];\n}",
+    "outputs": 2,
+    "timeout": "",
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 610,
+    "y": 360,
+    "wires": [
+      [
+        "c234face7cd8758d"
+      ],
+      []
+    ]
+  },
+  {
+    "id": "d65bbc4a1b0a2d69",
+    "type": "function",
+    "z": "e3f90dc1120210b3",
+    "name": "CIM placeholder",
+    "func": "/**\n * CIM file handling not yet implemented.\n * Mark all files as skipped.\n */\nnode.warn(\"CIM attachment classification not implemented — treating as non-transferable\");\n\nmsg.payload.files = (msg.payload.files || []).map(file => ({\n    ...file,\n    skipped: true,\n    reason: \"cim_not_implemented\"\n}));\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": "",
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 560,
+    "y": 440,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "7515c1a927ac4bc9",
+    "type": "function",
+    "z": "e3f90dc1120210b3",
+    "name": "Pass transferable files",
+    "func": "/**\n * All files are transferable and within size limits.\n * Entry proceeds with no modifications.\n */\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 1060,
+    "y": 200,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "51925a92c788e512",
+    "type": "function",
+    "z": "e3f90dc1120210b3",
+    "name": "Handle oversized files",
+    "func": "/**\n * Oversized files are already marked with skipped: true, reason: 'oversized'.\n * No text notice or notification here — POST to Rayvn log collects all\n * skipped/failed files and builds one combined notification.\n */\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 1000,
+    "y": 340,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "c234face7cd8758d",
+    "type": "function",
+    "z": "e3f90dc1120210b3",
+    "name": "Handle non-transferable files",
+    "func": "/**\n * Rayvn files cannot be downloaded programmatically.\n * Mark all files with skipped: true, reason: 'non_transferable'.\n * No text notice or notification here — POST to Rayvn log handles that.\n */\nmsg.payload.files = (msg.payload.files || []).map(file => ({\n    ...file,\n    skipped: true,\n    reason: \"non_transferable\"\n}));\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": "",
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 1060,
+    "y": 460,
+    "wires": [
+      []
+    ]
+  }
+]

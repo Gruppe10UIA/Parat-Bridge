@@ -1,0 +1,140 @@
+[
+  {
+    "id": "287213f898c25f27",
+    "type": "subflow",
+    "name": "Prune orphaned files",
+    "info": "Deletes files from /data/bridge-files/files/ that belong to connections that no longer exist.\n\n### Input\nAny message (trigger). Typically from:\n- Container startup (inject once)\n- New connection creation\n\n### Output\n`msg.payload` = summary string: '3 files pruned, 12 files retained'\n\n### Behavior\n- Lists all files in /data/bridge-files/files/\n- Parses connection_name from each filename (format: {msg_id}---{conn_name}---{filename})\n- Checks if that connection_name exists in parat_bridge.connections\n- Deletes files whose connection no longer exists\n- Files for active connections are retained for post-exercise review\n\n### File naming convention\n`{message_id}---{connection_name}---{original_filename}`\nThe triple-dash separator allows reliable parsing even when\noriginal filenames contain underscores or single dashes.",
+    "category": "",
+    "in": [
+      {
+        "x": 60,
+        "y": 160,
+        "wires": [
+          {
+            "id": "6b2edd78befb5b8a"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 1200,
+        "y": 140,
+        "wires": [
+          {
+            "id": "a30648f20ba58884",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#E9967A"
+  },
+  {
+    "id": "6b2edd78befb5b8a",
+    "type": "exec",
+    "z": "287213f898c25f27",
+    "command": "ls -1 /data/bridge-files/files/ 2>/dev/null || echo \"\"",
+    "addpay": "",
+    "append": "",
+    "useSpawn": "false",
+    "timer": "",
+    "winHide": false,
+    "oldrc": false,
+    "name": "List files in /data/bridge-files/files/",
+    "x": 180,
+    "y": 260,
+    "wires": [
+      [
+        "6ad779fd11b86123"
+      ],
+      [],
+      []
+    ]
+  },
+  {
+    "id": "6ad779fd11b86123",
+    "type": "function",
+    "z": "287213f898c25f27",
+    "name": "Classify files by connection",
+    "func": "/**\n * Parse each filename, extract the connection_name,\n * and classify as 'retain' or 'prune' based on whether\n * the connection still exists in parat_bridge.\n *\n * File naming convention:\n *   {message_id}---{connection_name}---{original_filename}\n *\n * Files whose connection_name is not found in\n * parat_bridge.connections are marked for deletion.\n */\nconst file_list   = (msg.payload || \"\").toString().trim();\nconst connections  = global.get(\"parat_bridge.connections\") || {};\nconst SEPARATOR    = \"---\";\nconst FILES_DIR    = \"/data/bridge-files/files/\";\n\nif (!file_list) {\n    msg.payload = \"No files found in \" + FILES_DIR;\n    msg._prune_list = [];\n    return msg;\n}\n\nconst filenames    = file_list.split(\"\\n\").filter(f => f.length > 0);\nconst to_prune     = [];\nconst to_retain    = [];\n\nfilenames.forEach(filename => {\n    const parts = filename.split(SEPARATOR);\n\n    // Need at least 3 parts: message_id, connection_name, original_filename\n    if (parts.length < 3) {\n        node.warn(\"Cannot parse filename (unexpected format): \" + filename);\n        to_retain.push(filename); // Keep files we cannot classify\n        return;\n    }\n\n    const connection_name = parts[1];\n\n    if (connections[connection_name]) {\n        to_retain.push(filename);\n    } else {\n        to_prune.push(filename);\n    }\n});\n\nmsg._prune_list  = to_prune;\nmsg._retain_count = to_retain.length;\nmsg._prune_count  = to_prune.length;\n\nnode.log(\"Prune check: \" + to_prune.length + \" to delete, \"\n       + to_retain.length + \" to keep\");\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": "",
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 480,
+    "y": 100,
+    "wires": [
+      [
+        "b671d99daf31feb1"
+      ]
+    ]
+  },
+  {
+    "id": "b671d99daf31feb1",
+    "type": "function",
+    "z": "287213f898c25f27",
+    "name": "Build delete command",
+    "func": "/**\n * Build a shell command to delete all orphaned files.\n * If nothing to prune, skip the exec node.\n */\nconst FILES_DIR = \"/data/bridge-files/files/\";\nconst to_prune  = msg._prune_list || [];\n\nif (to_prune.length === 0) {\n    msg.payload = msg._prune_count + \" files pruned, \"\n                + msg._retain_count + \" files retained\";\n    delete msg._prune_list;\n    return [null, msg];\n}\n\n// Build safe rm command — each filename is quoted to handle spaces\nconst safe_paths = to_prune.map(f =>\n    '\"' + FILES_DIR + f.replace(/\"/g, '') + '\"'\n);\nmsg.payload = \"rm -f \" + safe_paths.join(\" \");\n\nreturn [msg, null];",
+    "outputs": 2,
+    "timeout": "",
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 560,
+    "y": 300,
+    "wires": [
+      [
+        "2558f18eb90146fd"
+      ],
+      [
+        "a30648f20ba58884"
+      ]
+    ]
+  },
+  {
+    "id": "2558f18eb90146fd",
+    "type": "exec",
+    "z": "287213f898c25f27",
+    "command": "",
+    "addpay": "payload",
+    "append": "",
+    "useSpawn": "false",
+    "timer": "",
+    "winHide": false,
+    "oldrc": false,
+    "name": "Delete orphaned files",
+    "x": 900,
+    "y": 160,
+    "wires": [
+      [
+        "a30648f20ba58884"
+      ],
+      [],
+      []
+    ]
+  },
+  {
+    "id": "a30648f20ba58884",
+    "type": "function",
+    "z": "287213f898c25f27",
+    "name": "Report results",
+    "func": "/**\n * Build a human-readable summary of the pruning operation.\n */\nconst pruned   = msg._prune_count  || 0;\nconst retained = msg._retain_count || 0;\n\nmsg.payload = pruned + \" files pruned, \" + retained + \" files retained\";\n\nif (pruned > 0) {\n    node.log(msg.payload);\n}\n\ndelete msg._prune_list;\ndelete msg._prune_count;\ndelete msg._retain_count;\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": "",
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 1080,
+    "y": 380,
+    "wires": [
+      []
+    ]
+  }
+]
