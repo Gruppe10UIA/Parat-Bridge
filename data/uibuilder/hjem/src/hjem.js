@@ -38,6 +38,17 @@ function clearFeedback(el) {
 // ===== Connection Card Rendering =====
 
 /**
+ * Escape HTML special characters to prevent XSS.
+ * @param {string} str - Untrusted string.
+ * @returns {string} Escaped string safe for innerHTML.
+ */
+function escapeHtml(str) {
+    const div = document.createElement('div')
+    div.textContent = str
+    return div.innerHTML
+}
+
+/**
  * Format epoch milliseconds to a readable Norwegian date string.
  * @param {number} epochMs - Timestamp in milliseconds.
  * @returns {string} Formatted date, e.g. "03.03.2026 14:30".
@@ -64,7 +75,7 @@ function getStatusBadge(connection) {
  * @returns {string} Formatted label, e.g. "[rayvn]: LogName".
  */
 function formatClientLabel(client) {
-    return `[${client.client_system}]: ${client.name}`
+    return `[${escapeHtml(client.client_system)}]: ${escapeHtml(client.name)}`
 }
 
 /**
@@ -100,10 +111,6 @@ function renderConnectionCard(connection) {
     return card
 }
 
-/**
- * Clear and rebuild the connections list from a connections object.
- * @param {object} connections - Connections object keyed by connection name.
- */
 /**
  * Show or hide the bulk actions bar based on connection count.
  * @param {number} count - Number of connections.
