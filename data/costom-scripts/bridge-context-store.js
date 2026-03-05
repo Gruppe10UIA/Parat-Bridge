@@ -6,8 +6,6 @@ const QUEUE_FILE      = BASE_DIR + 'queue.json';
 const CONNECTIONS_DIR = BASE_DIR + 'connections/';
 const FILES_DIR       = BASE_DIR + 'files/';
 
-const sanitize = (name) => name.replace(/:/g, '_');
-
 // Ensure directories exist
 [CONNECTIONS_DIR, FILES_DIR].forEach(dir => {
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
@@ -31,7 +29,7 @@ BridgeStore.prototype.get = function(scope, key, callback) {
         const parts = key.split('.');
         // files.* — disk only
         if (parts[0] === 'files' && parts.length > 1) {
-            const filePath = FILES_DIR + sanitize(parts.slice(1).join('.'));
+            const filePath = FILES_DIR + parts.slice(1).join('.');
             let value = null;
             if (fs.existsSync(filePath)) value = fs.readFileSync(filePath);
             if (callback) return callback(null, value);
@@ -68,7 +66,7 @@ BridgeStore.prototype.set = function(scope, key, value, callback) {
         // files.* — disk only, bypass memory
         const parts = key.split('.');
         if (parts[0] === 'files' && parts.length > 1) {
-            fs.writeFileSync(FILES_DIR + sanitize(parts.slice(1).join('.')), value);
+            fs.writeFileSync(FILES_DIR + parts.slice(1).join('.'), value);
             if (callback) return callback(null);
             return;
         }
@@ -118,7 +116,7 @@ BridgeStore.prototype._persist = function(key, scopeCache) {
             const conn = allConns[parts[2]];
             if (conn) {
                 writeFileAtomic.sync(
-                    CONNECTIONS_DIR + sanitize(parts[2]) + '.json',
+                    CONNECTIONS_DIR + parts[2] + '.json',
                     JSON.stringify(conn)
                 );
             }
@@ -126,13 +124,13 @@ BridgeStore.prototype._persist = function(key, scopeCache) {
             // whole connections object set — sync all files
             fs.readdirSync(CONNECTIONS_DIR).filter(f => f.endsWith('.json')).forEach(f => {
                 const name = f.replace(/\.json$/, '');
-                if (!Object.keys(allConns).some(k => sanitize(k) === name)) {
+                if (!allConns[name]) {
                     fs.unlinkSync(CONNECTIONS_DIR + f);
                 }
             });
             for (const [connName, connData] of Object.entries(allConns)) {
                 writeFileAtomic.sync(
-                    CONNECTIONS_DIR + sanitize(connName) + '.json',
+                    CONNECTIONS_DIR + connName + '.json',
                     JSON.stringify(connData)
                 );
             }
