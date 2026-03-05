@@ -7,7 +7,7 @@ module.exports = {
     },
     contextStorage: {
         default: {
-            module: require("/data/costom-scripts/bridge-context-store")
+            module: require("/data/custom-scripts/context-store")
         }
     }
 }
