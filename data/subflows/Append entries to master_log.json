@@ -57,7 +57,7 @@
     "type": "function",
     "z": "fe9d5f6f9c2bdb16",
     "name": "remove duplicate entries",
-    "func": "// Look up the connection's existing log\nconst connection_name = msg.entry.metadata.connection_name;\nconst conn = global.get(\"parat_bridge\").connections[connection_name];\n\nif (!conn) {\n    node.warn(\"No connection found for duplicate check: \" + connection_name);\n    return msg;\n}\n\n// Drop the entry if it's already in the log\nconst existingIds = new Set(conn.master_log.map(e => e.id));\n\nif (existingIds.has(msg.entry.id)) {\n    node.warn(\"Duplicate entry removed: \" + msg.entry.id);\n    return null;\n}\n\nreturn msg;\n",
+    "func": "// Look up the connection's existing log\nconst connection_name = msg.entry.metadata.connection_name;\nconst conn = global.get(\"parat_bridge\").connections[connection_name];\n\nif (!conn) {\n    node.warn(\"No connection found for duplicate check: \" + connection_name);\n    return msg;\n}\n\n// Drop the entry if it's already in the log\nconst existingIds = new Set(conn.master_log.map(e => e.id));\n\nif (existingIds.has(msg.entry.id)) {\n    //node.warn(\"Duplicate entry removed: \" + msg.entry.id);\n    return null;\n}\n\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,

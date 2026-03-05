@@ -1,4 +1,5 @@
 module.exports = {
+    functionExternalModules: true,
     editorTheme: {
         projects: {
             enabled: false // must be configured for the "node-red-contrib-flow-manager"package
@@ -6,11 +7,7 @@ module.exports = {
     },
     contextStorage: {
         default: {
-            module: "localfilesystem",
-            config: {
-                dir: "/data/bridge-files",
-                flushInterval: 1
-            }
+            module: require("/data/custom-scripts/context-store")
         }
     }
 }
