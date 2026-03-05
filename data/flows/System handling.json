@@ -72,14 +72,12 @@
     "nodes": [
       "5a283579df925b67",
       "d61931ad5e5945c0",
-      "1cf402a0d8609d2e",
-      "12270b45091cde86",
-      "06d0c3f37f271e4d"
+      "1cf402a0d8609d2e"
     ],
     "x": 54,
-    "y": 19,
-    "w": 932,
-    "h": 142
+    "y": 39,
+    "w": 692,
+    "h": 82
   },
   {
     "id": "5cfcc740a3ba2cfa",
@@ -163,13 +161,18 @@
     "z": "003e75aaa2880405",
     "g": "9ab1f6c2842073c5",
     "name": "Initialize system functions",
-    "func": "global.set('utils', {\n\n    build_connection_name: (clients) => {\n        return [...clients]\n            .sort((a, b) => a.client_system.localeCompare(b.client_system))\n            .map(c => `${c.client_system}-${c.identifier}`)\n            .join(\"_\");\n    },\n\n    build_label: (client) => {\n        const colors = {\n            wasos:        \"#1f871f\",\n            rayvn:        \"#000000\",\n            parat_bridge: \"#b80d18\"\n        };\n        return {\n            id:       client.identifier,\n            name:     `[${client.client_system}]: ${client.name}`,\n            colorHex: colors[client.client_system] || \"#888888\"\n        };\n    },\n\n    build_callsign: (client) => `[${client.client_system}:${client.name}]`\n});\n\nreturn msg;\n",
+    "func": "global.set('utils', {\n\n    build_connection_name: (clients) => {\n        return [...clients]\n            .sort((a, b) => a.client_system.localeCompare(b.client_system))\n            .map(c => `${c.client_system}-${c.identifier}`)\n            .join(\"_\");\n    },\n\n    build_label: (client) => {\n        const colors = {\n            wasos:        \"#1f871f\",\n            rayvn:        \"#000000\",\n            parat_bridge: \"#b80d18\"\n        };\n        return {\n            id:       client.identifier,\n            name:     `[${client.client_system}]: ${client.name}`,\n            colorHex: colors[client.client_system] || \"#888888\"\n        };\n    },\n\n    build_callsign: (client) => `[${client.client_system}:${client.name}]`\n});\n\n\n// Helper functions to access disk \n\nconst CONNECTIONS_DIR = '/data/bridge-files/connections/';\nconst QUEUE_FILE = '/data/bridge-files/queue.json';\n\nglobal.set('disk', {\n\n    readConnections: () => {\n        const connections = {};\n        fs.readdirSync(CONNECTIONS_DIR)\n            .filter(f => f.endsWith('.json'))\n            .forEach(f => {\n                const data = JSON.parse(fs.readFileSync(CONNECTIONS_DIR + f, 'utf8'));\n                connections[data.name] = data;\n            });\n        return connections;\n    },\n\n    readQueue: () => {\n        if (!fs.existsSync(QUEUE_FILE)) return [];\n        const saved = JSON.parse(fs.readFileSync(QUEUE_FILE, 'utf8'));\n        return saved.entry_queue || [];\n    }\n\n});\n\n\n\n\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
-    "libs": [],
+    "libs": [
+      {
+        "var": "fs",
+        "module": "fs"
+      }
+    ],
     "x": 370,
     "y": 80,
     "wires": [
@@ -184,7 +187,7 @@
     "z": "003e75aaa2880405",
     "g": "9ab1f6c2842073c5",
     "name": "initialize parat bridge",
-    "func": "/*\n    Sets the parat_bridge global structure.\n    On first run: creates the full skeleton.\n    On restart: preserves existing data, refreshes base_urls,\n    ensures all sub-properties exist.\n    Connections and queue are populated by their own init nodes.\n*/\n\nconst BASE_URLS = {\n    rayvn: \"https://api.rayvn.global\",\n    wasos: \"https://dev.wasos.no\"\n};\n\nlet data = global.get(\"parat_bridge\");\n\nif (!data || typeof data !== \"object\") {\n    data = {\n        base_urls:   BASE_URLS,\n        connections: {},\n        queue: {\n            in_flight_connections: [],\n            entry_queue: []\n        }\n    };\n} else {\n    data.base_urls = BASE_URLS;\n    if (!data.connections) data.connections = {};\n    if (!data.queue) data.queue = {};\n    if (!data.queue.entry_queue) data.queue.entry_queue = [];\n    if (!data.queue.in_flight_connections) data.queue.in_flight_connections = [];\n}\n\nglobal.set(\"parat_bridge\", data);\n\nreturn msg;\n",
+    "func": "/*\n    Sets the parat_bridge global structure.\n    On first run: creates the full skeleton.\n    On restart: preserves existing data, refreshes base_urls,\n    ensures all sub-properties exist.\n    Connections and queue are populated by their own init nodes.\n*/\n\nconst disk = global.get('disk');\n\nglobal.set(\"parat_bridge\", {\n    base_urls: {\n        rayvn: \"https://api.rayvn.global\",\n        wasos: \"https://dev.wasos.no\"\n    },\n    connections: disk.readConnections(),\n    queue: {\n        in_flight_connections: [],\n        entry_queue: disk.readQueue()\n    }\n});\n\nconst conns = Object.keys(global.get(\"parat_bridge.connections\")).length;\nconst queue = global.get(\"parat_bridge.queue.entry_queue\").length;\nnode.log(\"Restored \" + conns + \" connection(s) and \" + queue + \" queue entries from disk\");\n\nreturn msg;\n\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -194,10 +197,7 @@
     "x": 620,
     "y": 80,
     "wires": [
-      [
-        "12270b45091cde86",
-        "06d0c3f37f271e4d"
-      ]
+      []
     ]
   },
   {
@@ -398,53 +398,5 @@
       ]
     ],
     "info": "Triggers the error log fetch every 5 seconds.\r\nEnsures the dashboard table stays up to date\r\nwith the latest errors from global context.\r\n"
-  },
-  {
-    "id": "12270b45091cde86",
-    "type": "function",
-    "z": "003e75aaa2880405",
-    "g": "9ab1f6c2842073c5",
-    "name": "Initialize queue",
-    "func": "/*\n    Restores entry_queue from /data/bridge-files/queue.json.\n    in_flight_connections is runtime-only — always starts empty.\n*/\n\nconst QUEUE_FILE = '/data/bridge-files/queue.json';\n\nif (fs.existsSync(QUEUE_FILE)) {\n    const saved = JSON.parse(fs.readFileSync(QUEUE_FILE, 'utf8'));\n    global.set(\"parat_bridge.queue.entry_queue\", saved.entry_queue || []);\n    node.log(\"Restored \" + (saved.entry_queue || []).length + \" queue entries from disk\");\n} else {\n    node.log(\"No queue file — starting with empty queue\");\n}\n\nreturn msg;\n",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [
-      {
-        "var": "fs",
-        "module": "fs"
-      }
-    ],
-    "x": 840,
-    "y": 60,
-    "wires": [
-      []
-    ]
-  },
-  {
-    "id": "06d0c3f37f271e4d",
-    "type": "function",
-    "z": "003e75aaa2880405",
-    "g": "9ab1f6c2842073c5",
-    "name": "Initialize connections",
-    "func": "/*\n    Reads connection files from /data/bridge-files/connections/.\n    Each connection is a separate JSON file.\n    On first run (no files): keeps the empty {} from parat_bridge init.\n*/\n\nconst CONNECTIONS_DIR = '/data/bridge-files/connections/';\n\nconst files = fs.readdirSync(CONNECTIONS_DIR).filter(f => f.endsWith('.json'));\n\nif (files.length > 0) {\n    const connections = {};\n    files.forEach(f => {\n        const data = JSON.parse(fs.readFileSync(CONNECTIONS_DIR + f, 'utf8'));\n        connections[data.name] = data;\n    });\n    global.set(\"parat_bridge.connections\", connections);\n    node.log(\"Restored \" + files.length + \" connection(s) from disk\");\n} else {\n    node.log(\"No connection files — starting with empty connections\");\n}\n\nreturn msg;\n",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [
-      {
-        "var": "fs",
-        "module": "fs"
-      }
-    ],
-    "x": 860,
-    "y": 120,
-    "wires": [
-      []
-    ]
   }
 ]
