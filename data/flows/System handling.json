@@ -163,7 +163,7 @@
     "z": "003e75aaa2880405",
     "g": "9ab1f6c2842073c5",
     "name": "Initialize system functions",
-    "func": "global.set('utils', {\n\n    build_connection_name: (clients) => {\n        return [...clients]\n            .sort((a, b) => a.client_system.localeCompare(b.client_system))\n            .map(c => `${c.client_system}:${c.identifier}`)\n            .join(\"_\");\n    },\n\n    build_label: (client) => {\n        const colors = {\n            wasos:        \"#1f871f\",\n            rayvn:        \"#000000\",\n            parat_bridge: \"#b80d18\"\n        };\n        return {\n            id:       client.identifier,\n            name:     `[${client.client_system}]: ${client.name}`,\n            colorHex: colors[client.client_system] || \"#888888\"\n        };\n    },\n\n    build_callsign: (client) => `[${client.client_system}:${client.name}]`\n});\n\nreturn msg;\n",
+    "func": "global.set('utils', {\n\n    build_connection_name: (clients) => {\n        return [...clients]\n            .sort((a, b) => a.client_system.localeCompare(b.client_system))\n            .map(c => `${c.client_system}-${c.identifier}`)\n            .join(\"_\");\n    },\n\n    build_label: (client) => {\n        const colors = {\n            wasos:        \"#1f871f\",\n            rayvn:        \"#000000\",\n            parat_bridge: \"#b80d18\"\n        };\n        return {\n            id:       client.identifier,\n            name:     `[${client.client_system}]: ${client.name}`,\n            colorHex: colors[client.client_system] || \"#888888\"\n        };\n    },\n\n    build_callsign: (client) => `[${client.client_system}:${client.name}]`\n});\n\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -398,67 +398,6 @@
       ]
     ],
     "info": "Triggers the error log fetch every 5 seconds.\r\nEnsures the dashboard table stays up to date\r\nwith the latest errors from global context.\r\n"
-  },
-  {
-    "id": "b97c66097e0eb5d1",
-    "type": "function",
-    "z": "003e75aaa2880405",
-    "name": "Notify sender of failed delivery",
-    "func": "const now = Date.now();\nconst conn = msg.connection;\nconst failed = msg.failed_messages || [];\nconst failedEntry = failed[0] || {};\n\n// Target is the system entry tried to reach - and failed\n// Sender is in the oposite system of target\nconst target = failedEntry.target;\n\n// Technical log entry\nconst logEntry = [{\n    id: \"pb-queue-\" + now + \"-\" + Math.random().toString(36).substr(2, 6),\n    text: \"[parat-bridge] Queue exhausted retries. \" +\n          failed.length + \" message(s) failed. Target: \" + (target || \"unknown\") +\n          \". Connection: \" + (conn ? conn.label : \"unknown\"),\n    timeCreated: now,\n    loggedByFullName: \"parat-bridge\",\n    client: \"parat-bridge\",\n    connection_id: conn ? conn.id : null\n}];\n\nlet msgLog = { payload: logEntry };\n\nif (target === \"rayvn\") {\n    // Faild send to Rayvn - alert Wasos\n    const wasosMessage = [{\n        content: \"[parat-bridge] ⚠️ Melding ikke levert til Rayvn. Forsøker å gjenopprette.\",\n        callsign: \"[parat-bridge]\",\n        createdAt: new Date(now).toISOString(),\n        isLocation: false,\n        replyMessageId: null,\n        files: []\n    }];\n    let msgWasos = { payload: wasosMessage, connection: conn };\n    return [msgWasos, null, msgLog];\n\n} else if (target === \"wasos\") {\n    // Faild send to Wasos - alert Rayvn\n    const rayvnMessage = [{\n        text: \"[parat-bridge] ⚠️ Melding ikke levert til WaSOS. Forsøker å gjenopprette.\",\n        keyEvent: false,\n        releasedInfo: false,\n        labels: []\n    }];\n    let msgRayvn = { payload: rayvnMessage, connection: conn };\n    return [null, msgRayvn, msgLog];\n\n} else {\n    // Unknown target\n    node.warn(\"Unknown target for failed message: \" + target);\n    return [null, null, msgLog];\n}",
-    "outputs": 3,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 370,
-    "y": 800,
-    "wires": [
-      [
-        "0621bb7ed1c86723"
-      ],
-      [
-        "cfb1993746665070"
-      ],
-      [
-        "8678033e827e3251"
-      ]
-    ]
-  },
-  {
-    "id": "0621bb7ed1c86723",
-    "type": "subflow:209f3c980818c499",
-    "z": "003e75aaa2880405",
-    "name": "",
-    "x": 860,
-    "y": 800,
-    "wires": [
-      [],
-      []
-    ]
-  },
-  {
-    "id": "8678033e827e3251",
-    "type": "subflow:fe9d5f6f9c2bdb16",
-    "z": "003e75aaa2880405",
-    "name": "",
-    "x": 820,
-    "y": 880,
-    "wires": [
-      []
-    ]
-  },
-  {
-    "id": "cfb1993746665070",
-    "type": "subflow:4a6a1af9b9af6b0f",
-    "z": "003e75aaa2880405",
-    "name": "",
-    "x": 830,
-    "y": 840,
-    "wires": [
-      [],
-      []
-    ]
   },
   {
     "id": "12270b45091cde86",
