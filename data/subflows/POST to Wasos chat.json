@@ -1,0 +1,155 @@
+[
+  {
+    "id": "c52035853d082eb0",
+    "type": "subflow",
+    "name": "POST to Wasos chat",
+    "info": "Posts a bridged entry to the WaSOS chat API.\n\n### Input\n`msg.payload` = WaSOS POST body, `msg.metadata.target` = WaSOS Client\n\n### Logic\nSets `x-api-key` header, URL `/api/chat/messages/{chatroom_name}`, sends POST. 500ms delay between requests.\n\n### Output\n`msg.topic = \"response\"`, `msg.result = true/false`, `msg.statusCode`",
+    "category": "",
+    "in": [
+      {
+        "x": 80,
+        "y": 80,
+        "wires": [
+          {
+            "id": "d9be8cf8edfc4603"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 700,
+        "y": 300,
+        "wires": [
+          {
+            "id": "06d02dfa3dc28fc9",
+            "port": 0
+          }
+        ]
+      },
+      {
+        "x": 700,
+        "y": 380,
+        "wires": [
+          {
+            "id": "275fb321d293db05",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#AAAA66",
+    "icon": "font-awesome/fa-send"
+  },
+  {
+    "id": "06d02dfa3dc28fc9",
+    "type": "http request",
+    "z": "c52035853d082eb0",
+    "name": "POST Chat Message To Wasos",
+    "method": "POST",
+    "ret": "txt",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": true,
+    "headers": [],
+    "x": 470,
+    "y": 300,
+    "wires": [
+      [
+        "275fb321d293db05"
+      ]
+    ],
+    "info": "Sends the message to WaSOS chat API with POST request. This is the step that delivers the Rayvn message into the WaSOS chat."
+  },
+  {
+    "id": "17608375b7ba784c",
+    "type": "function",
+    "z": "c52035853d082eb0",
+    "name": "Format header and url",
+    "func": "const target = msg.metadata.target;\n\nif (!target || !target.api_key || !target.client_specific.chatroom_name) {\n    node.error(\"WaSOS not configured on this connection\");\n    return null;\n}\n\nmsg.url = global.get(\"parat_bridge\").base_urls.wasos\n    + \"/api/chat/messages/\" + target.client_specific.chatroom_name;\n\nmsg.headers = {\n    \"x-api-key\":    target.api_key,\n    \"Content-Type\": \"application/json\"\n};\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 380,
+    "y": 200,
+    "wires": [
+      [
+        "155d4920cc098a39"
+      ]
+    ],
+    "info": "Builds HTTP request headers and URL for WaSOS API. Sets x-api-key header from wasos_apikey and uses wasosChatroomUrl as the endpoint. Returns null if not configured."
+  },
+  {
+    "id": "155d4920cc098a39",
+    "type": "delay",
+    "z": "c52035853d082eb0",
+    "name": "",
+    "pauseType": "delay",
+    "timeout": "100",
+    "timeoutUnits": "milliseconds",
+    "rate": "1",
+    "nbRateUnits": "1",
+    "rateUnits": "second",
+    "randomFirst": "1",
+    "randomLast": "5",
+    "randomUnits": "seconds",
+    "drop": false,
+    "allowrate": false,
+    "outputs": 1,
+    "x": 590,
+    "y": 200,
+    "wires": [
+      [
+        "06d02dfa3dc28fc9"
+      ]
+    ]
+  },
+  {
+    "id": "275fb321d293db05",
+    "type": "function",
+    "z": "c52035853d082eb0",
+    "name": "Return response",
+    "func": "msg.topic = \"response\"\n\nif (msg.statusCode == 200) {\n    msg.result = true\n} else {\n    msg.result = false\n}\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 500,
+    "y": 380,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "d9be8cf8edfc4603",
+    "type": "function",
+    "z": "c52035853d082eb0",
+    "name": "Append skipped file notice",
+    "func": "/**\n * Append any skipped-file notice to payload.content.\n */\nconst entry   = msg.entry;\nconst files   = (entry && entry.files) || [];\nconst skipped = files.filter(f => f.skipped);\n\nif (skipped.length === 0) return msg;\n\nconst total  = files.length;\nconst notice = \" [\" + skipped.length + \"/\" + total\n             + \" vedlegg ikke overført. Avsender mottar instruks om alternativ håndtering]\";\n\nmsg.payload.content = (msg.payload.content || \"\") + notice;\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 250,
+    "y": 100,
+    "wires": [
+      [
+        "17608375b7ba784c"
+      ]
+    ]
+  }
+]
