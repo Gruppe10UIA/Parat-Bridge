@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="nb">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="../uibuilder/images/node-blue.ico">
+
+    <title>Parat Bridge</title>
+    <meta name="description" content="Parat Bridge — Opprett forbindelse mellom Rayvn og WaSOS">
+
+    <!-- CSS -->
+    <link type="text/css" rel="stylesheet" href="./index.css" media="all">
+    <link type="text/css" rel="stylesheet" href="./hjem.css" media="all">
+
+    <!-- UIbuilder client library (IIFE, attaches to window.uibuilder) -->
+    <script defer src="../uibuilder/uibuilder.iife.min.js"></script>
+    <!-- App modules -->
+    <script type="module" src="./index.js"></script>
+</head>
+<body>
+
+    <!-- ===== TOP BAR ===== -->
+    <header id="app-header">
+        <nav id="main-nav">
+            <ul>
+                <li><a href="#" data-page="hjem" class="active">Hjem</a></li>
+                <li><a href="#" data-page="error">Error</a></li>
+                <li><a href="#" data-page="log-status">Log Status</a></li>
+            </ul>
+        </nav>
+        <h1>Parat Bridge</h1>
+    </header>
+
+    <!-- ===== PAGE: HJEM ===== -->
+    <main id="page-hjem" class="page active">
+
+        <!-- LEFT COLUMN: Form -->
+        <section id="form-section">
+
+            <h2>Opprett forbindelse:</h2>
+
+            <form id="connection-form">
+
+                <!-- Rayvn credentials -->
+                <fieldset id="rayvn-fields">
+                    <legend>Rayvn</legend>
+
+                    <div class="form-field">
+                        <label for="rayvn_api_key">API-nøkkel*</label>
+                        <input
+                            type="text"
+                            id="rayvn_api_key"
+                            name="rayvn_api_key"
+                            required
+                            autocomplete="off"
+                        >
+                    </div>
+
+                    <div class="form-field">
+                        <label for="rayvn_log_name">Loggnavn*</label>
+                        <input
+                            type="text"
+                            id="rayvn_log_name"
+                            name="rayvn_log_name"
+                            required
+                            autocomplete="off"
+                        >
+                    </div>
+                </fieldset>
+
+                <!-- WaSOS credentials -->
+                <fieldset id="wasos-fields">
+                    <legend>WaSOS</legend>
+
+                    <div class="form-field">
+                        <label for="wasos_username">Brukernavn*</label>
+                        <input
+                            type="text"
+                            id="wasos_username"
+                            name="wasos_username"
+                            required
+                            autocomplete="off"
+                        >
+                    </div>
+
+                    <div class="form-field">
+                        <label for="wasos_password">Passord*</label>
+                        <input
+                            type="password"
+                            id="wasos_password"
+                            name="wasos_password"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-field">
+                        <label for="wasos_chatroom_name">Chatrom*</label>
+                        <input
+                            type="text"
+                            id="wasos_chatroom_name"
+                            name="wasos_chatroom_name"
+                            required
+                            autocomplete="off"
+                        >
+                    </div>
+                </fieldset>
+
+                <div class="form-actions">
+                    <button type="submit" id="btn-submit">Legg til kobling</button>
+                    <button type="reset" id="btn-clear">Tøm</button>
+                </div>
+
+            </form>
+
+            <!-- Feedback area for success/error messages after submit -->
+            <div id="form-feedback" role="status" aria-live="polite"></div>
+
+        </section>
+
+        <!-- RIGHT COLUMN: Active connections -->
+        <section id="connections-section">
+
+            <div id="connections-header">
+                <h2>Alle koblinger:</h2>
+                <!-- Sort controls to be implemented later -->
+                <div id="connections-sort"></div>
+            </div>
+
+            <div id="connections-list"></div>
+
+            <div id="connections-bulk-actions" class="hidden">
+                <button class="btn-action btn-bulk-start" disabled>Start alle</button>
+                <button class="btn-action btn-bulk-stop" disabled>Stopp alle</button>
+                <button class="btn-action btn-bulk-remove" disabled>Fjern alle</button>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- ===== PAGE: ERROR ===== -->
+    <main id="page-error" class="page">
+
+        <h2>Feillogg</h2>
+
+        <table id="error-table">
+            <thead>
+                <tr>
+                    <th>Tid</th>
+                    <th>Type</th>
+                    <th>Kilde</th>
+                    <th>Status</th>
+                    <th>Melding</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rows populated by JS -->
+            </tbody>
+        </table>
+
+    </main>
+
+    <!-- ===== PAGE: LOG STATUS ===== -->
+    <main id="page-log-status" class="page">
+
+        <h2>Aktive forbindelser</h2>
+
+        <table id="connections-table">
+            <thead>
+                <tr>
+                    <th>Klient 1</th>
+                    <th>Klient 2</th>
+                    <th>Status</th>
+                    <th>Opprettet</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rows populated by JS -->
+            </tbody>
+        </table>
+
+    </main>
+
+    <!-- ===== TOAST / NOTIFICATION AREA ===== -->
+    <div id="notifications" role="alert" aria-live="assertive"></div>
+
+</body>
+</html>
