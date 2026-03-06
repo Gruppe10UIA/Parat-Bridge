@@ -7,6 +7,36 @@
     "info": "Configuration UI for Parat-Bridge. Handles setup of Rayvn API credentials and WaSOS login. Validates input, authenticates with both services, and stores configuration in global variables."
   },
   {
+    "id": "354aca9dbc391ace",
+    "type": "group",
+    "z": "84d1a0de660abb59",
+    "name": "Configuration",
+    "style": {
+      "stroke": "#001f60",
+      "fill": "#bfc7d7",
+      "label": true,
+      "color": "#000000",
+      "label-position": "n"
+    },
+    "nodes": [
+      "f7bbfc371ab086b1",
+      "9b6e4d1e92c769d9",
+      "02f5aa2ff841acd1",
+      "4290cc6fa1aadff0",
+      "293cf0ecd677bac0",
+      "a81cbcc889952fb3",
+      "794b757ef07a4e19",
+      "989d45634f23b97e",
+      "3f5a48b721dae9db",
+      "f63d35f5fb7dc607",
+      "c3faa9283c8ae054"
+    ],
+    "x": 74,
+    "y": 79,
+    "w": 792,
+    "h": 242
+  },
+  {
     "id": "96e90febc19e0c83",
     "type": "group",
     "z": "84d1a0de660abb59",
@@ -32,122 +62,17 @@
     "h": 122
   },
   {
-    "id": "354aca9dbc391ace",
-    "type": "group",
-    "z": "84d1a0de660abb59",
-    "name": "Configuration",
-    "style": {
-      "stroke": "#001f60",
-      "fill": "#bfc7d7",
-      "label": true,
-      "color": "#000000",
-      "label-position": "n"
-    },
-    "nodes": [
-      "f7bbfc371ab086b1",
-      "9b6e4d1e92c769d9",
-      "02f5aa2ff841acd1",
-      "4290cc6fa1aadff0",
-      "293cf0ecd677bac0",
-      "a81cbcc889952fb3",
-      "794b757ef07a4e19",
-      "989d45634f23b97e",
-      "3f5a48b721dae9db"
-    ],
-    "x": 74,
-    "y": 79,
-    "w": 792,
-    "h": 242
-  },
-  {
-    "id": "be554d1eb57375c1",
-    "type": "debug",
-    "z": "84d1a0de660abb59",
-    "g": "96e90febc19e0c83",
-    "name": "initial log entries",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "true",
-    "targetType": "full",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 740,
-    "y": 440,
-    "wires": []
-  },
-  {
-    "id": "a7ccd4d8c49ceaff",
-    "type": "link out",
-    "z": "84d1a0de660abb59",
-    "g": "96e90febc19e0c83",
-    "name": "initial log post",
-    "mode": "link",
-    "links": [
-      "9fe2d9086d510cb5"
-    ],
-    "x": 825,
-    "y": 480,
-    "wires": []
-  },
-  {
-    "id": "e6785e6cf6e666cf",
-    "type": "debug",
-    "z": "84d1a0de660abb59",
-    "g": "96e90febc19e0c83",
-    "name": "Initialize connection",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "true",
-    "targetType": "full",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 230,
-    "y": 440,
-    "wires": []
-  },
-  {
-    "id": "7cf27d9c1bf7f451",
-    "type": "subflow:c45e2eb6a51516d0",
-    "z": "84d1a0de660abb59",
-    "g": "96e90febc19e0c83",
-    "name": "",
-    "x": 190,
-    "y": 480,
-    "wires": [
-      [
-        "03c1d5a79bea3bbf",
-        "03c1f0752644b9c0",
-        "e6785e6cf6e666cf"
-      ]
-    ]
-  },
-  {
-    "id": "03c1f0752644b9c0",
-    "type": "subflow:3241f77fe5e4f9ea",
-    "z": "84d1a0de660abb59",
-    "g": "96e90febc19e0c83",
-    "name": "",
-    "x": 500,
-    "y": 440,
-    "wires": []
-  },
-  {
-    "id": "f7bbfc371ab086b1",
-    "type": "subflow:99c17cced97ac339",
+    "id": "c3faa9283c8ae054",
+    "type": "link in",
     "z": "84d1a0de660abb59",
     "g": "354aca9dbc391ace",
-    "name": "",
-    "x": 190,
-    "y": 220,
+    "name": "UIB Link in to Configure WaSOS",
+    "links": [
+      "4da735d9ab626fa3"
+    ],
+    "x": 165,
+    "y": 280,
     "wires": [
-      [
-        "9b6e4d1e92c769d9",
-        "989d45634f23b97e"
-      ],
       [
         "02f5aa2ff841acd1",
         "3f5a48b721dae9db"
@@ -155,34 +80,127 @@
     ]
   },
   {
-    "id": "9b6e4d1e92c769d9",
-    "type": "subflow:5da162b98b7b6b86",
+    "id": "f63d35f5fb7dc607",
+    "type": "link in",
     "z": "84d1a0de660abb59",
     "g": "354aca9dbc391ace",
-    "name": "",
-    "x": 430,
+    "name": "UIB Link in to Configure Rayvn",
+    "links": [
+      "ee7dab60e6fc914e"
+    ],
+    "x": 165,
     "y": 160,
     "wires": [
       [
-        "4290cc6fa1aadff0",
-        "794b757ef07a4e19"
+        "9b6e4d1e92c769d9",
+        "989d45634f23b97e"
       ]
     ]
   },
   {
-    "id": "02f5aa2ff841acd1",
-    "type": "subflow:a7d9b521445d1bf0",
+    "id": "03c1d5a79bea3bbf",
+    "type": "subflow:0fad769721e9978c",
     "z": "84d1a0de660abb59",
-    "g": "354aca9dbc391ace",
+    "g": "96e90febc19e0c83",
     "name": "",
-    "x": 430,
-    "y": 280,
+    "x": 490,
+    "y": 480,
     "wires": [
       [
-        "4290cc6fa1aadff0",
-        "a81cbcc889952fb3"
+        "be554d1eb57375c1",
+        "a7ccd4d8c49ceaff"
       ]
     ]
+  },
+  {
+    "id": "3f5a48b721dae9db",
+    "type": "debug",
+    "z": "84d1a0de660abb59",
+    "g": "354aca9dbc391ace",
+    "name": "Wasos output",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 180,
+    "y": 260,
+    "wires": []
+  },
+  {
+    "id": "989d45634f23b97e",
+    "type": "debug",
+    "z": "84d1a0de660abb59",
+    "g": "354aca9dbc391ace",
+    "name": "Rayvn output",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 170,
+    "y": 180,
+    "wires": []
+  },
+  {
+    "id": "794b757ef07a4e19",
+    "type": "debug",
+    "z": "84d1a0de660abb59",
+    "g": "354aca9dbc391ace",
+    "name": "Config Rayvn",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 420,
+    "y": 120,
+    "wires": []
+  },
+  {
+    "id": "a81cbcc889952fb3",
+    "type": "debug",
+    "z": "84d1a0de660abb59",
+    "g": "354aca9dbc391ace",
+    "name": "Config Wasos",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 420,
+    "y": 240,
+    "wires": []
+  },
+  {
+    "id": "293cf0ecd677bac0",
+    "type": "debug",
+    "z": "84d1a0de660abb59",
+    "g": "354aca9dbc391ace",
+    "name": "correct config",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 700,
+    "y": 180,
+    "wires": []
   },
   {
     "id": "4290cc6fa1aadff0",
@@ -216,108 +234,128 @@
     ]
   },
   {
-    "id": "293cf0ecd677bac0",
-    "type": "debug",
+    "id": "02f5aa2ff841acd1",
+    "type": "subflow:a7d9b521445d1bf0",
     "z": "84d1a0de660abb59",
     "g": "354aca9dbc391ace",
-    "name": "correct config",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 700,
-    "y": 180,
-    "wires": []
+    "name": "",
+    "x": 430,
+    "y": 280,
+    "wires": [
+      [
+        "4290cc6fa1aadff0",
+        "a81cbcc889952fb3"
+      ]
+    ]
   },
   {
-    "id": "a81cbcc889952fb3",
-    "type": "debug",
+    "id": "9b6e4d1e92c769d9",
+    "type": "subflow:5da162b98b7b6b86",
     "z": "84d1a0de660abb59",
     "g": "354aca9dbc391ace",
-    "name": "Config Wasos",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 420,
-    "y": 240,
-    "wires": []
+    "name": "",
+    "x": 430,
+    "y": 160,
+    "wires": [
+      [
+        "4290cc6fa1aadff0",
+        "794b757ef07a4e19"
+      ]
+    ]
   },
   {
-    "id": "794b757ef07a4e19",
-    "type": "debug",
+    "id": "f7bbfc371ab086b1",
+    "type": "subflow:99c17cced97ac339",
     "z": "84d1a0de660abb59",
     "g": "354aca9dbc391ace",
-    "name": "Config Rayvn",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 420,
-    "y": 120,
-    "wires": []
+    "name": "",
+    "x": 190,
+    "y": 220,
+    "wires": [
+      [
+        "9b6e4d1e92c769d9",
+        "989d45634f23b97e"
+      ],
+      [
+        "02f5aa2ff841acd1",
+        "3f5a48b721dae9db"
+      ]
+    ]
   },
   {
-    "id": "989d45634f23b97e",
-    "type": "debug",
-    "z": "84d1a0de660abb59",
-    "g": "354aca9dbc391ace",
-    "name": "Rayvn output",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 170,
-    "y": 180,
-    "wires": []
-  },
-  {
-    "id": "3f5a48b721dae9db",
-    "type": "debug",
-    "z": "84d1a0de660abb59",
-    "g": "354aca9dbc391ace",
-    "name": "Wasos output",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 180,
-    "y": 260,
-    "wires": []
-  },
-  {
-    "id": "03c1d5a79bea3bbf",
-    "type": "subflow:0fad769721e9978c",
+    "id": "03c1f0752644b9c0",
+    "type": "subflow:3241f77fe5e4f9ea",
     "z": "84d1a0de660abb59",
     "g": "96e90febc19e0c83",
     "name": "",
-    "x": 490,
+    "x": 500,
+    "y": 440,
+    "wires": []
+  },
+  {
+    "id": "7cf27d9c1bf7f451",
+    "type": "subflow:c45e2eb6a51516d0",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "name": "",
+    "x": 190,
     "y": 480,
     "wires": [
       [
-        "be554d1eb57375c1",
-        "a7ccd4d8c49ceaff"
+        "03c1d5a79bea3bbf",
+        "03c1f0752644b9c0",
+        "e6785e6cf6e666cf"
       ]
     ]
+  },
+  {
+    "id": "e6785e6cf6e666cf",
+    "type": "debug",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "name": "Initialize connection",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 230,
+    "y": 440,
+    "wires": []
+  },
+  {
+    "id": "a7ccd4d8c49ceaff",
+    "type": "link out",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "name": "initial log post",
+    "mode": "link",
+    "links": [
+      "9fe2d9086d510cb5"
+    ],
+    "x": 825,
+    "y": 480,
+    "wires": []
+  },
+  {
+    "id": "be554d1eb57375c1",
+    "type": "debug",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "name": "initial log entries",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 740,
+    "y": 440,
+    "wires": []
   }
 ]
