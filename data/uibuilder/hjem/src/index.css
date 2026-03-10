@@ -1,0 +1,114 @@
+/* ===== RESET ===== */
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    font-family: system-ui, -apple-system, sans-serif;
+    color: #1a1a1a;
+    background: #f5f5f5;
+}
+
+/* ===== TOP BAR ===== */
+
+#app-header {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border-bottom: 1px solid #ddd;
+    padding: 0 2rem;
+    height: 56px;
+}
+
+#app-header h1 {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+/* ===== NAV TABS ===== */
+
+#main-nav ul {
+    display: flex;
+    list-style: none;
+    gap: 0.25rem;
+}
+
+#main-nav a {
+    display: block;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    color: #555;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+#main-nav a:hover {
+    background: #eee;
+    color: #1a1a1a;
+}
+
+#main-nav a.active {
+    background: #e8e8e8;
+    color: #1a1a1a;
+    font-weight: 600;
+}
+
+/* ===== SPA PAGE SWITCHING ===== */
+
+.page {
+    display: none;
+}
+
+#page-hjem.active {
+    display: flex;
+    gap: 1px;
+    height: calc(100vh - 56px);
+}
+
+#page-error.active,
+#page-log-status.active {
+    display: block;
+    padding: 2rem;
+    height: calc(100vh - 56px);
+    overflow-y: auto;
+    background: #fff;
+}
+
+/* ===== TABLES (Error & Log Status) ===== */
+
+#error-table,
+#connections-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+#error-table th,
+#connections-table th {
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #888;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 2px solid #ddd;
+}
+
+#error-table td,
+#connections-table td {
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid #eee;
+    color: #1a1a1a;
+}
