@@ -18,23 +18,25 @@
     ],
     "out": [
       {
-        "x": 1240,
-        "y": 400,
+        "x": 1020,
+        "y": 240,
         "wires": [
           {
             "id": "7515c1a927ac4bc9",
             "port": 0
           },
           {
-            "id": "51925a92c788e512",
+            "id": "d65bbc4a1b0a2d69",
             "port": 0
-          },
+          }
+        ]
+      },
+      {
+        "x": 1320,
+        "y": 580,
+        "wires": [
           {
             "id": "c234face7cd8758d",
-            "port": 0
-          },
-          {
-            "id": "d65bbc4a1b0a2d69",
             "port": 0
           },
           {
@@ -94,8 +96,8 @@
     "type": "function",
     "z": "e3f90dc1120210b3",
     "name": "Check file sizes (WaSOS)",
-    "func": "/**\n * For WaSOS files, check if any exceed the target system's upload limit.\n * Oversized files are marked with skipped: true, reason: 'oversized'.\n * They remain in payload.files so POST to Rayvn log can report them.\n * Output 1- pass files smaller than 1mb\n * Output 2 - mark files larger than 1mb\n */\nconst MAX_UPLOAD_BYTES = 1048576; // 1 MB\n\nconst files = msg.payload.files || [];\nlet has_oversized = false;\n\nmsg.payload.files = files.map(file => {\n    if (file.size && file.size > MAX_UPLOAD_BYTES) {\n        has_oversized = true;\n        return { ...file, skipped: true, reason: \"oversized\" };\n    }\n    return file;\n});\n\nif (has_oversized) {\n    return [null, msg];\n} else {\n    return [msg, null];\n}",
-    "outputs": 2,
+    "func": "const MAX_UPLOAD_BYTES = 1048576; // 1 MB\n\nconst files = msg.payload.files || [];\n\nmsg.payload.files = files.map(file => {\n    if (file.size && file.size > MAX_UPLOAD_BYTES) {\n        return { ...file, skipped: true, reason: \"oversized\" };\n    }\n    return file;\n});\n\nreturn msg;",
+    "outputs": 1,
     "timeout": "",
     "noerr": 0,
     "initialize": "",
@@ -106,9 +108,6 @@
     "wires": [
       [
         "7515c1a927ac4bc9"
-      ],
-      [
-        "51925a92c788e512"
       ]
     ]
   },
@@ -163,26 +162,8 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 1060,
-    "y": 200,
-    "wires": [
-      []
-    ]
-  },
-  {
-    "id": "51925a92c788e512",
-    "type": "function",
-    "z": "e3f90dc1120210b3",
-    "name": "Handle oversized files",
-    "func": "/**\n * Oversized files are already marked with skipped: true, reason: 'oversized'.\n * No text notice or notification here — POST to Rayvn log collects all\n * skipped/failed files and builds one combined notification.\n */\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 1000,
-    "y": 340,
+    "x": 840,
+    "y": 140,
     "wires": [
       []
     ]
@@ -199,8 +180,8 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 1060,
-    "y": 460,
+    "x": 1180,
+    "y": 320,
     "wires": [
       []
     ]

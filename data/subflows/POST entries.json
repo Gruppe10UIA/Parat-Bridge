@@ -11,7 +11,7 @@
         "y": 180,
         "wires": [
           {
-            "id": "960ed173a4597234"
+            "id": "b8a25cd9f8d4140c"
           }
         ]
       }
@@ -107,11 +107,11 @@
     "type": "subflow:ebdd2af39b259744",
     "z": "d39ed2eaf3d0fa7e",
     "name": "",
-    "x": 290,
+    "x": 560,
     "y": 180,
     "wires": [
       [
-        "b8a25cd9f8d4140c"
+        "3229a673a7c53d56"
       ]
     ]
   },
@@ -131,19 +131,19 @@
     "id": "b8a25cd9f8d4140c",
     "type": "function",
     "z": "d39ed2eaf3d0fa7e",
-    "name": "Known attatchment errors",
-    "func": "/**\n * Check for pre-known file failures before routing to target system.\n * These are files marked by Classify attachments as skipped\n * (oversized, non_transferable, cim_not_implemented).\n *\n * Patches payload.text with notice and emits notification on output 2.\n * Removes skipped files from payload so target system gets clean entry.\n *\n * Output 1: msg continues (always)\n * Output 2: notification payload (only when pre-known failures exist)\n */\nconst entry   = msg.entry;\nconst files   = (entry && entry.files) || [];\nconst skipped = files.filter(f => f.skipped);\n\nif (skipped.length === 0) return [msg, null];\n\nconst succeeded = files.filter(f => !f.skipped).length;\nconst total     = files.length;\n\n// Patch text notice so target system receives it\nconst notice = \" [\" + skipped.length + \"/\" + total + \" vedlegg ikke overført. Avsender mottar instruks om alternativ håndtering]\"\nmsg.payload.text = (msg.payload.text || \"\") + notice;\n\n// Remove skipped files from payload\nmsg.payload.files = (msg.payload.files || []).filter(f => !f.skipped);\n\n// Determine notification type\nconst has_oversized        = skipped.some(f => f.reason === \"oversized\");\nconst has_non_transferable = skipped.some(f => f.reason === \"non_transferable\");\n\nlet type = \"upload_failed\";\nif (has_non_transferable && !has_oversized) type = \"non_transferable\";\nelse if (has_oversized && !has_non_transferable) type = \"oversized_files\";\n\nconst notification = {\n    payload: {\n        type,\n        entry_id:     entry.id,\n        file_names:   skipped.map(f => f.name || \"ukjent fil\"),\n        file_count:   skipped.length,\n        total_files:  total,\n        succeeded,\n        entry_author: entry.author,\n        metadata:     msg.metadata\n    }\n};\n\nreturn [msg, notification];",
+    "name": "Handle file outcomes",
+    "func": "/**\n * Handle file outcomes before format conversion.\n *\n * Reads entry.metadata.file_outcomes (set by Attach metadata and prune).\n * Patches entry.text with a notice for the receiving system.\n * Emits a notification payload on output 2 back to the original sender.\n *\n * Runs BEFORE Bridge entry to client so the text patch is picked up\n * by both adapters regardless of their field naming (text vs content).\n *\n * Output 1: msg continues (always)\n * Output 2: notification payload (only when file outcomes exist)\n */\nconst entry    = msg.entry;\nconst outcomes = entry && entry.metadata && entry.metadata.file_outcomes;\n\nif (!outcomes) return [msg, null];\n\nconst skipped = [\n    ...outcomes.reasons.non_transferable,\n    ...outcomes.reasons.oversized,\n    ...outcomes.reasons.download_failed\n];\n\nif (skipped.length === 0) return [msg, null];\n\nconst total   = outcomes.total;\nconst notice  = \" [\" + skipped.length + \"/\" + total\n              + \" vedlegg ikke overført. Avsender mottar instruks om alternativ håndtering for manglende vedlegg]\";\n\nentry.text = (entry.text || \"\") + notice;\n\nconst has_non_transferable = outcomes.reasons.non_transferable.length > 0;\nconst has_oversized        = outcomes.reasons.oversized.length > 0;\n\nlet type = \"upload_failed\";\nif (has_non_transferable && !has_oversized) type = \"non_transferable\";\nelse if (has_oversized && !has_non_transferable) type = \"oversized_files\";\n\nconst notification = {\n    payload: {\n        type,\n        entry_id:     entry.id,\n        file_names:   skipped,\n        file_count:   skipped.length,\n        total_files:  total,\n        succeeded:    outcomes.transferred,\n        entry_author: entry.author,\n        metadata:     entry.metadata\n    }\n};\n\nreturn [msg, notification];",
     "outputs": 2,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 570,
-    "y": 180,
+    "x": 280,
+    "y": 260,
     "wires": [
       [
-        "3229a673a7c53d56"
+        "960ed173a4597234"
       ],
       []
     ]

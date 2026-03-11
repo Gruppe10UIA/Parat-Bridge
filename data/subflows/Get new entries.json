@@ -3,7 +3,7 @@
     "id": "7613a77a1b834225",
     "type": "subflow",
     "name": "Get new entries",
-    "info": "Polls all active connections for new entries every 3 seconds.\n\n### Pipeline\n1. **Pass active connections** — iterates `parat_bridge.connections`, emits one msg per {source, target} pair\n2. **Switch** — routes by `msg.topic` (rayvn/wasos/cim) to the correct GET subflow\n3. **GET subflow** — fetches raw entries from the API\n4. **Split** — splits response array into individual entries\n5. **Client to bridge entry** — normalizes to standard bridge format\n6. **Filter new entries** — drops stale/looped/duplicate entries\n7. **Attach metadata and prune** — creates final queue-ready message\n\n### Input\nNone (self-triggering inject)\n\n### Output\n```js\n{\n    topic: \"new_message\",\n    entry: {\n        id, text, timestamp, author, files, labels,\n        metadata: { source: Client, target: Client, connection_name: string }\n    }\n}\n```",
+    "info": "Polls all active connections for new entries every 3 seconds.\n\n### Pipeline\n1. **Pass active connections** — iterates `parat_bridge.connections`, emits one msg per {source, target} pair\n2. **Switch** — routes by `msg.topic` (rayvn/wasos/cim) to the correct GET subflow\n3. **GET subflow** — fetches raw entries from the API\n4. **Split** — splits response array into individual entries\n5. **Client to bridge entry** — normalizes to standard bridge format\n6. **Filter new entries** — drops stale/looped/duplicate entries\n7. **Has files?** — bypasses attachment pipeline for entries without files\n8. **Classify attachments** — routes by source system: marks non-transferable/oversized files as skipped, WaSOS transferable files proceed to Fetch files\n9. **Fetch files** — downloads transferable WaSOS file attachments and stores via global context\n10. **Attach metadata and prune** — creates final queue-ready message, computes `file_outcomes` i",
     "category": "",
     "in": [],
     "out": [
@@ -22,6 +22,50 @@
     "meta": {},
     "color": "#C0DEED",
     "icon": "node-red/bridge.svg"
+  },
+  {
+    "id": "b363d48611aed987",
+    "type": "group",
+    "z": "7613a77a1b834225",
+    "name": "Handle files",
+    "style": {
+      "stroke": "#6f2fa0",
+      "fill": "#ffff3f",
+      "label": true,
+      "color": "#6f2fa0",
+      "label-position": "n"
+    },
+    "nodes": [
+      "f1e0fe8828756a71",
+      "3c027139d619f516"
+    ],
+    "x": 464,
+    "y": 559,
+    "w": 462,
+    "h": 82
+  },
+  {
+    "id": "5851956660723990",
+    "type": "group",
+    "z": "7613a77a1b834225",
+    "name": "Response handling",
+    "style": {
+      "stroke": "#6f2fa0",
+      "fill": "#dbcbe7",
+      "label": true,
+      "label-position": "n",
+      "color": "#000000"
+    },
+    "nodes": [
+      "c742e6faf67ffe65",
+      "ea7ebf58285971a8",
+      "8e7999633660b2fd",
+      "a8665ad873dfec2a"
+    ],
+    "x": 34,
+    "y": 399,
+    "w": 1052,
+    "h": 82
   },
   {
     "id": "df3ce13d4cb1f110",
@@ -49,142 +93,104 @@
     "h": 149.5
   },
   {
-    "id": "5851956660723990",
-    "type": "group",
+    "id": "3c027139d619f516",
+    "type": "subflow:e3f90dc1120210b3",
     "z": "7613a77a1b834225",
-    "name": "Response handling",
-    "style": {
-      "stroke": "#6f2fa0",
-      "fill": "#dbcbe7",
-      "label": true,
-      "label-position": "n",
-      "color": "#000000"
-    },
-    "nodes": [
-      "c742e6faf67ffe65",
-      "ea7ebf58285971a8",
-      "8e7999633660b2fd",
-      "a8665ad873dfec2a"
-    ],
-    "x": 34,
-    "y": 399,
-    "w": 1052,
-    "h": 82
-  },
-  {
-    "id": "b363d48611aed987",
-    "type": "group",
-    "z": "7613a77a1b834225",
-    "name": "Handle files",
-    "style": {
-      "stroke": "#6f2fa0",
-      "fill": "#ffff3f",
-      "label": true,
-      "color": "#6f2fa0",
-      "label-position": "n"
-    },
-    "nodes": [
-      "f1e0fe8828756a71",
-      "3c027139d619f516"
-    ],
-    "x": 474,
-    "y": 559,
-    "w": 452,
-    "h": 82
-  },
-  {
-    "id": "f8d5272182de5652",
-    "type": "subflow:e97e0c90387d0adc",
-    "z": "7613a77a1b834225",
-    "g": "df3ce13d4cb1f110",
+    "g": "b363d48611aed987",
     "name": "",
-    "x": 720,
-    "y": 200,
+    "x": 590,
+    "y": 600,
     "wires": [
       [
-        "94cdd66cf607a970"
+        "f1e0fe8828756a71"
+      ],
+      [
+        "ea7ebf58285971a8"
       ]
     ]
   },
   {
-    "id": "8673cf0ab571261b",
-    "type": "subflow:a1b5b8de4109fab7",
-    "z": "7613a77a1b834225",
-    "g": "df3ce13d4cb1f110",
-    "name": "",
-    "x": 720,
-    "y": 140,
-    "wires": [
-      [
-        "94cdd66cf607a970"
-      ]
-    ]
-  },
-  {
-    "id": "8e7999633660b2fd",
-    "type": "subflow:0047704f35a57b0c",
+    "id": "a8665ad873dfec2a",
+    "type": "switch",
     "z": "7613a77a1b834225",
     "g": "5851956660723990",
-    "name": "",
-    "x": 390,
+    "name": "Has files?",
+    "property": "payload.files",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "nempty"
+      },
+      {
+        "t": "else"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 2,
+    "x": 580,
     "y": 440,
     "wires": [
       [
-        "a8665ad873dfec2a"
+        "3c027139d619f516"
+      ],
+      [
+        "ea7ebf58285971a8"
       ]
     ]
   },
   {
-    "id": "ea7ebf58285971a8",
+    "id": "f1e0fe8828756a71",
+    "type": "subflow:ea1089b94046dd14",
+    "z": "7613a77a1b834225",
+    "g": "b363d48611aed987",
+    "name": "",
+    "x": 830,
+    "y": 600,
+    "wires": [
+      [
+        "ea7ebf58285971a8"
+      ]
+    ]
+  },
+  {
+    "id": "e79abe64c9510751",
+    "type": "inject",
+    "z": "7613a77a1b834225",
+    "g": "df3ce13d4cb1f110",
+    "name": "",
+    "props": [],
+    "repeat": "3",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 130,
+    "y": 200,
+    "wires": [
+      [
+        "1a6d4e2b65052fcc"
+      ]
+    ]
+  },
+  {
+    "id": "1a6d4e2b65052fcc",
     "type": "function",
     "z": "7613a77a1b834225",
-    "g": "5851956660723990",
-    "name": "Attach metadata and prune msg object",
-    "func": "return {\n    _msgid: msg._msgid,\n    topic: \"new_message\",  \n    entry: {\n        id:        msg.payload.id,\n        text:      msg.payload.text,\n        timestamp: msg.payload.timestamp,\n        author:    msg.payload.author,\n        files:     msg.payload.files,\n        labels:    msg.payload.labels,\n        metadata:  msg.metadata\n    }\n};\n",
+    "g": "df3ce13d4cb1f110",
+    "name": "Pass active connections",
+    "func": "\n// Get all acive connections from connections Object\nconst connections = global.get(\"parat_bridge.connections\");\nif (!connections) return null;\nconst active_connections = Object.values(connections).filter(c => c.active);\n\nif (active_connections.length === 0) { return null; }\n\nconst messages = [];\n\n// Loop over each active connection\nactive_connections.forEach(connection => {\n    // loop over each client in connection\n    Object.values(connection.clients).forEach(client => {\n\n        // Find the target by excluding self using the unique identifier\n        const target = Object.values(connection.clients)\n            .find(c => c.identifier !== client.identifier);\n\n        // Build the message and attach metadata\n        messages.push({\n            topic: client.client_system,   // routes to correct request builder\n            metadata: {\n                source: client,\n                target: target,\n                connection_name: connection.name\n            }\n        });\n    });\n});\n\n// send each message one at a time\nreturn [messages];\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 910,
-    "y": 440,
-    "wires": [
-      []
-    ]
-  },
-  {
-    "id": "94cdd66cf607a970",
-    "type": "split",
-    "z": "7613a77a1b834225",
-    "g": "df3ce13d4cb1f110",
-    "name": "",
-    "splt": "\\n",
-    "spltType": "str",
-    "arraySplt": 1,
-    "arraySpltType": "len",
-    "stream": false,
-    "addname": "",
-    "property": "payload",
-    "x": 930,
+    "x": 330,
     "y": 200,
     "wires": [
       [
-        "c742e6faf67ffe65"
-      ]
-    ]
-  },
-  {
-    "id": "c742e6faf67ffe65",
-    "type": "subflow:35dc868e3a5c1ab2",
-    "z": "7613a77a1b834225",
-    "g": "5851956660723990",
-    "name": "",
-    "x": 160,
-    "y": 440,
-    "wires": [
-      [
-        "8e7999633660b2fd"
+        "08b97ed44f272d94"
       ]
     ]
   },
@@ -229,43 +235,98 @@
     ]
   },
   {
-    "id": "1a6d4e2b65052fcc",
-    "type": "function",
+    "id": "c742e6faf67ffe65",
+    "type": "subflow:35dc868e3a5c1ab2",
+    "z": "7613a77a1b834225",
+    "g": "5851956660723990",
+    "name": "",
+    "x": 160,
+    "y": 440,
+    "wires": [
+      [
+        "8e7999633660b2fd"
+      ]
+    ]
+  },
+  {
+    "id": "94cdd66cf607a970",
+    "type": "split",
     "z": "7613a77a1b834225",
     "g": "df3ce13d4cb1f110",
-    "name": "Pass active connections",
-    "func": "\n// Get all acive connections from connections Object\nconst connections = global.get(\"parat_bridge.connections\");\nif (!connections) return null;\nconst active_connections = Object.values(connections).filter(c => c.active);\n\nif (active_connections.length === 0) { return null; }\n\nconst messages = [];\n\n// Loop over each active connection\nactive_connections.forEach(connection => {\n    // loop over each client in connection\n    Object.values(connection.clients).forEach(client => {\n\n        // Find the target by excluding self using the unique identifier\n        const target = Object.values(connection.clients)\n            .find(c => c.identifier !== client.identifier);\n\n        // Build the message and attach metadata\n        messages.push({\n            topic: client.client_system,   // routes to correct request builder\n            metadata: {\n                source: client,\n                target: target,\n                connection_name: connection.name\n            }\n        });\n    });\n});\n\n// send each message one at a time\nreturn [messages];\n",
+    "name": "",
+    "splt": "\\n",
+    "spltType": "str",
+    "arraySplt": 1,
+    "arraySpltType": "len",
+    "stream": false,
+    "addname": "",
+    "property": "payload",
+    "x": 930,
+    "y": 200,
+    "wires": [
+      [
+        "c742e6faf67ffe65"
+      ]
+    ]
+  },
+  {
+    "id": "ea7ebf58285971a8",
+    "type": "function",
+    "z": "7613a77a1b834225",
+    "g": "5851956660723990",
+    "name": "Attach metadata and prune msg object",
+    "func": "const utils = global.get(\"utils\");\nconst files = msg.payload.files || [];\n\nif (files.length > 0) {\n    msg.metadata.file_outcomes = utils.summarize_file_outcomes(files);\n}\n\nreturn {\n    _msgid: msg._msgid,\n    topic: \"new_message\",\n    entry: {\n        id:        msg.payload.id,\n        text:      msg.payload.text,\n        timestamp: msg.payload.timestamp,\n        author:    msg.payload.author,\n        files:     msg.payload.files,\n        labels:    msg.payload.labels,\n        metadata:  msg.metadata\n    }\n};",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 330,
-    "y": 200,
+    "x": 910,
+    "y": 440,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "8e7999633660b2fd",
+    "type": "subflow:0047704f35a57b0c",
+    "z": "7613a77a1b834225",
+    "g": "5851956660723990",
+    "name": "",
+    "x": 390,
+    "y": 440,
     "wires": [
       [
-        "08b97ed44f272d94"
+        "a8665ad873dfec2a"
       ]
     ]
   },
   {
-    "id": "e79abe64c9510751",
-    "type": "inject",
+    "id": "8673cf0ab571261b",
+    "type": "subflow:a1b5b8de4109fab7",
     "z": "7613a77a1b834225",
     "g": "df3ce13d4cb1f110",
     "name": "",
-    "props": [],
-    "repeat": "3",
-    "crontab": "",
-    "once": false,
-    "onceDelay": 0.1,
-    "topic": "",
-    "x": 130,
+    "x": 720,
+    "y": 140,
+    "wires": [
+      [
+        "94cdd66cf607a970"
+      ]
+    ]
+  },
+  {
+    "id": "f8d5272182de5652",
+    "type": "subflow:e97e0c90387d0adc",
+    "z": "7613a77a1b834225",
+    "g": "df3ce13d4cb1f110",
+    "name": "",
+    "x": 720,
     "y": 200,
     "wires": [
       [
-        "1a6d4e2b65052fcc"
+        "94cdd66cf607a970"
       ]
     ]
   },
@@ -294,63 +355,5 @@
       ]
     ],
     "info": "Catches all errors from nodes in this subflow\r\nand forwards them to the centralized \r\nError Handler subflow for classification,\r\nlogging and notification."
-  },
-  {
-    "id": "f1e0fe8828756a71",
-    "type": "subflow:ea1089b94046dd14",
-    "z": "7613a77a1b834225",
-    "g": "b363d48611aed987",
-    "name": "",
-    "x": 830,
-    "y": 600,
-    "wires": [
-      [
-        "ea7ebf58285971a8"
-      ]
-    ]
-  },
-  {
-    "id": "a8665ad873dfec2a",
-    "type": "switch",
-    "z": "7613a77a1b834225",
-    "g": "5851956660723990",
-    "name": "Has files?",
-    "property": "payload.files",
-    "propertyType": "msg",
-    "rules": [
-      {
-        "t": "nempty"
-      },
-      {
-        "t": "else"
-      }
-    ],
-    "checkall": "true",
-    "repair": false,
-    "outputs": 2,
-    "x": 580,
-    "y": 440,
-    "wires": [
-      [
-        "3c027139d619f516"
-      ],
-      [
-        "ea7ebf58285971a8"
-      ]
-    ]
-  },
-  {
-    "id": "3c027139d619f516",
-    "type": "subflow:e3f90dc1120210b3",
-    "z": "7613a77a1b834225",
-    "g": "b363d48611aed987",
-    "name": "",
-    "x": 590,
-    "y": 600,
-    "wires": [
-      [
-        "f1e0fe8828756a71"
-      ]
-    ]
   }
 ]

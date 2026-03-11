@@ -11,7 +11,7 @@
         "y": 80,
         "wires": [
           {
-            "id": "d9be8cf8edfc4603"
+            "id": "17608375b7ba784c"
           }
         ]
       }
@@ -130,26 +130,6 @@
     "y": 380,
     "wires": [
       []
-    ]
-  },
-  {
-    "id": "d9be8cf8edfc4603",
-    "type": "function",
-    "z": "c52035853d082eb0",
-    "name": "Append skipped file notice",
-    "func": "/**\n * Append any skipped-file notice to payload.content.\n */\nconst entry   = msg.entry;\nconst files   = (entry && entry.files) || [];\nconst skipped = files.filter(f => f.skipped);\n\nif (skipped.length === 0) return msg;\n\nconst total  = files.length;\nconst notice = \" [\" + skipped.length + \"/\" + total\n             + \" vedlegg ikke overført. Avsender mottar instruks om alternativ håndtering]\";\n\nmsg.payload.content = (msg.payload.content || \"\") + notice;\n\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 250,
-    "y": 100,
-    "wires": [
-      [
-        "17608375b7ba784c"
-      ]
     ]
   }
 ]

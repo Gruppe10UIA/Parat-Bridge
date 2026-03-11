@@ -3,7 +3,7 @@
     "id": "ea1089b94046dd14",
     "type": "subflow",
     "name": "Fetch files",
-    "info": "Downloads all transferable file attachments for a single WaSOS entry.\n\n### Input\n`msg.payload` = entry object (from split) with `.files` array\n`msg.metadata` = { source, target, connection_name }\n\nSource must have `.client_specific.api.key` for WaSOS authentication.\n\n### Output\nSame msg with `msg.payload` = entry, where each file in `.files` either:\n- Has `context_key` set (downloaded and stored via global context)\n- Has no `context_key` but retains `name` and `size` (oversized or failed)\n\nDownstream `Classify attachments` uses this to route each file appropriately.\n\n### Behavior\n1. Separates files into downloadable (has URL, within 1 MB) and skipped (oversized or no URL)\n2. Downloads each eligible file via HTTP GET with WaSOS API key\n3. Stores binary via `global.set(\"files.{key}\", buffer)` → written to /data/bridge-files/files/\n4. Merges results back with skipped files into the entry\n5. Returns the complete entry — parent subflow only sees entry in, entry out\n\n### Key naming convention\n`{message_id}---{connection_name}---{original_filename}`\n\n### Size limit\nRayvn returns HTTP 500 for files larger than ~1 MB.\nFiles exceeding this limit are skipped at download time to save bandwidth.\nTheir metadata (name, size) is preserved for notification handling.",
+    "info": "Downloads all transferable file attachments for a single WaSOS entry.\n\n### Input\n`msg.payload` = entry object (from split) with `.files` array pre-classified by Classify attachments.\n`msg.metadata` = { source, target, connection_name }\n\nFiles with `skipped: true` are already classified upstream and are passed through unchanged.\nSource must have `.client_specific.api.key` for WaSOS authentication.\n\n### Output\nSame msg with `msg.payload` = entry, where each file in `.files` either:\n- Has `context_key` set (downloaded and stored via global context)\n- Has `skipped: true` (pre-classified by Classify attachments)\n- Has no `context_key` and no `skipped` (download failed)\n\n### Behavior\n1. Separates files into downloadable (has URL, not pre-skipped) and skipped\n2. Downloads each eligible file via HTTP GET with WaSOS API key\n3. Stores binary via `global.set(\"files.{key}\", buffer)` → written to /data/bridge-files/files/\n4. Merges results back with skipped files into the entry\n5. Returns the complete entry — parent subflow only sees entry in, entry out",
     "category": "",
     "in": [
       {
@@ -132,8 +132,8 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 700,
-    "y": 360,
+    "x": 720,
+    "y": 420,
     "wires": [
       [
         "3f5db756b54d0e33"
