@@ -4,12 +4,15 @@
 .npm/
 .sessions.json
 *.backup
-flows.json
+*/flows.json
+
+# Node-RED context storage (runtime data, user-specific)
+data/context/
 
 # Flow manager generated files
 flow-manager-cfg.json
 flow-manager-nodes-order.json
-config-nodes.json
+# Note: config-nodes.json is NOT ignored - it contains dashboard config (ui-base, ui-page, ui-group, ui-theme)
 
 # Credentials (should never be committed)
 *_cred.json
@@ -18,3 +21,13 @@ config-nodes.json
 # Dependencies
 node_modules/
 lib/
+
+# Rider generated files
+/.idea/
+.DS_Store
+
+# Claude
+.claude/
+
+# Parat-Bridge runtime data
+data/bridge-files/

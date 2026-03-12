@@ -1,0 +1,141 @@
+[
+  {
+    "id": "eb785a65aeb88688",
+    "type": "ui-base",
+    "name": "My Dashboard",
+    "path": "/dashboard",
+    "appIcon": "",
+    "includeClientData": true,
+    "acceptsClientConfig": [
+      "ui-notification",
+      "ui-control"
+    ],
+    "showPathInSidebar": false,
+    "headerContent": "page",
+    "navigationStyle": "default",
+    "titleBarStyle": "default",
+    "showReconnectNotification": true,
+    "notificationDisplayTime": 1,
+    "showDisconnectNotification": true,
+    "allowInstall": false
+  },
+  {
+    "id": "64c47e7d5394df35",
+    "type": "ui-theme",
+    "name": "Default Theme",
+    "colors": {
+      "surface": "#ffffff",
+      "primary": "#0094ce",
+      "bgPage": "#eeeeee",
+      "groupBg": "#ffffff",
+      "groupOutline": "#cccccc"
+    },
+    "sizes": {
+      "density": "default",
+      "pagePadding": "12px",
+      "groupGap": "12px",
+      "groupBorderRadius": "4px",
+      "widgetGap": "12px"
+    }
+  },
+  {
+    "id": "f843e152045f96c8",
+    "type": "ui-page",
+    "name": "Index",
+    "ui": "eb785a65aeb88688",
+    "path": "/Index",
+    "icon": "home",
+    "layout": "grid",
+    "theme": "64c47e7d5394df35",
+    "breakpoints": [
+      {
+        "name": "Default",
+        "px": "0",
+        "cols": "3"
+      },
+      {
+        "name": "Tablet",
+        "px": "576",
+        "cols": "6"
+      },
+      {
+        "name": "Small Desktop",
+        "px": "768",
+        "cols": "9"
+      },
+      {
+        "name": "Desktop",
+        "px": "1024",
+        "cols": "12"
+      }
+    ],
+    "order": 1,
+    "className": "",
+    "visible": true,
+    "disabled": false
+  },
+  {
+    "id": "76f825e60cbfe2c2",
+    "type": "ui-group",
+    "name": "configure connection",
+    "page": "f843e152045f96c8",
+    "width": 6,
+    "height": 1,
+    "order": 1,
+    "showTitle": true,
+    "className": "",
+    "visible": "true",
+    "disabled": "false",
+    "groupType": "default"
+  },
+  {
+    "id": "2895940902a13890",
+    "type": "ui-page",
+    "name": "Error Monitor",
+    "ui": "eb785a65aeb88688",
+    "path": "/page3",
+    "icon": "home",
+    "layout": "grid",
+    "theme": "64c47e7d5394df35",
+    "breakpoints": [
+      {
+        "name": "Default",
+        "px": "0",
+        "cols": "3"
+      },
+      {
+        "name": "Tablet",
+        "px": "576",
+        "cols": "6"
+      },
+      {
+        "name": "Small Desktop",
+        "px": "768",
+        "cols": "9"
+      },
+      {
+        "name": "Desktop",
+        "px": "1024",
+        "cols": "12"
+      }
+    ],
+    "order": 3,
+    "className": "",
+    "visible": "true",
+    "disabled": "false"
+  },
+  {
+    "id": "60fb1b7421fbbd11",
+    "type": "ui-group",
+    "name": "Error Log",
+    "page": "2895940902a13890",
+    "width": 6,
+    "height": 1,
+    "order": 1,
+    "showTitle": true,
+    "className": "",
+    "visible": "true",
+    "disabled": "false",
+    "groupType": "default"
+  }
+]

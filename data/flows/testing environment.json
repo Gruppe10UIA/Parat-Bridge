@@ -1,0 +1,463 @@
+[
+  {
+    "id": "901ed98289cc4ecd",
+    "type": "tab",
+    "label": "testing environment",
+    "disabled": false,
+    "info": "",
+    "env": []
+  },
+  {
+    "id": "11c3f6f4a2cdb60c",
+    "type": "inject",
+    "z": "901ed98289cc4ecd",
+    "name": "",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 480,
+    "y": 380,
+    "wires": [
+      [
+        "d33647ad91e47105"
+      ]
+    ]
+  },
+  {
+    "id": "d33647ad91e47105",
+    "type": "function",
+    "z": "901ed98289cc4ecd",
+    "name": "Clear connections",
+    "func": "// Clear the master_log for all connections (for testing/debugging only)\nglobal.set(\"parat_bridge.connections\", {});\n\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 710,
+    "y": 380,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "1ea6f859e159bdb7",
+    "type": "function",
+    "z": "901ed98289cc4ecd",
+    "name": "Delete all global variables",
+    "func": "global.keys().forEach(key => global.set(key, undefined));\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 770,
+    "y": 480,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "1b4fdcad46e3948c",
+    "type": "inject",
+    "z": "901ed98289cc4ecd",
+    "name": "",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 480,
+    "y": 480,
+    "wires": [
+      [
+        "1ea6f859e159bdb7"
+      ]
+    ]
+  },
+  {
+    "id": "a0c5c990cb5ae106",
+    "type": "function",
+    "z": "901ed98289cc4ecd",
+    "name": "Invalidate Rayvn API key",
+    "func": "// Set the Rayvn API key to an invalid value on the first active connection\n// Used to test error handling and retry logic\nconst data = global.get(\"parat_bridge\");\nconst activeConnections = data.connections.filter(c => c.active);\n\nif (activeConnections.length === 0) {\n    node.warn(\"No active connections to invalidate\");\n    return null;\n}\n\nconst targetConnection = activeConnections[0];\ntargetConnection.rayvn.api_key = \"invalid_key_for_testing\";\nglobal.set(\"parat_bridge\", data);\n\nnode.warn(\"Rayvn API key invalidated for connection: \" + targetConnection.label);\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 730,
+    "y": 180,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "f8044b97a242ebf8",
+    "type": "inject",
+    "z": "901ed98289cc4ecd",
+    "name": "Inject for wrong api key - rayvn",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 310,
+    "y": 180,
+    "wires": [
+      [
+        "a0c5c990cb5ae106"
+      ]
+    ]
+  },
+  {
+    "id": "295aee771fea2b43",
+    "type": "inject",
+    "z": "901ed98289cc4ecd",
+    "name": "inject for wrong api key wasos",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 360,
+    "y": 80,
+    "wires": [
+      [
+        "aad75b52978c7d99"
+      ]
+    ]
+  },
+  {
+    "id": "aad75b52978c7d99",
+    "type": "function",
+    "z": "901ed98289cc4ecd",
+    "name": "Invalidate WaSOS API key",
+    "func": "// Set the WaSOS API key to an invalid value on the first active connection\n// Used to test error handling and retry logic\nconst data = global.get(\"parat_bridge\");\nconst activeConnections = data.connections.filter(c => c.active);\n\nif (activeConnections.length === 0) {\n    node.warn(\"No active connections to invalidate\");\n    return null;\n}\n\nconst targetConnection = activeConnections[0];\ntargetConnection.wasos.api.key = \"invalid_key_for_testing\";\nglobal.set(\"parat_bridge\", data);\n\nnode.warn(\"WaSOS API key invalidated for connection: \" + targetConnection.label);\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 740,
+    "y": 80,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "637113a78a36de82",
+    "type": "change",
+    "z": "901ed98289cc4ecd",
+    "name": "",
+    "rules": [
+      {
+        "t": "set",
+        "p": "bypass_initiall_post",
+        "pt": "global",
+        "to": "payload",
+        "tot": "msg"
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 790,
+    "y": 240,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "7599a5403e4464da",
+    "type": "inject",
+    "z": "901ed98289cc4ecd",
+    "name": "",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 480,
+    "y": 420,
+    "wires": [
+      [
+        "6ab5875f1ef2d20d"
+      ]
+    ]
+  },
+  {
+    "id": "6ab5875f1ef2d20d",
+    "type": "function",
+    "z": "901ed98289cc4ecd",
+    "name": "Clear queue",
+    "func": "global.set(\"parat_bridge.queue.in_flight_connections\", [])\nglobal.set(\"parat_bridge.queue.entry_queue\", [])\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 690,
+    "y": 420,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "5669841249caa58d",
+    "type": "inject",
+    "z": "901ed98289cc4ecd",
+    "name": "",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "true",
+    "payloadType": "bool",
+    "x": 390,
+    "y": 240,
+    "wires": [
+      [
+        "637113a78a36de82"
+      ]
+    ]
+  },
+  {
+    "id": "a9e31bfd6398f4b7",
+    "type": "inject",
+    "z": "901ed98289cc4ecd",
+    "name": "",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "false",
+    "payloadType": "bool",
+    "x": 550,
+    "y": 240,
+    "wires": [
+      [
+        "637113a78a36de82"
+      ]
+    ]
+  },
+  {
+    "id": "3344af3fc619b8c2",
+    "type": "function",
+    "z": "901ed98289cc4ecd",
+    "name": "toggle polling",
+    "func": "const connections = global.get(\"parat_bridge.connections\");\nconst active = !!msg.payload;\n\nfor (const key of Object.keys(connections)) {\n    connections[key].active = active;\n}\n\nglobal.set(\"parat_bridge.connections\", connections);\n\nmsg.payload = { active, count: Object.keys(connections).length };\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 730,
+    "y": 280,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "3af810cd2b8c7c55",
+    "type": "inject",
+    "z": "901ed98289cc4ecd",
+    "name": "",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "true",
+    "payloadType": "bool",
+    "x": 390,
+    "y": 280,
+    "wires": [
+      [
+        "3344af3fc619b8c2"
+      ]
+    ]
+  },
+  {
+    "id": "5a33be84971f6df4",
+    "type": "inject",
+    "z": "901ed98289cc4ecd",
+    "name": "",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "false",
+    "payloadType": "bool",
+    "x": 550,
+    "y": 280,
+    "wires": [
+      [
+        "3344af3fc619b8c2"
+      ]
+    ]
+  },
+  {
+    "id": "ddde7cf731a7ebd4",
+    "type": "change",
+    "z": "901ed98289cc4ecd",
+    "name": "",
+    "rules": [
+      {
+        "t": "set",
+        "p": "bypass_any_post",
+        "pt": "global",
+        "to": "payload",
+        "tot": "msg"
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 780,
+    "y": 320,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "1a80d7bcdbb83a50",
+    "type": "inject",
+    "z": "901ed98289cc4ecd",
+    "name": "",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "true",
+    "payloadType": "bool",
+    "x": 390,
+    "y": 320,
+    "wires": [
+      [
+        "ddde7cf731a7ebd4"
+      ]
+    ]
+  },
+  {
+    "id": "54c1a71ad90a7eda",
+    "type": "inject",
+    "z": "901ed98289cc4ecd",
+    "name": "",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "false",
+    "payloadType": "bool",
+    "x": 550,
+    "y": 320,
+    "wires": [
+      [
+        "ddde7cf731a7ebd4"
+      ]
+    ]
+  }
+]

@@ -1,0 +1,106 @@
+[
+  {
+    "id": "80f93fa22c15ece3",
+    "type": "subflow",
+    "name": "WasosLogin",
+    "info": "Authenticates against the WaSOS API using Basic auth.\n\n### Input\n`msg.payload = { wasos_username, wasos_password, wasos_chatroom_name }`\n\n### Logic\nBase64-encodes `username:password`, sends POST to `/apisec/login`. Carries `msg.config = { username, chatroom_name }` through the request.\n\n### Output\n`msg.payload` = login response (nonce, profileId, groups, refresh_expires), `msg.config` preserved",
+    "category": "",
+    "in": [
+      {
+        "x": 120,
+        "y": 220,
+        "wires": [
+          {
+            "id": "481267d96889460a"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 720,
+        "y": 220,
+        "wires": [
+          {
+            "id": "289d03d3b8475ebf",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {
+      "module": "WasosLogin"
+    },
+    "color": "#87A980",
+    "icon": "font-awesome/fa-won"
+  },
+  {
+    "id": "289d03d3b8475ebf",
+    "type": "http request",
+    "z": "80f93fa22c15ece3",
+    "name": "Request API key",
+    "method": "POST",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "basic",
+    "senderr": true,
+    "headers": [],
+    "x": 470,
+    "y": 220,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "481267d96889460a",
+    "type": "function",
+    "z": "80f93fa22c15ece3",
+    "name": "Config",
+    "func": "let username = msg.payload.wasos_username;\nlet password = msg.payload.wasos_password;\n\nlet auth = Buffer.from(username + \":\" + password).toString(\"base64\");\n\nmsg.headers = {\n    \"Authorization\": \"Basic \" + auth\n};\n\nmsg.url = global.get(\"parat_bridge\").base_urls.wasos + \"/apisec/login\";\n\n// Carry username and chatroom through the login flow\nmsg.config = {\n    username: username,\n    chatroom_name: msg.payload.wasos_chatroom_name\n};\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 250,
+    "y": 220,
+    "wires": [
+      [
+        "289d03d3b8475ebf"
+      ]
+    ]
+  },
+  {
+    "id": "0349dcb62cd8f0ae",
+    "type": "catch",
+    "z": "80f93fa22c15ece3",
+    "name": "",
+    "scope": null,
+    "uncaught": false,
+    "x": 420,
+    "y": 380,
+    "wires": [
+      [
+        "4203e735627e0401"
+      ]
+    ],
+    "info": "Catches all errors from nodes in this subflow\r\nand forwards them to the centralized \r\nError Handler subflow for classification,\r\nlogging and notification.\r\n"
+  },
+  {
+    "id": "4203e735627e0401",
+    "type": "subflow:7cecb563cf8b234a",
+    "z": "80f93fa22c15ece3",
+    "name": "",
+    "x": 620,
+    "y": 380,
+    "wires": [],
+    "info": "Centralized error handler for this subflow.\r\nReceives errors from the catch node and:\r\n- Classifies and logs the error\r\n- Sends notification to Rayvn and WaSOS\r\n  if 5+ consecutive failures occur\r\n"
+  }
+]

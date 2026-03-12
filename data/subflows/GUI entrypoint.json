@@ -1,0 +1,178 @@
+[
+  {
+    "id": "99c17cced97ac339",
+    "type": "subflow",
+    "name": "GUI entrypoint",
+    "info": "Dashboard form for creating new connections. Accepts Rayvn and WaSOS credentials and splits them into separate outputs.\n\n### Input\nNone (ui-form submit)\n\n### Output 1 (Rayvn)\n`msg.payload = { rayvn_api_key, rayvn_log_name }`\n\n### Output 2 (WaSOS)\n`msg.payload = { wasos_username, wasos_password, wasos_chatroom_name }`",
+    "category": "",
+    "in": [],
+    "out": [
+      {
+        "x": 720,
+        "y": 300,
+        "wires": [
+          {
+            "id": "1c0ef5d005b0394b",
+            "port": 0
+          }
+        ]
+      },
+      {
+        "x": 720,
+        "y": 380,
+        "wires": [
+          {
+            "id": "1c0ef5d005b0394b",
+            "port": 1
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#3FADB5",
+    "icon": "font-awesome/fa-th-list"
+  },
+  {
+    "id": "5a4c121da0dc0c2b",
+    "type": "ui-form",
+    "z": "99c17cced97ac339",
+    "name": "Insert credentials",
+    "group": "76f825e60cbfe2c2",
+    "label": "",
+    "order": 1,
+    "width": 0,
+    "height": 0,
+    "options": [
+      {
+        "label": "Rayvn API n\u00f8kkel",
+        "key": "rayvn_api_key",
+        "type": "text",
+        "required": true,
+        "rows": null
+      },
+      {
+        "label": "Rayvn logg navn",
+        "key": "rayvn_log_name",
+        "type": "text",
+        "required": true,
+        "rows": null
+      },
+      {
+        "label": "WaSOS brukernavn",
+        "key": "wasos_username",
+        "type": "text",
+        "required": true,
+        "rows": null
+      },
+      {
+        "label": "WaSOS passord",
+        "key": "wasos_password",
+        "type": "password",
+        "required": true,
+        "rows": null
+      },
+      {
+        "label": "WaSOS chatrom",
+        "key": "wasos_chatroom_name",
+        "type": "text",
+        "required": true,
+        "rows": null
+      }
+    ],
+    "formValue": {
+      "rayvn_api_key": "",
+      "rayvn_log_name": "",
+      "wasos_username": "",
+      "wasos_password": "",
+      "wasos_chatroom_name": ""
+    },
+    "payload": "",
+    "submit": "submit",
+    "cancel": "clear",
+    "resetOnSubmit": false,
+    "topic": "payload",
+    "topicType": "msg",
+    "splitLayout": false,
+    "className": "",
+    "passthru": false,
+    "dropdownOptions": [],
+    "x": 270,
+    "y": 340,
+    "wires": [
+      [
+        "1c0ef5d005b0394b"
+      ]
+    ]
+  },
+  {
+    "id": "1c0ef5d005b0394b",
+    "type": "function",
+    "z": "99c17cced97ac339",
+    "name": "Split input variables",
+    "func": "var rayvn = {\n    payload: {\n        rayvn_api_key: msg.payload.rayvn_api_key,\n        rayvn_log_name: msg.payload.rayvn_log_name\n    }\n};\n\nvar wasos = {\n    payload: {\n        wasos_username: msg.payload.wasos_username,\n        wasos_password: msg.payload.wasos_password,\n        wasos_chatroom_name: msg.payload.wasos_chatroom_name\n    }\n};\n\nreturn [rayvn, wasos];\n",
+    "outputs": 2,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 500,
+    "y": 340,
+    "wires": [
+      [],
+      []
+    ]
+  },
+  {
+    "id": "af027571dee61068",
+    "type": "debug",
+    "z": "99c17cced97ac339",
+    "name": "Form result",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 250,
+    "y": 300,
+    "wires": []
+  },
+  {
+    "id": "79b9b1b4cd059f41",
+    "type": "debug",
+    "z": "99c17cced97ac339",
+    "name": "Rayvn input",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 490,
+    "y": 260,
+    "wires": []
+  },
+  {
+    "id": "578bf8494b4baf8d",
+    "type": "debug",
+    "z": "99c17cced97ac339",
+    "name": "Wasos input",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 490,
+    "y": 300,
+    "wires": []
+  }
+]

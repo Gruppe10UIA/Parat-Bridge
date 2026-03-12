@@ -1,0 +1,115 @@
+[
+  {
+    "id": "35dc868e3a5c1ab2",
+    "type": "subflow",
+    "name": "Client to bridge entry",
+    "info": "Normalizes raw client entries into the standard bridge entry format. Routes by `msg.metadata.source.client_system`.\n\n### Input\n`msg.payload` = single raw entry (Rayvn or WaSOS format), `msg.metadata` = standard metadata\n\n### Rayvn mapping\n`{ id, text, timeCreated->timestamp, loggedByFullName->author, files, labels }`\n\n### WaSOS mapping\n`{ id, content->text, createdAt->timestamp, username->author, files, labels: [] }`\n\n### Output\n`msg.payload = { id, text, timestamp, author, files, labels }`",
+    "category": "",
+    "in": [
+      {
+        "x": 60,
+        "y": 240,
+        "wires": [
+          {
+            "id": "0fadacd5c3f883bd"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 680,
+        "y": 240,
+        "wires": [
+          {
+            "id": "0021664c1e4fc2fc",
+            "port": 0
+          },
+          {
+            "id": "06d24b79b54a8d5c",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#D8BFD8",
+    "icon": "font-awesome/fa-file-text-o"
+  },
+  {
+    "id": "0fadacd5c3f883bd",
+    "type": "switch",
+    "z": "35dc868e3a5c1ab2",
+    "name": "",
+    "property": "topic",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "eq",
+        "v": "rayvn",
+        "vt": "str"
+      },
+      {
+        "t": "eq",
+        "v": "wasos",
+        "vt": "str"
+      },
+      {
+        "t": "eq",
+        "v": "cim",
+        "vt": "str"
+      }
+    ],
+    "checkall": "false",
+    "repair": false,
+    "outputs": 3,
+    "x": 230,
+    "y": 240,
+    "wires": [
+      [
+        "0021664c1e4fc2fc"
+      ],
+      [
+        "06d24b79b54a8d5c"
+      ],
+      []
+    ]
+  },
+  {
+    "id": "0021664c1e4fc2fc",
+    "type": "function",
+    "z": "35dc868e3a5c1ab2",
+    "name": "Rayvn to Bridge Log",
+    "func": "const entry = msg.payload;\n\nmsg.payload = {\n    id:        entry.id,\n    text:      entry.text             || \"\",\n    timestamp: entry.timeCreated,\n    author:    entry.loggedByFullName || \"\",\n    files:     entry.files            || [],\n    labels:    entry.labels           || []\n};\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 440,
+    "y": 180,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "06d24b79b54a8d5c",
+    "type": "function",
+    "z": "35dc868e3a5c1ab2",
+    "name": "Wasos to Bridge Log",
+    "func": "const entry = msg.payload;\n\nmsg.payload = {\n    id:        entry.id,\n    text:      entry.content  || \"\",\n    timestamp: new Date(entry.createdAt).getTime(),\n    author:    entry.username || \"\",\n    files:     entry.files    || [],\n    labels:    []\n};\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 440,
+    "y": 240,
+    "wires": [
+      []
+    ]
+  }
+]

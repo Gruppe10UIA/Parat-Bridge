@@ -1,0 +1,133 @@
+[
+  {
+    "id": "5b554f0e5b6f4d30",
+    "type": "subflow",
+    "name": "POST entries",
+    "info": "Routes entries to the correct POST subflow based on target system.\n\n### Input\n`msg.entry` = Entry with Metadata\n\n### Logic\nSwitch on `msg.entry.metadata.target.client_system` -> POST to Rayvn log or POST to Wasos chat.\n\n### Output 1\nRayvn POST response\n\n### Output 2\nWaSOS POST response",
+    "category": "",
+    "in": [
+      {
+        "x": 70,
+        "y": 180,
+        "wires": [
+          {
+            "id": "854554a6bb86e48c"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 1080,
+        "y": 180,
+        "wires": [
+          {
+            "id": "5adc9f55c147a330",
+            "port": 1
+          },
+          {
+            "id": "8e48a46d6f60d162",
+            "port": 1
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#DEB887",
+    "icon": "font-awesome/fa-send"
+  },
+  {
+    "id": "5adc9f55c147a330",
+    "type": "subflow:4a6a1af9b9af6b0f",
+    "z": "5b554f0e5b6f4d30",
+    "name": "",
+    "x": 770,
+    "y": 180,
+    "wires": [
+      [],
+      []
+    ]
+  },
+  {
+    "id": "854554a6bb86e48c",
+    "type": "subflow:a9600579fb00971d",
+    "z": "5b554f0e5b6f4d30",
+    "name": "",
+    "x": 280,
+    "y": 180,
+    "wires": [
+      [
+        "5f6de5b415820c6e"
+      ]
+    ]
+  },
+  {
+    "id": "a02e0cb7a7356f3d",
+    "type": "debug",
+    "z": "5b554f0e5b6f4d30",
+    "name": "debug 1",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 620,
+    "y": 360,
+    "wires": []
+  },
+  {
+    "id": "5f6de5b415820c6e",
+    "type": "switch",
+    "z": "5b554f0e5b6f4d30",
+    "name": "",
+    "property": "metadata.target.client_system",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "eq",
+        "v": "wasos",
+        "vt": "str"
+      },
+      {
+        "t": "eq",
+        "v": "rayvn",
+        "vt": "str"
+      },
+      {
+        "t": "eq",
+        "v": "cim",
+        "vt": "str"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 3,
+    "x": 510,
+    "y": 180,
+    "wires": [
+      [
+        "8e48a46d6f60d162"
+      ],
+      [
+        "5adc9f55c147a330"
+      ],
+      []
+    ]
+  },
+  {
+    "id": "8e48a46d6f60d162",
+    "type": "subflow:209f3c980818c499",
+    "z": "5b554f0e5b6f4d30",
+    "name": "",
+    "x": 780,
+    "y": 120,
+    "wires": [
+      [],
+      []
+    ]
+  }
+]

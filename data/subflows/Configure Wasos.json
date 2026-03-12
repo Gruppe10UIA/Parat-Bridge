@@ -1,0 +1,150 @@
+[
+  {
+    "id": "a7d9b521445d1bf0",
+    "type": "subflow",
+    "name": "Configure Wasos",
+    "info": "Validates WaSOS credentials, logs in to get API key, and builds a standard Client object.\n\n### Input\n`msg.payload = { wasos_username, wasos_password, wasos_chatroom_name }`\n\n### Logic\n1. Verify input fields are non-empty\n2. Login via WasosLogin subflow (Basic auth)\n3. Build Client object with `client_system: \"wasos\"` from login response\n4. Verify required fields (identifier, chatroom_name, api.key)\n\n### Output\n`msg.payload` = WaSOS Client object, `msg.topic = \"wasos\"`",
+    "category": "",
+    "in": [
+      {
+        "x": 80,
+        "y": 260,
+        "wires": [
+          {
+            "id": "ff1c5855103a10a7"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 600,
+        "y": 380,
+        "wires": [
+          {
+            "id": "dd2f6242fcde0863",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#AAAA66",
+    "icon": "font-awesome/fa-won"
+  },
+  {
+    "id": "e52c1353734964c8",
+    "type": "subflow:80f93fa22c15ece3",
+    "z": "a7d9b521445d1bf0",
+    "name": "",
+    "x": 390,
+    "y": 260,
+    "wires": [
+      [
+        "ebec1bfad607a0c8"
+      ]
+    ]
+  },
+  {
+    "id": "ebec1bfad607a0c8",
+    "type": "function",
+    "z": "a7d9b521445d1bf0",
+    "name": "Build wasos_config",
+    "func": "const chatroom_name = msg.config.chatroom_name;\n\nconst wasos_config = {\n    // Standard client contract fields\n    client_system: \"wasos\",\n    api_key: msg.payload.nonce,\n    identifier:    chatroom_name,\n    name:          chatroom_name,\n    timestamp:     Date.now(),\n    client_specific: {\n        // Wasos-specific fields\n        username:      msg.config.username,\n        user_id:       msg.payload.profileId    || null,\n        chatroom_name: chatroom_name,\n        group:         msg.payload.groups       || null,\n        api: {\n            key:     msg.payload.nonce,\n            expires: msg.payload.refresh_expires || null\n        }\n    }\n};\n\nmsg.payload = wasos_config\nreturn msg",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 210,
+    "y": 380,
+    "wires": [
+      [
+        "dd2f6242fcde0863"
+      ]
+    ]
+  },
+  {
+    "id": "ff1c5855103a10a7",
+    "type": "function",
+    "z": "a7d9b521445d1bf0",
+    "name": "verify input",
+    "func": "if (\n    msg.payload.wasos_username.length > 0 && \n    msg.payload.wasos_password.length > 0 &&\n    msg.payload.wasos_chatroom_name.length > 0\n    ) \n    {\n        return msg;\n    } else {\n        node.error(\"missing wasos config in msg.payload: \", msg);\n        return null\n    }\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 210,
+    "y": 260,
+    "wires": [
+      [
+        "e52c1353734964c8"
+      ]
+    ]
+  },
+  {
+    "id": "c6b6d4a344c38252",
+    "type": "debug",
+    "z": "a7d9b521445d1bf0",
+    "name": "Wasos config set",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 210,
+    "y": 320,
+    "wires": []
+  },
+  {
+    "id": "dd2f6242fcde0863",
+    "type": "function",
+    "z": "a7d9b521445d1bf0",
+    "name": "Verify Wasos config",
+    "func": "const config = msg.payload;\n\nmsg.topic = config.client_system;\n\nif (config.identifier && \n    config.client_specific.chatroom_name && \n    config.client_specific.api.key) {\n    return msg;\n} else {\n    node.error(\"Wasos config not correctly configured\", config);\n    return null;\n}\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 430,
+    "y": 380,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "184bec083fd6670d",
+    "type": "subflow:7cecb563cf8b234a",
+    "z": "a7d9b521445d1bf0",
+    "name": "",
+    "x": 480,
+    "y": 180,
+    "wires": [],
+    "info": "Centralized error handler for this subflow.\r\nReceives errors from the catch node and:\r\n- Classifies and logs the error\r\n- Sends notification to Rayvn and WaSOS\r\n  if 5+ consecutive failures occur"
+  },
+  {
+    "id": "31ae2fb7589e6f67",
+    "type": "catch",
+    "z": "a7d9b521445d1bf0",
+    "name": "",
+    "scope": null,
+    "uncaught": false,
+    "x": 300,
+    "y": 180,
+    "wires": [
+      [
+        "184bec083fd6670d"
+      ]
+    ],
+    "info": "Catches all errors from nodes in this subflow\r\nand forwards them to the centralized \r\nError Handler subflow for classification,\r\nlogging and notification.\r\n"
+  }
+]
