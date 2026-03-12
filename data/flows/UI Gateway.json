@@ -1,0 +1,147 @@
+[
+  {
+    "id": "f12d6e1c0542fc55",
+    "type": "tab",
+    "label": "UI Gateway",
+    "disabled": false,
+    "info": "",
+    "env": []
+  },
+  {
+    "id": "ddd6d69c7d8614d1",
+    "type": "uibuilder",
+    "z": "f12d6e1c0542fc55",
+    "name": "",
+    "topic": "",
+    "url": "hjem",
+    "okToGo": true,
+    "fwdInMessages": false,
+    "allowScripts": false,
+    "allowStyles": false,
+    "copyIndex": true,
+    "templateFolder": "blank",
+    "extTemplate": "",
+    "showfolder": false,
+    "reload": false,
+    "sourceFolder": "src",
+    "deployedVersion": "7.5.0",
+    "showMsgUib": false,
+    "title": "",
+    "descr": "",
+    "editurl": "",
+    "x": 400,
+    "y": 120,
+    "wires": [
+      [
+        "1ad06dbe0f3f56b6"
+      ],
+      []
+    ]
+  },
+  {
+    "id": "1ad06dbe0f3f56b6",
+    "type": "function",
+    "z": "f12d6e1c0542fc55",
+    "name": "Route UIB Messages",
+    "func": "if (msg.topic === 'form/submit') {\n    var rayvn = {\n        payload: {\n            rayvn_api_key: msg.payload.rayvn_api_key,\n            rayvn_log_name: msg.payload.rayvn_log_name\n        }\n    };\n\n    var wasos = {\n        payload: {\n            wasos_username: msg.payload.wasos_username,\n            wasos_password: msg.payload.wasos_password,\n            wasos_chatroom_name: msg.payload.wasos_chatroom_name\n        }\n    };\n\n    return [rayvn, wasos, null];\n}\n\nif (msg.topic === 'connection/toggle') {\n    return [null, null, msg];\n}\n\nreturn [null, null, null];",
+    "outputs": 3,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 640,
+    "y": 120,
+    "wires": [
+      [
+        "ee7dab60e6fc914e"
+      ],
+      [
+        "4da735d9ab626fa3"
+      ],
+      [
+        "bd2270126aeeeaf7"
+      ]
+    ]
+  },
+  {
+    "id": "ee7dab60e6fc914e",
+    "type": "link out",
+    "z": "f12d6e1c0542fc55",
+    "name": "UIB Link out to Configure Rayvn",
+    "mode": "link",
+    "links": [
+      "f63d35f5fb7dc607"
+    ],
+    "x": 825,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "4da735d9ab626fa3",
+    "type": "link out",
+    "z": "f12d6e1c0542fc55",
+    "name": "UIB Link out to Configure WaSOS",
+    "mode": "link",
+    "links": [
+      "c3faa9283c8ae054"
+    ],
+    "x": 825,
+    "y": 120,
+    "wires": []
+  },
+  {
+    "id": "bd2270126aeeeaf7",
+    "type": "function",
+    "z": "f12d6e1c0542fc55",
+    "name": "Toggle Connection",
+    "func": "const { name, active } = msg.payload;\nconst path = 'parat_bridge.connections.' + name + '.active';\nglobal.set(path, active);\nreturn null;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 910,
+    "y": 200,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "9b8cc8053d27ab79",
+    "type": "function",
+    "z": "f12d6e1c0542fc55",
+    "name": "Send Connections to UIB",
+    "func": "var connections = global.get('parat_bridge.connections') || {};\nmsg = {\n    topic: 'connections/update',\n    payload: connections\n};\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 190,
+    "y": 120,
+    "wires": [
+      [
+        "ddd6d69c7d8614d1"
+      ]
+    ]
+  },
+  {
+    "id": "db6428985cf334dd",
+    "type": "link in",
+    "z": "f12d6e1c0542fc55",
+    "name": "Connections Link in to UIB",
+    "links": [
+      "b0cba41bee5fa427"
+    ],
+    "x": 25,
+    "y": 120,
+    "wires": [
+      [
+        "9b8cc8053d27ab79"
+      ]
+    ]
+  }
+]

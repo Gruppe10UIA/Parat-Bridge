@@ -52,12 +52,50 @@
       "a81cbcc889952fb3",
       "794b757ef07a4e19",
       "989d45634f23b97e",
-      "3f5a48b721dae9db"
+      "3f5a48b721dae9db",
+      "f63d35f5fb7dc607",
+      "c3faa9283c8ae054"
     ],
     "x": 74,
     "y": 79,
     "w": 792,
     "h": 242
+  },
+  {
+    "id": "c3faa9283c8ae054",
+    "type": "link in",
+    "z": "84d1a0de660abb59",
+    "g": "354aca9dbc391ace",
+    "name": "UIB Link in to Configure WaSOS",
+    "links": [
+      "4da735d9ab626fa3"
+    ],
+    "x": 185,
+    "y": 280,
+    "wires": [
+      [
+        "02f5aa2ff841acd1",
+        "3f5a48b721dae9db"
+      ]
+    ]
+  },
+  {
+    "id": "f63d35f5fb7dc607",
+    "type": "link in",
+    "z": "84d1a0de660abb59",
+    "g": "354aca9dbc391ace",
+    "name": "UIB Link in to Configure Rayvn",
+    "links": [
+      "ee7dab60e6fc914e"
+    ],
+    "x": 185,
+    "y": 160,
+    "wires": [
+      [
+        "9b6e4d1e92c769d9",
+        "989d45634f23b97e"
+      ]
+    ]
   },
   {
     "id": "be554d1eb57375c1",
@@ -141,16 +179,14 @@
     "z": "84d1a0de660abb59",
     "g": "354aca9dbc391ace",
     "name": "",
-    "x": 190,
-    "y": 220,
+    "x": 180,
+    "y": 200,
     "wires": [
       [
-        "9b6e4d1e92c769d9",
-        "989d45634f23b97e"
+        "9b6e4d1e92c769d9"
       ],
       [
-        "02f5aa2ff841acd1",
-        "3f5a48b721dae9db"
+        "02f5aa2ff841acd1"
       ]
     ]
   },
@@ -283,8 +319,8 @@
     "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 170,
-    "y": 180,
+    "x": 180,
+    "y": 120,
     "wires": []
   },
   {
@@ -302,7 +338,7 @@
     "statusVal": "",
     "statusType": "auto",
     "x": 180,
-    "y": 260,
+    "y": 240,
     "wires": []
   },
   {

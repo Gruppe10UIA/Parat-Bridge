@@ -1,0 +1,187 @@
+/** @file Hjem page logic: form handling and connection card rendering. */
+
+import { send, onMessage } from './uib-bridge.js'
+
+// ===== Form Helpers =====
+
+/**
+ * Read all named inputs from a form and return as a plain object.
+ * @param {HTMLFormElement} form
+ * @returns {object} Key-value pairs of input name → value.
+ */
+function collectFormData(form) {
+    const data = {}
+    new FormData(form).forEach((value, key) => { data[key] = value })
+    return data
+}
+
+/**
+ * Display a feedback message below the form.
+ * @param {HTMLElement} el   - The feedback container element.
+ * @param {string}      message - Text to display.
+ * @param {'success'|'error'} type - Visual style.
+ */
+function showFeedback(el, message, type) {
+    el.textContent = message
+    el.className = `feedback-${type}`
+}
+
+/**
+ * Clear the feedback message.
+ * @param {HTMLElement} el - The feedback container element.
+ */
+function clearFeedback(el) {
+    el.textContent = ''
+    el.className = ''
+}
+
+// ===== Connection Card Rendering =====
+
+/**
+ * Escape HTML special characters to prevent XSS.
+ * @param {string} str - Untrusted string.
+ * @returns {string} Escaped string safe for innerHTML.
+ */
+function escapeHtml(str) {
+    const div = document.createElement('div')
+    div.textContent = str
+    return div.innerHTML
+}
+
+/**
+ * Format epoch milliseconds to a readable Norwegian date string.
+ * @param {number} epochMs - Timestamp in milliseconds.
+ * @returns {string} Formatted date, e.g. "03.03.2026 14:30".
+ */
+function formatTimestamp(epochMs) {
+    const d = new Date(epochMs)
+    const pad = (n) => String(n).padStart(2, '0')
+    return `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+
+/**
+ * Determine status label and CSS class for a connection.
+ * @param {object} connection - Connection object from global context.
+ * @returns {{label: string, cssClass: string}}
+ */
+function getStatusBadge(connection) {
+    if (connection.active) return { label: 'Aktiv', cssClass: 'status-active' }
+    return { label: 'Stoppet', cssClass: 'status-stopped' }
+}
+
+/**
+ * Extract the display name for a client from a connection object.
+ * @param {object} client - Client object (rayvn or wasos).
+ * @returns {string} Formatted label, e.g. "[rayvn]: LogName".
+ */
+function formatClientLabel(client) {
+    return `[${escapeHtml(client.client_system)}]: ${escapeHtml(client.name)}`
+}
+
+/**
+ * Build a DOM element for a single connection card.
+ * @param {object} connection - Connection object from global context.
+ * @returns {HTMLElement} The card element.
+ */
+function renderConnectionCard(connection) {
+    const clients = Object.values(connection.clients)
+    const status = getStatusBadge(connection)
+
+    const card = document.createElement('div')
+    card.className = 'connection-card'
+    card.dataset.connectionName = connection.name
+
+    card.innerHTML = `
+        <div class="connection-info">
+            <span class="connection-client">${formatClientLabel(clients[0])}</span>
+            <span class="connection-separator">↔</span>
+            <span class="connection-client">${formatClientLabel(clients[1])}</span>
+        </div>
+        <div class="connection-meta">
+            <span class="status-badge ${status.cssClass}">${status.label}</span>
+            <span class="connection-time">Opprettet: ${formatTimestamp(connection.time_created)}</span>
+        </div>
+        <div class="connection-actions">
+            <button class="btn-action btn-toggle">${connection.active ? 'Stopp' : 'Start'}</button>
+            <button class="btn-action btn-details" disabled>Detaljer</button>
+            <button class="btn-action btn-remove" disabled>Fjern</button>
+        </div>
+    `
+
+    card.querySelector('.btn-toggle').addEventListener('click', () => {
+        send('connection/toggle', { name: connection.name, active: !connection.active })
+    })
+
+    return card
+}
+
+/**
+ * Show or hide the bulk actions bar based on connection count.
+ * @param {number} count - Number of connections.
+ */
+function toggleBulkActions(count) {
+    const bar = document.getElementById('connections-bulk-actions')
+    bar.classList.toggle('hidden', count === 0)
+}
+
+/**
+ * Clear and rebuild the connections list from a connections object.
+ * @param {object} connections - Connections object keyed by connection name.
+ */
+function renderConnectionsList(connections) {
+    const list = document.getElementById('connections-list')
+    list.innerHTML = ''
+
+    const entries = Object.values(connections)
+    entries.forEach((connection) => {
+        list.appendChild(renderConnectionCard(connection))
+    })
+
+    toggleBulkActions(entries.length)
+}
+
+// ===== Initialization =====
+
+/** Track known connection count to detect new additions. */
+let knownConnectionCount = 0
+
+/** Track whether a form submission is pending. */
+let submitting = false
+
+/** Attach form listener and register incoming message handlers. */
+function initHjem() {
+    const form = document.getElementById('connection-form')
+    const feedback = document.getElementById('form-feedback')
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault()
+        clearFeedback(feedback)
+
+        const data = collectFormData(form)
+        send('form/submit', data)
+        showFeedback(feedback, 'Sender...', 'success')
+        submitting = true
+    })
+
+    onMessage('form/feedback', (payload) => {
+        const type = payload.success ? 'success' : 'error'
+        showFeedback(feedback, payload.message, type)
+        if (payload.success) form.reset()
+        submitting = false
+    })
+
+    onMessage('connections/update', (connections) => {
+        const count = Object.keys(connections).length
+
+        if (submitting && count > knownConnectionCount) {
+            clearFeedback(feedback)
+            form.reset()
+            submitting = false
+        }
+
+        knownConnectionCount = count
+        renderConnectionsList(connections)
+    })
+}
+
+export { initHjem }
