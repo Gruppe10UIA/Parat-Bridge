@@ -2,6 +2,8 @@
     "name": "Parat-Bridge",
     "description": "The node-red project of Parat-Bridge by ParatAI",
     "dependencies": {
-        "node-red-contrib-flow-manager": "~0.7.4"
+        "@flowfuse/node-red-dashboard": "~1.30.2",
+        "node-red-contrib-flow-manager": "~0.7.4",
+        "write-file-atomic": "^7.0.1"
     }
 }

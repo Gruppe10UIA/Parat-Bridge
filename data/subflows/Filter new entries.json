@@ -1,0 +1,75 @@
+[
+  {
+    "id": "0047704f35a57b0c",
+    "type": "subflow",
+    "name": "Filter new entries",
+    "info": "Filters entries to only pass genuinely new, non-looped messages. Updates source timestamp after each accepted entry.\n\n### Filter rules (in order)\n1. **Stale** — `entry.timestamp <= source.timestamp` → drop\n2. **Already bridged** — `entry.text` starts with `[wasos:`, `[rayvn:`, or `[cim:` → drop (cross-connection loop prevention)\n3. **Target callsign** — `entry.author` contains target's callsign → drop (direct loop prevention)\n4. **System message** — `entry.text` starts with `[parat_bridge:parat_bridge]` → drop\n5. **Label match** — `entry.labels` contains target's identifier → drop\n\n### Input\n`msg.payload` = bridge entry, `msg.metadata` = { source, target, connection_name }\n\n### Output\nSame as input (passthrough). Drops non-matching entries by returning null.",
+    "category": "",
+    "in": [
+      {
+        "x": 180,
+        "y": 220,
+        "wires": [
+          {
+            "id": "1bb4b5ee32a3022c"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 600,
+        "y": 220,
+        "wires": [
+          {
+            "id": "1bb4b5ee32a3022c",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#E9967A",
+    "icon": "font-awesome/fa-minus-circle"
+  },
+  {
+    "id": "1bb4b5ee32a3022c",
+    "type": "function",
+    "z": "0047704f35a57b0c",
+    "name": "Filter",
+    "func": "const entry  = msg.payload;\nconst source = msg.metadata.source;\nconst utils  = global.get(\"utils\");\n\n// Stale check\nif (entry.timestamp <= source.timestamp) return null;\n\n// Drop already-bridged messages (prevents cross-connection loops)\nconst bridgePattern = /\\[(?:wasos|rayvn|cim|parat-bridge)(?::|])/;\nif (entry.text && bridgePattern.test(entry.text)) return null;\nif (entry.author && bridgePattern.test(entry.author)) return null;\n\n// Drop messages posted by the target (direct loop prevention)\nconst target_callsign = utils.build_callsign(msg.metadata.target);\nif (entry.author.includes(target_callsign)) return null;\n\n// Drop parat_bridge system messages\nif (entry.text && entry.text.startsWith(utils.build_callsign({ client_system: \"parat_bridge\", name: \"parat_bridge\" }))) return null;\n\n// Drop entries already labeled with target identifier\nif ((entry.labels || []).some(l => l.id === msg.metadata.target.identifier)) return null;\n\nreturn msg;\n\n\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 330,
+    "y": 220,
+    "wires": [
+      [
+        "fe9efa5238d364ea"
+      ]
+    ],
+    "info": "Filters messges based on timestamp and labels to only pass through new messages that has not been seen"
+  },
+  {
+    "id": "fe9efa5238d364ea",
+    "type": "function",
+    "z": "0047704f35a57b0c",
+    "name": "update timestamp",
+    "func": "global.set(\n    `parat_bridge.connections.${msg.metadata.connection_name}.clients.${msg.metadata.source.identifier}.timestamp`,\n    msg.payload.timestamp\n);\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 570,
+    "y": 140,
+    "wires": [
+      []
+    ]
+  }
+]

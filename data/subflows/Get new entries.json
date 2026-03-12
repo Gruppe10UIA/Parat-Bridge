@@ -1,0 +1,276 @@
+[
+  {
+    "id": "7613a77a1b834225",
+    "type": "subflow",
+    "name": "Get new entries",
+    "info": "Polls all active connections for new entries every 3 seconds.\n\n### Pipeline\n1. **Pass active connections** — iterates `parat_bridge.connections`, emits one msg per {source, target} pair\n2. **Switch** — routes by `msg.topic` (rayvn/wasos/cim) to the correct GET subflow\n3. **GET subflow** — fetches raw entries from the API\n4. **Split** — splits response array into individual entries\n5. **Client to bridge entry** — normalizes to standard bridge format\n6. **Filter new entries** — drops stale/looped/duplicate entries\n7. **Attach metadata and prune** — creates final queue-ready message\n\n### Input\nNone (self-triggering inject)\n\n### Output\n```js\n{\n    topic: \"new_message\",\n    entry: {\n        id, text, timestamp, author, files, labels,\n        metadata: { source: Client, target: Client, connection_name: string }\n    }\n}\n```",
+    "category": "",
+    "in": [],
+    "out": [
+      {
+        "x": 1080,
+        "y": 360,
+        "wires": [
+          {
+            "id": "ea7ebf58285971a8",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#C0DEED",
+    "icon": "node-red/bridge.svg"
+  },
+  {
+    "id": "5851956660723990",
+    "type": "group",
+    "z": "7613a77a1b834225",
+    "name": "Response handling",
+    "style": {
+      "stroke": "#6f2fa0",
+      "fill": "#dbcbe7",
+      "label": true,
+      "label-position": "n",
+      "color": "#000000"
+    },
+    "nodes": [
+      "c742e6faf67ffe65",
+      "ea7ebf58285971a8",
+      "8e7999633660b2fd"
+    ],
+    "x": 34,
+    "y": 319,
+    "w": 822,
+    "h": 82
+  },
+  {
+    "id": "df3ce13d4cb1f110",
+    "type": "group",
+    "z": "7613a77a1b834225",
+    "name": "Poll endpoints",
+    "style": {
+      "label": true,
+      "stroke": "#0070c0",
+      "fill": "#bfdbef",
+      "label-position": "n",
+      "color": "#000000"
+    },
+    "nodes": [
+      "08b97ed44f272d94",
+      "e79abe64c9510751",
+      "1a6d4e2b65052fcc",
+      "94cdd66cf607a970",
+      "8673cf0ab571261b",
+      "f8d5272182de5652"
+    ],
+    "x": 34,
+    "y": 99,
+    "w": 972,
+    "h": 149.5
+  },
+  {
+    "id": "e79abe64c9510751",
+    "type": "inject",
+    "z": "7613a77a1b834225",
+    "g": "df3ce13d4cb1f110",
+    "name": "",
+    "props": [],
+    "repeat": "3",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 130,
+    "y": 200,
+    "wires": [
+      [
+        "1a6d4e2b65052fcc"
+      ]
+    ]
+  },
+  {
+    "id": "1a6d4e2b65052fcc",
+    "type": "function",
+    "z": "7613a77a1b834225",
+    "g": "df3ce13d4cb1f110",
+    "name": "Pass active connections",
+    "func": "\n// Get all acive connections from connections Object\nconst connections = global.get(\"parat_bridge.connections\");\nif (!connections) return null;\nconst active_connections = Object.values(connections).filter(c => c.active);\n\nif (active_connections.length === 0) { return null; }\n\nconst messages = [];\n\n// Loop over each active connection\nactive_connections.forEach(connection => {\n    // loop over each client in connection\n    Object.values(connection.clients).forEach(client => {\n\n        // Find the target by excluding self using the unique identifier\n        const target = Object.values(connection.clients)\n            .find(c => c.identifier !== client.identifier);\n\n        // Build the message and attach metadata\n        messages.push({\n            topic: client.client_system,   // routes to correct request builder\n            metadata: {\n                source: client,\n                target: target,\n                connection_name: connection.name\n            }\n        });\n    });\n});\n\n// send each message one at a time\nreturn [messages];\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 330,
+    "y": 200,
+    "wires": [
+      [
+        "08b97ed44f272d94"
+      ]
+    ]
+  },
+  {
+    "id": "6c9f36725782f795",
+    "type": "subflow:7cecb563cf8b234a",
+    "z": "7613a77a1b834225",
+    "name": "",
+    "x": 970,
+    "y": 40,
+    "wires": [],
+    "info": "Centralized error handler for this subflow.\r\nReceives errors from the catch node and:\r\n- Classifies and logs the error\r\n- Sends notification to Rayvn and WaSOS\r\n  if 5+ consecutive failures occur"
+  },
+  {
+    "id": "b4a456641b6c852d",
+    "type": "catch",
+    "z": "7613a77a1b834225",
+    "name": "",
+    "scope": null,
+    "uncaught": false,
+    "x": 800,
+    "y": 40,
+    "wires": [
+      [
+        "6c9f36725782f795"
+      ]
+    ],
+    "info": "Catches all errors from nodes in this subflow\r\nand forwards them to the centralized \r\nError Handler subflow for classification,\r\nlogging and notification."
+  },
+  {
+    "id": "08b97ed44f272d94",
+    "type": "switch",
+    "z": "7613a77a1b834225",
+    "g": "df3ce13d4cb1f110",
+    "name": "",
+    "property": "topic",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "eq",
+        "v": "rayvn",
+        "vt": "str"
+      },
+      {
+        "t": "eq",
+        "v": "wasos",
+        "vt": "str"
+      },
+      {
+        "t": "eq",
+        "v": "cim",
+        "vt": "str"
+      }
+    ],
+    "checkall": "false",
+    "repair": false,
+    "outputs": 3,
+    "x": 510,
+    "y": 200,
+    "wires": [
+      [
+        "8673cf0ab571261b"
+      ],
+      [
+        "f8d5272182de5652"
+      ],
+      []
+    ]
+  },
+  {
+    "id": "c742e6faf67ffe65",
+    "type": "subflow:35dc868e3a5c1ab2",
+    "z": "7613a77a1b834225",
+    "g": "5851956660723990",
+    "name": "",
+    "x": 160,
+    "y": 360,
+    "wires": [
+      [
+        "8e7999633660b2fd"
+      ]
+    ]
+  },
+  {
+    "id": "94cdd66cf607a970",
+    "type": "split",
+    "z": "7613a77a1b834225",
+    "g": "df3ce13d4cb1f110",
+    "name": "",
+    "splt": "\\n",
+    "spltType": "str",
+    "arraySplt": 1,
+    "arraySpltType": "len",
+    "stream": false,
+    "addname": "",
+    "property": "payload",
+    "x": 930,
+    "y": 200,
+    "wires": [
+      [
+        "c742e6faf67ffe65"
+      ]
+    ]
+  },
+  {
+    "id": "ea7ebf58285971a8",
+    "type": "function",
+    "z": "7613a77a1b834225",
+    "g": "5851956660723990",
+    "name": "Attach metadata and prune msg object",
+    "func": "return {\n    _msgid: msg._msgid,\n    topic: \"new_message\",  \n    entry: {\n        id:        msg.payload.id,\n        text:      msg.payload.text,\n        timestamp: msg.payload.timestamp,\n        author:    msg.payload.author,\n        files:     msg.payload.files,\n        labels:    msg.payload.labels,\n        metadata:  msg.metadata\n    }\n};\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 680,
+    "y": 360,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "8e7999633660b2fd",
+    "type": "subflow:0047704f35a57b0c",
+    "z": "7613a77a1b834225",
+    "g": "5851956660723990",
+    "name": "",
+    "x": 380,
+    "y": 360,
+    "wires": [
+      [
+        "ea7ebf58285971a8"
+      ]
+    ]
+  },
+  {
+    "id": "8673cf0ab571261b",
+    "type": "subflow:a1b5b8de4109fab7",
+    "z": "7613a77a1b834225",
+    "g": "df3ce13d4cb1f110",
+    "name": "",
+    "x": 720,
+    "y": 140,
+    "wires": [
+      [
+        "94cdd66cf607a970"
+      ]
+    ]
+  },
+  {
+    "id": "f8d5272182de5652",
+    "type": "subflow:e97e0c90387d0adc",
+    "z": "7613a77a1b834225",
+    "g": "df3ce13d4cb1f110",
+    "name": "",
+    "x": 720,
+    "y": 200,
+    "wires": [
+      [
+        "94cdd66cf607a970"
+      ]
+    ]
+  }
+]

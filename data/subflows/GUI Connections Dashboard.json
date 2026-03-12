@@ -1,0 +1,69 @@
+[
+  {
+    "id": "3241f77fe5e4f9ea",
+    "type": "subflow",
+    "name": "GUI Connections Dashboard",
+    "info": "Displays a UI notification when a new connection is established.\n\n### Input\nAny message (from Initialize connection output)\n\n### Output\nNone (notification only)",
+    "category": "",
+    "in": [
+      {
+        "x": 120,
+        "y": 280,
+        "wires": [
+          {
+            "id": "0d1b61e1d01e093e"
+          }
+        ]
+      }
+    ],
+    "out": [],
+    "env": [],
+    "meta": {},
+    "color": "#3FADB5",
+    "icon": "font-awesome/fa-list"
+  },
+  {
+    "id": "1e407a0ff8bdcd9a",
+    "type": "ui-notification",
+    "z": "3241f77fe5e4f9ea",
+    "ui": "eb785a65aeb88688",
+    "position": "bottom left",
+    "colorDefault": false,
+    "color": "#19a207",
+    "displayTime": "15",
+    "showCountdown": true,
+    "outputs": 1,
+    "allowDismiss": true,
+    "dismissText": "Close",
+    "allowConfirm": false,
+    "confirmText": "Confirm",
+    "raw": false,
+    "className": "",
+    "name": "Notify connection created",
+    "x": 650,
+    "y": 280,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "0d1b61e1d01e093e",
+    "type": "function",
+    "z": "3241f77fe5e4f9ea",
+    "name": "Format connection notification",
+    "func": "msg.payload = \"Forbindelse opprettet: \";\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 390,
+    "y": 280,
+    "wires": [
+      [
+        "1e407a0ff8bdcd9a"
+      ]
+    ]
+  }
+]
