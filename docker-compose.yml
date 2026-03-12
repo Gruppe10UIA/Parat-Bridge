@@ -5,6 +5,7 @@ services:
   node-red:
     image: nodered/node-red:4.1.4-22
     user: root
+    ports:
       - "1880:1880"
     volumes:
       - ./data:/data
