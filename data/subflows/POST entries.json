@@ -63,23 +63,6 @@
     ]
   },
   {
-    "id": "a02e0cb7a7356f3d",
-    "type": "debug",
-    "z": "5b554f0e5b6f4d30",
-    "name": "debug 1",
-    "active": true,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "true",
-    "targetType": "full",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 620,
-    "y": 360,
-    "wires": []
-  },
-  {
     "id": "5f6de5b415820c6e",
     "type": "switch",
     "z": "5b554f0e5b6f4d30",
