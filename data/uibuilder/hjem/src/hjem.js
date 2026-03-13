@@ -90,6 +90,7 @@ function renderConnectionCard(connection) {
     const card = document.createElement('div')
     card.className = 'connection-card'
     card.dataset.connectionName = connection.name
+    card.dataset.active = connection.active
 
     card.innerHTML = `
         <div class="connection-info">
@@ -109,7 +110,8 @@ function renderConnectionCard(connection) {
     `
 
     card.querySelector('.btn-toggle').addEventListener('click', () => {
-        send('connection/toggle', { name: connection.name, active: !connection.active })
+        const active = card.dataset.active === 'true'
+        send('connection/toggle', { name: connection.name, active: !active })
     })
 
     card.querySelector('.btn-remove').addEventListener('click', () => {
@@ -131,19 +133,47 @@ function toggleBulkActions(count) {
 }
 
 /**
- * Clear and rebuild the connections list from a connections object.
+ * Update an existing card's dynamic content in-place.
+ * @param {HTMLElement} card - The existing card element.
+ * @param {object} connection - Updated connection data.
+ */
+function updateCard(card, connection) {
+    const status = getStatusBadge(connection)
+    card.dataset.active = connection.active
+
+    const badge = card.querySelector('.status-badge')
+    badge.textContent = status.label
+    badge.className = `status-badge ${status.cssClass}`
+
+    const toggle = card.querySelector('.btn-toggle')
+    toggle.textContent = connection.active ? 'Stopp' : 'Start'
+    toggle.className = `btn-action btn-toggle ${connection.active ? 'btn-stop' : 'btn-start'}`
+}
+
+/**
+ * Diff and update the connections list — only add, remove, or patch cards as needed.
  * @param {object} connections - Connections object keyed by connection name.
  */
 function renderConnectionsList(connections) {
     const list = document.getElementById('connections-list')
-    list.innerHTML = ''
+    const incoming = new Set(Object.keys(connections))
 
-    const entries = Object.values(connections)
-    entries.forEach((connection) => {
-        list.appendChild(renderConnectionCard(connection))
+    // Remove cards for deleted connections
+    list.querySelectorAll('.connection-card').forEach(card => {
+        if (!incoming.has(card.dataset.connectionName)) card.remove()
     })
 
-    toggleBulkActions(entries.length)
+    // Add new or update existing
+    Object.values(connections).forEach(connection => {
+        const existing = list.querySelector(`[data-connection-name="${connection.name}"]`)
+        if (existing) {
+            updateCard(existing, connection)
+        } else {
+            list.appendChild(renderConnectionCard(connection))
+        }
+    })
+
+    toggleBulkActions(incoming.size)
 }
 
 // ===== Initialization =====
