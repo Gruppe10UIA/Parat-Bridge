@@ -90,6 +90,7 @@ function renderConnectionCard(connection) {
     const card = document.createElement('div')
     card.className = 'connection-card'
     card.dataset.connectionName = connection.name
+    card.dataset.active = connection.active
 
     card.innerHTML = `
         <div class="connection-info">
@@ -102,14 +103,35 @@ function renderConnectionCard(connection) {
             <span class="connection-time">Opprettet: ${formatTimestamp(connection.time_created)}</span>
         </div>
         <div class="connection-actions">
-            <button class="btn-action btn-toggle">${connection.active ? 'Stopp' : 'Start'}</button>
+            <button class="btn-action btn-toggle ${connection.active ? 'btn-stop' : 'btn-start'}">${connection.active ? 'Stopp' : 'Start'}</button>
             <button class="btn-action btn-details" disabled>Detaljer</button>
-            <button class="btn-action btn-remove" disabled>Fjern</button>
+            <button class="btn-action btn-remove">Fjern</button>
         </div>
     `
 
-    card.querySelector('.btn-toggle').addEventListener('click', () => {
-        send('connection/toggle', { name: connection.name, active: !connection.active })
+    card.querySelector('.btn-toggle').addEventListener('click', (e) => {
+        const active = card.dataset.active === 'true'
+        const nextActive = !active
+        send('connection/toggle', { name: connection.name, active: nextActive })
+
+        card.dataset.active = String(nextActive)
+        const btn = e.currentTarget
+        btn.textContent = nextActive ? 'Stopp' : 'Start'
+        btn.classList.toggle('btn-stop', nextActive)
+        btn.classList.toggle('btn-start', !nextActive)
+
+        const badge = card.querySelector('.status-badge')
+        const status = nextActive
+            ? { label: 'Aktiv', cssClass: 'status-active' }
+            : { label: 'Stoppet', cssClass: 'status-stopped' }
+        badge.textContent = status.label
+        badge.className = `status-badge ${status.cssClass}`
+    })
+
+    card.querySelector('.btn-remove').addEventListener('click', () => {
+        if (confirm('Er du sikker på at du vil slette koblingen?')) {
+            send('connection/remove', { name: connection.name })
+        }
     })
 
     return card
@@ -125,19 +147,53 @@ function toggleBulkActions(count) {
 }
 
 /**
- * Clear and rebuild the connections list from a connections object.
+ * Update an existing card's dynamic content in-place.
+ * @param {HTMLElement} card - The existing card element.
+ * @param {object} connection - Updated connection data.
+ */
+function updateCard(card, connection) {
+    const status = getStatusBadge(connection)
+    card.dataset.active = connection.active
+
+    const badge = card.querySelector('.status-badge')
+    badge.textContent = status.label
+    badge.className = `status-badge ${status.cssClass}`
+
+    const toggle = card.querySelector('.btn-toggle')
+    toggle.textContent = connection.active ? 'Stopp' : 'Start'
+    toggle.className = `btn-action btn-toggle ${connection.active ? 'btn-stop' : 'btn-start'}`
+}
+
+/**
+ * Diff and update the connections list — only add, remove, or patch cards as needed.
  * @param {object} connections - Connections object keyed by connection name.
  */
 function renderConnectionsList(connections) {
     const list = document.getElementById('connections-list')
-    list.innerHTML = ''
+    const incoming = new Set(Object.keys(connections))
 
-    const entries = Object.values(connections)
-    entries.forEach((connection) => {
-        list.appendChild(renderConnectionCard(connection))
+    // Build lookup map of existing cards
+    const existingCards = new Map()
+    list.querySelectorAll('.connection-card').forEach(card => {
+        existingCards.set(card.dataset.connectionName, card)
     })
 
-    toggleBulkActions(entries.length)
+    // Remove cards for deleted connections
+    existingCards.forEach((card, name) => {
+        if (!incoming.has(name)) card.remove()
+    })
+
+    // Add new or update existing
+    Object.values(connections).forEach(connection => {
+        const existing = existingCards.get(connection.name)
+        if (existing) {
+            updateCard(existing, connection)
+        } else {
+            list.appendChild(renderConnectionCard(connection))
+        }
+    })
+
+    toggleBulkActions(incoming.size)
 }
 
 // ===== Initialization =====

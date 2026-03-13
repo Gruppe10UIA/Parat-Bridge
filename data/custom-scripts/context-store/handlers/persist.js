@@ -51,6 +51,10 @@ function persistConnection(name, scopeCache) {
             CONNECTIONS_DIR + name + '.json',
             JSON.stringify(conn)
         );
+    } else {
+        const file = CONNECTIONS_DIR + name + '.json';
+        if (fs.existsSync(file)) fs.unlinkSync(file);
+        // TODO: delete associated files from /data/bridge-files/files/ for this connection
     }
 }
 

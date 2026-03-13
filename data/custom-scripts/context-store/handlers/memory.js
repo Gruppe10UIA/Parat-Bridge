@@ -53,8 +53,13 @@ function setNestedValue(obj, key, value) {
         current = current[parts[i]];
     }
 
-    // Set the final value
-    current[parts[parts.length - 1]] = value;
+    // Set or delete the final value
+    const last = parts[parts.length - 1];
+    if (value === null) {
+        delete current[last];
+    } else {
+        current[last] = value;
+    }
 }
 
 module.exports = { getNestedValue, setNestedValue };
