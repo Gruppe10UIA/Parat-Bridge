@@ -248,6 +248,7 @@
 .connection-actions {
     display: flex;
     justify-content: space-between;
+    margin-top: 1.5rem;
 }
 
 .connection-actions .btn-action {
