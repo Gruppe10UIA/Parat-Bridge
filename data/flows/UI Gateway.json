@@ -152,7 +152,7 @@
     "type": "function",
     "z": "f12d6e1c0542fc55",
     "name": "Remove Connection",
-    "func": "const { name } = msg.payload;\nconst connections = global.get('parat_bridge.connections') || {};\n\nif (!connections[name]) return null;\n\ndelete connections[name];\nglobal.set('parat_bridge.connections', connections);\n\nreturn null;",
+    "func": "const { name } = msg.payload;\n\nif (!global.get('parat_bridge.connections.' + name)) return null;\n\nglobal.set('parat_bridge.connections.' + name, null);\n\nreturn null;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
