@@ -102,14 +102,20 @@ function renderConnectionCard(connection) {
             <span class="connection-time">Opprettet: ${formatTimestamp(connection.time_created)}</span>
         </div>
         <div class="connection-actions">
-            <button class="btn-action btn-toggle">${connection.active ? 'Stopp' : 'Start'}</button>
+            <button class="btn-action btn-toggle ${connection.active ? 'btn-stop' : 'btn-start'}">${connection.active ? 'Stopp' : 'Start'}</button>
             <button class="btn-action btn-details" disabled>Detaljer</button>
-            <button class="btn-action btn-remove" disabled>Fjern</button>
+            <button class="btn-action btn-remove">Fjern</button>
         </div>
     `
 
     card.querySelector('.btn-toggle').addEventListener('click', () => {
         send('connection/toggle', { name: connection.name, active: !connection.active })
+    })
+
+    card.querySelector('.btn-remove').addEventListener('click', () => {
+        if (confirm('Er du sikker på at du vil slette koblingen?')) {
+            send('connection/remove', { name: connection.name })
+        }
     })
 
     return card

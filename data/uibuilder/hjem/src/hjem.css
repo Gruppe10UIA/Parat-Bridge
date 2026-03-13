@@ -247,7 +247,7 @@
 
 .connection-actions {
     display: flex;
-    gap: 0.5rem;
+    justify-content: space-between;
 }
 
 .btn-action {
@@ -269,6 +269,50 @@
 .btn-action:disabled {
     opacity: 0.45;
     cursor: not-allowed;
+}
+
+/* Start — green */
+.btn-start {
+    background: #2e7d32;
+    color: #fff;
+    border-color: #2e7d32;
+}
+
+.btn-start:hover:not(:disabled) {
+    background: #256b29;
+}
+
+/* Stopp — amber */
+.btn-stop {
+    background: #f57c00;
+    color: #fff;
+    border-color: #f57c00;
+}
+
+.btn-stop:hover:not(:disabled) {
+    background: #e06800;
+}
+
+/* Detaljer — blue */
+.btn-details {
+    background: #0070c0;
+    color: #fff;
+    border-color: #0070c0;
+}
+
+.btn-details:hover:not(:disabled) {
+    background: #005a9e;
+}
+
+/* Fjern — red */
+.btn-remove {
+    background: #c62828;
+    color: #fff;
+    border-color: #c62828;
+}
+
+.btn-remove:hover:not(:disabled) {
+    background: #a52222;
 }
 
 /* ===== BULK ACTIONS BAR ===== */

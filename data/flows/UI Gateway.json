@@ -43,8 +43,8 @@
     "type": "function",
     "z": "f12d6e1c0542fc55",
     "name": "Route UIB Messages",
-    "func": "if (msg.topic === 'form/submit') {\n    var rayvn = {\n        payload: {\n            rayvn_api_key: msg.payload.rayvn_api_key,\n            rayvn_log_name: msg.payload.rayvn_log_name\n        }\n    };\n\n    var wasos = {\n        payload: {\n            wasos_username: msg.payload.wasos_username,\n            wasos_password: msg.payload.wasos_password,\n            wasos_chatroom_name: msg.payload.wasos_chatroom_name\n        }\n    };\n\n    return [rayvn, wasos, null];\n}\n\nif (msg.topic === 'connection/toggle') {\n    return [null, null, msg];\n}\n\nreturn [null, null, null];",
-    "outputs": 3,
+    "func": "if (msg.topic === 'form/submit') {\n    var rayvn = {\n        payload: {\n            rayvn_api_key: msg.payload.rayvn_api_key,\n            rayvn_log_name: msg.payload.rayvn_log_name\n        }\n    };\n\n    var wasos = {\n        payload: {\n            wasos_username: msg.payload.wasos_username,\n            wasos_password: msg.payload.wasos_password,\n            wasos_chatroom_name: msg.payload.wasos_chatroom_name\n        }\n    };\n\n    return [rayvn, wasos, null, null];\n}\n\nif (msg.topic === 'connection/toggle') {\n    return [null, null, msg, null];\n}\n\nif (msg.topic === 'connection/remove') {\n    return [null, null, null, msg];\n}\n\nreturn [null, null, null, null];",
+    "outputs": 4,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
@@ -61,6 +61,9 @@
       ],
       [
         "bd2270126aeeeaf7"
+      ],
+      [
+        "25c0da690faa36fe"
       ]
     ]
   },
@@ -73,8 +76,8 @@
     "links": [
       "f63d35f5fb7dc607"
     ],
-    "x": 825,
-    "y": 60,
+    "x": 845,
+    "y": 40,
     "wires": []
   },
   {
@@ -86,8 +89,8 @@
     "links": [
       "c3faa9283c8ae054"
     ],
-    "x": 825,
-    "y": 120,
+    "x": 845,
+    "y": 80,
     "wires": []
   },
   {
@@ -102,8 +105,8 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 910,
-    "y": 200,
+    "x": 930,
+    "y": 120,
     "wires": [
       []
     ]
@@ -142,6 +145,24 @@
       [
         "9b8cc8053d27ab79"
       ]
+    ]
+  },
+  {
+    "id": "25c0da690faa36fe",
+    "type": "function",
+    "z": "f12d6e1c0542fc55",
+    "name": "Remove Connection",
+    "func": "const { name } = msg.payload;\nconst connections = global.get('parat_bridge.connections') || {};\n\nif (!connections[name]) return null;\n\ndelete connections[name];\nglobal.set('parat_bridge.connections', connections);\n\nreturn null;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 940,
+    "y": 180,
+    "wires": [
+      []
     ]
   }
 ]
