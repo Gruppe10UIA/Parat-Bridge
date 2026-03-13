@@ -109,9 +109,23 @@ function renderConnectionCard(connection) {
         </div>
     `
 
-    card.querySelector('.btn-toggle').addEventListener('click', () => {
+    card.querySelector('.btn-toggle').addEventListener('click', (e) => {
         const active = card.dataset.active === 'true'
-        send('connection/toggle', { name: connection.name, active: !active })
+        const nextActive = !active
+        send('connection/toggle', { name: connection.name, active: nextActive })
+
+        card.dataset.active = String(nextActive)
+        const btn = e.currentTarget
+        btn.textContent = nextActive ? 'Stopp' : 'Start'
+        btn.classList.toggle('btn-stop', nextActive)
+        btn.classList.toggle('btn-start', !nextActive)
+
+        const badge = card.querySelector('.status-badge')
+        const status = nextActive
+            ? { label: 'Aktiv', cssClass: 'status-active' }
+            : { label: 'Stoppet', cssClass: 'status-stopped' }
+        badge.textContent = status.label
+        badge.className = `status-badge ${status.cssClass}`
     })
 
     card.querySelector('.btn-remove').addEventListener('click', () => {
@@ -158,14 +172,20 @@ function renderConnectionsList(connections) {
     const list = document.getElementById('connections-list')
     const incoming = new Set(Object.keys(connections))
 
-    // Remove cards for deleted connections
+    // Build lookup map of existing cards
+    const existingCards = new Map()
     list.querySelectorAll('.connection-card').forEach(card => {
-        if (!incoming.has(card.dataset.connectionName)) card.remove()
+        existingCards.set(card.dataset.connectionName, card)
+    })
+
+    // Remove cards for deleted connections
+    existingCards.forEach((card, name) => {
+        if (!incoming.has(name)) card.remove()
     })
 
     // Add new or update existing
     Object.values(connections).forEach(connection => {
-        const existing = list.querySelector(`[data-connection-name="${connection.name}"]`)
+        const existing = existingCards.get(connection.name)
         if (existing) {
             updateCard(existing, connection)
         } else {

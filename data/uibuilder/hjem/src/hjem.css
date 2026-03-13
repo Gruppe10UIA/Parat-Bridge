@@ -256,6 +256,19 @@
     text-align: center;
 }
 
+@media (max-width: 480px) {
+    .connection-actions {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .connection-actions .btn-action {
+        min-width: 0;
+        flex: 1 1 45%;
+    }
+}
+
 .btn-action {
     padding: 0.6rem 1.5rem;
     font-size: 0.9rem;
