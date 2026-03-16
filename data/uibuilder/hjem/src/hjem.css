@@ -38,11 +38,11 @@
 }
 
 #connection-form legend {
-    font-size: 0.8rem;
-    font-weight: 600;
+    font-size: 0.9rem;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #888;
+    letter-spacing: 0.08em;
+    color: #444;
     margin-bottom: 0.75rem;
 }
 
@@ -76,8 +76,13 @@
     background: #fff;
 }
 
-.form-field input:invalid:not(:placeholder-shown):not(:focus) {
+.form-validated .form-field input:invalid {
     border-color: #d44;
+}
+
+.form-validated .form-field input:invalid:focus {
+    border-color: #d44;
+    box-shadow: 0 0 0 3px rgba(221, 68, 68, 0.12);
 }
 
 /* ===== FORM ACTIONS ===== */
@@ -113,13 +118,13 @@
 }
 
 #btn-clear {
-    background: #fff;
-    color: #555;
-    border-color: #ccc;
+    background: #fff0f0;
+    color: #c62828;
+    border-color: #f5c0c0;
 }
 
 #btn-clear:hover {
-    background: #f0f0f0;
+    background: #fde0e0;
 }
 
 /* ===== FORM FEEDBACK ===== */
