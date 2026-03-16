@@ -1,17 +1,17 @@
 [
   {
-    "id": "488d4a1e957f1fb1",
+    "id": "b2abcd423e9a8bc6",
     "type": "subflow",
     "name": "POST to Rayvn log",
-    "info": "Posts a bridged entry to the Rayvn log API.\n\n### Input\n`msg.payload` = Rayvn POST body with `files[]` containing `{ context_key, buffer, name, type }`\n`msg.metadata.target` = Rayvn Client\n`msg.entry` = original bridge entry (used for _failed_files reporting)\n\n### Logic\n1. Uploads each file buffer to Rayvn /files, replaces files array with Rayvn file IDs\n2. Sets Authorization header, URL `/logs/{log_id}/entry`, sends POST\n3. Checks for failed uploads and sets `entry._failed_files` if any\n\n### Output 1\n`msg.topic = \"response\"`, `msg.result = true/false`, `msg.statusCode`\n\n### Output 2\nNotification payload for Build attachment notification (only when uploads failed)",
+    "info": "Laster opp vedlegg og poster entry til Rayvn logg.\n\n### Input\nMsg etter Bridge to Rayvn:\n- `msg.entry`            — original bridge-entry (filer med context_keys)\n- `msg.metadata`         — samme objekt som entry.metadata (satt av Bridge to Rayvn)\n- `msg.metadata.failed_files` — feil akkumulert på GET-siden (classify + download)\n- `msg.payload`          — Rayvn-formatert entry med files = entry.files\n\n### Logikk\n1. Upload files to Rayvn: laster opp buffere fra global context. Erstatter\n   msg.payload.files med Rayvn fil-IDer. Upload-feil legges til\n   msg.metadata.failed_files (= entry.metadata.failed_files, samme objekt).\n2. Patch receiver text: patcher msg.payload.text med komplett mottakernotis\n   basert på det nå fullstendige feilbildet (classify + download + upload).\n3. Format header and url + delay + HTTP POST.\n4. Return response: setter msg.result.\n5. Simple notification trigger: brenner avsendernotifikasjon via link-out\n   dersom POST lyktes og det finnes vedleggsfeil.\n\n### Output 1\nPOST-svar (msg.result satt av Return response).\n\n### Notifikasjoner\nBrennes direkte til attachment notification (System handling) via intern link-out.",
     "category": "",
     "in": [
       {
-        "x": 180,
+        "x": 100,
         "y": 300,
         "wires": [
           {
-            "id": "77dbf2e6d1606de9"
+            "id": "26f3d698a874789b"
           }
         ]
       }
@@ -19,20 +19,10 @@
     "out": [
       {
         "x": 900,
-        "y": 360,
+        "y": 480,
         "wires": [
           {
-            "id": "d2c26c81a8dda079",
-            "port": 0
-          }
-        ]
-      },
-      {
-        "x": 900,
-        "y": 440,
-        "wires": [
-          {
-            "id": "d2c26c81a8dda079",
+            "id": "39fcab43d6160b35",
             "port": 1
           }
         ]
@@ -40,17 +30,17 @@
     ],
     "env": [],
     "meta": {},
-    "color": "#AAAA66",
-    "icon": "font-awesome/fa-paper-plane"
+    "color": "#DEB887",
+    "icon": "font-awesome/fa-send"
   },
   {
-    "id": "77dbf2e6d1606de9",
+    "id": "26f3d698a874789b",
     "type": "function",
-    "z": "488d4a1e957f1fb1",
+    "z": "b2abcd423e9a8bc6",
     "name": "Upload files to Rayvn",
-    "func": "/**\n * Upload file buffers to Rayvn /files endpoint.\n *\n * Fetches buffers from global context using context_key from msg.entry.files.\n * Uploads each file to Rayvn and collects returned file IDs.\n * Failed uploads are added to entry.failed_files.\n *\n * On completion:\n *   - payload.files is replaced with an array of Rayvn file IDs\n *   - entry.failed_files is updated with any upload failures\n */\nconst target   = msg.metadata.target;\nconst baseUrl  = global.get(\"parat_bridge\").base_urls.rayvn;\nconst utils    = global.get(\"utils\");\nconst files    = (msg.entry && msg.entry.files) || [];\n\n// Safety net: if no files, pass through\nif (files.length === 0) {\n    msg.payload.files = [];\n    return msg;\n}\n\nconst resolved = [];\nconst failed   = [];\n\nfor (const file of files) {\n    if (!file.context_key) continue;\n\n    const buffer = global.get(\"files.\" + file.context_key);\n\n    if (!buffer || buffer.length === 0) {\n        node.warn(\"No buffer found for context_key: \" + file.context_key);\n        failed.push({ name: file.name || \"ukjent fil\", reason: utils.FILE_REASONS.UPLOAD_FAILED });\n        continue;\n    }\n\n    try {\n        const boundary = \"----PBBoundary\" + Date.now();\n        const header   = `--${boundary}\\r\\nContent-Disposition: form-data; name=\"file\"; filename=\"${file.name || \"file.bin\"}\"\\r\\nContent-Type: ${file.type || \"application/octet-stream\"}\\r\\n\\r\\n`;\n        const footer   = `\\r\\n--${boundary}--\\r\\n`;\n        const body     = Buffer.concat([Buffer.from(header), buffer, Buffer.from(footer)]);\n\n        const res = await nodeFetch(baseUrl + \"/files\", {\n            method:  \"POST\",\n            headers: {\n                \"Authorization\": \"Bearer \" + target.api_key,\n                \"Content-Type\":  \"multipart/form-data; boundary=\" + boundary\n            },\n            body\n        });\n\n        if (res.ok) {\n            const data = await res.json();\n            resolved.push(data.id);\n            node.log(`File uploaded: ${file.name} → ${data.id}`);\n        } else {\n            node.warn(`Rayvn /files returned ${res.status} for ${file.name}`);\n            failed.push({ name: file.name || \"ukjent fil\", reason: utils.FILE_REASONS.UPLOAD_FAILED });\n        }\n    } catch (e) {\n        node.warn(`Error uploading ${file.name}: ${e.message}`);\n        failed.push({ name: file.name || \"ukjent fil\", reason: utils.FILE_REASONS.UPLOAD_FAILED });\n    }\n}\n\nmsg.payload.files = resolved;\n\n// Merge upload failures into entry.failed_files\nif (failed.length > 0 && msg.entry) {\n    msg.entry.failed_files = [\n        ...(msg.entry.failed_files || []),\n        ...failed\n    ];\n}\n\nreturn msg;",
+    "func": "/**\n * Laster opp fil-buffere til Rayvns /files-endepunkt.\n *\n * Leser filmetadata fra msg.entry.files og henter buffere fra global context\n * via context_key. Filer uten context_key behandles som upload-feil —\n * de mangler buffer fordi nedlasting tidligere feilet, og registreres\n * eksplisitt i stedet for å hoppes over stille.\n *\n * Upload-feil legges til msg.metadata.failed_files. Siden msg.metadata og\n * entry.metadata er samme objekt (satt av Bridge to Rayvn), er dette\n * konsistent uansett hvilken referanse som brukes videre i flyten.\n *\n * Etter fullføring: msg.payload.files = array av Rayvn fil-IDer.\n */\nconst target  = msg.metadata.target;\nconst baseUrl = global.get(\"parat_bridge\").base_urls.rayvn;\nconst utils   = global.get(\"utils\");\nconst files   = (msg.entry && msg.entry.files) || [];\n\n// Ingen filer å laste opp — tøm payload.files og fortsett\nif (files.length === 0) {\n    msg.payload.files = [];\n    return msg;\n}\n\nconst resolved = [];\nconst failed   = [];\n\nfor (const file of files) {\n    // Manglende context_key betyr at nedlasting aldri lyktes.\n    // Registrer som upload-feil så den inngår i det endelige feilbildet.\n    if (!file.context_key) {\n        failed.push({ name: file.name || \"ukjent fil\", reason: utils.FILE_REASONS.UPLOAD_FAILED });\n        continue;\n    }\n\n    const buffer = global.get(\"files.\" + file.context_key);\n\n    if (!buffer || buffer.length === 0) {\n        node.warn(\"Ingen buffer funnet for context_key: \" + file.context_key);\n        failed.push({ name: file.name || \"ukjent fil\", reason: utils.FILE_REASONS.UPLOAD_FAILED });\n        continue;\n    }\n\n    try {\n        const boundary = \"----PBBoundary\" + Date.now();\n        const header   = `--${boundary}\\r\\nContent-Disposition: form-data; name=\"file\"; filename=\"${file.name || \"file.bin\"}\"\\r\\nContent-Type: ${file.type || \"application/octet-stream\"}\\r\\n\\r\\n`;\n        const footer   = `\\r\\n--${boundary}--\\r\\n`;\n        const body     = Buffer.concat([Buffer.from(header), buffer, Buffer.from(footer)]);\n\n        const res = await nodeFetch(baseUrl + \"/files\", {\n            method:  \"POST\",\n            headers: {\n                \"Authorization\": \"Bearer \" + target.api_key,\n                \"Content-Type\":  \"multipart/form-data; boundary=\" + boundary\n            },\n            body\n        });\n\n        if (res.ok) {\n            const data = await res.json();\n            resolved.push(data.id);\n            node.log(`Fil lastet opp: ${file.name} → ${data.id}`);\n        } else {\n            node.warn(`Rayvn /files returnerte ${res.status} for ${file.name}`);\n            failed.push({ name: file.name || \"ukjent fil\", reason: utils.FILE_REASONS.UPLOAD_FAILED });\n        }\n    } catch (e) {\n        node.warn(`Feil ved opplasting av ${file.name}: ${e.message}`);\n        failed.push({ name: file.name || \"ukjent fil\", reason: utils.FILE_REASONS.UPLOAD_FAILED });\n    }\n}\n\n// Erstatt entry-filene med Rayvn fil-IDer klare for POST\nmsg.payload.files = resolved;\n\n// Legg upload-feil til metadata.failed_files (= entry.metadata.failed_files)\nif (failed.length > 0) {\n    msg.metadata.failed_files = [\n        ...(msg.metadata.failed_files || []),\n        ...failed\n    ];\n}\n\nreturn msg;",
     "outputs": 1,
-    "timeout": 30,
+    "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
@@ -60,43 +50,62 @@
         "module": "node-fetch"
       }
     ],
-    "x": 420,
-    "y": 140,
+    "x": 260,
+    "y": 120,
     "wires": [
       [
-        "5f2917283fde861e"
+        "b261534cb074e698"
       ]
     ]
   },
   {
-    "id": "5f2917283fde861e",
+    "id": "b261534cb074e698",
     "type": "function",
-    "z": "488d4a1e957f1fb1",
-    "name": "Format header and url",
-    "func": "const target = msg.metadata.target;\n\nif (!target || !target.api_key || !target.client_specific.log_id) {\n    node.error(\"Rayvn not configured on this connection\");\n    return null;\n}\n\nmsg.url = global.get(\"parat_bridge\").base_urls.rayvn\n    + \"/logs/\" + target.client_specific.log_id + \"/entry\";\n\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + target.api_key,\n    \"Content-Type\":  \"application/json\",\n    \"Accept\":        \"application/json\"\n};\n\nreturn msg;\n",
+    "z": "b2abcd423e9a8bc6",
+    "name": "Patch receiver text",
+    "func": "/**\n * Patcher msg.payload.text med mottakernotis basert på komplett feilbilde.\n *\n * Kjøres etter alle upload-forsøk — metadata.failed_files inneholder nå\n * classify-feil, nedlastingsfeil og upload-feil samlet.\n *\n * msg.payload.files inneholder Rayvn fil-IDer etter vellykket upload,\n * og brukes til å beregne korrekt antall vellykkede overføringer.\n *\n * Ingen feil → msg passerer uendret.\n */\nconst failed = msg.metadata.failed_files || [];\n\nif (failed.length === 0) return msg;\n\nconst succeeded = msg.payload.files.length;\nconst total     = succeeded + failed.length;\nconst notice    = \" [\" + failed.length + \"/\" + total\n                + \" vedlegg ikke overført. Avsender mottar instruks om alternativ håndtering]\";\n\nmsg.payload.text = (msg.payload.text || \"\") + notice;\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 420,
+    "x": 290,
     "y": 220,
     "wires": [
       [
-        "51ef0d04e819d910"
+        "ce6f80cc72848224"
       ]
-    ],
-    "info": "Builds HTTP request headers and URL for Rayvn API."
+    ]
   },
   {
-    "id": "51ef0d04e819d910",
+    "id": "ce6f80cc72848224",
+    "type": "function",
+    "z": "b2abcd423e9a8bc6",
+    "name": "Format header and url",
+    "func": "const target = msg.metadata.target;\n\nif (!target || !target.api_key || !target.client_specific.log_id) {\n    node.error(\"Rayvn ikke konfigurert på denne tilkoblingen\");\n    return null;\n}\n\nmsg.url = global.get(\"parat_bridge\").base_urls.rayvn\n    + \"/logs/\" + target.client_specific.log_id + \"/entry\";\n\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + target.api_key,\n    \"Content-Type\":  \"application/json\",\n    \"Accept\":        \"application/json\"\n};\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 580,
+    "y": 180,
+    "wires": [
+      [
+        "a4324541f882f82c"
+      ]
+    ]
+  },
+  {
+    "id": "a4324541f882f82c",
     "type": "delay",
-    "z": "488d4a1e957f1fb1",
+    "z": "b2abcd423e9a8bc6",
     "name": "",
-    "pauseType": "delay",
-    "timeout": "50",
-    "timeoutUnits": "milliseconds",
+    "pauseType": "rate",
+    "timeout": "5",
+    "timeoutUnits": "seconds",
     "rate": "1",
     "nbRateUnits": "1",
     "rateUnits": "second",
@@ -106,21 +115,21 @@
     "drop": false,
     "allowrate": false,
     "outputs": 1,
-    "x": 690,
-    "y": 220,
+    "x": 390,
+    "y": 340,
     "wires": [
       [
-        "72b40f431151f278"
+        "a52a99cc5482559e"
       ]
     ]
   },
   {
-    "id": "72b40f431151f278",
+    "id": "a52a99cc5482559e",
     "type": "http request",
-    "z": "488d4a1e957f1fb1",
+    "z": "b2abcd423e9a8bc6",
     "name": "POST To Rayvn Entry Point",
     "method": "POST",
-    "ret": "txt",
+    "ret": "obj",
     "paytoqs": "ignore",
     "url": "",
     "tls": "",
@@ -128,53 +137,96 @@
     "proxy": "",
     "insecureHTTPParser": false,
     "authType": "",
-    "senderr": true,
+    "senderr": false,
     "headers": [],
-    "x": 400,
-    "y": 300,
+    "x": 360,
+    "y": 500,
     "wires": [
       [
-        "25ea5ac2a59cb7d6"
+        "5b501bc2a77d779a"
       ]
-    ],
-    "info": "Sends the message to Rayvn log API."
+    ]
   },
   {
-    "id": "25ea5ac2a59cb7d6",
+    "id": "5b501bc2a77d779a",
     "type": "function",
-    "z": "488d4a1e957f1fb1",
+    "z": "b2abcd423e9a8bc6",
     "name": "Return response",
-    "func": "msg.topic = \"response\"\n\nif (msg.statusCode == 200) {\n    msg.result = true\n} else {\n    msg.result = false\n}\n\nreturn msg;",
+    "func": "msg.topic = \"response\";\n\nif (msg.statusCode === 200) {\n    msg.result = true;\n} else {\n    msg.result = false;\n}\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 390,
-    "y": 380,
+    "x": 570,
+    "y": 400,
     "wires": [
       [
-        "d2c26c81a8dda079"
+        "39fcab43d6160b35"
       ]
     ]
   },
   {
-    "id": "d2c26c81a8dda079",
+    "id": "17500f4407609e0d",
     "type": "function",
-    "z": "488d4a1e957f1fb1",
-    "name": "Check for failed uploads",
-    "func": "/**\n * Build notification if any files failed during Rayvn upload.\n * Reads from entry.failed_files which may contain both GET-side\n * and upload failures at this point.\n *\n * Output 1: msg continues (always)\n * Output 2: notification payload (only on upload failures)\n */\nconst entry  = msg.entry;\nconst failed = (entry && entry.failed_files) || [];\n\nconst upload_failed = failed.filter(f => f.reason === \"upload_failed\");\n\nif (upload_failed.length === 0) return [msg, null];\n\nconst notification = {\n    payload: {\n        entry_id:     entry.id,\n        failed_files: upload_failed,\n        total_files:  (entry.files || []).length + failed.length,\n        succeeded:    (entry.files || []).length,\n        entry_author: entry.author,\n        metadata:     msg.metadata\n    }\n};\n\nreturn [msg, notification];",
-    "outputs": 2,
+    "z": "b2abcd423e9a8bc6",
+    "name": "Simple notification trigger",
+    "func": "/**\n * Brenner avsendernotifikasjon om vedleggsfeil etter vellykket POST.\n *\n * Leser metadata.failed_files — komplett bilde inkl. upload-feil.\n * Sender kun notifikasjon om POST lyktes; ved POST-feil håndterer\n * køsystemet retry og varsling.\n *\n * Output : notifikasjonspayload til attachment notification-handleren\n */\nif (msg.result !== true) return [msg, null];\n\nconst failed = msg.metadata.failed_files || [];\nif (failed.length === 0) return [msg, null];\n\nconst notification = {\n    payload: {\n        entry_id:     msg.entry.id,\n        failed_files: failed,\n        entry_author: msg.entry.author,\n        metadata:     msg.metadata\n    }\n};\n\nreturn [msg, notification];",
+    "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 700,
+    "x": 820,
+    "y": 300,
+    "wires": [
+      [
+        "ab548f3eb8dfa427"
+      ]
+    ]
+  },
+  {
+    "id": "39fcab43d6160b35",
+    "type": "switch",
+    "z": "b2abcd423e9a8bc6",
+    "name": "",
+    "property": "metadata.failed_files",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "nempty"
+      },
+      {
+        "t": "else"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 2,
+    "x": 770,
     "y": 400,
     "wires": [
-      [],
+      [
+        "17500f4407609e0d"
+      ],
+      []
+    ]
+  },
+  {
+    "id": "ab548f3eb8dfa427",
+    "type": "link call",
+    "z": "b2abcd423e9a8bc6",
+    "name": "",
+    "links": [
+      "16d793b66e21d0b0"
+    ],
+    "linkType": "static",
+    "timeout": "30",
+    "x": 1060,
+    "y": 340,
+    "wires": [
       []
     ]
   }

@@ -1,9 +1,9 @@
 [
   {
-    "id": "ebdd2af39b259744",
+    "id": "3b1afab1893e0144",
     "type": "subflow",
     "name": "Bridge entry to client",
-    "info": "Converts a bridge entry into the target client's POST body format.\nRoutes by `msg.entry.metadata.target.client_system`.\n\n### Input\n`msg.entry` = Entry with Metadata\n\n### WaSOS output\n`{ content, callsign: \"[source:name] author\", isLocation: false, replyMessageId: null, files: [] }`\n\n### Rayvn output\n`{ text: \"[source:name] author: text\", keyEvent: false, releasedInfo: false, loggedByFullName, labels: [], files }`\n\n### File handling\nFor Rayvn: files with `context_key` have their buffer attached via\n`global.get(\"files.key\")`. The buffer travels with the message to\n`POST to Rayvn log` which performs the actual upload API call.",
+    "info": "Tilpasser bridge-entry til målsystemets payload-format.\n\n### Input\n`msg.entry` — bridge-entry med `entry.metadata.failed_files` satt av GET-siden.\n\n### Logikk\n1. Handle failed files:\n   - WaSOS: patcher entry.text med mottakernotis og brenner avsendernotifikasjon\n     via link-out til attachment notification-handleren. Alle feil er kjent\n     (ingen upload-steg følger for WaSOS).\n   - Rayvn: passerer uendret — tekst-patching og notifikasjon håndteres\n     etter upload i POST to Rayvn log der upload-feil også er kjent.\n2. Switch ruter til korrekt adapter basert på entry.metadata.target.client_system.\n3. Bridge to WaSOS / Bridge to Rayvn bygger msg.payload og setter\n   msg.metadata = entry.metadata (disse to er samme objekt herfra).\n\n### Output 1\nFormatert msg klar for POST-subflow.\n\n### Notifikasjoner\nBrennes direkte til attachment notification (System handling) via intern link-out.",
     "category": "",
     "in": [
       {
@@ -11,7 +11,7 @@
         "y": 200,
         "wires": [
           {
-            "id": "ba5eb40bd27d3aef"
+            "id": "6d26060e2bfdd1f4"
           }
         ]
       }
@@ -22,11 +22,11 @@
         "y": 200,
         "wires": [
           {
-            "id": "a0c6417726d3e56a",
+            "id": "a45525e753c7b7c2",
             "port": 0
           },
           {
-            "id": "32556cea0cf6228a",
+            "id": "8af9b5c36f7ba556",
             "port": 0
           }
         ]
@@ -34,13 +34,36 @@
     ],
     "env": [],
     "meta": {},
-    "color": "#D8BFD8",
-    "icon": "font-awesome/fa-file-text-o"
+    "color": "#87A980",
+    "icon": "font-awesome/fa-exchange"
   },
   {
-    "id": "ba5eb40bd27d3aef",
+    "id": "6d26060e2bfdd1f4",
+    "type": "function",
+    "z": "3b1afab1893e0144",
+    "name": "Handle failed files",
+    "func": "/**\n * Håndterer vedleggsfeil før payload-transformasjon.\n *\n * Leser entry.metadata.failed_files — satt av prune-noden og akkumulert\n * av Classify attachments og Fetch WaSOS files på GET-siden.\n *\n * For WaSOS-destinasjoner er alle feil kjent nå (ingen upload-steg følger).\n * Patcher entry.text med en mottakernotis som viser korrekt antall,\n * og brenner avsendernotifikasjon via link-out.\n *\n * For Rayvn-destinasjoner utsettes begge deler til etter upload i\n * POST to Rayvn log — upload-feil er ikke kjent ennå.\n *\n * Output 1: msg fortsetter (alltid)\n * Output 2: notifikasjonspayload for WaSOS-destinasjoner (null ellers)\n */\nconst entry  = msg.entry;\nconst failed = entry.metadata.failed_files || [];\n\n// Ingen feil — ingenting å gjøre uansett destinasjon\nif (failed.length === 0) return [msg, null];\n\n// Rayvn: utsett til etter upload der det komplette feilbildet er kjent\nif (entry.metadata.target.client_system === \"rayvn\") return [msg, null];\n\n// WaSOS (og evt. fremtidige ikke-upload-systemer): alle feil kjent nå\nconst succeeded = entry.files.length;\nconst total     = succeeded + failed.length;\nconst notice    = \" [\" + failed.length + \"/\" + total\n                + \" vedlegg ikke overført. Avsender mottar instruks om alternativ håndtering]\";\n\n// Legg notisen på entry.text — Bridge to WaSOS bruker entry.text som content\nentry.text = (entry.text || \"\") + notice;\n\nconst notification = {\n    payload: {\n        entry_id:     entry.id,\n        failed_files: failed,\n        entry_author: entry.author,\n        metadata:     entry.metadata\n    }\n};\n\nreturn [msg, notification];",
+    "outputs": 2,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 230,
+    "y": 200,
+    "wires": [
+      [
+        "f56e82bd1f9c5adb"
+      ],
+      [
+        "b8fa39294a04c1f9"
+      ]
+    ]
+  },
+  {
+    "id": "f56e82bd1f9c5adb",
     "type": "switch",
-    "z": "ebdd2af39b259744",
+    "z": "3b1afab1893e0144",
     "name": "",
     "property": "entry.metadata.target.client_system",
     "propertyType": "msg",
@@ -64,50 +87,66 @@
     "checkall": "true",
     "repair": false,
     "outputs": 3,
-    "x": 210,
+    "x": 460,
     "y": 200,
     "wires": [
       [
-        "a0c6417726d3e56a"
+        "a45525e753c7b7c2"
       ],
       [
-        "32556cea0cf6228a"
+        "8af9b5c36f7ba556"
       ],
       []
     ]
   },
   {
-    "id": "a0c6417726d3e56a",
+    "id": "a45525e753c7b7c2",
     "type": "function",
-    "z": "ebdd2af39b259744",
+    "z": "3b1afab1893e0144",
     "name": "Bridge to Wasos",
-    "func": "const entry  = msg.entry;\nconst source = entry.metadata.source;\nconst utils  = global.get(\"utils\");\n\nmsg.metadata = entry.metadata;\nmsg.payload  = {\n    content:        entry.text,\n    callsign:       `${utils.build_callsign(source)} ${entry.author}`,\n    isLocation:     false,\n    replyMessageId: null,\n    files:          []\n};\n\nreturn msg;\n",
+    "func": "/**\n * Tilpasser bridge-entry til WaSOS sitt meldingsformat.\n *\n * Setter msg.metadata = entry.metadata — de to er samme objekt herfra.\n * WaSOS støtter ikke vedlegg via API, så files er alltid tom.\n * entry.text er allerede patcha av Handle failed files om nødvendig.\n */\nconst entry  = msg.entry;\nconst source = entry.metadata.source;\nconst utils  = global.get(\"utils\");\n\nmsg.metadata = entry.metadata;\nmsg.payload  = {\n    content:        entry.text,\n    callsign:       `${utils.build_callsign(source)} ${entry.author}`,\n    isLocation:     false,\n    replyMessageId: null,\n    files:          []\n};\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 620,
+    "x": 690,
     "y": 160,
     "wires": [
       []
     ]
   },
   {
-    "id": "32556cea0cf6228a",
+    "id": "8af9b5c36f7ba556",
     "type": "function",
-    "z": "ebdd2af39b259744",
+    "z": "3b1afab1893e0144",
     "name": "Bridge to Rayvn",
-    "func": "const entry  = msg.entry;\nconst source = entry.metadata.source;\nconst utils  = global.get(\"utils\");\n\nmsg.metadata = entry.metadata;\nmsg.payload  = {\n    text:             `${utils.build_callsign(source)} ${entry.author}: ${entry.text || \"\"}`,\n    keyEvent:         false,\n    releasedInfo:     false,\n    loggedByFullName: `${utils.build_callsign(source)} ${entry.author}`,\n    labels:           [],\n    files:            []\n};\n\nreturn msg;",
+    "func": "/**\n * Tilpasser bridge-entry til Rayvn sitt logg-entry-format.\n *\n * Setter msg.metadata = entry.metadata — de to er samme objekt herfra.\n * Upload files to Rayvn skriver upload-feil direkte til msg.metadata.failed_files,\n * som dermed også reflekteres i entry.metadata (samme referanse).\n *\n * entry.files sendes med — Upload-noden erstatter disse med Rayvn fil-IDer.\n * entry.text patches ikke her; det gjøres av Patch receiver text etter upload\n * når det komplette feilbildet er kjent.\n */\nconst entry  = msg.entry;\nconst source = entry.metadata.source;\nconst utils  = global.get(\"utils\");\n\nmsg.metadata = entry.metadata;\nmsg.payload  = {\n    text:             `${utils.build_callsign(source)} ${entry.author}: ${entry.text || \"\"}`,\n    keyEvent:         false,\n    releasedInfo:     false,\n    loggedByFullName: `${utils.build_callsign(source)} ${entry.author}`,\n    labels:           [],\n    files:            entry.files || []\n};\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 620,
+    "x": 690,
     "y": 240,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "b8fa39294a04c1f9",
+    "type": "link call",
+    "z": "3b1afab1893e0144",
+    "name": "",
+    "links": [
+      "16d793b66e21d0b0"
+    ],
+    "linkType": "static",
+    "timeout": "30",
+    "x": 500,
+    "y": 300,
     "wires": [
       []
     ]
