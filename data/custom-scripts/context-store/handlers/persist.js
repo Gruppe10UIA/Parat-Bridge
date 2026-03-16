@@ -13,7 +13,7 @@
  * mid-write, the previous valid file is preserved.
  */
 
-const fs = require('fs');
+const fs              = require('fs');
 const writeFileAtomic = require('write-file-atomic');
 
 const BASE_DIR        = '/data/bridge-files/';
@@ -28,7 +28,7 @@ const CONNECTIONS_DIR = BASE_DIR + 'connections/';
  * @param {Object} scopeCache - The full scope cache (contains parat_bridge.queue.entry_queue)
  */
 function persistQueue(scopeCache) {
-    const pb = scopeCache.parat_bridge;
+    const pb    = scopeCache.parat_bridge;
     const queue = (pb && pb.queue && pb.queue.entry_queue) || [];
     writeFileAtomic.sync(QUEUE_FILE, JSON.stringify({ entry_queue: queue }));
 }
@@ -37,14 +37,19 @@ function persistQueue(scopeCache) {
 
 /**
  * Writes a single connection to its JSON file.
+ * If the connection no longer exists in memory, deletes the file from disk.
+ *
+ * NOTE: Associated binary files in /data/bridge-files/files/ for this connection
+ * are not deleted here — they are pruned on next startup by loader.js which
+ * scans for files whose connection no longer exists.
  *
  * @param {string} name       - The connection name (used as filename)
  * @param {Object} scopeCache - The full scope cache
  */
 function persistConnection(name, scopeCache) {
-    const pb = scopeCache.parat_bridge;
+    const pb       = scopeCache.parat_bridge;
     const allConns = (pb && pb.connections) || {};
-    const conn = allConns[name];
+    const conn     = allConns[name];
 
     if (conn) {
         writeFileAtomic.sync(
@@ -66,7 +71,7 @@ function persistConnection(name, scopeCache) {
  * @param {Object} scopeCache - The full scope cache
  */
 function persistAllConnections(scopeCache) {
-    const pb = scopeCache.parat_bridge;
+    const pb       = scopeCache.parat_bridge;
     const allConns = (pb && pb.connections) || {};
 
     // Remove stale files (connections that were deleted from memory)

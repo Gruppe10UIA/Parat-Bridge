@@ -114,8 +114,12 @@ BridgeStore.prototype.set = function(scope, key, value, callback) {
         const values = Array.isArray(value) ? value : [value];
         key.forEach((k, i) => {
             const v = i < values.length ? values[i] : null;
-            setNestedValue(scopeCache, k, v);
-            persist(k, scopeCache);
+            if (isFileKey(k)) {
+                writeFile(k, v);
+            } else {
+                setNestedValue(scopeCache, k, v);
+                persist(k, scopeCache);
+            }
         });
     } else {
         // Files go straight to disk, bypass memory
