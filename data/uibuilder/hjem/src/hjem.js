@@ -236,7 +236,10 @@ function initHjem() {
     onMessage('form/feedback', (payload) => {
         const type = payload.success ? 'success' : 'error'
         showFeedback(feedback, payload.message, type)
-        if (payload.success) form.reset()
+        if (payload.success) {
+            form.reset()
+            form.classList.remove('form-validated')
+        }
         submitting = false
     })
 
@@ -246,6 +249,7 @@ function initHjem() {
         if (submitting && count > knownConnectionCount) {
             clearFeedback(feedback)
             form.reset()
+            form.classList.remove('form-validated')
             submitting = false
         }
 
