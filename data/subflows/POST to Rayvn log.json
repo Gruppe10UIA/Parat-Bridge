@@ -7,11 +7,11 @@
     "category": "",
     "in": [
       {
-        "x": 180,
+        "x": 40,
         "y": 300,
         "wires": [
           {
-            "id": "044459bc226a0ba1"
+            "id": "8e5854d7071c9aa1"
           }
         ]
       }
@@ -80,7 +80,7 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 340,
+    "x": 380,
     "y": 300,
     "wires": [
       [
@@ -129,6 +129,99 @@
     "wires": [
       [
         "edcc87d1f40195de"
+      ]
+    ]
+  },
+  {
+    "id": "8e5854d7071c9aa1",
+    "type": "switch",
+    "z": "4a6a1af9b9af6b0f",
+    "name": "Has file buffers?",
+    "property": "payload.files.0.buffer",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "nnull"
+      },
+      {
+        "t": "else"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 2,
+    "x": 160,
+    "y": 300,
+    "wires": [
+      [
+        "6645ca39c631c225"
+      ],
+      [
+        "044459bc226a0ba1"
+      ]
+    ]
+  },
+  {
+    "id": "6645ca39c631c225",
+    "type": "function",
+    "z": "4a6a1af9b9af6b0f",
+    "name": "Prepare file upload",
+    "func": "var target = msg.metadata.target;\n\nmsg.entryPayload = msg.payload;\n\nvar file = msg.payload.files[0];\n\nmsg.url = global.get(\"parat_bridge\").base_urls.rayvn + \"/files\";\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + target.api_key,\n    \"Content-Type\": \"image/jpeg\"\n};\nmsg.payload = file.buffer;\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 190,
+    "y": 180,
+    "wires": [
+      [
+        "5576a5e1302ac554"
+      ]
+    ]
+  },
+  {
+    "id": "5576a5e1302ac554",
+    "type": "http request",
+    "z": "4a6a1af9b9af6b0f",
+    "name": "Upload File To Rayvn",
+    "method": "POST",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 300,
+    "y": 100,
+    "wires": [
+      [
+        "582929f9e6400fcf"
+      ]
+    ]
+  },
+  {
+    "id": "582929f9e6400fcf",
+    "type": "function",
+    "z": "4a6a1af9b9af6b0f",
+    "name": "Replace buffer with file ID",
+    "func": "var fileId = msg.payload.id;\n\nmsg.payload = msg.entryPayload;\nmsg.payload.files = [fileId];\n\ndelete msg.entryPayload;\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 450,
+    "y": 180,
+    "wires": [
+      [
+        "044459bc226a0ba1"
       ]
     ]
   }
