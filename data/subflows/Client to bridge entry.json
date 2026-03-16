@@ -30,7 +30,7 @@
             "port": 1
           },
           {
-            "id": "20eab2fe63ebfded",
+            "id": "87d03a0f21b8005c",
             "port": 0
           }
         ]
@@ -103,7 +103,7 @@
     "type": "function",
     "z": "35dc868e3a5c1ab2",
     "name": "Wasos to Bridge Log",
-    "func": "const entry = msg.payload;\n\nconst isLocation = entry.location === true;\nlet text = entry.content || \"\";\nlet geo = null;\n\nif (isLocation) {\n    try {\n        const geojson = JSON.parse(entry.content);\n        const [lng, lat] = geojson.geometry.coordinates;\n        geo = { lat, lng };\n        text = `Posisjon delt: https://www.google.com/maps?q=${lat}%2C${lng}`;\n    } catch (e) {\n        text = entry.content || \"\";\n    }\n}\n\nmsg.payload = {\n    id: entry.id,\n    text: text,\n    timestamp: new Date(entry.createdAt).getTime(),\n    author: entry.username || \"\",\n    files: entry.files || [],\n    labels: []\n};\n\nmsg.geo = geo;\nmsg.isLocation = isLocation;\n\nreturn msg;",
+    "func": "const entry = msg.payload;\n\nconst isLocation = entry.location === true;\nlet text = entry.content || \"\";\nlet geo = null;\n\nif (isLocation) {\n    try {\n        const geojson = JSON.parse(entry.content);\n        const [lng, lat] = geojson.geometry.coordinates;\n        geo = { lat, lng };\n        var description = geojson.properties && geojson.properties.description ? geojson.properties.description : \"\";\n        var mapsLink = \"Klikk her for å åpne i Google Maps: https://www.google.com/maps?q=\" + lat + \"%2C\" + lng;\n        text = description ? description + \"\\n\\n\" + mapsLink : mapsLink;\n    } catch (e) {\n        text = entry.content || \"\";\n    }\n}\n\nmsg.payload = {\n    id: entry.id,\n    text: text,\n    timestamp: new Date(entry.createdAt).getTime(),\n    author: entry.username || \"\",\n    files: entry.files || [],\n    labels: []\n};\n\nmsg.geo = geo;\nmsg.isLocation = isLocation;\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -149,16 +149,16 @@
     "id": "9215d3e506e33be9",
     "type": "function",
     "z": "35dc868e3a5c1ab2",
-    "name": "Stash Entry + build map URL",
-    "func": "msg.bridgeEntry = msg.payload;\n\nvar lat = msg.geo.lat;\nvar lng = msg.geo.lng;\nmsg.url = \"https://maps.geoapify.com/v1/staticmap?style=osm-bright&width=600&h\neight = 400 & center=lonlat: \" + lng + \", \" + lat + \" & zoom=15 & marker=lonlat: \" + lng\n  + \",\" + lat + \";color:%23ff0000;size:large&apiKey=DEMO\";\n\nreturn msg;",
+    "name": "Stash entry + build tile URLs",
+    "func": "msg.bridgeEntry = msg.payload;\n\nvar lat = msg.geo.lat;\nvar lng = msg.geo.lng;\nvar zoom = 15;\n\nvar latRad = lat * Math.PI / 180;\nvar n = Math.pow(2, zoom);\nvar tileX = Math.floor((lng + 180) / 360 * n);\nvar tileY = Math.floor((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2 * n);\n\nvar exactX = (lng + 180) / 360 * n;\nvar exactY = (1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2 * n;\nvar markerPixelX = Math.round((exactX - tileX + 1) * 256);\nvar markerPixelY = Math.round((exactY - tileY + 1) * 256);\n\nvar tiles = [];\nfor (var dy = -1; dy <= 1; dy++) {\n    for (var dx = -1; dx <= 1; dx++) {\n        tiles.push({\n            url: \"https://tile.openstreetmap.org/\" + zoom + \"/\" + (tileX + dx) + \"/\" + (tileY + dy) + \".png\",\n            x: (dx + 1) * 256,\n            y: (dy + 1) * 256\n        });\n    }\n}\n\nmsg.tiles = tiles;\nmsg.markerPixelX = markerPixelX;\nmsg.markerPixelY = markerPixelY;\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
-    "noerr": 13,
+    "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 340,
-    "y": 340,
+    "x": 280,
+    "y": 360,
     "wires": [
       [
         "87d03a0f21b8005c"
@@ -167,26 +167,33 @@
   },
   {
     "id": "87d03a0f21b8005c",
-    "type": "http request",
+    "type": "function",
     "z": "35dc868e3a5c1ab2",
-    "name": "",
-    "method": "GET",
-    "ret": "bin",
-    "paytoqs": "ignore",
-    "url": "",
-    "tls": "",
-    "persist": false,
-    "proxy": "",
-    "insecureHTTPParser": false,
-    "authType": "",
-    "senderr": false,
-    "headers": [],
-    "x": 570,
-    "y": 340,
+    "name": "Fetch tiles + composite map",
+    "func": "var tiles = msg.tiles;\n\nfunction fetchTile(url) {\n    return new Promise(function(resolve, reject) {\n        https.get(url, { headers: { \"User-Agent\": \"Parat-Bridge/1.0\" } }, function(res) {\n            var chunks = [];\n            res.on(\"data\", function(chunk) { chunks.push(chunk); });\n            res.on(\"end\", function() { resolve(Buffer.concat(chunks)); });\n            res.on(\"error\", reject);\n        }).on(\"error\", reject);\n    });\n}\n\nvar promises = tiles.map(function(t) { return fetchTile(t.url); });\n\nPromise.all(promises).then(function(buffers) {\n    var composites = buffers.map(function(buf, i) {\n        return { input: buf, left: tiles[i].x, top: tiles[i].y };\n    });\n\n    var markerSize = 16;\n    var markerSvg = Buffer.from(\n        '<svg width=\"' + markerSize + '\" height=\"' + markerSize + '\">' +\n        '<circle cx=\"8\" cy=\"8\" r=\"7\" fill=\"red\" stroke=\"white\" stroke-width=\"2\"/>' +\n        '</svg>'\n    );\n\n    composites.push({\n        input: markerSvg,\n        left: msg.markerPixelX - markerSize / 2,\n        top: msg.markerPixelY - markerSize / 2\n    });\n\n    return sharp({ create: { width: 768, height: 768, channels: 4, background: { r: 200, g: 200, b: 200, alpha: 1 } } })\n        .composite(composites)\n        .resize(800)\n        .jpeg({ quality: 80 })\n        .toBuffer();\n}).then(function(jpegBuffer) {\n    msg.payload = msg.bridgeEntry;\n    msg.payload.files = [{\n        name: \"location_\" + Date.now() + \".jpg\",\n        type: \"image/jpeg\",\n        buffer: jpegBuffer\n    }];\n    delete msg.bridgeEntry;\n    delete msg.tiles;\n    delete msg.markerPixelX;\n    delete msg.markerPixelY;\n    delete msg.geo;\n    delete msg.isLocation;\n    node.send(msg);\n}).catch(function(err) {\n    node.error(\"Map generation failed: \" + err.message, msg);\n});\n\nreturn null;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [
+      {
+        "var": "sharp",
+        "module": "sharp"
+      },
+      {
+        "var": "https",
+        "module": "https"
+      },
+      {
+        "var": "fs",
+        "module": "fs"
+      }
+    ],
+    "x": 560,
+    "y": 380,
     "wires": [
-      [
-        "827d06a29a5f3744"
-      ]
+      []
     ]
   },
   {
@@ -194,7 +201,7 @@
     "type": "function",
     "z": "35dc868e3a5c1ab2",
     "name": "Write temp file + build ffmpeg args",
-    "func": "const tmpIn = `/tmp/map_${Date.now()}.png`;\nconst tmpOut = `/tmp/map_${Date.now()}.jpg`;\n\nmsg.tmpIn = tmpIn;\nmsg.tmpOut = tmpOut;\n\nfs.writeFileSync(tmpIn, msg.payload);\n\nmsg.payload = `-y -i ${tmpIn} -q:v 8 -vf scale=800:-1 ${tmpOut}`;\n\nreturn msg;",
+    "func": "const tmpIn = `/tmp/map_${Date.now()}.png`;\nconst tmpOut = `/tmp/map_${Date.now()}.jpg`;\n\nmsg.tmpIn = tmpIn;\nmsg.tmpOut = tmpOut;\n\nfs.writeFileSync(tmpIn, msg.payload);\n\nmsg.payload = `-y -i ${tmpIn} -q:v 8 -vf scale=800:-1 -update 1 ${tmpOut}`;\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -206,7 +213,7 @@
         "module": "fs"
       }
     ],
-    "x": 820,
+    "x": 880,
     "y": 340,
     "wires": [
       [
