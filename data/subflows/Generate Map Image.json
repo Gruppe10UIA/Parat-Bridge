@@ -1,0 +1,104 @@
+[
+  {
+    "id": "564ef0d530e356f8",
+    "type": "subflow",
+    "name": "Generate Map Image",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 160,
+        "y": 260,
+        "wires": [
+          {
+            "id": "d607bc1e5b2a8e9d"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 820,
+        "y": 260,
+        "wires": [
+          {
+            "id": "15846c9c0b9ad671",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#00FF00",
+    "icon": "font-awesome/fa-map-o"
+  },
+  {
+    "id": "d607bc1e5b2a8e9d",
+    "type": "function",
+    "z": "564ef0d530e356f8",
+    "name": "Build Tile Grid",
+    "func": "var lat = msg.geo.lat;\nvar lng = msg.geo.lng;\nvar zoom = 15;\n\nvar latRad = lat * Math.PI / 180;\nvar n = Math.pow(2, zoom);\nvar tileX = Math.floor((lng + 180) / 360 * n);\nvar tileY = Math.floor((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2 * n);\n\nvar exactX = (lng + 180) / 360 * n;\nvar exactY = (1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2 * n;\n\nmsg.marker = {\n    x: Math.round((exactX - tileX + 1) * 256),\n    y: Math.round((exactY - tileY + 1) * 256)\n};\n\nmsg.tiles = [];\nfor (var dy = -1; dy <= 1; dy++) {\n    for (var dx = -1; dx <= 1; dx++) {\n        msg.tiles.push({\n            url: \"https://tile.openstreetmap.org/\" + zoom + \"/\" + (tileX + dx) + \"/\" + (tileY + dy) + \".png\",\n            x: (dx + 1) * 256,\n            y: (dy + 1) * 256\n        });\n    }\n}\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 300,
+    "y": 260,
+    "wires": [
+      [
+        "64b65e0d04fc765e"
+      ]
+    ]
+  },
+  {
+    "id": "64b65e0d04fc765e",
+    "type": "function",
+    "z": "564ef0d530e356f8",
+    "name": "Fetch Tiles",
+    "func": "function fetchTile(url) {\n    return new Promise(function (resolve, reject) {\n        https.get(url, { headers: { \"User-Agent\": \"Parat-Bridge/1.0\" } }, function (res) {\n            var chunks = [];\n            res.on(\"data\", function (chunk) { chunks.push(chunk); });\n            res.on(\"end\", function () { resolve(Buffer.concat(chunks)); });\n            res.on(\"error\", reject);\n        }).on(\"error\", reject);\n    });\n}\n\nvar promises = msg.tiles.map(function (t) { return fetchTile(t.url); });\n\nPromise.all(promises).then(function (buffers) {\n    buffers.forEach(function (buf, i) {\n        msg.tiles[i].buffer = buf;\n    });\n    node.send(msg);\n}).catch(function (err) {\n    node.error(\"Tile fetch failed: \" + err.message, msg);\n});\n\nreturn null;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [
+      {
+        "var": "https",
+        "module": "https"
+      }
+    ],
+    "x": 490,
+    "y": 260,
+    "wires": [
+      [
+        "15846c9c0b9ad671"
+      ]
+    ]
+  },
+  {
+    "id": "15846c9c0b9ad671",
+    "type": "function",
+    "z": "564ef0d530e356f8",
+    "name": "Composite Map",
+    "func": "var composites = msg.tiles.map(function (tile) {\n    return { input: tile.buffer, left: tile.x, top: tile.y };\n});\n\nvar markerSize = 16;\nvar markerSvg = Buffer.from(\n    '<svg width=\"' + markerSize + '\" height=\"' + markerSize + '\">' +\n    '<circle cx=\"8\" cy=\"8\" r=\"7\" fill=\"red\" stroke=\"white\" stroke-width=\"2\"/>' +\n    '</svg>'\n);\n\ncomposites.push({\n    input: markerSvg,\n    left: msg.marker.x - markerSize / 2,\n    top: msg.marker.y - markerSize / 2\n});\n\nsharp({\n    create: { width: 768, height: 768, channels: 4, background: { r: 200, g: 200, b: 200, alpha: 1 } }\n})\n    .composite(composites)\n    .resize(800)\n    .jpeg({ quality: 80 })\n    .toBuffer()\n    .then(function (jpegBuffer) {\n        msg.mapImage = {\n            name: \"location_\" + Date.now() + \".jpg\",\n            type: \"image/jpeg\",\n            buffer: jpegBuffer\n        };\n        delete msg.tiles;\n        delete msg.marker;\n        node.send(msg);\n    })\n    .catch(function (err) {\n        node.error(\"Map composite failed: \" + err.message, msg);\n    });\n\nreturn null;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [
+      {
+        "var": "sharp",
+        "module": "sharp"
+      }
+    ],
+    "x": 680,
+    "y": 260,
+    "wires": [
+      []
+    ]
+  }
+]

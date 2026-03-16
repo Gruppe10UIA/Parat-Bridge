@@ -3,7 +3,7 @@
     "id": "35dc868e3a5c1ab2",
     "type": "subflow",
     "name": "Client to bridge entry",
-    "info": "Normalizes raw client entries into the standard bridge entry format. Routes by `msg.metadata.source.client_system`.\n\n### Input\n`msg.payload` = single raw entry (Rayvn or WaSOS format), `msg.metadata` = standard metadata\n\n### Rayvn mapping\n`{ id, text, timeCreated->timestamp, loggedByFullName->author, files, labels }`\n\n### WaSOS mapping\n`{ id, content->text, createdAt->timestamp, username->author, files, labels: [] }`\n\n### Output\n`msg.payload = { id, text, timestamp, author, files, labels }`",
+    "info": "Normalizes raw client entries into the standard bridge entry format. Routes by `msg.metadata.source.client_system`.\n\n### Input\n`msg.payload` = single raw entry (Rayvn or WaSOS format), `msg.metadata` = standard metadata\n\n### Rayvn mapping\n`{ id, text, timeCreated->timestamp, loggedByFullName->author, files, labels }`\n\n### WaSOS mapping\n`{ id, content->text, createdAt->timestamp, username->author, files, labels: [] }`\n\nWaSOS location entries (GeoJSON) are detected and routed through the Generate Map Image subflow. The resulting JPEG map snapshot is attached to `files`.\n\n### Output\n`msg.payload = { id, text, timestamp, author, files, labels }`\n\nAnd for the Generate Map Image subflow, set the info field to:\n\nGenerates a JPEG map snapshot with a red marker from geographic coordinates.\nUses OpenStreetMap tiles at zoom level 15, composited into an 800px wide image.\n\n### Input\n`msg.geo = { lat, lng }`\n\n### Output\n`msg.mapImage = { name, type, buffer }` — JPEG image (~<1MB at quality 80)",
     "category": "",
     "in": [
       {
@@ -18,8 +18,8 @@
     ],
     "out": [
       {
-        "x": 960,
-        "y": 240,
+        "x": 1200,
+        "y": 180,
         "wires": [
           {
             "id": "0021664c1e4fc2fc",
@@ -30,7 +30,7 @@
             "port": 1
           },
           {
-            "id": "87d03a0f21b8005c",
+            "id": "4e7728e912f1e338",
             "port": 0
           }
         ]
@@ -93,7 +93,7 @@
     "finalize": "",
     "libs": [],
     "x": 440,
-    "y": 180,
+    "y": 80,
     "wires": [
       []
     ]
@@ -140,128 +140,38 @@
     "y": 240,
     "wires": [
       [
-        "9215d3e506e33be9"
+        "cf81e3079552bfdb"
       ],
       []
     ]
   },
   {
-    "id": "9215d3e506e33be9",
+    "id": "cf81e3079552bfdb",
+    "type": "subflow:564ef0d530e356f8",
+    "z": "35dc868e3a5c1ab2",
+    "name": "",
+    "x": 660,
+    "y": 180,
+    "wires": [
+      [
+        "4e7728e912f1e338"
+      ]
+    ]
+  },
+  {
+    "id": "4e7728e912f1e338",
     "type": "function",
     "z": "35dc868e3a5c1ab2",
-    "name": "Stash entry + build tile URLs",
-    "func": "msg.bridgeEntry = msg.payload;\n\nvar lat = msg.geo.lat;\nvar lng = msg.geo.lng;\nvar zoom = 15;\n\nvar latRad = lat * Math.PI / 180;\nvar n = Math.pow(2, zoom);\nvar tileX = Math.floor((lng + 180) / 360 * n);\nvar tileY = Math.floor((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2 * n);\n\nvar exactX = (lng + 180) / 360 * n;\nvar exactY = (1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2 * n;\nvar markerPixelX = Math.round((exactX - tileX + 1) * 256);\nvar markerPixelY = Math.round((exactY - tileY + 1) * 256);\n\nvar tiles = [];\nfor (var dy = -1; dy <= 1; dy++) {\n    for (var dx = -1; dx <= 1; dx++) {\n        tiles.push({\n            url: \"https://tile.openstreetmap.org/\" + zoom + \"/\" + (tileX + dx) + \"/\" + (tileY + dy) + \".png\",\n            x: (dx + 1) * 256,\n            y: (dy + 1) * 256\n        });\n    }\n}\n\nmsg.tiles = tiles;\nmsg.markerPixelX = markerPixelX;\nmsg.markerPixelY = markerPixelY;\n\nreturn msg;",
+    "name": "Attach image to entry",
+    "func": "if (msg.mapImage) {\n    msg.payload.files = [msg.mapImage];\n    delete msg.mapImage;\n}\ndelete msg.geo;\ndelete msg.isLocation;\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 280,
-    "y": 360,
-    "wires": [
-      [
-        "87d03a0f21b8005c"
-      ]
-    ]
-  },
-  {
-    "id": "87d03a0f21b8005c",
-    "type": "function",
-    "z": "35dc868e3a5c1ab2",
-    "name": "Fetch tiles + composite map",
-    "func": "var tiles = msg.tiles;\n\nfunction fetchTile(url) {\n    return new Promise(function(resolve, reject) {\n        https.get(url, { headers: { \"User-Agent\": \"Parat-Bridge/1.0\" } }, function(res) {\n            var chunks = [];\n            res.on(\"data\", function(chunk) { chunks.push(chunk); });\n            res.on(\"end\", function() { resolve(Buffer.concat(chunks)); });\n            res.on(\"error\", reject);\n        }).on(\"error\", reject);\n    });\n}\n\nvar promises = tiles.map(function(t) { return fetchTile(t.url); });\n\nPromise.all(promises).then(function(buffers) {\n    var composites = buffers.map(function(buf, i) {\n        return { input: buf, left: tiles[i].x, top: tiles[i].y };\n    });\n\n    var markerSize = 16;\n    var markerSvg = Buffer.from(\n        '<svg width=\"' + markerSize + '\" height=\"' + markerSize + '\">' +\n        '<circle cx=\"8\" cy=\"8\" r=\"7\" fill=\"red\" stroke=\"white\" stroke-width=\"2\"/>' +\n        '</svg>'\n    );\n\n    composites.push({\n        input: markerSvg,\n        left: msg.markerPixelX - markerSize / 2,\n        top: msg.markerPixelY - markerSize / 2\n    });\n\n    return sharp({ create: { width: 768, height: 768, channels: 4, background: { r: 200, g: 200, b: 200, alpha: 1 } } })\n        .composite(composites)\n        .resize(800)\n        .jpeg({ quality: 80 })\n        .toBuffer();\n}).then(function(jpegBuffer) {\n    msg.payload = msg.bridgeEntry;\n    msg.payload.files = [{\n        name: \"location_\" + Date.now() + \".jpg\",\n        type: \"image/jpeg\",\n        buffer: jpegBuffer\n    }];\n    delete msg.bridgeEntry;\n    delete msg.tiles;\n    delete msg.markerPixelX;\n    delete msg.markerPixelY;\n    delete msg.geo;\n    delete msg.isLocation;\n    node.send(msg);\n}).catch(function(err) {\n    node.error(\"Map generation failed: \" + err.message, msg);\n});\n\nreturn null;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [
-      {
-        "var": "sharp",
-        "module": "sharp"
-      },
-      {
-        "var": "https",
-        "module": "https"
-      },
-      {
-        "var": "fs",
-        "module": "fs"
-      }
-    ],
-    "x": 560,
-    "y": 380,
-    "wires": [
-      []
-    ]
-  },
-  {
-    "id": "827d06a29a5f3744",
-    "type": "function",
-    "z": "35dc868e3a5c1ab2",
-    "name": "Write temp file + build ffmpeg args",
-    "func": "const tmpIn = `/tmp/map_${Date.now()}.png`;\nconst tmpOut = `/tmp/map_${Date.now()}.jpg`;\n\nmsg.tmpIn = tmpIn;\nmsg.tmpOut = tmpOut;\n\nfs.writeFileSync(tmpIn, msg.payload);\n\nmsg.payload = `-y -i ${tmpIn} -q:v 8 -vf scale=800:-1 -update 1 ${tmpOut}`;\n\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [
-      {
-        "var": "fs",
-        "module": "fs"
-      }
-    ],
     "x": 880,
-    "y": 340,
-    "wires": [
-      [
-        "b944435e929e6312"
-      ]
-    ]
-  },
-  {
-    "id": "b944435e929e6312",
-    "type": "exec",
-    "z": "35dc868e3a5c1ab2",
-    "command": "ffmpeg",
-    "addpay": "payload",
-    "append": "",
-    "useSpawn": "false",
-    "timer": "10",
-    "winHide": false,
-    "oldrc": false,
-    "name": "Compress with ffmpeg",
-    "x": 900,
-    "y": 420,
-    "wires": [
-      [
-        "20eab2fe63ebfded"
-      ],
-      [],
-      []
-    ]
-  },
-  {
-    "id": "20eab2fe63ebfded",
-    "type": "function",
-    "z": "35dc868e3a5c1ab2",
-    "name": "Read compressed + attach to entry",
-    "func": "var compressed = fs.readFileSync(msg.tmpOut);\n\ntry { fs.unlinkSync(msg.tmpIn); } catch (e) { }\ntry { fs.unlinkSync(msg.tmpOut); } catch (e) { }\n\nmsg.payload = msg.bridgeEntry;\nmsg.payload.files = [{\n    name: \"location_\" + Date.now() + \".jpg\",\n    type: \"image/jpeg\",\n    buffer: compressed\n}];\n\ndelete msg.bridgeEntry;\ndelete msg.tmpIn;\ndelete msg.tmpOut;\ndelete msg.geo;\ndelete msg.isLocation;\n\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [
-      {
-        "var": "fs",
-        "module": "fs"
-      }
-    ],
-    "x": 1200,
-    "y": 400,
+    "y": 180,
     "wires": [
       []
     ]
