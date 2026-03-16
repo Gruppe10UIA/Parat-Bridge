@@ -1,9 +1,9 @@
 [
   {
-    "id": "a9600579fb00971d",
+    "id": "ebdd2af39b259744",
     "type": "subflow",
     "name": "Bridge entry to client",
-    "info": "Converts a bridge entry into the target client's POST body format. Routes by `msg.entry.metadata.target.client_system`.\n\n### Input\n`msg.entry` = Entry with Metadata\n\n### WaSOS output\n`{ content, callsign: \"[source:name] author\", isLocation: false, replyMessageId: null, files: [] }`\n\n### Rayvn output\n`{ text: \"[source:name] author: text\", keyEvent: false, releasedInfo: false, loggedByFullName, labels: [], files }`",
+    "info": "Converts a bridge entry into the target client's POST body format.\nRoutes by `msg.entry.metadata.target.client_system`.\n\n### Input\n`msg.entry` = Entry with Metadata\n\n### WaSOS output\n`{ content, callsign: \"[source:name] author\", isLocation: false, replyMessageId: null, files: [] }`\n\n### Rayvn output\n`{ text: \"[source:name] author: text\", keyEvent: false, releasedInfo: false, loggedByFullName, labels: [], files }`\n\n### File handling\nFor Rayvn: files with `context_key` have their buffer attached via\n`global.get(\"files.key\")`. The buffer travels with the message to\n`POST to Rayvn log` which performs the actual upload API call.",
     "category": "",
     "in": [
       {
@@ -11,22 +11,22 @@
         "y": 200,
         "wires": [
           {
-            "id": "d41907671d0ee736"
+            "id": "ba5eb40bd27d3aef"
           }
         ]
       }
     ],
     "out": [
       {
-        "x": 600,
+        "x": 840,
         "y": 200,
         "wires": [
           {
-            "id": "43624267893092ec",
+            "id": "a0c6417726d3e56a",
             "port": 0
           },
           {
-            "id": "d9a2a4e281b70f68",
+            "id": "32556cea0cf6228a",
             "port": 0
           }
         ]
@@ -38,9 +38,9 @@
     "icon": "font-awesome/fa-file-text-o"
   },
   {
-    "id": "d41907671d0ee736",
+    "id": "ba5eb40bd27d3aef",
     "type": "switch",
-    "z": "a9600579fb00971d",
+    "z": "ebdd2af39b259744",
     "name": "",
     "property": "entry.metadata.target.client_system",
     "propertyType": "msg",
@@ -68,46 +68,46 @@
     "y": 200,
     "wires": [
       [
-        "d9a2a4e281b70f68"
+        "a0c6417726d3e56a"
       ],
       [
-        "43624267893092ec"
+        "32556cea0cf6228a"
       ],
       []
     ]
   },
   {
-    "id": "d9a2a4e281b70f68",
+    "id": "a0c6417726d3e56a",
     "type": "function",
-    "z": "a9600579fb00971d",
+    "z": "ebdd2af39b259744",
     "name": "Bridge to Wasos",
-    "func": "const entry  = msg.entry;\nconst source = entry.metadata.source;\nconst utils = global.get(\"utils\")\n\nmsg.metadata = entry.metadata;\nmsg.payload  = {\n    content:        entry.text,\n    callsign:       `${utils.build_callsign(source)} ${entry.author}`,\n    isLocation:     false,\n    replyMessageId: null,\n    files:          []\n};\n\nreturn msg;\n",
+    "func": "const entry  = msg.entry;\nconst source = entry.metadata.source;\nconst utils  = global.get(\"utils\");\n\nmsg.metadata = entry.metadata;\nmsg.payload  = {\n    content:        entry.text,\n    callsign:       `${utils.build_callsign(source)} ${entry.author}`,\n    isLocation:     false,\n    replyMessageId: null,\n    files:          []\n};\n\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 420,
+    "x": 620,
     "y": 160,
     "wires": [
       []
     ]
   },
   {
-    "id": "43624267893092ec",
+    "id": "32556cea0cf6228a",
     "type": "function",
-    "z": "a9600579fb00971d",
+    "z": "ebdd2af39b259744",
     "name": "Bridge to Rayvn",
-    "func": "const entry  = msg.entry;\nconst source = entry.metadata.source;\nconst utils = global.get(\"utils\")\n\nmsg.metadata = entry.metadata;\nmsg.payload  = {\n    text:             `${utils.build_callsign(source)} ${entry.author}: ${entry.text || \"\"}`,\n    keyEvent:         false,\n    releasedInfo:     false,\n    loggedByFullName: `${utils.build_callsign(source)} ${entry.author}`,\n    labels:           [],\n    files:            entry.files || []\n};\n\nreturn msg;\n",
+    "func": "const entry  = msg.entry;\nconst source = entry.metadata.source;\nconst utils  = global.get(\"utils\");\n\nmsg.metadata = entry.metadata;\nmsg.payload  = {\n    text:             `${utils.build_callsign(source)} ${entry.author}: ${entry.text || \"\"}`,\n    keyEvent:         false,\n    releasedInfo:     false,\n    loggedByFullName: `${utils.build_callsign(source)} ${entry.author}`,\n    labels:           [],\n    files:            []\n};\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 420,
-    "y": 200,
+    "x": 620,
+    "y": 240,
     "wires": [
       []
     ]

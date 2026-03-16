@@ -1,9 +1,9 @@
 [
   {
-    "id": "4a6a1af9b9af6b0f",
+    "id": "488d4a1e957f1fb1",
     "type": "subflow",
     "name": "POST to Rayvn log",
-    "info": "Posts a bridged entry to the Rayvn log API.\n\n### Input\n`msg.payload` = Rayvn POST body, `msg.metadata.target` = Rayvn Client\n\n### Logic\nSets `Authorization: Bearer {api_key}`, URL `/logs/{log_id}/entry`, sends POST. 500ms delay between requests.\n\n### Output\n`msg.topic = \"response\"`, `msg.result = true/false`, `msg.statusCode`",
+    "info": "Posts a bridged entry to the Rayvn log API.\n\n### Input\n`msg.payload` = Rayvn POST body with `files[]` containing `{ context_key, buffer, name, type }`\n`msg.metadata.target` = Rayvn Client\n`msg.entry` = original bridge entry (used for _failed_files reporting)\n\n### Logic\n1. Uploads each file buffer to Rayvn /files, replaces files array with Rayvn file IDs\n2. Sets Authorization header, URL `/logs/{log_id}/entry`, sends POST\n3. Checks for failed uploads and sets `entry._failed_files` if any\n\n### Output 1\n`msg.topic = \"response\"`, `msg.result = true/false`, `msg.statusCode`\n\n### Output 2\nNotification payload for Build attachment notification (only when uploads failed)",
     "category": "",
     "in": [
       {
@@ -11,29 +11,29 @@
         "y": 300,
         "wires": [
           {
-            "id": "044459bc226a0ba1"
+            "id": "77dbf2e6d1606de9"
           }
         ]
       }
     ],
     "out": [
       {
-        "x": 660,
-        "y": 400,
+        "x": 900,
+        "y": 360,
         "wires": [
           {
-            "id": "edcc87d1f40195de",
+            "id": "d2c26c81a8dda079",
             "port": 0
           }
         ]
       },
       {
-        "x": 660,
-        "y": 480,
+        "x": 900,
+        "y": 440,
         "wires": [
           {
-            "id": "f8d5ca9b4e03584d",
-            "port": 0
+            "id": "d2c26c81a8dda079",
+            "port": 1
           }
         ]
       }
@@ -44,34 +44,34 @@
     "icon": "font-awesome/fa-paper-plane"
   },
   {
-    "id": "edcc87d1f40195de",
-    "type": "http request",
-    "z": "4a6a1af9b9af6b0f",
-    "name": "POST To Rayvn Entry Point",
-    "method": "POST",
-    "ret": "txt",
-    "paytoqs": "ignore",
-    "url": "",
-    "tls": "",
-    "persist": false,
-    "proxy": "",
-    "insecureHTTPParser": false,
-    "authType": "",
-    "senderr": true,
-    "headers": [],
-    "x": 400,
-    "y": 400,
+    "id": "77dbf2e6d1606de9",
+    "type": "function",
+    "z": "488d4a1e957f1fb1",
+    "name": "Upload files to Rayvn",
+    "func": "/**\n * Upload file buffers to Rayvn /files endpoint.\n *\n * Fetches buffers from global context using context_key from msg.entry.files.\n * Uploads each file to Rayvn and collects returned file IDs.\n * Failed uploads are added to entry.failed_files.\n *\n * On completion:\n *   - payload.files is replaced with an array of Rayvn file IDs\n *   - entry.failed_files is updated with any upload failures\n */\nconst target   = msg.metadata.target;\nconst baseUrl  = global.get(\"parat_bridge\").base_urls.rayvn;\nconst utils    = global.get(\"utils\");\nconst files    = (msg.entry && msg.entry.files) || [];\n\n// Safety net: if no files, pass through\nif (files.length === 0) {\n    msg.payload.files = [];\n    return msg;\n}\n\nconst resolved = [];\nconst failed   = [];\n\nfor (const file of files) {\n    if (!file.context_key) continue;\n\n    const buffer = global.get(\"files.\" + file.context_key);\n\n    if (!buffer || buffer.length === 0) {\n        node.warn(\"No buffer found for context_key: \" + file.context_key);\n        failed.push({ name: file.name || \"ukjent fil\", reason: utils.FILE_REASONS.UPLOAD_FAILED });\n        continue;\n    }\n\n    try {\n        const boundary = \"----PBBoundary\" + Date.now();\n        const header   = `--${boundary}\\r\\nContent-Disposition: form-data; name=\"file\"; filename=\"${file.name || \"file.bin\"}\"\\r\\nContent-Type: ${file.type || \"application/octet-stream\"}\\r\\n\\r\\n`;\n        const footer   = `\\r\\n--${boundary}--\\r\\n`;\n        const body     = Buffer.concat([Buffer.from(header), buffer, Buffer.from(footer)]);\n\n        const res = await nodeFetch(baseUrl + \"/files\", {\n            method:  \"POST\",\n            headers: {\n                \"Authorization\": \"Bearer \" + target.api_key,\n                \"Content-Type\":  \"multipart/form-data; boundary=\" + boundary\n            },\n            body\n        });\n\n        if (res.ok) {\n            const data = await res.json();\n            resolved.push(data.id);\n            node.log(`File uploaded: ${file.name} → ${data.id}`);\n        } else {\n            node.warn(`Rayvn /files returned ${res.status} for ${file.name}`);\n            failed.push({ name: file.name || \"ukjent fil\", reason: utils.FILE_REASONS.UPLOAD_FAILED });\n        }\n    } catch (e) {\n        node.warn(`Error uploading ${file.name}: ${e.message}`);\n        failed.push({ name: file.name || \"ukjent fil\", reason: utils.FILE_REASONS.UPLOAD_FAILED });\n    }\n}\n\nmsg.payload.files = resolved;\n\n// Merge upload failures into entry.failed_files\nif (failed.length > 0 && msg.entry) {\n    msg.entry.failed_files = [\n        ...(msg.entry.failed_files || []),\n        ...failed\n    ];\n}\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 30,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [
+      {
+        "var": "nodeFetch",
+        "module": "node-fetch"
+      }
+    ],
+    "x": 420,
+    "y": 140,
     "wires": [
       [
-        "f8d5ca9b4e03584d"
+        "5f2917283fde861e"
       ]
-    ],
-    "info": "Sends the message to Rayvn log API with POST request. This is the step that delivers the WaSOS message into the Rayvn log."
+    ]
   },
   {
-    "id": "044459bc226a0ba1",
+    "id": "5f2917283fde861e",
     "type": "function",
-    "z": "4a6a1af9b9af6b0f",
+    "z": "488d4a1e957f1fb1",
     "name": "Format header and url",
     "func": "const target = msg.metadata.target;\n\nif (!target || !target.api_key || !target.client_specific.log_id) {\n    node.error(\"Rayvn not configured on this connection\");\n    return null;\n}\n\nmsg.url = global.get(\"parat_bridge\").base_urls.rayvn\n    + \"/logs/\" + target.client_specific.log_id + \"/entry\";\n\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + target.api_key,\n    \"Content-Type\":  \"application/json\",\n    \"Accept\":        \"application/json\"\n};\n\nreturn msg;\n",
     "outputs": 1,
@@ -80,37 +80,19 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 340,
-    "y": 300,
+    "x": 420,
+    "y": 220,
     "wires": [
       [
-        "509a0e1abbf14248"
+        "51ef0d04e819d910"
       ]
     ],
-    "info": "Builds HTTP request headers and URL for Rayvn API. Sets Authorization header with Bearer token from rayvnConfig.apiKey and constructs URL to /logs/{logId}/entry endpoint. Returns null if not configured."
+    "info": "Builds HTTP request headers and URL for Rayvn API."
   },
   {
-    "id": "f8d5ca9b4e03584d",
-    "type": "function",
-    "z": "4a6a1af9b9af6b0f",
-    "name": "Return response",
-    "func": "msg.topic = \"response\"\n\nif (msg.statusCode == 200) {\n    msg.result = true\n} else {\n    msg.result = false\n}\n\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 360,
-    "y": 480,
-    "wires": [
-      []
-    ]
-  },
-  {
-    "id": "509a0e1abbf14248",
+    "id": "51ef0d04e819d910",
     "type": "delay",
-    "z": "4a6a1af9b9af6b0f",
+    "z": "488d4a1e957f1fb1",
     "name": "",
     "pauseType": "delay",
     "timeout": "50",
@@ -124,12 +106,76 @@
     "drop": false,
     "allowrate": false,
     "outputs": 1,
-    "x": 570,
+    "x": 690,
+    "y": 220,
+    "wires": [
+      [
+        "72b40f431151f278"
+      ]
+    ]
+  },
+  {
+    "id": "72b40f431151f278",
+    "type": "http request",
+    "z": "488d4a1e957f1fb1",
+    "name": "POST To Rayvn Entry Point",
+    "method": "POST",
+    "ret": "txt",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": true,
+    "headers": [],
+    "x": 400,
     "y": 300,
     "wires": [
       [
-        "edcc87d1f40195de"
+        "25ea5ac2a59cb7d6"
       ]
+    ],
+    "info": "Sends the message to Rayvn log API."
+  },
+  {
+    "id": "25ea5ac2a59cb7d6",
+    "type": "function",
+    "z": "488d4a1e957f1fb1",
+    "name": "Return response",
+    "func": "msg.topic = \"response\"\n\nif (msg.statusCode == 200) {\n    msg.result = true\n} else {\n    msg.result = false\n}\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 390,
+    "y": 380,
+    "wires": [
+      [
+        "d2c26c81a8dda079"
+      ]
+    ]
+  },
+  {
+    "id": "d2c26c81a8dda079",
+    "type": "function",
+    "z": "488d4a1e957f1fb1",
+    "name": "Check for failed uploads",
+    "func": "/**\n * Build notification if any files failed during Rayvn upload.\n * Reads from entry.failed_files which may contain both GET-side\n * and upload failures at this point.\n *\n * Output 1: msg continues (always)\n * Output 2: notification payload (only on upload failures)\n */\nconst entry  = msg.entry;\nconst failed = (entry && entry.failed_files) || [];\n\nconst upload_failed = failed.filter(f => f.reason === \"upload_failed\");\n\nif (upload_failed.length === 0) return [msg, null];\n\nconst notification = {\n    payload: {\n        entry_id:     entry.id,\n        failed_files: upload_failed,\n        total_files:  (entry.files || []).length + failed.length,\n        succeeded:    (entry.files || []).length,\n        entry_author: entry.author,\n        metadata:     msg.metadata\n    }\n};\n\nreturn [msg, notification];",
+    "outputs": 2,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 700,
+    "y": 400,
+    "wires": [
+      [],
+      []
     ]
   }
 ]

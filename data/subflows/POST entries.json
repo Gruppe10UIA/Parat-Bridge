@@ -11,22 +11,36 @@
         "y": 180,
         "wires": [
           {
-            "id": "854554a6bb86e48c"
+            "id": "086dbb628a9415c5"
           }
         ]
       }
     ],
     "out": [
       {
-        "x": 1080,
-        "y": 180,
+        "x": 1160,
+        "y": 80,
         "wires": [
           {
-            "id": "5adc9f55c147a330",
+            "id": "23853f4e9a4e748b",
+            "port": 0
+          },
+          {
+            "id": "ab0474c34f9cb14f",
+            "port": 1
+          }
+        ]
+      },
+      {
+        "x": 1160,
+        "y": 280,
+        "wires": [
+          {
+            "id": "23853f4e9a4e748b",
             "port": 1
           },
           {
-            "id": "8e48a46d6f60d162",
+            "id": "086dbb628a9415c5",
             "port": 1
           }
         ]
@@ -38,32 +52,7 @@
     "icon": "font-awesome/fa-send"
   },
   {
-    "id": "5adc9f55c147a330",
-    "type": "subflow:4a6a1af9b9af6b0f",
-    "z": "5b554f0e5b6f4d30",
-    "name": "",
-    "x": 770,
-    "y": 180,
-    "wires": [
-      [],
-      []
-    ]
-  },
-  {
-    "id": "854554a6bb86e48c",
-    "type": "subflow:a9600579fb00971d",
-    "z": "5b554f0e5b6f4d30",
-    "name": "",
-    "x": 280,
-    "y": 180,
-    "wires": [
-      [
-        "5f6de5b415820c6e"
-      ]
-    ]
-  },
-  {
-    "id": "5f6de5b415820c6e",
+    "id": "881d3b02de3bca03",
     "type": "switch",
     "z": "5b554f0e5b6f4d30",
     "name": "",
@@ -89,27 +78,73 @@
     "checkall": "true",
     "repair": false,
     "outputs": 3,
-    "x": 510,
-    "y": 180,
+    "x": 710,
+    "y": 140,
     "wires": [
       [
-        "8e48a46d6f60d162"
+        "ab0474c34f9cb14f"
       ],
       [
-        "5adc9f55c147a330"
+        "23853f4e9a4e748b"
       ],
       []
     ]
   },
   {
-    "id": "8e48a46d6f60d162",
-    "type": "subflow:209f3c980818c499",
+    "id": "ab0474c34f9cb14f",
+    "type": "subflow:c52035853d082eb0",
     "z": "5b554f0e5b6f4d30",
     "name": "",
-    "x": 780,
-    "y": 120,
+    "x": 910,
+    "y": 200,
     "wires": [
       [],
+      []
+    ]
+  },
+  {
+    "id": "6a3d2c2c011abca3",
+    "type": "subflow:ebdd2af39b259744",
+    "z": "5b554f0e5b6f4d30",
+    "name": "",
+    "x": 500,
+    "y": 180,
+    "wires": [
+      [
+        "881d3b02de3bca03"
+      ]
+    ]
+  },
+  {
+    "id": "23853f4e9a4e748b",
+    "type": "subflow:488d4a1e957f1fb1",
+    "z": "5b554f0e5b6f4d30",
+    "name": "",
+    "x": 900,
+    "y": 80,
+    "wires": [
+      [],
+      []
+    ]
+  },
+  {
+    "id": "086dbb628a9415c5",
+    "type": "function",
+    "z": "5b554f0e5b6f4d30",
+    "name": "Handle file outcomes",
+    "func": "/**\n * Check for failed files before routing to target system.\n *\n * Reads entry.failed_files accumulated by Classify attachments and Fetch files.\n * Patches entry.text with a notice for the receiving system.\n * Emits a notification payload on output 2 back to the original sender.\n *\n * Runs BEFORE Bridge entry to client so the text patch is written\n * into the correct field by each adapter (text for Rayvn, content for WaSOS).\n *\n * Output 1: msg continues (always)\n * Output 2: notification payload (only when failed_files is non-empty)\n */\nconst entry       = msg.entry;\nconst failed      = (entry && entry.failed_files) || [];\n\nif (failed.length === 0) return [msg, null];\n\nconst total   = ((entry.files || []).length) + failed.length;\nconst notice  = \" [\" + failed.length + \"/\" + total\n              + \" vedlegg ikke overført. Avsender mottar instruks om alternativ håndtering]\";\n\nentry.text = (entry.text || \"\") + notice;\n\nconst notification = {\n    payload: {\n        entry_id:     entry.id,\n        failed_files: failed,\n        total_files:  total,\n        succeeded:    (entry.files || []).length,\n        entry_author: entry.author,\n        metadata:     entry.metadata\n    }\n};\n\nreturn [msg, notification];",
+    "outputs": 2,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 220,
+    "y": 280,
+    "wires": [
+      [
+        "6a3d2c2c011abca3"
+      ],
       []
     ]
   }
