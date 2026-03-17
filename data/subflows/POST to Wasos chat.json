@@ -7,18 +7,18 @@
     "category": "",
     "in": [
       {
-        "x": 80,
-        "y": 80,
+        "x": 100,
+        "y": 200,
         "wires": [
           {
-            "id": "17608375b7ba784c"
+            "id": "69725644404947db"
           }
         ]
       }
     ],
     "out": [
       {
-        "x": 700,
+        "x": 360,
         "y": 380,
         "wires": [
           {
@@ -34,77 +34,6 @@
     "icon": "font-awesome/fa-send"
   },
   {
-    "id": "06d02dfa3dc28fc9",
-    "type": "http request",
-    "z": "c52035853d082eb0",
-    "name": "POST Chat Message To Wasos",
-    "method": "POST",
-    "ret": "txt",
-    "paytoqs": "ignore",
-    "url": "",
-    "tls": "",
-    "persist": false,
-    "proxy": "",
-    "insecureHTTPParser": false,
-    "authType": "",
-    "senderr": true,
-    "headers": [],
-    "x": 470,
-    "y": 300,
-    "wires": [
-      [
-        "275fb321d293db05"
-      ]
-    ],
-    "info": "Sends the message to WaSOS chat API with POST request. This is the step that delivers the Rayvn message into the WaSOS chat."
-  },
-  {
-    "id": "17608375b7ba784c",
-    "type": "function",
-    "z": "c52035853d082eb0",
-    "name": "Format header and url",
-    "func": "const target = msg.metadata.target;\n\nif (!target || !target.api_key || !target.client_specific.chatroom_name) {\n    node.error(\"WaSOS not configured on this connection\");\n    return null;\n}\n\nmsg.url = global.get(\"parat_bridge\").base_urls.wasos\n    + \"/api/chat/messages/\" + target.client_specific.chatroom_name;\n\nmsg.headers = {\n    \"x-api-key\":    target.api_key,\n    \"Content-Type\": \"application/json\"\n};\n\nreturn msg;\n",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 380,
-    "y": 200,
-    "wires": [
-      [
-        "155d4920cc098a39"
-      ]
-    ],
-    "info": "Builds HTTP request headers and URL for WaSOS API. Sets x-api-key header from wasos_apikey and uses wasosChatroomUrl as the endpoint. Returns null if not configured."
-  },
-  {
-    "id": "155d4920cc098a39",
-    "type": "delay",
-    "z": "c52035853d082eb0",
-    "name": "",
-    "pauseType": "delay",
-    "timeout": "100",
-    "timeoutUnits": "milliseconds",
-    "rate": "1",
-    "nbRateUnits": "1",
-    "rateUnits": "second",
-    "randomFirst": "1",
-    "randomLast": "5",
-    "randomUnits": "seconds",
-    "drop": false,
-    "allowrate": false,
-    "outputs": 1,
-    "x": 590,
-    "y": 200,
-    "wires": [
-      [
-        "06d02dfa3dc28fc9"
-      ]
-    ]
-  },
-  {
     "id": "275fb321d293db05",
     "type": "function",
     "z": "c52035853d082eb0",
@@ -116,10 +45,128 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 500,
-    "y": 380,
+    "x": 180,
+    "y": 360,
+    "wires": [
+      [
+        "6e6ce6cb44b295c2"
+      ]
+    ]
+  },
+  {
+    "id": "0774675a09e94ddd",
+    "type": "link call",
+    "z": "c52035853d082eb0",
+    "name": "",
+    "links": [
+      "16d793b66e21d0b0"
+    ],
+    "linkType": "static",
+    "timeout": "30",
+    "x": 660,
+    "y": 300,
     "wires": [
       []
+    ]
+  },
+  {
+    "id": "6e6ce6cb44b295c2",
+    "type": "switch",
+    "z": "c52035853d082eb0",
+    "name": "notification",
+    "property": "payload",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "jsonata_exp",
+        "v": "msg.result = true and $count(msg.metadata.files.failed) > 0\t",
+        "vt": "jsonata"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 1,
+    "x": 410,
+    "y": 340,
+    "wires": [
+      [
+        "c073c2ba149126e0"
+      ]
+    ]
+  },
+  {
+    "id": "c073c2ba149126e0",
+    "type": "function",
+    "z": "c52035853d082eb0",
+    "name": "build notification",
+    "func": "/**\n * Builds a notification payload for the source client.\n * Only reached after a successful POST when issues need reporting.\n */\nconst notification = {\n    payload: {\n        entry_id: msg.entry.id,\n        failed_files: msg.metadata.files.failed,\n        entry_author: msg.entry.author,\n        metadata: msg.metadata\n    }\n};\n\nreturn notification;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 640,
+    "y": 340,
+    "wires": [
+      [
+        "0774675a09e94ddd"
+      ]
+    ]
+  },
+  {
+    "id": "c183c9c59dd87d68",
+    "type": "subflow:19f5354cf4a27129",
+    "z": "c52035853d082eb0",
+    "name": "",
+    "x": 680,
+    "y": 200,
+    "wires": [
+      [
+        "275fb321d293db05"
+      ]
+    ]
+  },
+  {
+    "id": "69725644404947db",
+    "type": "switch",
+    "z": "c52035853d082eb0",
+    "name": "files",
+    "property": "metadata.files",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "nnull"
+      },
+      {
+        "t": "else"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 2,
+    "x": 210,
+    "y": 200,
+    "wires": [
+      [
+        "2e459edb36f9f0d9"
+      ],
+      [
+        "c183c9c59dd87d68"
+      ]
+    ]
+  },
+  {
+    "id": "2e459edb36f9f0d9",
+    "type": "subflow:bfd1ac9312fd744a",
+    "z": "c52035853d082eb0",
+    "name": "",
+    "x": 390,
+    "y": 140,
+    "wires": [
+      [
+        "c183c9c59dd87d68"
+      ]
     ]
   }
 ]

@@ -11,14 +11,14 @@
         "y": 180,
         "wires": [
           {
-            "id": "ed7b53e4b016a69a"
+            "id": "58a56ad1bbf8c028"
           }
         ]
       }
     ],
     "out": [
       {
-        "x": 1160,
+        "x": 1050,
         "y": 180,
         "wires": [
           {
@@ -64,7 +64,7 @@
     "checkall": "true",
     "repair": false,
     "outputs": 3,
-    "x": 560,
+    "x": 630,
     "y": 180,
     "wires": [
       [
@@ -81,36 +81,34 @@
     "type": "subflow:c52035853d082eb0",
     "z": "32cf505a4efbb214",
     "name": "",
-    "x": 780,
-    "y": 80,
+    "x": 850,
+    "y": 140,
     "wires": [
       []
     ]
-  },
-  {
-    "id": "ed7b53e4b016a69a",
-    "type": "subflow:3b1afab1893e0144",
-    "z": "32cf505a4efbb214",
-    "name": "",
-    "x": 300,
-    "y": 180,
-    "wires": [
-      [
-        "249894e937d53097"
-      ]
-    ],
-    "icon": "font-awesome/fa-envelope",
-    "info": "Adapts a bridge entry to the target system's payload format.\r\n\r\n### Input\r\n`msg.entry` — bridge entry with `entry.metadata.failed_files` set by the GET side.\r\n\r\n### Logic\r\n1. Handle failed files:\r\n   - WaSOS: patches entry.text with a receiver notice and fires a sender notification\r\n     via link-call to the attachment notification handler. All failures are known\r\n     (no upload step follows for WaSOS).\r\n   - Rayvn: passes through unchanged — text patching and notification are handled\r\n     after upload in POST to Rayvn log where upload failures are also known.\r\n2. Switch routes to the correct adapter based on entry.metadata.target.client_system.\r\n3. Bridge to WaSOS / Bridge to Rayvn builds msg.payload and sets\r\n   msg.metadata = entry.metadata (these two are the same object from here on).\r\n\r\n### Output 1\r\nFormatted msg ready for the POST subflow.\r\n\r\n### Notifications\r\nFired directly to attachment notification (System handling) via internal link-call."
   },
   {
     "id": "6dd72aa23c2737b5",
     "type": "subflow:b2abcd423e9a8bc6",
     "z": "32cf505a4efbb214",
     "name": "",
-    "x": 770,
+    "x": 840,
     "y": 200,
     "wires": [
       []
+    ]
+  },
+  {
+    "id": "58a56ad1bbf8c028",
+    "type": "subflow:41215cf9ced60b7f",
+    "z": "32cf505a4efbb214",
+    "name": "",
+    "x": 300,
+    "y": 180,
+    "wires": [
+      [
+        "8235328c321e485a"
+      ]
     ]
   },
   {
@@ -118,17 +116,19 @@
     "type": "function",
     "z": "32cf505a4efbb214",
     "name": "Prune",
-    "func": "return {msgid: msg._msgid,\n        metadata: msg.metadata,\n        payload: msg.payload}",
+    "func": "return {msgid: msg._msgid,\n        entry: msg.entry,\n        _retries: msg._retries,\n        metadata: msg.metadata,\n        payload: msg.payload}",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 450,
-    "y": 340,
+    "x": 490,
+    "y": 180,
     "wires": [
-      []
+      [
+        "249894e937d53097"
+      ]
     ]
   }
 ]

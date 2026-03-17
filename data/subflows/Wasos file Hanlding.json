@@ -1,0 +1,74 @@
+[
+  {
+    "id": "bfd1ac9312fd744a",
+    "type": "subflow",
+    "name": "Wasos file Hanlding",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 60,
+        "y": 80,
+        "wires": [
+          {
+            "id": "5bccfb80b6598174"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 740,
+        "y": 80,
+        "wires": [
+          {
+            "id": "f6d3f391eaf3f056",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#FFAAAA",
+    "icon": "font-awesome/fa-cloud-upload"
+  },
+  {
+    "id": "f6d3f391eaf3f056",
+    "type": "function",
+    "z": "bfd1ac9312fd744a",
+    "name": "Patch notification text",
+    "func": "/**\n * Patches msg.payload.content with a receiver notice if any files failed.\n * Runs after upload placeholder — metadata.files.failed is complete.\n */\nconst failed = msg.metadata.files.failed;\n\nif (failed.length === 0) return msg;\n\nconst succeeded = msg.metadata.files.items.length;\nconst total = succeeded + failed.length;\nconst notice = \" [\" + failed.length + \"/\" + total\n    + \" vedlegg ikke overført. Avsender mottar instruks om alternativ håndtering]\";\n\nmsg.payload.content = (msg.payload.content || \"\") + notice;\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 560,
+    "y": 80,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "5bccfb80b6598174",
+    "type": "function",
+    "z": "bfd1ac9312fd744a",
+    "name": "Upload Wasos files placeholder",
+    "func": "/**\n * Placeholder — WaSOS file upload not yet implemented.\n * All files marked as non-transferable until API support is added.\n */\nconst utils = global.get(\"utils\");\n\nmsg.metadata.files.items.forEach(file => {\n    msg.metadata.files.failed.push({\n        name: file.name || \"unknown file\",\n        reason: utils.FILE_REASONS.NON_TRANSFERABLE\n    });\n});\n\nmsg.metadata.files.items = [];\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 270,
+    "y": 80,
+    "wires": [
+      [
+        "f6d3f391eaf3f056"
+      ]
+    ]
+  }
+]

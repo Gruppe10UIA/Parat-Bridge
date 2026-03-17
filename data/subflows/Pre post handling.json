@@ -20,12 +20,7 @@
       {
         "x": 1020,
         "y": 200,
-        "wires": [
-          {
-            "id": "58a56ad1bbf8c028",
-            "port": 0
-          }
-        ]
+        "wires": []
       }
     ],
     "env": [],
@@ -34,26 +29,15 @@
     "icon": "font-awesome/fa-exchange"
   },
   {
-    "id": "58a56ad1bbf8c028",
-    "type": "subflow:41215cf9ced60b7f",
-    "z": "3b1afab1893e0144",
-    "name": "",
-    "x": 660,
-    "y": 200,
-    "wires": [
-      []
-    ]
-  },
-  {
     "id": "bdb27f90d525c8a9",
     "type": "switch",
     "z": "3b1afab1893e0144",
     "name": "",
-    "property": "payload.entry.metadata.failed_files",
+    "property": "entry.metadata.files",
     "propertyType": "msg",
     "rules": [
       {
-        "t": "nempty"
+        "t": "nnull"
       },
       {
         "t": "else"
@@ -68,9 +52,7 @@
       [
         "6a1ae8abe2b839d0"
       ],
-      [
-        "58a56ad1bbf8c028"
-      ]
+      []
     ]
   },
   {
@@ -81,9 +63,7 @@
     "x": 380,
     "y": 120,
     "wires": [
-      [
-        "58a56ad1bbf8c028"
-      ]
+      []
     ]
   }
 ]

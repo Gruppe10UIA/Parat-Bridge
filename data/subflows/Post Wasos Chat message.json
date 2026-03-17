@@ -1,0 +1,105 @@
+[
+  {
+    "id": "19f5354cf4a27129",
+    "type": "subflow",
+    "name": "Post Wasos Chat message",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 60,
+        "y": 100,
+        "wires": [
+          {
+            "id": "17608375b7ba784c"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 580,
+        "y": 180,
+        "wires": [
+          {
+            "id": "06d02dfa3dc28fc9",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#AAAA66",
+    "icon": "font-awesome/fa-send-o"
+  },
+  {
+    "id": "155d4920cc098a39",
+    "type": "delay",
+    "z": "19f5354cf4a27129",
+    "name": "",
+    "pauseType": "delay",
+    "timeout": "100",
+    "timeoutUnits": "milliseconds",
+    "rate": "1",
+    "nbRateUnits": "1",
+    "rateUnits": "second",
+    "randomFirst": "1",
+    "randomLast": "5",
+    "randomUnits": "seconds",
+    "drop": false,
+    "allowrate": false,
+    "outputs": 1,
+    "x": 450,
+    "y": 100,
+    "wires": [
+      [
+        "06d02dfa3dc28fc9"
+      ]
+    ]
+  },
+  {
+    "id": "06d02dfa3dc28fc9",
+    "type": "http request",
+    "z": "19f5354cf4a27129",
+    "name": "POST Chat Message To Wasos",
+    "method": "POST",
+    "ret": "txt",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": true,
+    "headers": [],
+    "x": 370,
+    "y": 180,
+    "wires": [
+      []
+    ],
+    "info": "Sends the message to WaSOS chat API with POST request. This is the step that delivers the Rayvn message into the WaSOS chat."
+  },
+  {
+    "id": "17608375b7ba784c",
+    "type": "function",
+    "z": "19f5354cf4a27129",
+    "name": "Format header and url",
+    "func": "const target = msg.metadata.target;\n\nif (!target || !target.api_key || !target.client_specific.chatroom_name) {\n    node.error(\"WaSOS not configured on this connection\");\n    return null;\n}\n\nmsg.url = global.get(\"parat_bridge\").base_urls.wasos\n    + \"/api/chat/messages/\" + target.client_specific.chatroom_name;\n\nmsg.headers = {\n    \"x-api-key\":    target.api_key,\n    \"Content-Type\": \"application/json\"\n};\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 240,
+    "y": 100,
+    "wires": [
+      [
+        "155d4920cc098a39"
+      ]
+    ],
+    "info": "Builds HTTP request headers and URL for WaSOS API. Sets x-api-key header from wasos_apikey and uses wasosChatroomUrl as the endpoint. Returns null if not configured."
+  }
+]
