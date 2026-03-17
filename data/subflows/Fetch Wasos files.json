@@ -3,12 +3,12 @@
     "id": "ea1089b94046dd14",
     "type": "subflow",
     "name": "Fetch Wasos files",
-    "info": "Downloads all transferable file attachments for a single WaSOS entry.\n\n### Input\n`msg.payload` = entry object (from split) with `.files` array pre-classified by Classify attachments.\n`msg.metadata` = { source, target, connection_name }\n\nFiles with `skipped: true` are already classified upstream and are passed through unchanged.\nSource must have `.client_specific.api.key` for WaSOS authentication.\n\n### Output\nSame msg with `msg.payload` = entry, where each file in `.files` either:\n- Has `context_key` set (downloaded and stored via global context)\n- Has `skipped: true` (pre-classified by Classify attachments)\n- Has no `context_key` and no `skipped` (download failed)\n\n### Behavior\n1. Separates files into downloadable (has URL, not pre-skipped) and skipped\n2. Downloads each eligible file via HTTP GET with WaSOS API key\n3. Stores binary via `global.set(\"files.{key}\", buffer)` → written to /data/bridge-files/files/\n4. Merges results back with skipped files into the entry\n5. Returns the complete entry — parent subflow only sees entry in, entry out",
+    "info": "Fetches all transferable files for a single WaSOS entry.\n\n### Input\n- msg.payload — entry object with .files array, pre-filtered by Check file sizes (WaSOS)\n- msg.metadata — standard metadata (source, target, connection_name)\n\n### Logic\n1. Prepare download list — backs up entry, sends one message per file with join parts\n2. Get WaSOS file (per file) — builds HTTP GET, downloads buffer, stores in global context\n3. Join — reassembles file results into array\n4. Merge files and rebuild entry — separates successful downloads from failures, merges with oversized failures from backup, rebuilds entry\n\n### Output\n- msg.payload — rebuilt entry with updated .files (downloaded) and .failed_files (oversized + download failures)\n- msg.metadata — preserved from input\n",
     "category": "",
     "in": [
       {
-        "x": 40,
-        "y": 200,
+        "x": 60,
+        "y": 280,
         "wires": [
           {
             "id": "1f81434e8a02a248"
@@ -18,13 +18,9 @@
     ],
     "out": [
       {
-        "x": 1280,
-        "y": 200,
+        "x": 1000,
+        "y": 280,
         "wires": [
-          {
-            "id": "1f81434e8a02a248",
-            "port": 1
-          },
           {
             "id": "f99e990ce3eabc8d",
             "port": 0
@@ -34,110 +30,26 @@
     ],
     "env": [],
     "meta": {},
-    "color": "#E9967A"
+    "color": "#E7E7AE",
+    "icon": "node-red/file-in.svg"
   },
   {
     "id": "1f81434e8a02a248",
     "type": "function",
     "z": "ea1089b94046dd14",
     "name": "Prepare download list",
-    "func": "/**\n * Separate the entry's files into downloadable and skipped.\n *\n * Downloadable: has a URL and not pre-skipped by Classify attachments.\n * Skipped: already classified or missing URL.\n *\n * Output 1: Has downloadable files → proceed to split/download\n * Output 2: Nothing to download   → return entry unchanged\n */\nconst entry = msg.payload;\nconst files = entry.files || [];\n\n// All files already classified as skipped by Classify attachments — nothing to download\nif (files.every(f => f.skipped)) {\n    return [null, msg];\n}\n\nconst to_download = [];\nconst skipped     = [];\n\nfiles.forEach(file => {\n    if (file.skipped || !file.url) {\n        skipped.push(file);\n    } else {\n        to_download.push(file);\n    }\n});\n\nif (to_download.length === 0) {\n    return [null, msg];\n}\n\nmsg._dl = {\n    entry_backup:    JSON.parse(JSON.stringify(entry)),\n    skipped_files:   skipped,\n    connection_name: msg.metadata.connection_name,\n    message_id:      entry.id,\n    metadata:        msg.metadata\n};\n\nmsg.payload = to_download;\nreturn [msg, null];",
-    "outputs": 2,
-    "timeout": "",
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 260,
-    "y": 200,
-    "wires": [
-      [
-        "0e1e5e506e79efed"
-      ],
-      []
-    ]
-  },
-  {
-    "id": "0e1e5e506e79efed",
-    "type": "split",
-    "z": "ea1089b94046dd14",
-    "name": "Split files",
-    "splt": "\\n",
-    "spltType": "str",
-    "arraySplt": 1,
-    "arraySpltType": "len",
-    "stream": false,
-    "addname": "",
-    "property": "payload",
-    "x": 320,
-    "y": 100,
-    "wires": [
-      [
-        "182934927a7960bb"
-      ]
-    ]
-  },
-  {
-    "id": "182934927a7960bb",
-    "type": "function",
-    "z": "ea1089b94046dd14",
-    "name": "Build download request",
-    "func": "/**\n * Build an HTTP GET request to download one file from WaSOS.\n * Saves msg.parts so the join node can reassemble after the request.\n * Clears residual HTTP state to prevent header contamination.\n */\nconst file     = msg.payload;\nconst source   = msg.metadata.source;\nconst base_url = global.get(\"parat_bridge\").base_urls.wasos;\n\nmsg._saved_parts = msg.parts;\nmsg._saved_dl    = msg._dl;\n\nmsg._file_meta = {\n    url:  file.url,\n    name: file.name || \"unknown_file\",\n    type: file.type || \"application/octet-stream\",\n    size: file.size || 0\n};\n\ndelete msg.statusCode;\ndelete msg.headers;\ndelete msg.responseUrl;\ndelete msg.redirectList;\ndelete msg.retry;\ndelete msg.responseCookies;\n\nmsg.url     = base_url + file.url;\nmsg.headers = { \"x-api-key\": source.client_specific.api.key };\n\nreturn msg;",
+    "func": "/**\n * Backs up the entry and returns one message per file for download.\n *\n * All files arriving here are pre-filtered by Check file sizes (WaSOS)\n * and guaranteed to have a URL and be within size limits.\n */\nconst entry = msg.payload;\nconst files = entry.files;\nconst total = files.length;\n\nconst dl = {\n    entry_backup: JSON.parse(JSON.stringify(entry)),\n    connection_name: msg.metadata.connection_name,\n    message_id: entry.id,\n    metadata: msg.metadata\n};\n\nconst messages = files.map((file, i) => ({\n    _msgid: msg._msgid,\n    payload: file,\n    metadata: msg.metadata,\n    _dl: dl,\n    parts: { id: msg._msgid, type: \"array\", count: total, index: i }\n}));\n\nreturn [messages];\n",
     "outputs": 1,
     "timeout": "",
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 550,
-    "y": 40,
+    "x": 200,
+    "y": 280,
     "wires": [
       [
-        "c084c40fd53a2e59"
-      ]
-    ]
-  },
-  {
-    "id": "c084c40fd53a2e59",
-    "type": "http request",
-    "z": "ea1089b94046dd14",
-    "name": "GET file from WaSOS",
-    "method": "GET",
-    "ret": "bin",
-    "paytoqs": "ignore",
-    "url": "",
-    "tls": "",
-    "persist": false,
-    "proxy": "",
-    "insecureHTTPParser": false,
-    "authType": "",
-    "senderr": false,
-    "headers": [],
-    "x": 440,
-    "y": 420,
-    "wires": [
-      [
-        "11c364b2f19beedd"
-      ]
-    ]
-  },
-  {
-    "id": "11c364b2f19beedd",
-    "type": "function",
-    "z": "ea1089b94046dd14",
-    "name": "Store file via global context",
-    "func": "const utils   = global.get(\"utils\");\nconst meta    = msg._file_meta;\nconst dl      = msg._saved_dl;\nconst success = msg.statusCode === 200 && msg.payload && msg.payload.length > 0;\n\nconst file = { name: meta.name, type: meta.type, size: meta.size, downloaded: success };\n\nif (success) {\n    const key      = utils.build_file_key(dl.message_id, dl.connection_name, meta.name);\n    global.set(\"files.\" + key, msg.payload);\n    file.context_key = key;\n} else {\n    node.warn(\"File download failed. Status: \" + msg.statusCode + \", file: \" + meta.name);\n}\n\n// Restore parts so the join node can count messages correctly,\n// and _dl so Merge files and rebuild entry has access to entry_backup and metadata.\nmsg.parts   = msg._saved_parts;\nmsg._dl     = msg._saved_dl;\nmsg.payload = file;\nreturn msg;",
-    "outputs": 1,
-    "timeout": "",
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 720,
-    "y": 420,
-    "wires": [
-      [
-        "fef7788da99b233a"
+        "2f471865d6543010"
       ]
     ]
   },
@@ -153,7 +65,7 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 1060,
+    "x": 800,
     "y": 280,
     "wires": [
       []
@@ -180,11 +92,24 @@
     "reduceInit": "",
     "reduceInitType": "",
     "reduceFixup": "",
-    "x": 790,
+    "x": 590,
     "y": 280,
     "wires": [
       [
         "f99e990ce3eabc8d"
+      ]
+    ]
+  },
+  {
+    "id": "2f471865d6543010",
+    "type": "subflow:a04671bb4cc2108f",
+    "z": "ea1089b94046dd14",
+    "name": "",
+    "x": 400,
+    "y": 280,
+    "wires": [
+      [
+        "fef7788da99b233a"
       ]
     ]
   }

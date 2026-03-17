@@ -1,0 +1,68 @@
+[
+  {
+    "id": "543a7fee7b4b21f6",
+    "type": "subflow",
+    "name": "Subflow 1",
+    "info": "",
+    "in": [
+      {
+        "x": 60,
+        "y": 80,
+        "wires": [
+          {
+            "id": "6d26060e2bfdd1f4"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 400,
+        "y": 40,
+        "wires": [
+          {
+            "id": "6d26060e2bfdd1f4",
+            "port": 0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "b8fa39294a04c1f9",
+    "type": "link call",
+    "z": "543a7fee7b4b21f6",
+    "name": "",
+    "links": [
+      "16d793b66e21d0b0"
+    ],
+    "linkType": "static",
+    "timeout": "30",
+    "x": 460,
+    "y": 120,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "6d26060e2bfdd1f4",
+    "type": "function",
+    "z": "543a7fee7b4b21f6",
+    "name": "Handle failed files",
+    "func": "/**\n * Handles attachment failures before payload transformation.\n *\n * Reads entry.metadata.failed_files — set by the prune node and accumulated\n * by Classify attachments and Fetch WaSOS files on the GET side.\n *\n * For WaSOS destinations all failures are known now (no upload step follows).\n * Patches entry.text with a receiver notice showing the correct count,\n * and fires a sender notification via link-call.\n *\n * For Rayvn destinations both are deferred until after upload in\n * POST to Rayvn log — upload failures are not yet known.\n *\n * Output 1: msg continues (always)\n * Output 2: notification payload for WaSOS destinations (null otherwise)\n */\nconst entry  = msg.entry;\nconst failed = entry.metadata.failed_files || [];\n\n// No failures — nothing to do regardless of destination\nif (failed.length === 0) return [msg, null];\n\n// Rayvn: defer until after upload where the complete failure picture is known\nif (entry.metadata.target.client_system === \"rayvn\") return [msg, null];\n\n// WaSOS (and any future non-upload systems): all failures known now\nconst succeeded = entry.files.length;\nconst total     = succeeded + failed.length;\nconst notice    = \" [\" + failed.length + \"/\" + total\n                + \" vedlegg ikke overført. Avsender mottar instruks om alternativ håndtering]\";\n\n// Append notice to entry.text — Bridge to WaSOS uses entry.text as content\nentry.text = (entry.text || \"\") + notice;\n\nconst notification = {\n    payload: {\n        entry_id:     entry.id,\n        failed_files: failed,\n        entry_author: entry.author,\n        metadata:     entry.metadata\n    }\n};\n\nreturn [msg, notification];",
+    "outputs": 2,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 230,
+    "y": 80,
+    "wires": [
+      [],
+      [
+        "b8fa39294a04c1f9"
+      ]
+    ]
+  }
+]

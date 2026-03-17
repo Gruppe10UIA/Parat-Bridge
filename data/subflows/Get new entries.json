@@ -8,8 +8,8 @@
     "in": [],
     "out": [
       {
-        "x": 1080,
-        "y": 360,
+        "x": 1220,
+        "y": 500,
         "wires": [
           {
             "id": "ea7ebf58285971a8",
@@ -22,6 +22,30 @@
     "meta": {},
     "color": "#C0DEED",
     "icon": "node-red/bridge.svg"
+  },
+  {
+    "id": "5851956660723990",
+    "type": "group",
+    "z": "7613a77a1b834225",
+    "name": "Response handling",
+    "style": {
+      "stroke": "#6f2fa0",
+      "fill": "#dbcbe7",
+      "label": true,
+      "label-position": "n",
+      "color": "#000000"
+    },
+    "nodes": [
+      "c742e6faf67ffe65",
+      "ea7ebf58285971a8",
+      "8e7999633660b2fd",
+      "a8665ad873dfec2a",
+      "0ffad8a0df8b69ed"
+    ],
+    "x": 34,
+    "y": 399,
+    "w": 1132,
+    "h": 142
   },
   {
     "id": "df3ce13d4cb1f110",
@@ -49,120 +73,43 @@
     "h": 149.5
   },
   {
-    "id": "5851956660723990",
-    "type": "group",
-    "z": "7613a77a1b834225",
-    "name": "Response handling",
-    "style": {
-      "stroke": "#6f2fa0",
-      "fill": "#dbcbe7",
-      "label": true,
-      "label-position": "n",
-      "color": "#000000"
-    },
-    "nodes": [
-      "c742e6faf67ffe65",
-      "ea7ebf58285971a8",
-      "8e7999633660b2fd"
-    ],
-    "x": 34,
-    "y": 319,
-    "w": 972,
-    "h": 82
-  },
-  {
-    "id": "f8d5272182de5652",
-    "type": "subflow:e97e0c90387d0adc",
+    "id": "e79abe64c9510751",
+    "type": "inject",
     "z": "7613a77a1b834225",
     "g": "df3ce13d4cb1f110",
     "name": "",
-    "x": 720,
+    "props": [],
+    "repeat": "3",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 130,
     "y": 200,
     "wires": [
       [
-        "94cdd66cf607a970"
+        "1a6d4e2b65052fcc"
       ]
     ]
   },
   {
-    "id": "8673cf0ab571261b",
-    "type": "subflow:a1b5b8de4109fab7",
-    "z": "7613a77a1b834225",
-    "g": "df3ce13d4cb1f110",
-    "name": "",
-    "x": 720,
-    "y": 140,
-    "wires": [
-      [
-        "94cdd66cf607a970"
-      ]
-    ]
-  },
-  {
-    "id": "8e7999633660b2fd",
-    "type": "subflow:0047704f35a57b0c",
-    "z": "7613a77a1b834225",
-    "g": "5851956660723990",
-    "name": "",
-    "x": 380,
-    "y": 360,
-    "wires": [
-      [
-        "a8665ad873dfec2a"
-      ]
-    ]
-  },
-  {
-    "id": "ea7ebf58285971a8",
+    "id": "1a6d4e2b65052fcc",
     "type": "function",
     "z": "7613a77a1b834225",
-    "g": "5851956660723990",
-    "name": "Attach metadata and prune msg object",
-    "func": "/**\n * Cleans the msg object and builds the entry structure used throughout the POST flow.\n *\n * failed_files is placed on entry.metadata (not directly on entry) so that it\n * survives HTTP nodes that overwrite msg.payload, and so there is\n * one unambiguous source of attachment status throughout the flow.\n */\nreturn {\n    _msgid: msg._msgid,\n    topic:  \"new_message\",\n    entry: {\n        id:        msg.payload.id,\n        text:      msg.payload.text,\n        timestamp: msg.payload.timestamp,\n        author:    msg.payload.author,\n        files:     msg.payload.files  || [],\n        labels:    msg.payload.labels || [],\n        metadata: {\n            ...msg.metadata,\n            failed_files: msg.payload.failed_files || []\n        }\n    }\n};",
+    "g": "df3ce13d4cb1f110",
+    "name": "Pass active connections",
+    "func": "\n// Get all acive connections from connections Object\nconst connections = global.get(\"parat_bridge.connections\");\nif (!connections) return null;\nconst active_connections = Object.values(connections).filter(c => c.active);\n\nif (active_connections.length === 0) { return null; }\n\nconst messages = [];\n\n// Loop over each active connection\nactive_connections.forEach(connection => {\n    // loop over each client in connection\n    Object.values(connection.clients).forEach(client => {\n\n        // Find the target by excluding self using the unique identifier\n        const target = Object.values(connection.clients)\n            .find(c => c.identifier !== client.identifier);\n\n        // Build the message and attach metadata\n        messages.push({\n            topic: client.client_system,   // routes to correct request builder\n            metadata: {\n                source: client,\n                target: target,\n                connection_name: connection.name\n            }\n        });\n    });\n});\n\n// send each message one at a time\nreturn [messages];\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 830,
-    "y": 360,
-    "wires": [
-      []
-    ]
-  },
-  {
-    "id": "94cdd66cf607a970",
-    "type": "split",
-    "z": "7613a77a1b834225",
-    "g": "df3ce13d4cb1f110",
-    "name": "",
-    "splt": "\\n",
-    "spltType": "str",
-    "arraySplt": 1,
-    "arraySpltType": "len",
-    "stream": false,
-    "addname": "",
-    "property": "payload",
-    "x": 930,
+    "x": 330,
     "y": 200,
     "wires": [
       [
-        "c742e6faf67ffe65"
-      ]
-    ]
-  },
-  {
-    "id": "c742e6faf67ffe65",
-    "type": "subflow:35dc868e3a5c1ab2",
-    "z": "7613a77a1b834225",
-    "g": "5851956660723990",
-    "name": "",
-    "x": 160,
-    "y": 360,
-    "wires": [
-      [
-        "8e7999633660b2fd"
+        "08b97ed44f272d94"
       ]
     ]
   },
@@ -207,43 +154,98 @@
     ]
   },
   {
-    "id": "1a6d4e2b65052fcc",
-    "type": "function",
+    "id": "c742e6faf67ffe65",
+    "type": "subflow:35dc868e3a5c1ab2",
+    "z": "7613a77a1b834225",
+    "g": "5851956660723990",
+    "name": "",
+    "x": 160,
+    "y": 480,
+    "wires": [
+      [
+        "8e7999633660b2fd"
+      ]
+    ]
+  },
+  {
+    "id": "94cdd66cf607a970",
+    "type": "split",
     "z": "7613a77a1b834225",
     "g": "df3ce13d4cb1f110",
-    "name": "Pass active connections",
-    "func": "\n// Get all acive connections from connections Object\nconst connections = global.get(\"parat_bridge.connections\");\nif (!connections) return null;\nconst active_connections = Object.values(connections).filter(c => c.active);\n\nif (active_connections.length === 0) { return null; }\n\nconst messages = [];\n\n// Loop over each active connection\nactive_connections.forEach(connection => {\n    // loop over each client in connection\n    Object.values(connection.clients).forEach(client => {\n\n        // Find the target by excluding self using the unique identifier\n        const target = Object.values(connection.clients)\n            .find(c => c.identifier !== client.identifier);\n\n        // Build the message and attach metadata\n        messages.push({\n            topic: client.client_system,   // routes to correct request builder\n            metadata: {\n                source: client,\n                target: target,\n                connection_name: connection.name\n            }\n        });\n    });\n});\n\n// send each message one at a time\nreturn [messages];\n",
+    "name": "",
+    "splt": "\\n",
+    "spltType": "str",
+    "arraySplt": 1,
+    "arraySpltType": "len",
+    "stream": false,
+    "addname": "",
+    "property": "payload",
+    "x": 930,
+    "y": 200,
+    "wires": [
+      [
+        "c742e6faf67ffe65"
+      ]
+    ]
+  },
+  {
+    "id": "ea7ebf58285971a8",
+    "type": "function",
+    "z": "7613a77a1b834225",
+    "g": "5851956660723990",
+    "name": "Attach metadata and prune msg object",
+    "func": "/**\n * Cleans the msg object and builds the entry structure used throughout the POST flow.\n *\n * failed_files is placed on entry.metadata (not directly on entry) so that it\n * survives HTTP nodes that overwrite msg.payload, and so there is\n * one unambiguous source of attachment status throughout the flow.\n */\nreturn {\n    _msgid: msg._msgid,\n    topic: \"new_message\",\n    entry: {\n        id: msg.payload.id,\n        text: msg.payload.text,\n        timestamp: msg.payload.timestamp,\n        author: msg.payload.author,\n        labels: msg.payload.labels || [],\n        metadata: {\n            ...msg.metadata,\n            files: {\n                items: msg.payload.files || [],\n                failed: msg.payload.failed_files || []\n            }\n        }\n    }\n};\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 330,
-    "y": 200,
+    "x": 990,
+    "y": 500,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "8e7999633660b2fd",
+    "type": "subflow:0047704f35a57b0c",
+    "z": "7613a77a1b834225",
+    "g": "5851956660723990",
+    "name": "",
+    "x": 380,
+    "y": 480,
     "wires": [
       [
-        "08b97ed44f272d94"
+        "a8665ad873dfec2a"
       ]
     ]
   },
   {
-    "id": "e79abe64c9510751",
-    "type": "inject",
+    "id": "8673cf0ab571261b",
+    "type": "subflow:a1b5b8de4109fab7",
     "z": "7613a77a1b834225",
     "g": "df3ce13d4cb1f110",
     "name": "",
-    "props": [],
-    "repeat": "3",
-    "crontab": "",
-    "once": false,
-    "onceDelay": 0.1,
-    "topic": "",
-    "x": 130,
+    "x": 720,
+    "y": 140,
+    "wires": [
+      [
+        "94cdd66cf607a970"
+      ]
+    ]
+  },
+  {
+    "id": "f8d5272182de5652",
+    "type": "subflow:e97e0c90387d0adc",
+    "z": "7613a77a1b834225",
+    "g": "df3ce13d4cb1f110",
+    "name": "",
+    "x": 720,
     "y": 200,
     "wires": [
       [
-        "1a6d4e2b65052fcc"
+        "94cdd66cf607a970"
       ]
     ]
   },
@@ -277,6 +279,7 @@
     "id": "a8665ad873dfec2a",
     "type": "switch",
     "z": "7613a77a1b834225",
+    "g": "5851956660723990",
     "name": "Has files?",
     "property": "payload.files",
     "propertyType": "msg",
@@ -291,11 +294,11 @@
     "checkall": "true",
     "repair": false,
     "outputs": 2,
-    "x": 380,
-    "y": 600,
+    "x": 560,
+    "y": 480,
     "wires": [
       [
-        "3c027139d619f516"
+        "0ffad8a0df8b69ed"
       ],
       [
         "ea7ebf58285971a8"
@@ -303,29 +306,13 @@
     ]
   },
   {
-    "id": "3c027139d619f516",
+    "id": "0ffad8a0df8b69ed",
     "type": "subflow:e3f90dc1120210b3",
     "z": "7613a77a1b834225",
+    "g": "5851956660723990",
     "name": "",
-    "x": 600,
-    "y": 600,
-    "wires": [
-      [
-        "f1e0fe8828756a71"
-      ],
-      [
-        "ea7ebf58285971a8"
-      ]
-    ],
-    "info": "Classifies and filters file attachments before download, resolving problems\r\nat the point of detection rather than carrying them through the pipeline.\r\n\r\n### Input\r\n`msg.payload` = entry object with `.files` array from the source system.\r\n`msg.metadata` = { source, target, connection_name }\r\n\r\n### What it does\r\nRoutes by source system (WaSOS / Rayvn / CIM), then applies system-specific rules:\r\n\r\n**WaSOS — Check file sizes:**\r\nStrips files above 1 MB from `payload.files` and appends\r\n`{ name, reason: FILE_REASONS.OVERSIZED }` to `payload.failed_files`.\r\nFiles within the size limit pass through unchanged.\r\n\r\n**Rayvn — Check for manual URL:**\r\nIf the message text already contains a URL the sender shared manually,\r\nfiles are cleared silently (output 1 — no notification needed).\r\nIf no URL is found, all Rayvn files are non-transferable via the external API\r\nand are stripped from `payload.files`. Each is appended to `payload.failed_files`\r\nas `{ name, reason: FILE_REASONS.NON_TRANSFERABLE }`.\r\n\r\n**CIM:**\r\nNot yet implemented — all files treated as non-transferable.\r\n\r\n### Output 1\r\nEntry has transferable files remaining in `payload.files`.\r\nProceeds to Fetch WaSOS files.\r\n\r\n### Output 2\r\nNo transferable files remain (all oversized, non-transferable, or no files).\r\nProceeds directly to Attach metadata and prune, bypassing fetch entirely.\r\n\r\n### Key properties\r\n`payload.files`        — only files that should be fetched (may be empty)\r\n`payload.failed_files` — array of `{ name, reason }` for files that were stripped\r\n                         Reason values are defined in `utils.FILE_REASONS`."
-  },
-  {
-    "id": "f1e0fe8828756a71",
-    "type": "subflow:ea1089b94046dd14",
-    "z": "7613a77a1b834225",
-    "name": "",
-    "x": 850,
-    "y": 600,
+    "x": 730,
+    "y": 440,
     "wires": [
       [
         "ea7ebf58285971a8"

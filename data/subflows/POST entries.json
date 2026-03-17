@@ -92,13 +92,14 @@
     "type": "subflow:3b1afab1893e0144",
     "z": "32cf505a4efbb214",
     "name": "",
-    "x": 310,
+    "x": 300,
     "y": 180,
     "wires": [
       [
         "249894e937d53097"
       ]
     ],
+    "icon": "font-awesome/fa-envelope",
     "info": "Adapts a bridge entry to the target system's payload format.\r\n\r\n### Input\r\n`msg.entry` — bridge entry with `entry.metadata.failed_files` set by the GET side.\r\n\r\n### Logic\r\n1. Handle failed files:\r\n   - WaSOS: patches entry.text with a receiver notice and fires a sender notification\r\n     via link-call to the attachment notification handler. All failures are known\r\n     (no upload step follows for WaSOS).\r\n   - Rayvn: passes through unchanged — text patching and notification are handled\r\n     after upload in POST to Rayvn log where upload failures are also known.\r\n2. Switch routes to the correct adapter based on entry.metadata.target.client_system.\r\n3. Bridge to WaSOS / Bridge to Rayvn builds msg.payload and sets\r\n   msg.metadata = entry.metadata (these two are the same object from here on).\r\n\r\n### Output 1\r\nFormatted msg ready for the POST subflow.\r\n\r\n### Notifications\r\nFired directly to attachment notification (System handling) via internal link-call."
   },
   {
@@ -106,7 +107,7 @@
     "type": "subflow:b2abcd423e9a8bc6",
     "z": "32cf505a4efbb214",
     "name": "",
-    "x": 850,
+    "x": 770,
     "y": 200,
     "wires": [
       []
@@ -124,8 +125,8 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 470,
-    "y": 320,
+    "x": 450,
+    "y": 340,
     "wires": [
       []
     ]
