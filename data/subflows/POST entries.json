@@ -3,7 +3,7 @@
     "id": "32cf505a4efbb214",
     "type": "subflow",
     "name": "POST entries",
-    "info": "Router entries til korrekt POST-subflow basert på målsystem.\n\n### Input\n`msg.entry` — bridge-entry med `entry.metadata.failed_files` satt av GET-siden.\n\n### Logikk\n1. Bridge entry to client håndterer vedleggsfeil, patcher entry.text for\n   ikke-upload-destinasjoner (WaSOS), og bygger msg.payload i målsystemets format.\n   Notifikasjoner for WaSOS brennes via intern link-out inne i Bridge entry to client.\n2. Switch ruter på msg.metadata.target.client_system (satt av Bridge-adapteren).\n3. POST to WaSOS chat / POST to Rayvn log poster til målsystemet.\n   Notifikasjoner for Rayvn brennes via intern link-out inne i POST to Rayvn log.\n\n### Output 1\nPOST-svar fra begge destinasjoner (msg.result satt av Return response).\n\n### Notifikasjoner\nHåndteres internt i Bridge entry to client og POST to Rayvn log via link-out —\nklatrer ikke opp gjennom subflow-output-porter.",
+    "info": "Routes entries to the correct POST subflow based on the target system.\n\n### Input\n`msg.entry` — bridge entry with `entry.metadata.failed_files` set by the GET side.\n\n### Logic\n1. Bridge entry to client handles attachment failures, patches entry.text for\n   non-upload destinations (WaSOS), and builds msg.payload in the target system format.\n   Notifications for WaSOS are fired via internal link-call inside Bridge entry to client.\n2. Switch routes on msg.metadata.target.client_system (set by the Bridge adapter).\n3. POST to WaSOS chat / POST to Rayvn log posts to the target system.\n   Notifications for Rayvn are fired via internal link-call inside POST to Rayvn log.\n\n### Output 1\nPOST response from both destinations (msg.result set by Return response).\n\n### Notifications\nHandled internally in Bridge entry to client and POST to Rayvn log via link-call —\ndo not surface through subflow output ports.",
     "category": "",
     "in": [
       {
@@ -98,7 +98,8 @@
       [
         "249894e937d53097"
       ]
-    ]
+    ],
+    "info": "Adapts a bridge entry to the target system's payload format.\r\n\r\n### Input\r\n`msg.entry` — bridge entry with `entry.metadata.failed_files` set by the GET side.\r\n\r\n### Logic\r\n1. Handle failed files:\r\n   - WaSOS: patches entry.text with a receiver notice and fires a sender notification\r\n     via link-call to the attachment notification handler. All failures are known\r\n     (no upload step follows for WaSOS).\r\n   - Rayvn: passes through unchanged — text patching and notification are handled\r\n     after upload in POST to Rayvn log where upload failures are also known.\r\n2. Switch routes to the correct adapter based on entry.metadata.target.client_system.\r\n3. Bridge to WaSOS / Bridge to Rayvn builds msg.payload and sets\r\n   msg.metadata = entry.metadata (these two are the same object from here on).\r\n\r\n### Output 1\r\nFormatted msg ready for the POST subflow.\r\n\r\n### Notifications\r\nFired directly to attachment notification (System handling) via internal link-call."
   },
   {
     "id": "6dd72aa23c2737b5",

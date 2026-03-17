@@ -118,7 +118,7 @@
     "z": "7613a77a1b834225",
     "g": "5851956660723990",
     "name": "Attach metadata and prune msg object",
-    "func": "/**\n * Rydder msg-objektet og bygger entry-strukturen som brukes gjennom hele POST-flyten.\n *\n * failed_files legges på entry.metadata (ikke direkte på entry) slik at de\n * overlever HTTP-noder som overskriver msg.payload, og slik at det finnes\n * én entydig kilde til vedleggsstatus gjennom hele flyten.\n */\nreturn {\n    _msgid: msg._msgid,\n    topic:  \"new_message\",\n    entry: {\n        id:        msg.payload.id,\n        text:      msg.payload.text,\n        timestamp: msg.payload.timestamp,\n        author:    msg.payload.author,\n        files:     msg.payload.files  || [],\n        labels:    msg.payload.labels || [],\n        metadata: {\n            ...msg.metadata,\n            failed_files: msg.payload.failed_files || []\n        }\n    }\n};",
+    "func": "/**\n * Cleans the msg object and builds the entry structure used throughout the POST flow.\n *\n * failed_files is placed on entry.metadata (not directly on entry) so that it\n * survives HTTP nodes that overwrite msg.payload, and so there is\n * one unambiguous source of attachment status throughout the flow.\n */\nreturn {\n    _msgid: msg._msgid,\n    topic:  \"new_message\",\n    entry: {\n        id:        msg.payload.id,\n        text:      msg.payload.text,\n        timestamp: msg.payload.timestamp,\n        author:    msg.payload.author,\n        files:     msg.payload.files  || [],\n        labels:    msg.payload.labels || [],\n        metadata: {\n            ...msg.metadata,\n            failed_files: msg.payload.failed_files || []\n        }\n    }\n};",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
