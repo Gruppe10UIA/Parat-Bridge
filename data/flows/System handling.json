@@ -437,15 +437,13 @@
     "type": "link in",
     "z": "003e75aaa2880405",
     "name": "attachment notification ",
-    "links": [
-      "0ae85e7c851a810d"
-    ],
+    "links": [],
     "x": 155,
     "y": 660,
     "wires": [
       [
         "14f95d6e748d45c9",
-        "59857334b55fd3aa"
+        "1beaed95586efc2b"
       ]
     ]
   },
@@ -490,14 +488,14 @@
     ]
   },
   {
-    "id": "59857334b55fd3aa",
+    "id": "1beaed95586efc2b",
     "type": "link out",
     "z": "003e75aaa2880405",
     "name": "message failed recieved",
     "mode": "return",
     "links": [],
-    "x": 235,
-    "y": 720,
+    "x": 255,
+    "y": 740,
     "wires": []
   }
 ]

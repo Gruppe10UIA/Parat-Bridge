@@ -22,11 +22,11 @@
         "y": 180,
         "wires": [
           {
-            "id": "7f744bf3c0def6f6",
-            "port": 1
+            "id": "6dd72aa23c2737b5",
+            "port": 0
           },
           {
-            "id": "6dd72aa23c2737b5",
+            "id": "7f744bf3c0def6f6",
             "port": 0
           }
         ]
@@ -81,8 +81,8 @@
     "type": "subflow:c52035853d082eb0",
     "z": "32cf505a4efbb214",
     "name": "",
-    "x": 860,
-    "y": 120,
+    "x": 780,
+    "y": 80,
     "wires": [
       []
     ]
