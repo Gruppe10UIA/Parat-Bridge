@@ -163,7 +163,7 @@
     "type": "function",
     "z": "35dc868e3a5c1ab2",
     "name": "Attach image to entry",
-    "func": "if (msg.mapImage) {\n    msg.payload.files = [msg.mapImage];\n    delete msg.mapImage;\n}\ndelete msg.geo;\ndelete msg.isLocation;\n\nreturn msg;",
+    "func": "if (msg.mapImage) {\n    msg.payload.files = (msg.payload.files || []).concat(msg.mapImage);\n    delete msg.mapImage;\n}\n\ndelete msg.geo;\ndelete msg.isLocation;\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
