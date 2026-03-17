@@ -7,11 +7,14 @@
     "category": "",
     "in": [
       {
-        "x": 40,
+        "x": 20,
         "y": 300,
         "wires": [
           {
-            "id": "8e5854d7071c9aa1"
+            "id": "a0ed0f63d751c4ec"
+          },
+          {
+            "id": "0d9a9ebfb9b38a49"
           }
         ]
       }
@@ -166,15 +169,15 @@
     "type": "function",
     "z": "4a6a1af9b9af6b0f",
     "name": "Prepare file upload",
-    "func": "var target = msg.metadata.target;\n\nmsg.entryPayload = msg.payload;\n\nvar file = msg.payload.files[0];\nvar boundary = \"----ParatBridge\" + Date.now();\n\nvar header = \"--\" + boundary + \"\\r\\n\" +\n    \"Content-Disposition: form-data; name=\\\"file\\\"; filename=\\\"\" + file.name + \"\\\"\\r\\n\" +\n    \"Content-Type: \" + file.type + \"\\r\\n\\r\\n\";\nvar footer = \"\\r\\n--\" + boundary + \"--\\r\\n\";\n\nvar headerBuf = Buffer.from(header, \"utf8\");\nvar footerBuf = Buffer.from(footer, \"utf8\");\nmsg.payload = Buffer.concat([headerBuf, file.buffer, footerBuf]);\n\nmsg.url = global.get(\"parat_bridge\").base_urls.rayvn + \"/files\";\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + target.api_key,\n    \"Content-Type\": \"multipart/form-data; boundary=\" + boundary\n};\n\nreturn msg;",
+    "func": "node.warn(\"[DEBUG] File path triggered, file: \" + msg.payload.files[0].name);\n\nvar target = msg.metadata.target;\n\nmsg.entryPayload = msg.payload;\n\nvar file = msg.payload.files[0];\nvar boundary = \"----ParatBridge\" + Date.now();\n\nvar header = \"--\" + boundary + \"\\r\\n\" +\n    \"Content-Disposition: form-data; name=\\\"file\\\"; filename=\\\"\" + file.name + \"\\\"\\r\\n\" +\n    \"Content-Type: \" + file.type + \"\\r\\n\\r\\n\";\nvar footer = \"\\r\\n--\" + boundary + \"--\\r\\n\";\n\nvar headerBuf = Buffer.from(header, \"utf8\");\nvar footerBuf = Buffer.from(footer, \"utf8\");\nmsg.payload = Buffer.concat([headerBuf, file.buffer, footerBuf]);\n\nmsg.url = global.get(\"parat_bridge\").base_urls.rayvn + \"/files\";\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + target.api_key,\n    \"Content-Type\": \"multipart/form-data; boundary=\" + boundary\n};\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 190,
-    "y": 180,
+    "x": 230,
+    "y": 60,
     "wires": [
       [
         "5576a5e1302ac554"
@@ -197,8 +200,8 @@
     "authType": "",
     "senderr": false,
     "headers": [],
-    "x": 300,
-    "y": 100,
+    "x": 460,
+    "y": 60,
     "wires": [
       [
         "582929f9e6400fcf"
@@ -217,11 +220,123 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 450,
-    "y": 180,
+    "x": 590,
+    "y": 160,
     "wires": [
       [
         "044459bc226a0ba1"
+      ]
+    ]
+  },
+  {
+    "id": "996adddab5bf5ac5",
+    "type": "function",
+    "z": "4a6a1af9b9af6b0f",
+    "name": "Compress file (ffmpeg)",
+    "func": "const file = msg.payload.files[0];\nif (!file || !file.buffer) return msg;\n\nconst isVideo = file.type && file.type.startsWith('video/');\nconst isAudio = file.type && file.type.startsWith('audio/');\nif (!isVideo && !isAudio) return msg;\n\nconst ONE_MB = 1 * 1024 * 1024;\nif (file.buffer.length <= ONE_MB) return msg;\n\nconst tmpDir = os.tmpdir();\nconst inputPath = path.join(tmpDir, 'parat_in_' + Date.now() + path.extname(file.name));\nconst outputExt = isVideo ? '.mp4' : '.aac';\nconst outputPath = path.join(tmpDir, 'parat_out_' + Date.now() + outputExt);\n\nfs.writeFileSync(inputPath, file.buffer);\n\nconst args = ['-i', inputPath, '-y'];\n\nif (isVideo) {\n    args.push(\n        '-vcodec', 'libx264',\n        '-crf', '28',\n        '-preset', 'fast',\n        '-vf', 'scale=min(640\\\\,iw):min(480\\\\,ih):force_original_aspect_ratio=decrease,scale=trunc(iw/2)*2:trunc(ih/2)*2',\n        '-acodec', 'aac',\n        '-b:a', '64k',\n        '-movflags', '+faststart'\n    );\n} else {\n    args.push('-acodec', 'aac', '-b:a', '64k');\n}\n\nargs.push(outputPath);\n\nreturn new Promise((resolve, reject) => {\n    childProcess.execFile('ffmpeg', args, { timeout: 60000 }, (error) => {\n        try {\n            if (error) {\n                node.warn('[FFMPEG] Compression failed: ' + error.message);\n                fs.unlinkSync(inputPath);\n                try { fs.unlinkSync(outputPath); } catch (e) { }\n                return resolve(msg); // pass through original on failure\n            }\n\n            const compressed = fs.readFileSync(outputPath);\n            node.warn('[FFMPEG] ' + file.name + ': ' + file.buffer.length + ' → ' + compressed.length + ' bytes');\n\n            file.buffer = compressed;\n            if (isVideo) {\n                file.name = file.name.replace(/\\.[^.]+$/, '') + '.mp4';\n                file.type = 'video/mp4';\n            }\n\n            fs.unlinkSync(inputPath);\n            fs.unlinkSync(outputPath);\n            resolve(msg);\n        } catch (e) {\n            node.warn('[FFMPEG] Cleanup error: ' + e.message);\n            try { fs.unlinkSync(inputPath); } catch (e) { }\n            try { fs.unlinkSync(outputPath); } catch (e) { }\n            resolve(msg); // pass through original\n        }\n    });\n});",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [
+      {
+        "var": "childProcess",
+        "module": "child_process"
+      },
+      {
+        "var": "fs",
+        "module": "fs"
+      },
+      {
+        "var": "path",
+        "module": "path"
+      },
+      {
+        "var": "os",
+        "module": "os"
+      }
+    ],
+    "x": 240,
+    "y": 120,
+    "wires": [
+      [
+        "8e5854d7071c9aa1"
+      ]
+    ]
+  },
+  {
+    "id": "a0ed0f63d751c4ec",
+    "type": "debug",
+    "z": "4a6a1af9b9af6b0f",
+    "name": "Video debug",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 330,
+    "y": 220,
+    "wires": []
+  },
+  {
+    "id": "019a913627e795a7",
+    "type": "function",
+    "z": "4a6a1af9b9af6b0f",
+    "name": "Download WaSOS file",
+    "func": "const file = msg.payload.files && msg.payload.files[0];\nif (!file || !file.url) return msg;\n\nconst baseUrl = global.get(\"parat_bridge\").base_urls.wasos;\nconst source = msg.metadata.source;\nconst fileUrl = baseUrl + file.url;\n\nconst headers = {};\nif (source && source.client_specific && source.client_specific.api) {\n    headers[\"x-api-key\"] = source.client_specific.api.key;\n}\n\nreturn new Promise((resolve, reject) => {\n    const client = fileUrl.startsWith(\"https\") ? https : http;\n\n    client.get(fileUrl, { headers }, (res) => {\n        if (res.statusCode !== 200) {\n            node.warn(\"[DOWNLOAD] Failed: status \" + res.statusCode);\n            return resolve(msg);\n        }\n\n        const chunks = [];\n        res.on(\"data\", chunk => chunks.push(chunk));\n        res.on(\"end\", () => {\n            file.buffer = Buffer.concat(chunks);\n            node.warn(\"[DOWNLOAD] \" + file.name + \": \" + file.buffer.length + \" bytes\");\n            resolve(msg);\n        });\n        res.on(\"error\", (err) => {\n            node.warn(\"[DOWNLOAD] Error: \" + err.message);\n            resolve(msg);\n        });\n    }).on(\"error\", (err) => {\n        node.warn(\"[DOWNLOAD] Request error: \" + err.message);\n        resolve(msg);\n    });\n}); ",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [
+      {
+        "var": "https",
+        "module": "https"
+      },
+      {
+        "var": "http",
+        "module": "http"
+      }
+    ],
+    "x": 280,
+    "y": 180,
+    "wires": [
+      [
+        "996adddab5bf5ac5"
+      ]
+    ]
+  },
+  {
+    "id": "0d9a9ebfb9b38a49",
+    "type": "switch",
+    "z": "4a6a1af9b9af6b0f",
+    "name": "Has file url?",
+    "property": "payload.files.0.url",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "nnull"
+      },
+      {
+        "t": "else"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 2,
+    "x": 110,
+    "y": 420,
+    "wires": [
+      [
+        "019a913627e795a7"
+      ],
+      [
+        "8e5854d7071c9aa1"
       ]
     ]
   }
