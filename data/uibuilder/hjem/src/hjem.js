@@ -214,8 +214,7 @@ function initHjem() {
     }, true)
 
     const btnClear = document.getElementById('btn-clear')
-    btnClear.addEventListener('click', (e) => {
-        e.preventDefault()
+    btnClear.addEventListener('click', () => {
         if (confirm('Er du sikker på at du vil tømme skjemaet?')) {
             form.reset()
             form.classList.remove('form-validated')
@@ -224,7 +223,6 @@ function initHjem() {
 
     form.addEventListener('submit', (e) => {
         e.preventDefault()
-        form.classList.add('form-validated')
         clearFeedback(feedback)
 
         const data = collectFormData(form)

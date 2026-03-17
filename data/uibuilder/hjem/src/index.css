@@ -20,6 +20,7 @@ body {
 /* ===== TOP BAR ===== */
 
 #app-header {
+    position: relative;
     display: flex;
     align-items: flex-end;
     background: #fff;
