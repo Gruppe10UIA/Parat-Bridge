@@ -209,6 +209,18 @@ function initHjem() {
     const form = document.getElementById('connection-form')
     const feedback = document.getElementById('form-feedback')
 
+    form.addEventListener('invalid', () => {
+        form.classList.add('form-validated')
+    }, true)
+
+    const btnClear = document.getElementById('btn-clear')
+    btnClear.addEventListener('click', () => {
+        if (confirm('Er du sikker på at du vil tømme skjemaet?')) {
+            form.reset()
+            form.classList.remove('form-validated')
+        }
+    })
+
     form.addEventListener('submit', (e) => {
         e.preventDefault()
         clearFeedback(feedback)
@@ -222,7 +234,10 @@ function initHjem() {
     onMessage('form/feedback', (payload) => {
         const type = payload.success ? 'success' : 'error'
         showFeedback(feedback, payload.message, type)
-        if (payload.success) form.reset()
+        if (payload.success) {
+            form.reset()
+            form.classList.remove('form-validated')
+        }
         submitting = false
     })
 
@@ -232,6 +247,7 @@ function initHjem() {
         if (submitting && count > knownConnectionCount) {
             clearFeedback(feedback)
             form.reset()
+            form.classList.remove('form-validated')
             submitting = false
         }
 
