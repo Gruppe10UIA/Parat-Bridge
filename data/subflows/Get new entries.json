@@ -40,12 +40,14 @@
       "ea7ebf58285971a8",
       "8e7999633660b2fd",
       "a8665ad873dfec2a",
-      "0ffad8a0df8b69ed"
+      "0ffad8a0df8b69ed",
+      "f6d24f6f9eae25f6",
+      "1f241236e5c587ac"
     ],
     "x": 34,
-    "y": 399,
+    "y": 379,
     "w": 1132,
-    "h": 122
+    "h": 142
   },
   {
     "id": "df3ce13d4cb1f110",
@@ -217,7 +219,8 @@
     "y": 480,
     "wires": [
       [
-        "a8665ad873dfec2a"
+        "a8665ad873dfec2a",
+        "1f241236e5c587ac"
       ]
     ]
   },
@@ -315,8 +318,45 @@
     "y": 440,
     "wires": [
       [
-        "ea7ebf58285971a8"
+        "ea7ebf58285971a8",
+        "f6d24f6f9eae25f6"
       ]
     ]
+  },
+  {
+    "id": "f6d24f6f9eae25f6",
+    "type": "debug",
+    "z": "7613a77a1b834225",
+    "g": "5851956660723990",
+    "name": "downloaded files",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 940,
+    "y": 420,
+    "wires": []
+  },
+  {
+    "id": "1f241236e5c587ac",
+    "type": "debug",
+    "z": "7613a77a1b834225",
+    "g": "5851956660723990",
+    "name": "pre files check",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 550,
+    "y": 440,
+    "wires": []
   }
 ]

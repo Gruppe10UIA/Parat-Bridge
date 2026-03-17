@@ -165,8 +165,26 @@
     "y": 140,
     "wires": [
       [
-        "c183c9c59dd87d68"
+        "c183c9c59dd87d68",
+        "40daf3304e542198"
       ]
     ]
+  },
+  {
+    "id": "40daf3304e542198",
+    "type": "debug",
+    "z": "c52035853d082eb0",
+    "name": "Wasos file uploads",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 580,
+    "y": 100,
+    "wires": []
   }
 ]
