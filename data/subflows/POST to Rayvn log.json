@@ -18,8 +18,8 @@
     ],
     "out": [
       {
-        "x": 320,
-        "y": 380,
+        "x": 340,
+        "y": 400,
         "wires": [
           {
             "id": "5b501bc2a77d779a",
@@ -107,8 +107,7 @@
     "y": 160,
     "wires": [
       [
-        "ca703649d8df47b3",
-        "a6a1d8893027e3c8"
+        "ca703649d8df47b3"
       ]
     ]
   },
@@ -169,22 +168,5 @@
         "5b501bc2a77d779a"
       ]
     ]
-  },
-  {
-    "id": "a6a1d8893027e3c8",
-    "type": "debug",
-    "z": "b2abcd423e9a8bc6",
-    "name": "Rayvn file uploads",
-    "active": true,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "true",
-    "targetType": "full",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 560,
-    "y": 120,
-    "wires": []
   }
 ]
