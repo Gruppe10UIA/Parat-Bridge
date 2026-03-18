@@ -4,6 +4,7 @@
  * Handles keys that start with "files." — for example:
  *   global.set("files.abc123.pdf", buffer)
  *   global.get("files.abc123.pdf")
+ *   global.set("files.abc123.pdf", null)  → deletes the file
  *
  * Files are stored in /data/bridge-files/files/ and are never kept in memory.
  * This prevents large binary data (PDFs, images) from bloating the cache.
@@ -12,7 +13,8 @@
  * the file "report.pdf" on disk.
  */
 
-const fs = require('fs');
+const fs              = require('fs');
+const writeFileAtomic = require('write-file-atomic');
 
 const FILES_DIR = '/data/bridge-files/files/';
 
@@ -57,14 +59,25 @@ function readFile(key) {
 }
 
 /**
- * Writes binary data to disk.
+ * Writes binary data to disk using atomic write for crash safety.
+ * If value is null, deletes the file instead.
  *
- * @param {string} key   - The context key (e.g. "files.report.pdf")
- * @param {Buffer} value - The binary data to write
+ * @param {string}        key   - The context key (e.g. "files.report.pdf")
+ * @param {Buffer|null}   value - The binary data to write, or null to delete
  */
 function writeFile(key, value) {
     const filePath = FILES_DIR + keyToFilename(key);
-    fs.writeFileSync(filePath, value);
+
+    if (value === null) {
+        try {
+            if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+        } catch (err) {
+            console.warn('[context-store] Failed to delete file:', filePath, err.message);
+        }
+        return;
+    }
+
+    writeFileAtomic.sync(filePath, value);
 }
 
 module.exports = { isFileKey, readFile, writeFile };

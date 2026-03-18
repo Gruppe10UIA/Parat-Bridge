@@ -1,0 +1,116 @@
+[
+  {
+    "id": "ea1089b94046dd14",
+    "type": "subflow",
+    "name": "Fetch Wasos files",
+    "info": "Fetches all transferable files for a single WaSOS entry.\n\n### Input\n- msg.payload — entry object with .files array, pre-filtered by Check file sizes (WaSOS)\n- msg.metadata — standard metadata (source, target, connection_name)\n\n### Logic\n1. Prepare download list — backs up entry, sends one message per file with join parts\n2. Get WaSOS file (per file) — builds HTTP GET, downloads buffer, stores in global context\n3. Join — reassembles file results into array\n4. Merge files and rebuild entry — separates successful downloads from failures, merges with oversized failures from backup, rebuilds entry\n\n### Output\n- msg.payload — rebuilt entry with updated .files (downloaded) and .failed_files (oversized + download failures)\n- msg.metadata — preserved from input\n",
+    "category": "",
+    "in": [
+      {
+        "x": 60,
+        "y": 280,
+        "wires": [
+          {
+            "id": "1f81434e8a02a248"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 1000,
+        "y": 280,
+        "wires": [
+          {
+            "id": "f99e990ce3eabc8d",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#E7E7AE",
+    "icon": "node-red/file-in.svg"
+  },
+  {
+    "id": "1f81434e8a02a248",
+    "type": "function",
+    "z": "ea1089b94046dd14",
+    "name": "Prepare download list",
+    "func": "/**\n * Backs up the entry and returns one message per file for download.\n *\n * All files arriving here are pre-filtered by Check file sizes (WaSOS)\n * and guaranteed to have a URL and be within size limits.\n */\nconst entry = msg.payload;\nconst files = entry.files;\nconst total = files.length;\n\nconst dl = {\n    entry_backup: JSON.parse(JSON.stringify(entry)),\n    connection_name: msg.metadata.connection_name,\n    message_id: entry.id,\n    metadata: msg.metadata\n};\n\nconst messages = files.map((file, i) => ({\n    _msgid: msg._msgid,\n    payload: file,\n    metadata: msg.metadata,\n    _dl: dl,\n    parts: { id: msg._msgid, type: \"array\", count: total, index: i }\n}));\n\nreturn [messages];\n",
+    "outputs": 1,
+    "timeout": "",
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 200,
+    "y": 280,
+    "wires": [
+      [
+        "2f471865d6543010"
+      ]
+    ]
+  },
+  {
+    "id": "f99e990ce3eabc8d",
+    "type": "function",
+    "z": "ea1089b94046dd14",
+    "name": "Merge files and rebuild entry",
+    "func": "const utils      = global.get(\"utils\");\nconst dl         = msg._dl;\nconst entry      = dl.entry_backup;\nconst downloaded = Array.isArray(msg.payload) ? msg.payload : [msg.payload];\n\n// Only successfully downloaded files go into entry.files\nentry.files = downloaded.filter(f => f.downloaded);\n\n// Files without context_key failed during download — add to failed_files\nconst download_failed = downloaded\n    .filter(f => !f.downloaded)\n    .map(f => ({ name: f.name || \"ukjent fil\", reason: utils.FILE_REASONS.DOWNLOAD_FAILED }));\n\n// Merge with failed_files already set by Classify attachments\nentry.failed_files = [\n    ...(entry.failed_files || []),\n    ...download_failed\n];\n\nnode.log(\"File download complete for entry \" + entry.id + \": \"\n    + entry.files.length + \" stored, \"\n    + download_failed.length + \" failed\");\n\n\nreturn {\n    _msgid:   msg._msgid,\n    payload:  entry,\n    metadata: dl.metadata\n};",
+    "outputs": 1,
+    "timeout": "",
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 800,
+    "y": 280,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "fef7788da99b233a",
+    "type": "join",
+    "z": "ea1089b94046dd14",
+    "name": "",
+    "mode": "auto",
+    "build": "object",
+    "property": "payload",
+    "propertyType": "msg",
+    "key": "topic",
+    "joiner": "\\n",
+    "joinerType": "str",
+    "useparts": false,
+    "accumulate": true,
+    "timeout": "",
+    "count": "",
+    "reduceRight": false,
+    "reduceExp": "",
+    "reduceInit": "",
+    "reduceInitType": "",
+    "reduceFixup": "",
+    "x": 590,
+    "y": 280,
+    "wires": [
+      [
+        "f99e990ce3eabc8d"
+      ]
+    ]
+  },
+  {
+    "id": "2f471865d6543010",
+    "type": "subflow:a04671bb4cc2108f",
+    "z": "ea1089b94046dd14",
+    "name": "",
+    "x": 400,
+    "y": 280,
+    "wires": [
+      [
+        "fef7788da99b233a"
+      ]
+    ]
+  }
+]

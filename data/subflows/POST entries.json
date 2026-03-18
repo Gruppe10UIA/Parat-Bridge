@@ -1,9 +1,9 @@
 [
   {
-    "id": "5b554f0e5b6f4d30",
+    "id": "32cf505a4efbb214",
     "type": "subflow",
     "name": "POST entries",
-    "info": "Routes entries to the correct POST subflow based on target system.\n\n### Input\n`msg.entry` = Entry with Metadata\n\n### Logic\nSwitch on `msg.entry.metadata.target.client_system` -> POST to Rayvn log or POST to Wasos chat.\n\n### Output 1\nRayvn POST response\n\n### Output 2\nWaSOS POST response",
+    "info": "Routes entries to the correct POST subflow based on the target system.\n\n### Input\n`msg.entry` — bridge entry with `entry.metadata.failed_files` set by the GET side.\n\n### Logic\n1. Bridge entry to client handles attachment failures, patches entry.text for\n   non-upload destinations (WaSOS), and builds msg.payload in the target system format.\n   Notifications for WaSOS are fired via internal link-call inside Bridge entry to client.\n2. Switch routes on msg.metadata.target.client_system (set by the Bridge adapter).\n3. POST to WaSOS chat / POST to Rayvn log posts to the target system.\n   Notifications for Rayvn are fired via internal link-call inside POST to Rayvn log.\n\n### Output 1\nPOST response from both destinations (msg.result set by Return response).\n\n### Notifications\nHandled internally in Bridge entry to client and POST to Rayvn log via link-call —\ndo not surface through subflow output ports.",
     "category": "",
     "in": [
       {
@@ -11,23 +11,23 @@
         "y": 180,
         "wires": [
           {
-            "id": "854554a6bb86e48c"
+            "id": "58a56ad1bbf8c028"
           }
         ]
       }
     ],
     "out": [
       {
-        "x": 1080,
+        "x": 1050,
         "y": 180,
         "wires": [
           {
-            "id": "5adc9f55c147a330",
-            "port": 1
+            "id": "6dd72aa23c2737b5",
+            "port": 0
           },
           {
-            "id": "8e48a46d6f60d162",
-            "port": 1
+            "id": "7f744bf3c0def6f6",
+            "port": 0
           }
         ]
       }
@@ -38,34 +38,9 @@
     "icon": "font-awesome/fa-send"
   },
   {
-    "id": "5adc9f55c147a330",
-    "type": "subflow:4a6a1af9b9af6b0f",
-    "z": "5b554f0e5b6f4d30",
-    "name": "",
-    "x": 770,
-    "y": 180,
-    "wires": [
-      [],
-      []
-    ]
-  },
-  {
-    "id": "854554a6bb86e48c",
-    "type": "subflow:a9600579fb00971d",
-    "z": "5b554f0e5b6f4d30",
-    "name": "",
-    "x": 280,
-    "y": 180,
-    "wires": [
-      [
-        "5f6de5b415820c6e"
-      ]
-    ]
-  },
-  {
-    "id": "5f6de5b415820c6e",
+    "id": "249894e937d53097",
     "type": "switch",
-    "z": "5b554f0e5b6f4d30",
+    "z": "32cf505a4efbb214",
     "name": "",
     "property": "metadata.target.client_system",
     "propertyType": "msg",
@@ -89,28 +64,71 @@
     "checkall": "true",
     "repair": false,
     "outputs": 3,
-    "x": 510,
+    "x": 630,
     "y": 180,
     "wires": [
       [
-        "8e48a46d6f60d162"
+        "7f744bf3c0def6f6"
       ],
       [
-        "5adc9f55c147a330"
+        "6dd72aa23c2737b5"
       ],
       []
     ]
   },
   {
-    "id": "8e48a46d6f60d162",
-    "type": "subflow:209f3c980818c499",
-    "z": "5b554f0e5b6f4d30",
+    "id": "7f744bf3c0def6f6",
+    "type": "subflow:c52035853d082eb0",
+    "z": "32cf505a4efbb214",
     "name": "",
-    "x": 780,
-    "y": 120,
+    "x": 850,
+    "y": 140,
     "wires": [
-      [],
       []
+    ]
+  },
+  {
+    "id": "6dd72aa23c2737b5",
+    "type": "subflow:b2abcd423e9a8bc6",
+    "z": "32cf505a4efbb214",
+    "name": "",
+    "x": 840,
+    "y": 200,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "58a56ad1bbf8c028",
+    "type": "subflow:41215cf9ced60b7f",
+    "z": "32cf505a4efbb214",
+    "name": "",
+    "x": 300,
+    "y": 180,
+    "wires": [
+      [
+        "8235328c321e485a"
+      ]
+    ]
+  },
+  {
+    "id": "8235328c321e485a",
+    "type": "function",
+    "z": "32cf505a4efbb214",
+    "name": "Prune",
+    "func": "return {msgid: msg._msgid,\n        entry: msg.entry,\n        _retries: msg._retries,\n        metadata: msg.metadata,\n        payload: msg.payload}",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 490,
+    "y": 180,
+    "wires": [
+      [
+        "249894e937d53097"
+      ]
     ]
   }
 ]

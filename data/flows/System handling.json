@@ -306,7 +306,7 @@
     "z": "003e75aaa2880405",
     "g": "9ab1f6c2842073c5",
     "name": "Initialize system functions",
-    "func": "global.set('utils', {\n\n    build_connection_name: (clients) => {\n        return [...clients]\n            .sort((a, b) => a.client_system.localeCompare(b.client_system))\n            .map(c => `${c.client_system}-${c.identifier}`)\n            .join(\"_\");\n    },\n\n    build_label: (client) => {\n        const colors = {\n            wasos:        \"#1f871f\",\n            rayvn:        \"#000000\",\n            parat_bridge: \"#b80d18\"\n        };\n        return {\n            id:       client.identifier,\n            name:     `[${client.client_system}]: ${client.name}`,\n            colorHex: colors[client.client_system] || \"#888888\"\n        };\n    },\n\n    build_callsign: (client) => `[${client.client_system}:${client.name}]`\n});\n\nreturn msg;",
+    "func": "global.set('utils', {\n\n    build_connection_name: (clients) => {\n        return [...clients]\n            .sort((a, b) => a.client_system.localeCompare(b.client_system))\n            .map(c => `${c.client_system}-${c.identifier}`)\n            .join(\"_\");\n    },\n\n    build_label: (client) => {\n        const colors = {\n            wasos:        \"#1f871f\",\n            rayvn:        \"#000000\",\n            parat_bridge: \"#b80d18\"\n        };\n        return {\n            id:       client.identifier,\n            name:     `[${client.client_system}]: ${client.name}`,\n            colorHex: colors[client.client_system] || \"#888888\"\n        };\n    },\n\n    build_callsign: (client) => `[${client.client_system}:${client.name}]`,\n\n    FILE_REASONS: {\n        OVERSIZED:        \"oversized\",\n        NON_TRANSFERABLE: \"non_transferable\",\n        DOWNLOAD_FAILED:  \"download_failed\",\n        UPLOAD_FAILED:    \"upload_failed\"\n    },\n\n    build_file_key: (message_id, connection_name, filename) => {\n        const safe = filename.replace(/[\\\\\\/\\:*?\"<>|]/g, \"_\");\n        return message_id + \"---\" + connection_name + \"---\" + safe;\n    },\n\n    parse_file_key: (key) => {\n        const raw   = key.startsWith(\"files.\") ? key.slice(\"files.\".length) : key;\n        const parts = raw.split(\"---\");\n        return {\n            message_id:      parts[0]              || null,\n            connection_name: parts[1]              || null,\n            filename:        parts.slice(2).join(\"---\") || null\n        };\n    }\n\n});\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -430,6 +430,72 @@
     ],
     "x": 725,
     "y": 200,
+    "wires": []
+  },
+  {
+    "id": "16d793b66e21d0b0",
+    "type": "link in",
+    "z": "003e75aaa2880405",
+    "name": "attachment notification ",
+    "links": [],
+    "x": 155,
+    "y": 660,
+    "wires": [
+      [
+        "14f95d6e748d45c9",
+        "1beaed95586efc2b"
+      ]
+    ]
+  },
+  {
+    "id": "14f95d6e748d45c9",
+    "type": "function",
+    "z": "003e75aaa2880405",
+    "name": "Build notification text",
+    "func": "/**\n * Build a user-facing notification about file transfer failures.\n * Groups failed files by reason and builds one combined message.\n */\nconst utils = global.get(\"utils\");\nconst event = msg.payload;\n\nconst groups = {};\nfor (const f of (event.failed_files || [])) {\n    if (!groups[f.reason]) groups[f.reason] = [];\n    groups[f.reason].push(f.name);\n}\n\nconst lines = [];\n\nif (groups[utils.FILE_REASONS.OVERSIZED]) {\n    lines.push(\"⚠️ \" + groups[utils.FILE_REASONS.OVERSIZED].length\n        + \" vedlegg for store for mottakersystemet (maks 1 MB): \"\n        + groups[utils.FILE_REASONS.OVERSIZED].join(\", \") + \".\");\n}\n\nif (groups[utils.FILE_REASONS.NON_TRANSFERABLE]) {\n    lines.push(\"⚠️ \" + groups[utils.FILE_REASONS.NON_TRANSFERABLE].length\n        + \" vedlegg kan ikke overføres automatisk. \"\n        + \"Tips: Høyreklikk på vedlegg → «Kopier adresse» → lim inn adressen som tekst.\");\n}\n\nif (groups[utils.FILE_REASONS.DOWNLOAD_FAILED]) {\n    lines.push(\"⚠️ \" + groups[utils.FILE_REASONS.DOWNLOAD_FAILED].length\n        + \" vedlegg kunne ikke lastes ned fra kildesystemet: \"\n        + groups[utils.FILE_REASONS.DOWNLOAD_FAILED].join(\", \") + \".\");\n}\n\nif (groups[utils.FILE_REASONS.UPLOAD_FAILED]) {\n    lines.push(\"⚠️ \" + groups[utils.FILE_REASONS.UPLOAD_FAILED].length\n        + \" vedlegg ble avvist av mottakersystemet: \"\n        + groups[utils.FILE_REASONS.UPLOAD_FAILED].join(\", \") + \".\");\n}\n\nif (lines.length === 0) return null;\n\nmsg._notification_text = lines.join(\" \");\nmsg._event = event;\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": "",
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 360,
+    "y": 660,
+    "wires": [
+      [
+        "31b41dcb6554ca99"
+      ]
+    ]
+  },
+  {
+    "id": "31b41dcb6554ca99",
+    "type": "function",
+    "z": "003e75aaa2880405",
+    "name": "Build queue-ready entry",
+    "func": "/**\n * Wrap the notification text in a bridge entry format\n * that can be sent through the queue to the sender's system.\n *\n * The entry is addressed FROM parat_bridge TO the sender.\n * This means it goes to the same system the sender used,\n * so they see the notification in their own interface.\n *\n * client_system is set to 'parat_bridge' so the Filter subflow\n * recognises and drops it when polled back, preventing loops.\n *\n * Returns a clean object — no inherited properties.\n */\nconst event    = msg._event;\nconst metadata = event.metadata;\nconst now      = Date.now();\n\nreturn {\n    topic: \"new_message\",\n    entry: {\n        id:        \"pb-att-\" + now + \"-\" + Math.random().toString(36).substr(2, 6),\n        text:      msg._notification_text,\n        timestamp: now,\n        author:    \"System-melding\",\n        labels:    [],\n        metadata: {\n            source: {\n                client_system: \"parat_bridge\",\n                name:          \"parat_bridge\",\n                identifier:    \"parat_bridge\"\n            },\n            target:          metadata.source,\n            connection_name: metadata.connection_name,\n            files: null\n        }\n    }\n};",
+    "outputs": 1,
+    "timeout": "",
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 640,
+    "y": 660,
+    "wires": [
+      [
+        "5cfcc740a3ba2cfa"
+      ]
+    ]
+  },
+  {
+    "id": "1beaed95586efc2b",
+    "type": "link out",
+    "z": "003e75aaa2880405",
+    "name": "message failed recieved",
+    "mode": "return",
+    "links": [],
+    "x": 255,
+    "y": 740,
     "wires": []
   }
 ]

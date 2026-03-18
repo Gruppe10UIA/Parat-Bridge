@@ -8,8 +8,8 @@
     "in": [],
     "out": [
       {
-        "x": 1080,
-        "y": 360,
+        "x": 1220,
+        "y": 500,
         "wires": [
           {
             "id": "ea7ebf58285971a8",
@@ -38,12 +38,14 @@
     "nodes": [
       "c742e6faf67ffe65",
       "ea7ebf58285971a8",
-      "8e7999633660b2fd"
+      "8e7999633660b2fd",
+      "a8665ad873dfec2a",
+      "0ffad8a0df8b69ed"
     ],
     "x": 34,
-    "y": 319,
-    "w": 822,
-    "h": 82
+    "y": 399,
+    "w": 1132,
+    "h": 122
   },
   {
     "id": "df3ce13d4cb1f110",
@@ -112,32 +114,6 @@
     ]
   },
   {
-    "id": "6c9f36725782f795",
-    "type": "subflow:7cecb563cf8b234a",
-    "z": "7613a77a1b834225",
-    "name": "",
-    "x": 970,
-    "y": 40,
-    "wires": [],
-    "info": "Centralized error handler for this subflow.\r\nReceives errors from the catch node and:\r\n- Classifies and logs the error\r\n- Sends notification to Rayvn and WaSOS\r\n  if 5+ consecutive failures occur"
-  },
-  {
-    "id": "b4a456641b6c852d",
-    "type": "catch",
-    "z": "7613a77a1b834225",
-    "name": "",
-    "scope": null,
-    "uncaught": false,
-    "x": 800,
-    "y": 40,
-    "wires": [
-      [
-        "6c9f36725782f795"
-      ]
-    ],
-    "info": "Catches all errors from nodes in this subflow\r\nand forwards them to the centralized \r\nError Handler subflow for classification,\r\nlogging and notification."
-  },
-  {
     "id": "08b97ed44f272d94",
     "type": "switch",
     "z": "7613a77a1b834225",
@@ -184,7 +160,7 @@
     "g": "5851956660723990",
     "name": "",
     "x": 160,
-    "y": 360,
+    "y": 480,
     "wires": [
       [
         "8e7999633660b2fd"
@@ -218,15 +194,15 @@
     "z": "7613a77a1b834225",
     "g": "5851956660723990",
     "name": "Attach metadata and prune msg object",
-    "func": "return {\n    _msgid: msg._msgid,\n    topic: \"new_message\",  \n    entry: {\n        id:        msg.payload.id,\n        text:      msg.payload.text,\n        timestamp: msg.payload.timestamp,\n        author:    msg.payload.author,\n        files:     msg.payload.files,\n        labels:    msg.payload.labels,\n        metadata:  msg.metadata\n    }\n};\n",
+    "func": "/**\n * Cleans the msg object and builds the entry structure\n * used throughout the POST flow.\n */\nreturn {\n    _msgid: msg._msgid,\n    topic:  \"new_message\",\n    entry: {\n        id:        msg.payload.id,\n        text:      msg.payload.text,\n        timestamp: msg.payload.timestamp,\n        author:    msg.payload.author,\n        labels:    msg.payload.labels || [],\n        metadata:  msg.metadata\n    }\n};\n\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 680,
-    "y": 360,
+    "x": 990,
+    "y": 480,
     "wires": [
       []
     ]
@@ -238,10 +214,10 @@
     "g": "5851956660723990",
     "name": "",
     "x": 380,
-    "y": 360,
+    "y": 480,
     "wires": [
       [
-        "ea7ebf58285971a8"
+        "a8665ad873dfec2a"
       ]
     ]
   },
@@ -270,6 +246,76 @@
     "wires": [
       [
         "94cdd66cf607a970"
+      ]
+    ]
+  },
+  {
+    "id": "6c9f36725782f795",
+    "type": "subflow:7cecb563cf8b234a",
+    "z": "7613a77a1b834225",
+    "name": "",
+    "x": 970,
+    "y": 40,
+    "wires": [],
+    "info": "Centralized error handler for this subflow.\r\nReceives errors from the catch node and:\r\n- Classifies and logs the error\r\n- Sends notification to Rayvn and WaSOS\r\n  if 5+ consecutive failures occur"
+  },
+  {
+    "id": "b4a456641b6c852d",
+    "type": "catch",
+    "z": "7613a77a1b834225",
+    "name": "",
+    "scope": null,
+    "uncaught": false,
+    "x": 800,
+    "y": 40,
+    "wires": [
+      [
+        "6c9f36725782f795"
+      ]
+    ],
+    "info": "Catches all errors from nodes in this subflow\r\nand forwards them to the centralized \r\nError Handler subflow for classification,\r\nlogging and notification."
+  },
+  {
+    "id": "a8665ad873dfec2a",
+    "type": "switch",
+    "z": "7613a77a1b834225",
+    "g": "5851956660723990",
+    "name": "Has files?",
+    "property": "payload.files",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "nempty"
+      },
+      {
+        "t": "else"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 2,
+    "x": 560,
+    "y": 480,
+    "wires": [
+      [
+        "0ffad8a0df8b69ed"
+      ],
+      [
+        "ea7ebf58285971a8"
+      ]
+    ]
+  },
+  {
+    "id": "0ffad8a0df8b69ed",
+    "type": "subflow:e3f90dc1120210b3",
+    "z": "7613a77a1b834225",
+    "g": "5851956660723990",
+    "name": "",
+    "x": 730,
+    "y": 440,
+    "wires": [
+      [
+        "ea7ebf58285971a8"
       ]
     ]
   }
