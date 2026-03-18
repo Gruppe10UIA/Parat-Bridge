@@ -51,7 +51,8 @@ function loadQueue() {
  * does not match any loaded connection.
  *
  * Key format: {message_id}---{connection_name}---{filename}
- * This is the only time fs is used directly on the files directory.
+ * This is the only place that enumerates and prunes the files directory; other
+ * modules may still access individual files within it.
  *
  * @param {Object} connections - already-loaded connections, keyed by name
  * @returns {Array} context keys for retained files, e.g. ["files.abc---conn---photo.jpg"]
