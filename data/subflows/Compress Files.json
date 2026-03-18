@@ -1,0 +1,81 @@
+[
+  {
+    "id": "877a76e7a01fd7ae",
+    "type": "subflow",
+    "name": "Compress Files",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 80,
+        "y": 100,
+        "wires": [
+          {
+            "id": "31919019d2d7f328"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 760,
+        "y": 100,
+        "wires": [
+          {
+            "id": "31919019d2d7f328",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [
+      {
+        "name": "TARGET_SIZE",
+        "type": "num",
+        "value": "1048576"
+      }
+    ],
+    "meta": {},
+    "color": "#518c69",
+    "icon": "font-awesome/fa-compress"
+  },
+  {
+    "id": "31919019d2d7f328",
+    "type": "function",
+    "z": "877a76e7a01fd7ae",
+    "name": "Compress File Buffers",
+    "func": "const TARGET_SIZE = env.get(\"TARGET_SIZE\");\nconst items = msg.metadata.files.items;\nconst utils = global.get(\"utils\");\nconst tmpDir = os.tmpdir();\nconst kept = [];\n\nfor (const file of items) {\n    const buffer = global.get(\"files.\" + file.context_key);\n\n    if (!buffer || buffer.length === 0) {\n        kept.push(file);\n        continue;\n    }\n\n    if (buffer.length <= TARGET_SIZE) {\n        kept.push(file);\n        continue;\n    }\n\n    if (!utils.is_compressible(file.type)) {\n        kept.push(file);\n        continue;\n    }\n\n    const isVideo = file.type.startsWith('video/');\n    const isAudio = file.type.startsWith('audio/');\n    const isImage = file.type.startsWith('image/');\n\n    // --- IMAGE: compress with sharp ---\n    if (isImage) {\n        try {\n            let quality = 80;\n            let compressed = await sharp(buffer).rotate().jpeg({ quality }).toBuffer();\n\n            while (compressed.length > TARGET_SIZE && quality > 10) {\n                quality -= 10;\n                compressed = await sharp(buffer).rotate().jpeg({ quality }).toBuffer();\n            }\n\n            if (compressed.length <= TARGET_SIZE) {\n                global.set(\"files.\" + file.context_key, compressed);\n                file.name = file.name.replace(/\\.[^.]+$/, '') + '.jpg';\n                file.type = 'image/jpeg';\n                file.size = compressed.length;\n                node.warn('[SHARP] ' + file.name + ': ' + buffer.length + ' → ' + compressed.length + ' bytes (quality: ' + quality + ')');\n                kept.push(file);\n            } else {\n                node.warn('[SHARP] Could not compress ' + file.name + ' under target');\n                msg.metadata.files.failed.push({ name: file.name, reason: utils.FILE_REASONS.COMPRESS_FAILED });\n            }\n        } catch (e) {\n            node.warn('[SHARP] Error: ' + e.message);\n            msg.metadata.files.failed.push({ name: file.name, reason: utils.FILE_REASONS.COMPRESS_FAILED });\n        }\n        continue;\n    }\n\n    // --- VIDEO/AUDIO: compress with ffmpeg ---\n    const ts = Date.now();\n    const inputPath = path.join(tmpDir, 'parat_in_' + ts + '_' + file.name);\n    const outputExt = isVideo ? '.mp4' : '.aac';\n    const outputPath = path.join(tmpDir, 'parat_out_' + ts + outputExt);\n\n    fs.writeFileSync(inputPath, buffer);\n\n    try {\n        const duration = await new Promise((res, rej) => {\n            childProcess.execFile('ffprobe', [\n                '-v', 'error',\n                '-show_entries', 'format=duration',\n                '-of', 'default=noprint_wrappers=1:nokey=1',\n                inputPath\n            ], { timeout: 15000 }, (err, stdout) => {\n                if (err) return rej(err);\n                const d = parseFloat(stdout);\n                if (isNaN(d) || d <= 0) return rej(new Error('Invalid duration: ' + stdout));\n                res(d);\n            });\n        });\n\n        const targetBytes = TARGET_SIZE - (32 * 1024);\n        const audioBitrate = 64000;\n        const totalBitrate = Math.floor((targetBytes * 8) / duration);\n        const videoBitrate = Math.max(totalBitrate - audioBitrate, 50000);\n\n        const args = ['-i', inputPath, '-y'];\n\n        if (isVideo) {\n            args.push(\n                '-vcodec', 'libx264',\n                '-b:v', videoBitrate + '',\n                '-maxrate', videoBitrate + '',\n                '-bufsize', Math.floor(videoBitrate / 2) + '',\n                '-preset', 'fast',\n                '-vf', 'scale=min(640\\\\,iw):min(480\\\\,ih):force_original_aspect_ratio=decrease,scale=trunc(iw/2)*2:trunc(ih/2)*2',\n                '-acodec', 'aac',\n                '-b:a', '64k',\n                '-movflags', '+faststart'\n            );\n        } else {\n            const audioBr = Math.min(Math.floor(totalBitrate), 128000);\n            args.push('-acodec', 'aac', '-b:a', audioBr + '');\n        }\n\n        args.push(outputPath);\n\n        const compressed = await new Promise((res, rej) => {\n            childProcess.execFile('ffmpeg', args, { timeout: 120000 }, (error) => {\n                if (error) return rej(error);\n                res(fs.readFileSync(outputPath));\n            });\n        });\n\n        node.warn('[FFMPEG] ' + file.name + ': ' + buffer.length + ' → ' + compressed.length + ' bytes (duration: ' + duration.toFixed(1) + 's)');\n\n        global.set(\"files.\" + file.context_key, compressed);\n        if (isVideo) {\n            file.name = file.name.replace(/\\.[^.]+$/, '') + '.mp4';\n            file.type = 'video/mp4';\n        }\n        file.size = compressed.length;\n        kept.push(file);\n\n        fs.unlinkSync(inputPath);\n        fs.unlinkSync(outputPath);\n    } catch (e) {\n        node.warn('[FFMPEG] Failed for ' + file.name + ': ' + e.message);\n        try { fs.unlinkSync(inputPath); } catch (err) { }\n        try { fs.unlinkSync(outputPath); } catch (err) { }\n        msg.metadata.files.failed.push({ name: file.name, reason: utils.FILE_REASONS.COMPRESS_FAILED });\n    }\n}\n\nmsg.metadata.files.items = kept;\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [
+      {
+        "var": "childProcess",
+        "module": "child_process"
+      },
+      {
+        "var": "fs",
+        "module": "fs"
+      },
+      {
+        "var": "path",
+        "module": "path"
+      },
+      {
+        "var": "os",
+        "module": "os"
+      },
+      {
+        "var": "sharp",
+        "module": "sharp"
+      }
+    ],
+    "x": 420,
+    "y": 100,
+    "wires": [
+      []
+    ]
+  }
+]

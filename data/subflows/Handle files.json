@@ -79,7 +79,7 @@
     "type": "function",
     "z": "e3f90dc1120210b3",
     "name": "Check file sizes (WaSOS)",
-    "func": "const MAX_UPLOAD_BYTES = 1048576; // 1 MB\nconst utils = global.get(\"utils\");\nconst files = msg.payload.files || [];\n\nconst transferable = [];\nconst failed = msg.payload.failed_files || [];\n\nfiles.forEach(file => {\n    if (file.size && file.size > MAX_UPLOAD_BYTES) {\n        failed.push({ name: file.name || \"ukjent fil\", reason: utils.FILE_REASONS.OVERSIZED });\n    } else {\n        transferable.push(file);\n    }\n});\n\nmsg.payload.files = transferable;\nmsg.payload.failed_files = failed;\n\nif (transferable.length === 0) {\n    return [null, msg];\n}\n\nreturn [msg, null];",
+    "func": "const MAX_UPLOAD_BYTES = 1048576; // 1 MB\nconst utils = global.get(\"utils\");\nconst files = msg.payload.files || [];\n\nconst transferable = [];\nconst failed = msg.payload.failed_files || [];\n\nfiles.forEach(file => {\n    if (!file.size || file.size <= MAX_UPLOAD_BYTES) {\n        transferable.push(file);\n        return;\n    }\n\n    if (utils.is_compressible(file.type)) {\n        transferable.push(file);\n    } else {\n        failed.push({ name: file.name || \"ukjent fil\", reason: utils.FILE_REASONS.OVERSIZED });\n    }\n});\n\nmsg.payload.files = transferable;\nmsg.payload.failed_files = failed;\n\nif (transferable.length === 0) {\n    return [null, msg];\n}\n\nreturn [msg, null];",
     "outputs": 2,
     "timeout": "",
     "noerr": 0,
@@ -87,7 +87,7 @@
     "finalize": "",
     "libs": [],
     "x": 530,
-    "y": 360,
+    "y": 340,
     "wires": [
       [
         "2106dda89d82174f"
@@ -143,7 +143,7 @@
     "z": "e3f90dc1120210b3",
     "name": "",
     "x": 830,
-    "y": 340,
+    "y": 300,
     "wires": [
       [
         "17deec56848f9406"
