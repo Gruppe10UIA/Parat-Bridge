@@ -1,0 +1,148 @@
+[
+  {
+    "id": "f0eb857d54dfb4ac",
+    "type": "subflow",
+    "name": "Handle Wasos response",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 60,
+        "y": 80,
+        "wires": [
+          {
+            "id": "f825c79007c454f4"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 1020,
+        "y": 100,
+        "wires": [
+          {
+            "id": "1473068f9c8ee0fd",
+            "port": 1
+          },
+          {
+            "id": "6bb4a20bff89af79",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#DDAA99"
+  },
+  {
+    "id": "871c0cd773068b95",
+    "type": "function",
+    "z": "f0eb857d54dfb4ac",
+    "name": "Filter",
+    "func": "const cursorTs = msg.metadata.source.timestamp;\nconst bridgePattern = /\\[(?:rayvn|cim|parat_bridge)(?::|])/;\n\nmsg.payload = msg.payload.filter(entry => {\n    if (new Date(entry.createdAt).getTime() <= cursorTs) return false;\n    if (entry.content && bridgePattern.test(entry.content)) return false;\n    if (entry.username && bridgePattern.test(entry.username)) return false;\n    return true;\n});\n\nif (msg.payload.length === 0) return null;\n\n// Advance cursor to newest surviving entry (array is sorted, last = newest)\nglobal.set(\n    `parat_bridge.connections.${msg.metadata.connection_name}.clients.${msg.metadata.source.identifier}.timestamp`,\n    new Date(msg.payload[msg.payload.length - 1].createdAt).getTime()\n);\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 330,
+    "y": 80,
+    "wires": [
+      [
+        "5742f4a043b191b2"
+      ]
+    ]
+  },
+  {
+    "id": "6bb4a20bff89af79",
+    "type": "function",
+    "z": "f0eb857d54dfb4ac",
+    "name": "Attachment handling",
+    "func": "\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 800,
+    "y": 60,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "1473068f9c8ee0fd",
+    "type": "switch",
+    "z": "f0eb857d54dfb4ac",
+    "name": "",
+    "property": "payload",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "eq",
+        "v": "",
+        "vt": "str"
+      },
+      {
+        "t": "eq",
+        "v": "",
+        "vt": "str"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 2,
+    "x": 630,
+    "y": 80,
+    "wires": [
+      [
+        "6bb4a20bff89af79"
+      ],
+      []
+    ]
+  },
+  {
+    "id": "5742f4a043b191b2",
+    "type": "split",
+    "z": "f0eb857d54dfb4ac",
+    "name": "",
+    "splt": "\\n",
+    "spltType": "str",
+    "arraySplt": 1,
+    "arraySpltType": "len",
+    "stream": false,
+    "addname": "",
+    "property": "payload",
+    "x": 470,
+    "y": 80,
+    "wires": [
+      [
+        "1473068f9c8ee0fd"
+      ]
+    ]
+  },
+  {
+    "id": "f825c79007c454f4",
+    "type": "function",
+    "z": "f0eb857d54dfb4ac",
+    "name": "sort time",
+    "func": "if (!msg.payload || msg.payload.length === 0) return null;\n\nmsg.payload.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 180,
+    "y": 80,
+    "wires": [
+      [
+        "871c0cd773068b95"
+      ]
+    ]
+  }
+]
