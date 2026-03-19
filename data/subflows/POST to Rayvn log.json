@@ -91,7 +91,7 @@
     "y": 220,
     "wires": [
       [
-        "1a20545abe1efe2a"
+        "a9b67a0b8158e662"
       ],
       [
         "ca703649d8df47b3"
@@ -103,8 +103,8 @@
     "type": "subflow:158402d297efa0f8",
     "z": "b2abcd423e9a8bc6",
     "name": "",
-    "x": 410,
-    "y": 120,
+    "x": 330,
+    "y": 140,
     "wires": [
       [
         "ca703649d8df47b3"
@@ -166,19 +166,6 @@
     "wires": [
       [
         "5b501bc2a77d779a"
-      ]
-    ]
-  },
-  {
-    "id": "1a20545abe1efe2a",
-    "type": "subflow:877a76e7a01fd7ae",
-    "z": "b2abcd423e9a8bc6",
-    "name": "",
-    "x": 180,
-    "y": 120,
-    "wires": [
-      [
-        "a9b67a0b8158e662"
       ]
     ]
   }

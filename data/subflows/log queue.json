@@ -189,23 +189,6 @@
     "wires": []
   },
   {
-    "id": "4461d77da5387fe7",
-    "type": "debug",
-    "z": "2e632affbd071524",
-    "name": "Message send",
-    "active": true,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "true",
-    "targetType": "full",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 1020,
-    "y": 360,
-    "wires": []
-  },
-  {
     "id": "006115f685dcf065",
     "type": "debug",
     "z": "2e632affbd071524",

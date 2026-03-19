@@ -438,8 +438,8 @@
     "z": "003e75aaa2880405",
     "name": "attachment notification ",
     "links": [],
-    "x": 155,
-    "y": 660,
+    "x": 85,
+    "y": 580,
     "wires": [
       [
         "14f95d6e748d45c9",
@@ -459,8 +459,8 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 360,
-    "y": 660,
+    "x": 290,
+    "y": 580,
     "wires": [
       [
         "31b41dcb6554ca99"
@@ -479,8 +479,8 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 640,
-    "y": 660,
+    "x": 570,
+    "y": 580,
     "wires": [
       [
         "5cfcc740a3ba2cfa"
@@ -494,8 +494,8 @@
     "name": "message failed recieved",
     "mode": "return",
     "links": [],
-    "x": 255,
-    "y": 740,
+    "x": 185,
+    "y": 660,
     "wires": []
   }
 ]

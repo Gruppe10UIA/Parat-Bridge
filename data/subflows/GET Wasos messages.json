@@ -96,22 +96,5 @@
     "wires": [
       []
     ]
-  },
-  {
-    "id": "d2c3209275b15864",
-    "type": "debug",
-    "z": "e97e0c90387d0adc",
-    "name": "Wasos GET",
-    "active": true,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "true",
-    "targetType": "full",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 810,
-    "y": 20,
-    "wires": []
   }
 ]

@@ -37,15 +37,12 @@
     },
     "nodes": [
       "c742e6faf67ffe65",
-      "ea7ebf58285971a8",
-      "8e7999633660b2fd",
-      "a8665ad873dfec2a",
-      "0ffad8a0df8b69ed"
+      "ea7ebf58285971a8"
     ],
-    "x": 34,
+    "x": 174,
     "y": 439,
-    "w": 912,
-    "h": 262
+    "w": 772,
+    "h": 82
   },
   {
     "id": "df3ce13d4cb1f110",
@@ -202,18 +199,6 @@
     ]
   },
   {
-    "id": "8e7999633660b2fd",
-    "type": "subflow:0047704f35a57b0c",
-    "z": "7613a77a1b834225",
-    "g": "5851956660723990",
-    "name": "",
-    "x": 150,
-    "y": 580,
-    "wires": [
-      []
-    ]
-  },
-  {
     "id": "8673cf0ab571261b",
     "type": "subflow:a1b5b8de4109fab7",
     "z": "7613a77a1b834225",
@@ -266,46 +251,6 @@
       ]
     ],
     "info": "Catches all errors from nodes in this subflow\r\nand forwards them to the centralized \r\nError Handler subflow for classification,\r\nlogging and notification."
-  },
-  {
-    "id": "a8665ad873dfec2a",
-    "type": "switch",
-    "z": "7613a77a1b834225",
-    "g": "5851956660723990",
-    "name": "Has files?",
-    "property": "payload.files",
-    "propertyType": "msg",
-    "rules": [
-      {
-        "t": "nempty"
-      },
-      {
-        "t": "else"
-      }
-    ],
-    "checkall": "true",
-    "repair": false,
-    "outputs": 2,
-    "x": 420,
-    "y": 660,
-    "wires": [
-      [
-        "0ffad8a0df8b69ed"
-      ],
-      []
-    ]
-  },
-  {
-    "id": "0ffad8a0df8b69ed",
-    "type": "subflow:e3f90dc1120210b3",
-    "z": "7613a77a1b834225",
-    "g": "5851956660723990",
-    "name": "",
-    "x": 610,
-    "y": 620,
-    "wires": [
-      []
-    ]
   },
   {
     "id": "658eed5b7407996c",

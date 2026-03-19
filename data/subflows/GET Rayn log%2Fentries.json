@@ -18,11 +18,11 @@
     ],
     "out": [
       {
-        "x": 1200,
-        "y": 140,
+        "x": 800,
+        "y": 160,
         "wires": [
           {
-            "id": "ae71bc183d639e62",
+            "id": "117c225f8da1d516",
             "port": 0
           }
         ]
@@ -73,62 +73,8 @@
     "x": 510,
     "y": 160,
     "wires": [
-      [
-        "ec7d4f7589f03a68"
-      ]
+      []
     ],
     "info": "Fetches all log entries from Rayvn API with GET request. Returns an array of entries that are processed further in the flow."
-  },
-  {
-    "id": "ec7d4f7589f03a68",
-    "type": "change",
-    "z": "a1b5b8de4109fab7",
-    "name": "files adapter",
-    "rules": [
-      {
-        "t": "set",
-        "p": "payload.files",
-        "pt": "msg",
-        "to": "payload.entry.files",
-        "tot": "msg"
-      }
-    ],
-    "action": "",
-    "property": "",
-    "from": "",
-    "to": "",
-    "reg": false,
-    "x": 710,
-    "y": 160,
-    "wires": [
-      [
-        "ae71bc183d639e62"
-      ]
-    ]
-  },
-  {
-    "id": "ae71bc183d639e62",
-    "type": "switch",
-    "z": "a1b5b8de4109fab7",
-    "name": "Has files?",
-    "property": "payload.files",
-    "propertyType": "msg",
-    "rules": [
-      {
-        "t": "nempty"
-      },
-      {
-        "t": "else"
-      }
-    ],
-    "checkall": "true",
-    "repair": false,
-    "outputs": 2,
-    "x": 880,
-    "y": 160,
-    "wires": [
-      [],
-      []
-    ]
   }
 ]

@@ -8,7 +8,7 @@
     "in": [
       {
         "x": 60,
-        "y": 80,
+        "y": 200,
         "wires": [
           {
             "id": "2299041e567b7f54"
@@ -18,12 +18,16 @@
     ],
     "out": [
       {
-        "x": 940,
-        "y": 80,
+        "x": 820,
+        "y": 300,
         "wires": [
           {
-            "id": "91538a46d1d6d022",
-            "port": 0
+            "id": "ae71bc183d639e62",
+            "port": 1
+          },
+          {
+            "id": "1644ded714401b10",
+            "port": 1
           }
         ]
       }
@@ -46,7 +50,7 @@
     "finalize": "",
     "libs": [],
     "x": 350,
-    "y": 80,
+    "y": 200,
     "wires": [
       [
         "051a2682dd9853b9"
@@ -66,10 +70,10 @@
     "addname": "",
     "property": "payload",
     "x": 490,
-    "y": 80,
+    "y": 200,
     "wires": [
       [
-        "91538a46d1d6d022"
+        "ec7d4f7589f03a68"
       ]
     ]
   },
@@ -86,7 +90,7 @@
     "finalize": "",
     "libs": [],
     "x": 200,
-    "y": 80,
+    "y": 200,
     "wires": [
       [
         "ac3d866e6e1ffb07"
@@ -98,16 +102,84 @@
     "type": "function",
     "z": "f23580e27a5eb9f2",
     "name": "Check for manual URL (Rayvn)",
-    "func": "/**\n * Checks if the Rayvn entry text contains a URL.\n *\n * URL found: files are silently dropped (sender provided a link alternative).\n * No URL: all files marked as non-transferable — notification fires after POST.\n */\nconst utils = global.get(\"utils\");\nconst url_pattern = /(?:https?:\\/\\/|ftp:\\/\\/|www\\.)\\S+/i;\nconst has_url = msg.payload.text && url_pattern.test(msg.payload.text);\nconst files = msg.payload.files || [];\n\nif (has_url) {\n    msg.payload.files = [];\n    return msg;\n}\n\nconst failed = msg.payload.failed_files || [];\n\nfiles.forEach(file => {\n    failed.push({ name: file.name || \"ukjent fil\", reason: utils.FILE_REASONS.NON_TRANSFERABLE });\n});\n\nmsg.payload.files = [];\nmsg.payload.failed_files = failed;\n\nreturn msg;\n",
+    "func": "/**\n * Checks if the Rayvn entry text contains a URL.\n *\n * URL found: files silently removed (the link IS the file).\n * No URL: pass through — Classify files already marked as NON_TRANSFERABLE.\n */\nconst url_pattern = /(?:https?:\\/\\/|ftp:\\/\\/|www\\.)\\S+/i;\nconst has_url = msg.payload.text && url_pattern.test(msg.payload.text);\n\nif (has_url) {\n    msg.payload.files = [];\n    if (msg.metadata.files) {\n        msg.metadata.files.failed = [];\n    }\n}\n\nreturn msg;\n",
     "outputs": 1,
     "timeout": "",
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 730,
-    "y": 80,
+    "x": 250,
+    "y": 300,
     "wires": [
+      [
+        "ae71bc183d639e62"
+      ]
+    ]
+  },
+  {
+    "id": "ec7d4f7589f03a68",
+    "type": "change",
+    "z": "f23580e27a5eb9f2",
+    "name": "files adapter",
+    "rules": [
+      {
+        "t": "set",
+        "p": "payload.files",
+        "pt": "msg",
+        "to": "payload.entry.files",
+        "tot": "msg"
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 650,
+    "y": 200,
+    "wires": [
+      [
+        "91538a46d1d6d022"
+      ]
+    ]
+  },
+  {
+    "id": "ae71bc183d639e62",
+    "type": "switch",
+    "z": "f23580e27a5eb9f2",
+    "name": "Has files?",
+    "property": "payload.files",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "nempty"
+      },
+      {
+        "t": "else"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 2,
+    "x": 500,
+    "y": 300,
+    "wires": [
+      [
+        "1644ded714401b10"
+      ],
+      []
+    ]
+  },
+  {
+    "id": "1644ded714401b10",
+    "type": "subflow:2f9af747886c939b",
+    "z": "f23580e27a5eb9f2",
+    "name": "",
+    "x": 650,
+    "y": 260,
+    "wires": [
+      [],
       []
     ]
   }
