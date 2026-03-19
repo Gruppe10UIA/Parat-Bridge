@@ -87,6 +87,19 @@ function loadAndPruneFiles(connections) {
     return retained;
 }
 
+const ERROR_LOG_FILE = BASE_DIR + 'error_log.json';
+
+function loadErrorLog() {
+    try {
+        if (fs.existsSync(ERROR_LOG_FILE)) {
+            return JSON.parse(fs.readFileSync(ERROR_LOG_FILE, 'utf8'));
+        }
+    } catch (err) {
+        console.warn('[context-store] Failed to read error log:', err.message);
+    }
+    return [];
+}
+
 function loadBridgeData() {
     const connections = loadConnections();
     const entry_queue = loadQueue();

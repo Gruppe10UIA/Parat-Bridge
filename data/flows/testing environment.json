@@ -106,7 +106,7 @@
     "type": "function",
     "z": "901ed98289cc4ecd",
     "name": "Invalidate Rayvn API key",
-    "func": "const data        = global.get(\"parat_bridge\");\nconst connections = data.connections;\nconst activeNames = Object.keys(connections).filter(name => connections[name].active);\n\nif (activeNames.length === 0) {\n    node.warn(\"No active connections to invalidate\");\n    return null;\n}\n\nconst targetName = activeNames[0];\n\n// Lagre original nøkkel for restore\nflow.set(\"test_restore\", {\n    connection_name: targetName,\n    rayvn_api_key:   connections[targetName].rayvn.api_key\n});\n\nconnections[targetName].rayvn.api_key = \"invalid_key_for_testing\";\nglobal.set(\"parat_bridge.connections\", connections);\n\nnode.warn(\"Rayvn API key invalidated for: \" + targetName);\nreturn msg;\n",
+    "func": "const data        = global.get(\"parat_bridge\");\nconst connections = data.connections;\nconst activeNames = Object.keys(connections).filter(name => connections[name].active);\n\nif (activeNames.length === 0) {\n    node.warn(\"No active connections to invalidate\");\n    return null;\n}\n\nconst targetName   = activeNames[0];\nconst clients      = connections[targetName].clients;\nconst rayvnId      = Object.keys(clients).find(id => clients[id].client_system === 'rayvn');\n\nif (!rayvnId) {\n    node.warn(\"No Rayvn client found in connection: \" + targetName);\n    return null;\n}\n\nflow.set(\"test_restore\", {\n    connection_name: targetName,\n    client_id:       rayvnId,\n    api_key:         clients[rayvnId].api_key\n});\n\nclients[rayvnId].api_key = \"invalid_key_for_testing\";\nglobal.set(\"parat_bridge.connections\", connections);\nnode.warn(\"Rayvn API key invalidated for: \" + targetName);\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -546,7 +546,7 @@
     "type": "function",
     "z": "901ed98289cc4ecd",
     "name": "Restore Rayvn Key",
-    "func": "const restore = flow.get(\"test_restore\");\n\nif (!restore) {\n    node.warn(\"No stored key to restore — was invalidate run first?\");\n    return null;\n}\n\nconst connections = global.get(\"parat_bridge.connections\") || {};\nconst conn        = connections[restore.connection_name];\n\nif (!conn) {\n    node.warn(\"Connection not found: \" + restore.connection_name);\n    return null;\n}\n\nconn.rayvn.api_key = restore.rayvn_api_key;\nglobal.set(\"parat_bridge.connections\", connections);\nflow.set(\"test_restore\", null);\n\nnode.warn(\"Rayvn API key restored for: \" + restore.connection_name);\nreturn msg;\n",
+    "func": "const restore = flow.get(\"test_restore\");\n\nif (!restore) {\n    node.warn(\"No stored key to restore — was invalidate run first?\");\n    return null;\n}\n\nconst connections = global.get(\"parat_bridge.connections\") || {};\nconst clients = connections[restore.connection_name] && connections[restore.connection_name].clients;\n\nif (!clients || !clients[restore.client_id]) {\n    node.warn(\"Client not found\");\n    return null;\n}\n\nclients[restore.client_id].api_key = restore.api_key;\nglobal.set(\"parat_bridge.connections\", connections);\nflow.set(\"test_restore\", null);\n\nnode.warn(\"Rayvn API key restored for: \" + restore.connection_name);\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -557,6 +557,335 @@
     "y": 640,
     "wires": [
       []
+    ]
+  },
+  {
+    "id": "6819bfea227d0c38",
+    "type": "inject",
+    "z": "901ed98289cc4ecd",
+    "name": "",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 420,
+    "y": 700,
+    "wires": [
+      [
+        "61d7a7533700297f"
+      ]
+    ]
+  },
+  {
+    "id": "61d7a7533700297f",
+    "type": "function",
+    "z": "901ed98289cc4ecd",
+    "name": "Invalidate WasosURL",
+    "func": "const pb = global.get(\"parat_bridge\");\npb.base_urls.wasos = \"https://invalid-url-for-testing.example.com\";\nglobal.set(\"parat_bridge\", pb);\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 720,
+    "y": 700,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "f9f4afa310dbc9f7",
+    "type": "function",
+    "z": "901ed98289cc4ecd",
+    "name": "Restore WaSOS URL",
+    "func": "const pb = global.get(\"parat_bridge\");\npb.base_urls.wasos = \"https://dev.wasos.no\";\nglobal.set(\"parat_bridge\", pb);\nnode.warn(\"WaSOS base URL restored\");\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 720,
+    "y": 780,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "a8bf677f8387e5d2",
+    "type": "inject",
+    "z": "901ed98289cc4ecd",
+    "name": "",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 400,
+    "y": 780,
+    "wires": [
+      [
+        "f9f4afa310dbc9f7"
+      ]
+    ]
+  },
+  {
+    "id": "0714e3d56dfe404c",
+    "type": "inject",
+    "z": "901ed98289cc4ecd",
+    "name": "",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 380,
+    "y": 840,
+    "wires": [
+      [
+        "f92193ec7aae20a8"
+      ]
+    ]
+  },
+  {
+    "id": "f92193ec7aae20a8",
+    "type": "function",
+    "z": "901ed98289cc4ecd",
+    "name": "clear inflight",
+    "func": "global.set(\"parat_bridge.queue.in_flight_connections\", []);\nnode.warn(\"in_flight_connections cleared\");\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 630,
+    "y": 840,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "5f0184184bb434aa",
+    "type": "function",
+    "z": "901ed98289cc4ecd",
+    "name": "ClearError",
+    "func": "global.set('parat_bridge.error_log', []);\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 610,
+    "y": 900,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "764431be791fe88c",
+    "type": "inject",
+    "z": "901ed98289cc4ecd",
+    "name": "",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 380,
+    "y": 900,
+    "wires": [
+      [
+        "5f0184184bb434aa"
+      ]
+    ]
+  },
+  {
+    "id": "f4fa2ad21be001c0",
+    "type": "function",
+    "z": "901ed98289cc4ecd",
+    "name": "Clear Queue",
+    "func": "global.set('parat_bridge.queue.entry_queue', []);\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 630,
+    "y": 960,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "7d258661bcaf6511",
+    "type": "inject",
+    "z": "901ed98289cc4ecd",
+    "name": "",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 380,
+    "y": 960,
+    "wires": [
+      [
+        "f4fa2ad21be001c0"
+      ]
+    ]
+  },
+  {
+    "id": "238067dd1f0786c2",
+    "type": "function",
+    "z": "901ed98289cc4ecd",
+    "name": "Clear CC",
+    "func": "global.set('parat_bridge.circuit_breaker', {});\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 1040,
+    "y": 900,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "904de95c88c5ac0a",
+    "type": "inject",
+    "z": "901ed98289cc4ecd",
+    "name": "",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 900,
+    "y": 900,
+    "wires": [
+      [
+        "238067dd1f0786c2"
+      ]
+    ]
+  },
+  {
+    "id": "2175f69440487112",
+    "type": "function",
+    "z": "901ed98289cc4ecd",
+    "name": "EmptyFailedEntries",
+    "func": "const connections = global.get('parat_bridge.connections') || {};\nObject.keys(connections).forEach(name => {\n    connections[name].failed_entries = [];\n});\nglobal.set('parat_bridge.connections', connections);\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 1070,
+    "y": 980,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "3e7b9d222e8872d6",
+    "type": "inject",
+    "z": "901ed98289cc4ecd",
+    "name": "",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 880,
+    "y": 980,
+    "wires": [
+      [
+        "2175f69440487112"
+      ]
     ]
   }
 ]

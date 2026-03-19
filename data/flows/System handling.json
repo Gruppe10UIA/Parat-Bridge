@@ -78,8 +78,8 @@
       "713fe6179c4d6ef1",
       "064e2f168d28593a"
     ],
-    "x": 24,
-    "y": 379,
+    "x": 64,
+    "y": 399,
     "w": 1402,
     "h": 242
   },
@@ -122,7 +122,7 @@
     "z": "003e75aaa2880405",
     "g": "00eba3e5252a7414",
     "name": "Get error log",
-    "func": "const errorLog = global.get('parat_bridge.error_log') || [];\n\nconst recent = errorLog.slice(0, 10);\n\nmsg.payload = recent.map(e => ({\n    time: e.timestamp.replace('T', ' ').substring(0, 19),\n    type: e.type ? e.type.toUpperCase() : 'UNKNOWN',\n    source: e.source,\n    status: e.statusCode || 'none',\n    severity: e.severity || 'warning',\n    message: (e.raw_message || e.message || '').substring(0, 60)\n}));\n\nreturn msg;\n",
+    "func": "const errorLog = global.get('parat_bridge.error_log') || [];\nconst recent = errorLog.slice(0, 10);\nmsg.payload = recent.map(e => ({\n    time: e.timestamp ? e.timestamp.replace('T', ' ').substring(0, 19) : 'unknown',\n    type: e.type ? e.type.toUpperCase() : 'UNKNOWN',\n    source: e.source || 'unknown',\n    status: e.statusCode || 'none',\n    severity: e.severity || 'warning',\n    message: (e.raw_message || e.message || '').substring(0, 60)\n}));\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -174,10 +174,11 @@
     "g": "67c40d3bdd1cbf59",
     "name": "message failed",
     "links": [
+      "79a2ee00d81f56b3",
       "ce616cbce4705bbb"
     ],
-    "x": 75,
-    "y": 480,
+    "x": 115,
+    "y": 500,
     "wires": [
       [
         "0bf8491c4bebb0eb",
@@ -200,8 +201,8 @@
     "targetType": "full",
     "statusVal": "",
     "statusType": "auto",
-    "x": 900,
-    "y": 420,
+    "x": 940,
+    "y": 440,
     "wires": []
   },
   {
@@ -212,8 +213,8 @@
     "name": "message failed recieved",
     "mode": "return",
     "links": [],
-    "x": 805,
-    "y": 580,
+    "x": 845,
+    "y": 600,
     "wires": []
   },
   {
@@ -331,15 +332,15 @@
     "z": "003e75aaa2880405",
     "g": "67c40d3bdd1cbf59",
     "name": "Write to error log",
-    "func": "const log = global.get('parat_bridge.error_log') || [];\nlog.unshift(msg.error_context);\nif (log.length > 100) log.length = 100;\nglobal.set('parat_bridge.error_log', log);\n\nreturn msg;\n",
+    "func": "const log = global.get('parat_bridge.error_log') || [];\nconst ctx = msg.error_context;\nconst THROTTLE_MS = 5 * 60 * 1000;\nconst now = Date.now();\n\nconst lastSimilar = log.find(e =>\n    e.connection_name === ctx.connection_name &&\n    e.type === ctx.type\n);\n\nif (lastSimilar && lastSimilar.timestamp) {\n    const age = now - new Date(lastSimilar.timestamp).getTime();\n    if (age < THROTTLE_MS) return msg;\n}\n\nlog.unshift(ctx);\nif (log.length > 100) log.length = 100;\nglobal.set('parat_bridge.error_log', log);\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 1170,
-    "y": 420,
+    "x": 1210,
+    "y": 440,
     "wires": [
       []
     ]
@@ -350,15 +351,15 @@
     "z": "003e75aaa2880405",
     "g": "67c40d3bdd1cbf59",
     "name": "Build error message",
-    "func": "const ctx = msg.error_context || {};\nconst code = ctx.statusCode;\n\nlet type, severity, userMessage;\n\nif (!code) {\n    type = 'network';\n    severity = 'critical';\n    userMessage = '⚠️ Forbindelsen er midlertidig nede. Meldinger vil ikke leveres før forbindelsen er gjenopprettet.';\n} else if (code === 401 || code === 403) {\n    type = 'auth';\n    severity = 'critical';\n    userMessage = '⚠️ Autentisering feilet. Kontakt administrator for å fornye tilgangen.';\n} else if (code >= 500) {\n    type = 'server';\n    severity = 'critical';\n    userMessage = '⚠️ Ekstern tjeneste svarer ikke. Meldinger vil ikke leveres før tjenesten er tilgjengelig igjen.';\n} else if (code === 404) {\n    type = 'not_found'; severity = 'warning'; userMessage = null;\n} else if (code === 429) {\n    type = 'rate_limit'; severity = 'warning'; userMessage = null;\n} else if (code >= 400) {\n    type = 'client'; severity = 'warning'; userMessage = null;\n} else {\n    type = 'unknown'; severity = 'warning'; userMessage = null;\n}\n\nmsg.error_context = Object.assign({}, ctx, {\n    type,\n    severity,\n    message: type === 'network' ? 'Nettverksfeil' : `HTTP ${code}`,\n    notify_users: !!(userMessage && ctx.connection_name),\n    user_message: userMessage\n});\n\nreturn msg;\n",
+    "func": "const ctx = msg.error_context || {};\nconst code = ctx.statusCode;\n\nlet type, severity, userMessage;\n\nif (!code) {\n    type = 'network';\n    severity = 'critical';\n    userMessage = '⚠️ Forbindelsen er midlertidig nede. Meldinger vil ikke leveres før forbindelsen er gjenopprettet.';\n} else if (code === 401 || code === 403) {\n    type = 'auth';\n    severity = 'critical';\n    userMessage = '⚠️ Autentisering feilet. Kontakt administrator. Vennligst prøv å send meldingen på nytt når tilkobling er gjennopprettet';\n} else if (code >= 500) {\n    type = 'server';\n    severity = 'critical';\n    userMessage = '⚠️ Ekstern tjeneste svarer ikke. Meldinger vil ikke leveres før tjenesten er tilgjengelig igjen.';\n} else if (code === 404) {\n    type = 'not_found'; severity = 'warning'; userMessage = null;\n} else if (code === 429) {\n    type = 'rate_limit'; severity = 'warning'; userMessage = null;\n} else if (code >= 400) {\n    type = 'client'; severity = 'warning'; userMessage = null;\n} else {\n    type = 'unknown'; severity = 'warning'; userMessage = null;\n}\n\nmsg.error_context = Object.assign({}, ctx, {\n    type,\n    severity,\n    message: type === 'network' ? 'Nettverksfeil' : `HTTP ${code}`,\n    notify_users: !!(userMessage && ctx.connection_name),\n    user_message: userMessage\n});\n\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 900,
-    "y": 460,
+    "x": 940,
+    "y": 480,
     "wires": [
       [
         "c0e111fc4289a4cd",
@@ -372,15 +373,15 @@
     "z": "003e75aaa2880405",
     "g": "67c40d3bdd1cbf59",
     "name": "Build user response",
-    "func": "const ctx = msg.error_context || {};\n\nif (!ctx.notify_users || !ctx.connection_name) return null;\n\n// Cascade-vern: dropp hvis entry_id starter med pb-err-\nif (ctx.entry_id && ctx.entry_id.startsWith('pb-err-')) return null;\n\n// Notification throttle: maks 1 notifikasjon per connection per 5 min\nconst cb = global.get('parat_bridge.circuit_breaker') || {};\nconst cbEntry = cb[ctx.connection_name] || {};\nconst now = Date.now();\n\nif (cbEntry.last_notified && (now - cbEntry.last_notified) < 5 * 60 * 1000) return null;\n\ncb[ctx.connection_name] = { last_notified: now };\nglobal.set('parat_bridge.circuit_breaker', cb);\n\nconst connections = global.get('parat_bridge.connections') || {};\nconst conn = connections[ctx.connection_name];\nif (!conn) return null;\n\nconst messages = Object.values(conn.clients).map(client => ({\n    topic: 'new_message',\n    entry: {\n        id: 'pb-err-' + now + '-' + Math.random().toString(36).slice(2, 7),\n        text: ctx.user_message,\n        author: '[parat_bridge]',\n        metadata: {\n            source: { client_system: 'parat_bridge', connection_name: ctx.connection_name },\n            target: client,\n            connection_name: ctx.connection_name\n        }\n    }\n}));\n\nreturn messages.map(m => ({ payload: m }));\n",
+    "func": "const ctx = msg.error_context || {};\nif (!ctx.notify_users || !ctx.connection_name) return null;\n// Cascade-vern: dropp hvis entry_id starter med pb-err-\nif (ctx.entry_id && ctx.entry_id.startsWith('pb-err-')) return null;\n// Notification throttle: maks 1 notifikasjon per connection per 5 min\nconst cb = global.get('parat_bridge.circuit_breaker') || {};\nconst cbEntry = cb[ctx.connection_name] || {};\nconst now = Date.now();\nif (cbEntry.last_notified && (now - cbEntry.last_notified) < 5 * 60 * 1000) return null;\ncb[ctx.connection_name] = { last_notified: now };\nglobal.set('parat_bridge.circuit_breaker', cb);\nconst connections = global.get('parat_bridge.connections') || {};\nconst conn = connections[ctx.connection_name];\nif (!conn) return null;\nreturn Object.values(conn.clients)\n    .filter(client => client.client_system !== ctx.target_client_system)\n    .map(client => ({\n        topic: 'new_message',\n        entry: {\n            id: 'pb-err-' + now + '-' + Math.random().toString(36).slice(2, 7),\n            text: ctx.user_message,\n            timestamp: now,\n            author: 'System-melding',\n            files: [],\n            labels: [],\n            metadata: {\n                source: { client_system: 'parat_bridge', name: 'parat_bridge', identifier: 'parat_bridge' },\n                target: client,\n                connection_name: ctx.connection_name,\n            }\n        }\n    }));\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 1180,
-    "y": 540,
+    "x": 1220,
+    "y": 560,
     "wires": [
       [
         "5cfcc740a3ba2cfa"
@@ -397,8 +398,8 @@
     "links": [
       "9fe2d9086d510cb5"
     ],
-    "x": 1385,
-    "y": 540,
+    "x": 1425,
+    "y": 560,
     "wires": []
   },
   {
@@ -507,7 +508,7 @@
     "type": "function",
     "z": "003e75aaa2880405",
     "name": "ErrorObject",
-    "func": "// Frigjør in-flight slot\nconst connection_name = (msg.metadata && msg.metadata.connection_name)\n    || (msg.entry && msg.entry.metadata && msg.entry.metadata.connection_name)\n    || null;\n\nif (connection_name) {\n    const queue = global.get('parat_bridge.queue') || {};\n    const inFlight = (queue.in_flight_connections || []).filter(n => n !== connection_name);\n    global.set('parat_bridge.queue.in_flight_connections', inFlight);\n\n    // Inkrementer retries for entry i køen\n    const entryQueue = queue.entry_queue || [];\n    const entry_id = msg.entry && msg.entry.id;\n    if (entry_id) {\n        const idx = entryQueue.findIndex(e => e.entry.id === entry_id);\n        if (idx !== -1) {\n            entryQueue[idx]._retries = (entryQueue[idx]._retries || 0) + 1;\n            if (entryQueue[idx]._retries >= 10) {\n                // Dropp alle entries for denne connection\n                const filtered = entryQueue.filter(e =>\n                    !(e.entry.metadata && e.entry.metadata.connection_name === connection_name)\n                );\n                global.set('parat_bridge.queue.entry_queue', filtered);\n            } else {\n                global.set('parat_bridge.queue.entry_queue', entryQueue);\n            }\n        }\n    }\n}\n\nmsg.error_context = {\n    timestamp: new Date().toISOString(),\n    source: msg.error && msg.error.source ? msg.error.source.name : 'unknown',\n    raw_message: msg.error ? msg.error.message : null,\n    statusCode: (msg.payload && msg.payload.statusCode) || null,\n    connection_name: connection_name,\n    entry_id: (msg.entry && msg.entry.id) || null,\n    direction: 'unknown'\n};\n\nreturn msg;",
+    "func": "const connection_name = (msg.metadata && msg.metadata.connection_name)\n    || (msg.entry && msg.entry.metadata && msg.entry.metadata.connection_name)\n    || null;\n\nif (connection_name) {\n    const queue = global.get('parat_bridge.queue') || {};\n    const inFlight = (queue.in_flight_connections || []).filter(n => n !== connection_name);\n    global.set('parat_bridge.queue.in_flight_connections', inFlight);\n\n    const entryQueue = queue.entry_queue || [];\n    const entry_id = msg.entry && msg.entry.id;\n\n    if (entry_id) {\n        const idx = entryQueue.findIndex(e => e.entry.id === entry_id);\n        if (idx !== -1) {\n            entryQueue[idx]._retries = (entryQueue[idx]._retries || 0) + 1;\n            if (entryQueue[idx]._retries >= 10) {\n                let filtered;\n                if (entry_id.startsWith('pb-err-')) {\n                    filtered = entryQueue.filter(e => e.entry.id !== entry_id);\n                } else {\n                    // Finn entries som skal droppes og lagre dem\n                    const toBeFailed = entryQueue.filter(e =>\n                        e.entry.metadata &&\n                        e.entry.metadata.connection_name === connection_name &&\n                        !(e.entry.id && e.entry.id.startsWith('pb-err-'))\n                    );\n                    if (toBeFailed.length > 0) {\n                        const connections = global.get('parat_bridge.connections') || {};\n                        const conn = connections[connection_name];\n                        if (conn) {\n                            conn.failed_entries = (conn.failed_entries || [])\n                                .concat(toBeFailed.map(e => e.entry));\n                            global.set('parat_bridge.connections.' + connection_name, conn);\n                        }\n                    }\n                    filtered = entryQueue.filter(e =>\n                        !(e.entry.metadata && e.entry.metadata.connection_name === connection_name) ||\n                        (e.entry.id && e.entry.id.startsWith('pb-err-'))\n                    );\n                }\n                global.set('parat_bridge.queue.entry_queue', filtered);\n            } else {\n                global.set('parat_bridge.queue.entry_queue', entryQueue);\n            }\n        }\n    }\n}\n\nmsg.error_context = {\n    timestamp: new Date().toISOString(),\n    source: msg.error && msg.error.source ? msg.error.source.name : 'unknown',\n    raw_message: msg.error ? msg.error.message : null,\n    statusCode: msg.statusCode || null,\n    connection_name: connection_name,\n    entry_id: (msg.entry && msg.entry.id) || null,\n    target_client_system: (msg.entry && msg.entry.metadata && msg.entry.metadata.target && msg.entry.metadata.target.client_system) || null,\n    direction: 'unknown'\n};\n\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -556,15 +557,15 @@
     "z": "003e75aaa2880405",
     "g": "67c40d3bdd1cbf59",
     "name": "ErrorObject(retry)",
-    "func": "const entry    = msg.entry || {};\nconst metadata = entry.metadata || {};\nconst target   = metadata.target || {};\n\nconst sourceMap = {\n    rayvn: 'POST to Rayvn log',\n    wasos: 'POST to WaSOS chat',\n    cim:   'POST to CIM'\n};\n\nmsg.error_context = {\n    timestamp:       new Date().toISOString(),\n    source:          sourceMap[target.client_system] || 'POST entries',\n    raw_message:     null,\n    statusCode:      (msg.payload && msg.payload.statusCode) || null,\n    connection_name: metadata.connection_name || null,\n    entry_id:        entry.id || null,\n    direction:       'outbound'\n};\n\nreturn msg;\n",
+    "func": "const entry = msg.entry || {};\nconst metadata = entry.metadata || {};\nconst target = metadata.target || {};\n\nconst connection_name = metadata.connection_name || null;\n\n// Lagre failed entry til connection\nif (connection_name && entry.id) {\n    const connections = global.get('parat_bridge.connections') || {};\n    const conn = connections[connection_name];\n    if (conn) {\n        conn.failed_entries = (conn.failed_entries || []).concat([entry]);\n        global.set('parat_bridge.connections.' + connection_name, conn);\n    }\n}\n\nmsg.error_context = {\n    timestamp: new Date().toISOString(),\n    source: target.client_system ? 'POST to ' + target.client_system : 'POST entries',\n    raw_message: null,\n    statusCode: msg.statusCode || null,\n    connection_name: connection_name,\n    entry_id: entry.id || null,\n    target_client_system: target.client_system || null,\n    direction: 'outbound'\n};\n\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 490,
-    "y": 580,
+    "x": 530,
+    "y": 600,
     "wires": [
       [
         "157f76d46a2a7622"
@@ -578,11 +579,76 @@
     "g": "67c40d3bdd1cbf59",
     "name": "message failed retry",
     "links": [],
-    "x": 65,
-    "y": 580,
+    "x": 105,
+    "y": 600,
     "wires": [
       [
         "713fe6179c4d6ef1"
+      ]
+    ]
+  },
+  {
+    "id": "0288a2656643bc27",
+    "type": "function",
+    "z": "003e75aaa2880405",
+    "name": "ErrorObject(exceptions)",
+    "func": "msg.error_context = {\n    timestamp: new Date().toISOString(),\n    source: msg.error && msg.error.source ? msg.error.source.name : 'unknown',\n    raw_message: msg.error ? msg.error.message : null,\n    statusCode: msg.statusCode || null,\n    connection_name: (msg.metadata && msg.metadata.connection_name) || null,\n    entry_id: null,\n    target_client_system: null,\n    direction: 'inbound'\n};\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 950,
+    "y": 900,
+    "wires": [
+      [
+        "79a2ee00d81f56b3"
+      ]
+    ]
+  },
+  {
+    "id": "4a5e61db81f4a902",
+    "type": "link in",
+    "z": "003e75aaa2880405",
+    "name": "Link in - exceptions",
+    "links": [
+      "a3cac3fc942b7353"
+    ],
+    "x": 775,
+    "y": 900,
+    "wires": [
+      [
+        "0288a2656643bc27"
+      ]
+    ]
+  },
+  {
+    "id": "79a2ee00d81f56b3",
+    "type": "link out",
+    "z": "003e75aaa2880405",
+    "name": "Link out - ErrorObject(Exceptions)",
+    "mode": "link",
+    "links": [
+      "de6ca76d90c9c420"
+    ],
+    "x": 1155,
+    "y": 900,
+    "wires": []
+  },
+  {
+    "id": "0747e8732f8a3600",
+    "type": "link in",
+    "z": "003e75aaa2880405",
+    "name": "ExceptionsOutbound",
+    "links": [
+      "e5e0314ff6b42153"
+    ],
+    "x": 315,
+    "y": 1000,
+    "wires": [
+      [
+        "c4c102d3639d4ad1"
       ]
     ]
   }
