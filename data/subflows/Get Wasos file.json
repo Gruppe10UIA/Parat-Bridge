@@ -20,36 +20,13 @@
       {
         "x": 1240,
         "y": 180,
-        "wires": [
-          {
-            "id": "11c364b2f19beedd",
-            "port": 0
-          }
-        ]
+        "wires": []
       }
     ],
     "env": [],
     "meta": {},
     "color": "#E9967A",
     "icon": "font-awesome/fa-file-photo-o"
-  },
-  {
-    "id": "11c364b2f19beedd",
-    "type": "function",
-    "z": "a04671bb4cc2108f",
-    "name": "Store file via global context",
-    "func": "/**\n * Stores the downloaded file buffer in global context.\n * Returns a file result object for the join node.\n */\nconst utils = global.get(\"utils\");\nconst meta = msg._file_meta;\nconst dl = msg._dl;\nconst success = msg.statusCode === 200 && msg.payload && msg.payload.length > 0;\n\nconst file = { name: meta.name, type: meta.type, size: meta.size, downloaded: success };\n\nif (success) {\n    const key = utils.build_file_key(dl.message_id, dl.connection_name, meta.name);\n    global.set(\"files.\" + key, msg.payload);\n    file.context_key = key;\n} else {\n    node.warn(\"File download failed. Status: \" + msg.statusCode + \", file: \" + meta.name);\n}\n\nreturn {\n    _msgid: msg._msgid,\n    _dl: msg._dl,\n    parts: msg.parts,\n    metadata: msg.metadata,\n    payload: file\n};\n",
-    "outputs": 1,
-    "timeout": "",
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 1040,
-    "y": 180,
-    "wires": [
-      []
-    ]
   },
   {
     "id": "c084c40fd53a2e59",
@@ -70,9 +47,7 @@
     "x": 500,
     "y": 180,
     "wires": [
-      [
-        "f41c3863e5e1cad7"
-      ]
+      []
     ]
   },
   {
@@ -92,42 +67,6 @@
     "wires": [
       [
         "c084c40fd53a2e59"
-      ]
-    ]
-  },
-  {
-    "id": "f41c3863e5e1cad7",
-    "type": "function",
-    "z": "a04671bb4cc2108f",
-    "name": "Compress?",
-    "func": "const utils = global.get(\"utils\");\nconst target_attr = utils.get_system_attributes(msg.metadata.target.client_system);\n\n// Route oversized files to compression\nif (target_attr.max_upload_bytes && msg.payload.length > target_attr.max_upload_bytes) {\n    return [msg, null];\n}\nreturn [null, msg];\n",
-    "outputs": 2,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 710,
-    "y": 180,
-    "wires": [
-      [
-        "0f8d501b85f5a793"
-      ],
-      [
-        "11c364b2f19beedd"
-      ]
-    ]
-  },
-  {
-    "id": "0f8d501b85f5a793",
-    "type": "subflow:877a76e7a01fd7ae",
-    "z": "a04671bb4cc2108f",
-    "name": "",
-    "x": 740,
-    "y": 120,
-    "wires": [
-      [
-        "11c364b2f19beedd"
       ]
     ]
   }

@@ -28,13 +28,7 @@
         ]
       }
     ],
-    "env": [
-      {
-        "name": "TARGET_SIZE",
-        "type": "num",
-        "value": "1048576"
-      }
-    ],
+    "env": [],
     "meta": {},
     "color": "#518c69",
     "icon": "font-awesome/fa-compress"
@@ -54,18 +48,6 @@
       {
         "var": "childProcess",
         "module": "child_process"
-      },
-      {
-        "var": "fs",
-        "module": "fs"
-      },
-      {
-        "var": "path",
-        "module": "path"
-      },
-      {
-        "var": "os",
-        "module": "os"
       },
       {
         "var": "sharp",
