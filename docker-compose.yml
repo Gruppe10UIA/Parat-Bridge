@@ -3,7 +3,7 @@
 
 services:
   node-red:
-    build: .
+    build: . # run docker build in the current directory, using the Dockerfile
     # Set custom DNS servers for the container in case of network issues (EAI_AGAIN error)
     #dns:
     #  - 8.8.8.8
