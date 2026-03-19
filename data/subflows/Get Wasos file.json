@@ -8,7 +8,7 @@
     "in": [
       {
         "x": 60,
-        "y": 80,
+        "y": 180,
         "wires": [
           {
             "id": "182934927a7960bb"
@@ -18,8 +18,8 @@
     ],
     "out": [
       {
-        "x": 960,
-        "y": 80,
+        "x": 1240,
+        "y": 180,
         "wires": [
           {
             "id": "11c364b2f19beedd",
@@ -45,8 +45,8 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 760,
-    "y": 80,
+    "x": 1040,
+    "y": 180,
     "wires": [
       []
     ]
@@ -68,10 +68,10 @@
     "senderr": false,
     "headers": [],
     "x": 500,
-    "y": 80,
+    "y": 180,
     "wires": [
       [
-        "11c364b2f19beedd"
+        "f41c3863e5e1cad7"
       ]
     ]
   },
@@ -88,10 +88,46 @@
     "finalize": "",
     "libs": [],
     "x": 250,
-    "y": 80,
+    "y": 180,
     "wires": [
       [
         "c084c40fd53a2e59"
+      ]
+    ]
+  },
+  {
+    "id": "f41c3863e5e1cad7",
+    "type": "function",
+    "z": "a04671bb4cc2108f",
+    "name": "Compress?",
+    "func": "const utils = global.get(\"utils\");\nconst target_attr = utils.get_system_attributes(msg.metadata.target.client_system);\n\n// Route oversized files to compression\nif (target_attr.max_upload_bytes && msg.payload.length > target_attr.max_upload_bytes) {\n    return [msg, null];\n}\nreturn [null, msg];\n",
+    "outputs": 2,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 710,
+    "y": 180,
+    "wires": [
+      [
+        "0f8d501b85f5a793"
+      ],
+      [
+        "11c364b2f19beedd"
+      ]
+    ]
+  },
+  {
+    "id": "0f8d501b85f5a793",
+    "type": "subflow:877a76e7a01fd7ae",
+    "z": "a04671bb4cc2108f",
+    "name": "",
+    "x": 740,
+    "y": 120,
+    "wires": [
+      [
+        "11c364b2f19beedd"
       ]
     ]
   }

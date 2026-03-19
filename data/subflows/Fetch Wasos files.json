@@ -18,7 +18,7 @@
     ],
     "out": [
       {
-        "x": 1000,
+        "x": 1100,
         "y": 280,
         "wires": [
           {
@@ -45,7 +45,7 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 340,
+    "x": 220,
     "y": 280,
     "wires": [
       [
@@ -65,7 +65,7 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 940,
+    "x": 880,
     "y": 280,
     "wires": [
       []
@@ -92,7 +92,7 @@
     "reduceInit": "",
     "reduceInitType": "",
     "reduceFixup": "",
-    "x": 730,
+    "x": 630,
     "y": 280,
     "wires": [
       [
@@ -105,7 +105,7 @@
     "type": "subflow:a04671bb4cc2108f",
     "z": "ea1089b94046dd14",
     "name": "",
-    "x": 540,
+    "x": 420,
     "y": 280,
     "wires": [
       [

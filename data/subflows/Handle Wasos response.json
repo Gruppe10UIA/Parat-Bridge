@@ -8,7 +8,7 @@
     "in": [
       {
         "x": 60,
-        "y": 80,
+        "y": 260,
         "wires": [
           {
             "id": "f825c79007c454f4"
@@ -18,30 +18,35 @@
     ],
     "out": [
       {
-        "x": 1020,
-        "y": 100,
+        "x": 1180,
+        "y": 260,
         "wires": [
           {
-            "id": "1473068f9c8ee0fd",
+            "id": "dbb24ef25fdc8c5d",
             "port": 1
           },
           {
-            "id": "6bb4a20bff89af79",
+            "id": "f3b264c59b6ea9be",
             "port": 0
+          },
+          {
+            "id": "23fa26880adeffb6",
+            "port": 1
           }
         ]
       }
     ],
     "env": [],
     "meta": {},
-    "color": "#DDAA99"
+    "color": "#C0DEED",
+    "icon": "font-awesome/fa-gears"
   },
   {
     "id": "871c0cd773068b95",
     "type": "function",
     "z": "f0eb857d54dfb4ac",
     "name": "Filter",
-    "func": "const cursorTs = msg.metadata.source.timestamp;\nconst bridgePattern = /\\[(?:rayvn|cim|parat_bridge)(?::|])/;\n\nmsg.payload = msg.payload.filter(entry => {\n    if (new Date(entry.createdAt).getTime() <= cursorTs) return false;\n    if (entry.content && bridgePattern.test(entry.content)) return false;\n    if (entry.username && bridgePattern.test(entry.username)) return false;\n    return true;\n});\n\nif (msg.payload.length === 0) return null;\n\n// Advance cursor to newest surviving entry (array is sorted, last = newest)\nglobal.set(\n    `parat_bridge.connections.${msg.metadata.connection_name}.clients.${msg.metadata.source.identifier}.timestamp`,\n    new Date(msg.payload[msg.payload.length - 1].createdAt).getTime()\n);\n\nreturn msg;\n",
+    "func": "const cursor_ts = msg.metadata.source.timestamp;\nconst utils = global.get(\"utils\");\nconst connection = msg.metadata.connection_name;\nconst source = msg.metadata.source.identifier;\n\n\n// Filter conditions\nmsg.payload = msg.payload.filter(entry => {\n    if (new Date(entry.createdAt).getTime() <= cursor_ts) return false;\n    if (entry.content && utils.is_bridge_message(entry.content)) return false;\n    if (entry.username && utils.is_bridge_message(entry.username)) return false;\n    return true;\n});\n\nif (msg.payload.length === 0) return null;\n\n// Update timestamp\nglobal.set(\n    `parat_bridge.connections.${connection}.clients.${source}.timestamp`,\n    new Date(msg.payload[msg.payload.length - 1].createdAt).getTime()\n);\n\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -49,60 +54,11 @@
     "finalize": "",
     "libs": [],
     "x": 330,
-    "y": 80,
+    "y": 260,
     "wires": [
       [
         "5742f4a043b191b2"
       ]
-    ]
-  },
-  {
-    "id": "6bb4a20bff89af79",
-    "type": "function",
-    "z": "f0eb857d54dfb4ac",
-    "name": "Attachment handling",
-    "func": "\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 800,
-    "y": 60,
-    "wires": [
-      []
-    ]
-  },
-  {
-    "id": "1473068f9c8ee0fd",
-    "type": "switch",
-    "z": "f0eb857d54dfb4ac",
-    "name": "",
-    "property": "payload",
-    "propertyType": "msg",
-    "rules": [
-      {
-        "t": "eq",
-        "v": "",
-        "vt": "str"
-      },
-      {
-        "t": "eq",
-        "v": "",
-        "vt": "str"
-      }
-    ],
-    "checkall": "true",
-    "repair": false,
-    "outputs": 2,
-    "x": 630,
-    "y": 80,
-    "wires": [
-      [
-        "6bb4a20bff89af79"
-      ],
-      []
     ]
   },
   {
@@ -118,10 +74,10 @@
     "addname": "",
     "property": "payload",
     "x": 470,
-    "y": 80,
+    "y": 260,
     "wires": [
       [
-        "1473068f9c8ee0fd"
+        "dbb24ef25fdc8c5d"
       ]
     ]
   },
@@ -130,7 +86,7 @@
     "type": "function",
     "z": "f0eb857d54dfb4ac",
     "name": "sort time",
-    "func": "if (!msg.payload || msg.payload.length === 0) return null;\n\nmsg.payload.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());\nreturn msg;\n",
+    "func": "// Sort messages oldest-first so the filter advances the cursor correctly\nif (!msg.payload || msg.payload.length === 0) return null;\n\nmsg.payload.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -138,10 +94,89 @@
     "finalize": "",
     "libs": [],
     "x": 180,
-    "y": 80,
+    "y": 260,
     "wires": [
       [
         "871c0cd773068b95"
+      ]
+    ]
+  },
+  {
+    "id": "dbb24ef25fdc8c5d",
+    "type": "switch",
+    "z": "f0eb857d54dfb4ac",
+    "name": "Has files?",
+    "property": "payload.files",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "nempty"
+      },
+      {
+        "t": "else"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 2,
+    "x": 600,
+    "y": 260,
+    "wires": [
+      [
+        "752d14e886897aea"
+      ],
+      []
+    ]
+  },
+  {
+    "id": "f3b264c59b6ea9be",
+    "type": "subflow:ea1089b94046dd14",
+    "z": "f0eb857d54dfb4ac",
+    "name": "",
+    "x": 950,
+    "y": 120,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "23fa26880adeffb6",
+    "type": "subflow:2f9af747886c939b",
+    "z": "f0eb857d54dfb4ac",
+    "name": "",
+    "x": 750,
+    "y": 140,
+    "wires": [
+      [
+        "f3b264c59b6ea9be"
+      ],
+      []
+    ]
+  },
+  {
+    "id": "752d14e886897aea",
+    "type": "change",
+    "z": "f0eb857d54dfb4ac",
+    "name": "file adapter",
+    "rules": [
+      {
+        "t": "set",
+        "p": "payload.files",
+        "pt": "msg",
+        "to": "payload.files",
+        "tot": "msg"
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 570,
+    "y": 140,
+    "wires": [
+      [
+        "23fa26880adeffb6"
       ]
     ]
   }

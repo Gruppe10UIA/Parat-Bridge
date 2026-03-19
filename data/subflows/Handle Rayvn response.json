@@ -30,14 +30,15 @@
     ],
     "env": [],
     "meta": {},
-    "color": "#DDAA99"
+    "color": "#C0DEED",
+    "icon": "font-awesome/fa-cogs"
   },
   {
     "id": "ac3d866e6e1ffb07",
     "type": "function",
     "z": "f23580e27a5eb9f2",
     "name": "Filter",
-    "func": "const cursorTs = msg.metadata.source.timestamp;\nconst bridgePattern = /\\[(?:wasos|cim|parat_bridge)(?::|])/;\n\nmsg.payload = msg.payload.filter(entry => {\n    if (entry.timeCreated <= cursorTs) return false;\n    if (entry.text && bridgePattern.test(entry.text)) return false;\n    if (entry.loggedByFullName && bridgePattern.test(entry.loggedByFullName)) return false;\n    return true;\n});\n\nif (msg.payload.length === 0) return null;\n\nglobal.set(\n    `parat_bridge.connections.${msg.metadata.connection_name}.clients.${msg.metadata.source.identifier}.timestamp`,\n    msg.payload[msg.payload.length - 1].timeCreated\n);\n\nreturn msg;\n",
+    "func": "const cursor_ts = msg.metadata.source.timestamp;\nconst utils = global.get(\"utils\");\nconst connection = msg.metadata.connection_name;\nconst source = msg.metadata.source.identifier;\n\n// Filter conditions\nmsg.payload = msg.payload.filter(entry => {\n    if (entry.timeCreated <= cursor_ts) return false;\n    if (entry.text && utils.is_bridge_message(entry.text)) return false;\n    if (entry.loggedByFullName && utils.is_bridge_message(entry.loggedByFullName)) return false;\n    return true;\n});\n\nif (msg.payload.length === 0) return null;\n\n// Update timestamp\nglobal.set(\n    `parat_bridge.connections.${connection}.clients.${source}.timestamp`,\n    msg.payload[msg.payload.length - 1].timeCreated\n);\n\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -75,7 +76,7 @@
     "type": "function",
     "z": "f23580e27a5eb9f2",
     "name": "sort time",
-    "func": "if (!msg.payload || msg.payload.length === 0) return null;\n\nmsg.payload.sort((a, b) => a.timeCreated - b.timeCreated);\nreturn msg;\n",
+    "func": "\n// sort oldes to newest\nif (!msg.payload || msg.payload.length === 0) return null;\n\nmsg.payload.sort((a, b) => a.timeCreated - b.timeCreated);\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
