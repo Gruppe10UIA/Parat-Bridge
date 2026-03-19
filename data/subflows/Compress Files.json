@@ -74,22 +74,5 @@
     "wires": [
       []
     ]
-  },
-  {
-    "id": "64ca2d2b18e1dfc9",
-    "type": "debug",
-    "z": "877a76e7a01fd7ae",
-    "name": "pre compression",
-    "active": true,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "true",
-    "targetType": "full",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 350,
-    "y": 40,
-    "wires": []
   }
 ]
