@@ -19,6 +19,20 @@ const writeFileAtomic = require('write-file-atomic');
 const BASE_DIR        = '/data/bridge-files/';
 const QUEUE_FILE      = BASE_DIR + 'queue.json';
 const CONNECTIONS_DIR = BASE_DIR + 'connections/';
+const ERROR_LOG_FILE  = BASE_DIR + 'error_log.json';
+
+// ---- Error log persistence ----
+
+/**
+ * Writes the current error log to error_log.json.
+ *
+ * @param {Object} scopeCache - The full scope cache (contains parat_bridge.error_log)
+ */
+function persistErrorLog(scopeCache) {
+    const pb  = scopeCache.parat_bridge;
+    const log = (pb && pb.error_log) || [];
+    writeFileAtomic.sync(ERROR_LOG_FILE, JSON.stringify(log, null, 2));
+}
 
 // ---- Queue persistence ----
 
@@ -113,12 +127,18 @@ function persist(key, scopeCache) {
     if (parts.length === 1) {
         persistQueue(scopeCache);
         persistAllConnections(scopeCache);
+        persistErrorLog(scopeCache);
         return;
     }
 
     // global.set("parat_bridge.queue.*", ...) — persist queue
     if (parts[1] === 'queue') {
         persistQueue(scopeCache);
+    }
+
+    // global.set("parat_bridge.error_log", ...) — persist error log
+    if (parts[1] === 'error_log') {
+        persistErrorLog(scopeCache);
     }
 
     // global.set("parat_bridge.connections.*", ...) — persist connections

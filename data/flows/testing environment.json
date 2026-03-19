@@ -106,7 +106,7 @@
     "type": "function",
     "z": "901ed98289cc4ecd",
     "name": "Invalidate Rayvn API key",
-    "func": "// Set the Rayvn API key to an invalid value on the first active connection\n// Used to test error handling and retry logic\nconst data = global.get(\"parat_bridge\");\nconst activeConnections = data.connections.filter(c => c.active);\n\nif (activeConnections.length === 0) {\n    node.warn(\"No active connections to invalidate\");\n    return null;\n}\n\nconst targetConnection = activeConnections[0];\ntargetConnection.rayvn.api_key = \"invalid_key_for_testing\";\nglobal.set(\"parat_bridge\", data);\n\nnode.warn(\"Rayvn API key invalidated for connection: \" + targetConnection.label);\nreturn msg;",
+    "func": "const data        = global.get(\"parat_bridge\");\nconst connections = data.connections;\nconst activeNames = Object.keys(connections).filter(name => connections[name].active);\n\nif (activeNames.length === 0) {\n    node.warn(\"No active connections to invalidate\");\n    return null;\n}\n\nconst targetName = activeNames[0];\n\n// Lagre original nøkkel for restore\nflow.set(\"test_restore\", {\n    connection_name: targetName,\n    rayvn_api_key:   connections[targetName].rayvn.api_key\n});\n\nconnections[targetName].rayvn.api_key = \"invalid_key_for_testing\";\nglobal.set(\"parat_bridge.connections\", connections);\n\nnode.warn(\"Rayvn API key invalidated for: \" + targetName);\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -510,6 +510,53 @@
       [
         "4bb221810c3a9cba"
       ]
+    ]
+  },
+  {
+    "id": "085a6742e98355dd",
+    "type": "inject",
+    "z": "901ed98289cc4ecd",
+    "name": "",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 440,
+    "y": 640,
+    "wires": [
+      [
+        "18454229db48005d"
+      ]
+    ]
+  },
+  {
+    "id": "18454229db48005d",
+    "type": "function",
+    "z": "901ed98289cc4ecd",
+    "name": "Restore Rayvn Key",
+    "func": "const restore = flow.get(\"test_restore\");\n\nif (!restore) {\n    node.warn(\"No stored key to restore — was invalidate run first?\");\n    return null;\n}\n\nconst connections = global.get(\"parat_bridge.connections\") || {};\nconst conn        = connections[restore.connection_name];\n\nif (!conn) {\n    node.warn(\"Connection not found: \" + restore.connection_name);\n    return null;\n}\n\nconn.rayvn.api_key = restore.rayvn_api_key;\nglobal.set(\"parat_bridge.connections\", connections);\nflow.set(\"test_restore\", null);\n\nnode.warn(\"Rayvn API key restored for: \" + restore.connection_name);\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 710,
+    "y": 640,
+    "wires": [
+      []
     ]
   }
 ]

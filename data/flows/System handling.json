@@ -8,30 +8,26 @@
     "env": []
   },
   {
-    "id": "67c40d3bdd1cbf59",
+    "id": "9ab1f6c2842073c5",
     "type": "group",
     "z": "003e75aaa2880405",
-    "name": "Error Handling",
+    "name": "Setting runtime constants",
     "style": {
-      "stroke": "#ff0000",
-      "fill": "#ffbfbf",
+      "stroke": "#92d04f",
+      "fill": "#c8e7a7",
       "label": true,
       "label-position": "n",
       "color": "#000000"
     },
     "nodes": [
-      "de6ca76d90c9c420",
-      "0bf8491c4bebb0eb",
-      "c0e111fc4289a4cd",
-      "157f76d46a2a7622",
-      "d087b4eb819a4186",
-      "5cfcc740a3ba2cfa",
-      "a8907418fbaa0775"
+      "5a283579df925b67",
+      "d61931ad5e5945c0",
+      "1cf402a0d8609d2e"
     ],
     "x": 54,
-    "y": 339,
-    "w": 792,
-    "h": 202
+    "y": 39,
+    "w": 652,
+    "h": 82
   },
   {
     "id": "00eba3e5252a7414",
@@ -60,344 +56,32 @@
     "h": 162
   },
   {
-    "id": "9ab1f6c2842073c5",
+    "id": "67c40d3bdd1cbf59",
     "type": "group",
     "z": "003e75aaa2880405",
-    "name": "Setting runtime constants",
+    "name": "Error Handling",
     "style": {
-      "stroke": "#92d04f",
-      "fill": "#c8e7a7",
+      "stroke": "#ff0000",
+      "fill": "#ffbfbf",
       "label": true,
       "label-position": "n",
       "color": "#000000"
     },
     "nodes": [
-      "5a283579df925b67",
-      "d61931ad5e5945c0",
-      "1cf402a0d8609d2e"
+      "de6ca76d90c9c420",
+      "0bf8491c4bebb0eb",
+      "c0e111fc4289a4cd",
+      "157f76d46a2a7622",
+      "d087b4eb819a4186",
+      "5cfcc740a3ba2cfa",
+      "a8907418fbaa0775",
+      "713fe6179c4d6ef1",
+      "064e2f168d28593a"
     ],
-    "x": 54,
-    "y": 39,
-    "w": 652,
-    "h": 82
-  },
-  {
-    "id": "b0cba41bee5fa427",
-    "type": "link out",
-    "z": "003e75aaa2880405",
-    "g": "00eba3e5252a7414",
-    "name": "Connections Link Out to UIB",
-    "mode": "link",
-    "links": [
-      "db6428985cf334dd"
-    ],
-    "x": 725,
-    "y": 200,
-    "wires": []
-  },
-  {
-    "id": "8f504303d028763b",
-    "type": "function",
-    "z": "003e75aaa2880405",
-    "g": "00eba3e5252a7414",
-    "name": "Send Connections to UIB",
-    "func": "var connections = global.get('parat_bridge.connections') || {};\nmsg = {\n    topic: 'connections/update',\n    payload: connections\n};\nreturn msg;\n",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 470,
-    "y": 200,
-    "wires": [
-      [
-        "b0cba41bee5fa427"
-      ]
-    ]
-  },
-  {
-    "id": "5cfcc740a3ba2cfa",
-    "type": "link out",
-    "z": "003e75aaa2880405",
-    "g": "67c40d3bdd1cbf59",
-    "name": "link out 3",
-    "mode": "link",
-    "links": [
-      "9fe2d9086d510cb5"
-    ],
-    "x": 805,
-    "y": 500,
-    "wires": []
-  },
-  {
-    "id": "d087b4eb819a4186",
-    "type": "function",
-    "z": "003e75aaa2880405",
-    "g": "67c40d3bdd1cbf59",
-    "name": "Build user response",
-    "func": "const ctx = msg.error_context || {};\n\nif (!ctx.notify_users || !ctx.connection_name) return null;\n\n// Cascade-vern: dropp hvis entry_id starter med pb-err-\nif (ctx.entry_id && ctx.entry_id.startsWith('pb-err-')) return null;\n\n// Notification throttle: maks 1 notifikasjon per connection per 5 min\nconst cb = global.get('parat_bridge.circuit_breaker') || {};\nconst cbEntry = cb[ctx.connection_name] || {};\nconst now = Date.now();\n\nif (cbEntry.last_notified && (now - cbEntry.last_notified) < 5 * 60 * 1000) return null;\n\ncb[ctx.connection_name] = { last_notified: now };\nglobal.set('parat_bridge.circuit_breaker', cb);\n\nconst connections = global.get('parat_bridge.connections') || {};\nconst conn = connections[ctx.connection_name];\nif (!conn) return null;\n\nconst messages = Object.values(conn.clients).map(client => ({\n    topic: 'new_message',\n    entry: {\n        id: 'pb-err-' + now + '-' + Math.random().toString(36).slice(2, 7),\n        text: ctx.user_message,\n        author: '[parat_bridge]',\n        metadata: {\n            source: { client_system: 'parat_bridge', connection_name: ctx.connection_name },\n            target: client,\n            connection_name: ctx.connection_name\n        }\n    }\n}));\n\nreturn messages.map(m => ({ payload: m }));\n",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 600,
-    "y": 500,
-    "wires": [
-      [
-        "5cfcc740a3ba2cfa"
-      ]
-    ]
-  },
-  {
-    "id": "157f76d46a2a7622",
-    "type": "function",
-    "z": "003e75aaa2880405",
-    "g": "67c40d3bdd1cbf59",
-    "name": "Build error message",
-    "func": "const ctx = msg.error_context || {};\nconst code = ctx.statusCode;\n\nlet type, severity, userMessage;\n\nif (!code) {\n    type = 'network';\n    severity = 'critical';\n    userMessage = '⚠️ Forbindelsen er midlertidig nede. Meldinger vil ikke leveres før forbindelsen er gjenopprettet.';\n} else if (code === 401 || code === 403) {\n    type = 'auth';\n    severity = 'critical';\n    userMessage = '⚠️ Autentisering feilet. Kontakt administrator for å fornye tilgangen.';\n} else if (code >= 500) {\n    type = 'server';\n    severity = 'critical';\n    userMessage = '⚠️ Ekstern tjeneste svarer ikke. Meldinger vil ikke leveres før tjenesten er tilgjengelig igjen.';\n} else if (code === 404) {\n    type = 'not_found'; severity = 'warning'; userMessage = null;\n} else if (code === 429) {\n    type = 'rate_limit'; severity = 'warning'; userMessage = null;\n} else if (code >= 400) {\n    type = 'client'; severity = 'warning'; userMessage = null;\n} else {\n    type = 'unknown'; severity = 'warning'; userMessage = null;\n}\n\nmsg.error_context = Object.assign({}, ctx, {\n    type,\n    severity,\n    message: type === 'network' ? 'Nettverksfeil' : `HTTP ${code}`,\n    notify_users: !!(userMessage && ctx.connection_name),\n    user_message: userMessage\n});\n\nreturn msg;\n",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 320,
-    "y": 420,
-    "wires": [
-      [
-        "c0e111fc4289a4cd",
-        "d087b4eb819a4186"
-      ]
-    ]
-  },
-  {
-    "id": "c0e111fc4289a4cd",
-    "type": "function",
-    "z": "003e75aaa2880405",
-    "g": "67c40d3bdd1cbf59",
-    "name": "Write to error log",
-    "func": "const log = global.get('parat_bridge.error_log') || [];\nlog.unshift(msg.error_context);\nif (log.length > 100) log.length = 100;\nglobal.set('parat_bridge.error_log', log);\n\nreturn msg;\n",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 590,
-    "y": 380,
-    "wires": [
-      []
-    ]
-  },
-  {
-    "id": "1cf402a0d8609d2e",
-    "type": "function",
-    "z": "003e75aaa2880405",
-    "g": "9ab1f6c2842073c5",
-    "name": "Initialize system functions",
-    "func": "global.set('utils', {\n\n    build_connection_name: (clients) => {\n        return [...clients]\n            .sort((a, b) => a.client_system.localeCompare(b.client_system))\n            .map(c => `${c.client_system}-${c.identifier}`)\n            .join(\"_\");\n    },\n\n    build_label: (client) => {\n        const colors = {\n            wasos:        \"#1f871f\",\n            rayvn:        \"#000000\",\n            parat_bridge: \"#b80d18\"\n        };\n        return {\n            id:       client.identifier,\n            name:     `[${client.client_system}]: ${client.name}`,\n            colorHex: colors[client.client_system] || \"#888888\"\n        };\n    },\n\n    build_callsign: (client) => `[${client.client_system}:${client.name}]`,\n\n    FILE_REASONS: {\n        OVERSIZED:        \"oversized\",\n        NON_TRANSFERABLE: \"non_transferable\",\n        DOWNLOAD_FAILED:  \"download_failed\",\n        UPLOAD_FAILED:    \"upload_failed\"\n    },\n\n    build_file_key: (message_id, connection_name, filename) => {\n        const safe = filename.replace(/[\\\\\\/\\:*?\"<>|]/g, \"_\");\n        return message_id + \"---\" + connection_name + \"---\" + safe;\n    },\n\n    parse_file_key: (key) => {\n        const raw   = key.startsWith(\"files.\") ? key.slice(\"files.\".length) : key;\n        const parts = raw.split(\"---\");\n        return {\n            message_id:      parts[0]              || null,\n            connection_name: parts[1]              || null,\n            filename:        parts.slice(2).join(\"---\") || null\n        };\n    }\n\n});\n\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 370,
-    "y": 80,
-    "wires": [
-      [
-        "d61931ad5e5945c0"
-      ]
-    ]
-  },
-  {
-    "id": "d61931ad5e5945c0",
-    "type": "function",
-    "z": "003e75aaa2880405",
-    "g": "9ab1f6c2842073c5",
-    "name": "Initialize context",
-    "func": "\n// Initialize context — sets runtime config only\n// Connections and queue are already in cache (loaded by context store on open)\nconst pb = global.get(\"parat_bridge\") || {};\n\npb.base_urls = {\n    rayvn: \"https://api.rayvn.global\",\n    wasos: \"https://dev.wasos.no\"\n};\n\nif (!pb.queue) pb.queue = { in_flight_connections: [], entry_queue: [] };\npb.queue.in_flight_connections = [];  // always reset on startup\n\nglobal.set(\"parat_bridge\", pb);\n\nconst conns = Object.keys(global.get(\"parat_bridge.connections\") || {}).length;\nconst queue = (global.get(\"parat_bridge.queue.entry_queue\") || []).length;\nnode.log(\"Active: \" + conns + \" connection(s), \" + queue + \" queued entries\");\n\nreturn msg;\n\n",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 600,
-    "y": 80,
-    "wires": [
-      []
-    ]
-  },
-  {
-    "id": "5a283579df925b67",
-    "type": "inject",
-    "z": "003e75aaa2880405",
-    "g": "9ab1f6c2842073c5",
-    "name": "",
-    "props": [],
-    "repeat": "",
-    "crontab": "",
-    "once": true,
-    "onceDelay": "0.1",
-    "topic": "",
-    "x": 150,
-    "y": 80,
-    "wires": [
-      [
-        "1cf402a0d8609d2e"
-      ]
-    ]
-  },
-  {
-    "id": "2e3345ef91740485",
-    "type": "ui-table",
-    "z": "003e75aaa2880405",
-    "g": "00eba3e5252a7414",
-    "group": "76f825e60cbfe2c2",
-    "name": "Connection table",
-    "label": "",
-    "order": 3,
-    "width": 0,
-    "height": 0,
-    "maxrows": "8",
-    "passthru": false,
-    "autocols": true,
-    "showSearch": true,
-    "deselect": true,
-    "selectionType": "none",
-    "columns": [],
-    "mobileBreakpoint": "sm",
-    "mobileBreakpointType": "defaults",
-    "action": "replace",
-    "className": "",
-    "x": 730,
-    "y": 240,
-    "wires": [
-      []
-    ]
-  },
-  {
-    "id": "87c89a4224ca60f2",
-    "type": "function",
-    "z": "003e75aaa2880405",
-    "g": "00eba3e5252a7414",
-    "name": "Format connections table",
-    "func": "const connections = global.get(\"parat_bridge.connections\");\n\nif (!connections) {\n    msg.payload = [];\n    return msg;\n}\n\n\nmsg.payload = Object.values(connections).map(conn => {\n    const clients = Object.values(conn.clients);\n    return {\n        \"Klient 1\": `${clients[0].client_system} — ${clients[0].name}`,\n        \"Klient 2\": `${clients[1].client_system} — ${clients[1].name}`,\n        status:     conn.active ? \"🟢 aktiv\" : \"🔴 inaktiv\",\n        created:    new Date(conn.time_created).toLocaleString()\n    };\n});\n\n\nreturn msg;\n",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 450,
-    "y": 240,
-    "wires": [
-      [
-        "2e3345ef91740485"
-      ]
-    ]
-  },
-  {
-    "id": "0bf8491c4bebb0eb",
-    "type": "link out",
-    "z": "003e75aaa2880405",
-    "g": "67c40d3bdd1cbf59",
-    "name": "message failed recieved",
-    "mode": "return",
-    "links": [],
-    "x": 175,
-    "y": 480,
-    "wires": []
-  },
-  {
-    "id": "a8907418fbaa0775",
-    "type": "debug",
-    "z": "003e75aaa2880405",
-    "g": "67c40d3bdd1cbf59",
-    "name": "message failed output",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "true",
-    "targetType": "full",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 320,
-    "y": 380,
-    "wires": []
-  },
-  {
-    "id": "de6ca76d90c9c420",
-    "type": "link in",
-    "z": "003e75aaa2880405",
-    "g": "67c40d3bdd1cbf59",
-    "name": "message failed",
-    "links": [],
-    "x": 95,
-    "y": 420,
-    "wires": [
-      [
-        "0bf8491c4bebb0eb",
-        "157f76d46a2a7622",
-        "a8907418fbaa0775"
-      ]
-    ]
-  },
-  {
-    "id": "ddef126c9f69bdc9",
-    "type": "ui-table",
-    "z": "003e75aaa2880405",
-    "g": "00eba3e5252a7414",
-    "group": "60fb1b7421fbbd11",
-    "name": "",
-    "label": "Last error",
-    "order": 1,
-    "width": 0,
-    "height": 0,
-    "maxrows": 0,
-    "passthru": false,
-    "autocols": true,
-    "showSearch": true,
-    "deselect": true,
-    "selectionType": "none",
-    "columns": [],
-    "mobileBreakpoint": "sm",
-    "mobileBreakpointType": "defaults",
-    "action": "replace",
-    "className": "",
-    "x": 720,
-    "y": 280,
-    "wires": [
-      []
-    ],
-    "info": "Displays the last 10 errors from the error log\r\nin a table on the Error Monitor dashboard page.\r\n\r\nUpdates every 5 seconds via the timestamp\r\ninject node. Table is replaced (not appended)\r\non each update.\r\n\r\nColumns (auto-calculated):\r\n- time, type, source, status, message\r\n"
-  },
-  {
-    "id": "666d47d1dca16efb",
-    "type": "function",
-    "z": "003e75aaa2880405",
-    "g": "00eba3e5252a7414",
-    "name": "Get error log",
-    "func": "const errorLog = global.get('parat_bridge.error_log') || [];\n\nconst recent = errorLog.slice(0, 10);\n\nmsg.payload = recent.map(e => ({\n    time: e.timestamp.replace('T', ' ').substring(0, 19),\n    type: e.type ? e.type.toUpperCase() : 'UNKNOWN',\n    source: e.source,\n    status: e.statusCode || 'none',\n    severity: e.severity || 'warning',\n    message: (e.raw_message || e.message || '').substring(0, 60)\n}));\n\nreturn msg;\n",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 410,
-    "y": 280,
-    "wires": [
-      [
-        "ddef126c9f69bdc9"
-      ]
-    ],
-    "info": "Fetches the last 10 errors from global context\r\n(error_log) and formats them for display in\r\nthe dashboard table.\r\n\r\nReturns errors in reverse chronological order\r\n(newest first) with the following fields:\r\n- time: timestamp (formatted)\r\n- type: error type in uppercase\r\n- source: source node name\r\n- status: HTTP status code or 'none'\r\n- message: error message (max 60 chars)\r\n"
+    "x": 24,
+    "y": 379,
+    "w": 1402,
+    "h": 242
   },
   {
     "id": "b174b7b88e8a24b4",
@@ -431,6 +115,326 @@
       ]
     ],
     "info": "Triggers the error log fetch every 5 seconds.\r\nEnsures the dashboard table stays up to date\r\nwith the latest errors from global context.\r\n"
+  },
+  {
+    "id": "666d47d1dca16efb",
+    "type": "function",
+    "z": "003e75aaa2880405",
+    "g": "00eba3e5252a7414",
+    "name": "Get error log",
+    "func": "const errorLog = global.get('parat_bridge.error_log') || [];\n\nconst recent = errorLog.slice(0, 10);\n\nmsg.payload = recent.map(e => ({\n    time: e.timestamp.replace('T', ' ').substring(0, 19),\n    type: e.type ? e.type.toUpperCase() : 'UNKNOWN',\n    source: e.source,\n    status: e.statusCode || 'none',\n    severity: e.severity || 'warning',\n    message: (e.raw_message || e.message || '').substring(0, 60)\n}));\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 410,
+    "y": 280,
+    "wires": [
+      [
+        "ddef126c9f69bdc9"
+      ]
+    ],
+    "info": "Fetches the last 10 errors from global context\r\n(error_log) and formats them for display in\r\nthe dashboard table.\r\n\r\nReturns errors in reverse chronological order\r\n(newest first) with the following fields:\r\n- time: timestamp (formatted)\r\n- type: error type in uppercase\r\n- source: source node name\r\n- status: HTTP status code or 'none'\r\n- message: error message (max 60 chars)\r\n"
+  },
+  {
+    "id": "ddef126c9f69bdc9",
+    "type": "ui-table",
+    "z": "003e75aaa2880405",
+    "g": "00eba3e5252a7414",
+    "group": "60fb1b7421fbbd11",
+    "name": "",
+    "label": "Last error",
+    "order": 1,
+    "width": 0,
+    "height": 0,
+    "maxrows": 0,
+    "passthru": false,
+    "autocols": true,
+    "showSearch": true,
+    "deselect": true,
+    "selectionType": "none",
+    "columns": [],
+    "mobileBreakpoint": "sm",
+    "mobileBreakpointType": "defaults",
+    "action": "replace",
+    "className": "",
+    "x": 720,
+    "y": 280,
+    "wires": [
+      []
+    ],
+    "info": "Displays the last 10 errors from the error log\r\nin a table on the Error Monitor dashboard page.\r\n\r\nUpdates every 5 seconds via the timestamp\r\ninject node. Table is replaced (not appended)\r\non each update.\r\n\r\nColumns (auto-calculated):\r\n- time, type, source, status, message\r\n"
+  },
+  {
+    "id": "de6ca76d90c9c420",
+    "type": "link in",
+    "z": "003e75aaa2880405",
+    "g": "67c40d3bdd1cbf59",
+    "name": "message failed",
+    "links": [
+      "ce616cbce4705bbb"
+    ],
+    "x": 75,
+    "y": 480,
+    "wires": [
+      [
+        "0bf8491c4bebb0eb",
+        "157f76d46a2a7622",
+        "a8907418fbaa0775"
+      ]
+    ]
+  },
+  {
+    "id": "a8907418fbaa0775",
+    "type": "debug",
+    "z": "003e75aaa2880405",
+    "g": "67c40d3bdd1cbf59",
+    "name": "message failed output",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 900,
+    "y": 420,
+    "wires": []
+  },
+  {
+    "id": "0bf8491c4bebb0eb",
+    "type": "link out",
+    "z": "003e75aaa2880405",
+    "g": "67c40d3bdd1cbf59",
+    "name": "message failed recieved",
+    "mode": "return",
+    "links": [],
+    "x": 805,
+    "y": 580,
+    "wires": []
+  },
+  {
+    "id": "87c89a4224ca60f2",
+    "type": "function",
+    "z": "003e75aaa2880405",
+    "g": "00eba3e5252a7414",
+    "name": "Format connections table",
+    "func": "const connections = global.get(\"parat_bridge.connections\");\n\nif (!connections) {\n    msg.payload = [];\n    return msg;\n}\n\n\nmsg.payload = Object.values(connections).map(conn => {\n    const clients = Object.values(conn.clients);\n    return {\n        \"Klient 1\": `${clients[0].client_system} — ${clients[0].name}`,\n        \"Klient 2\": `${clients[1].client_system} — ${clients[1].name}`,\n        status:     conn.active ? \"🟢 aktiv\" : \"🔴 inaktiv\",\n        created:    new Date(conn.time_created).toLocaleString()\n    };\n});\n\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 450,
+    "y": 240,
+    "wires": [
+      [
+        "2e3345ef91740485"
+      ]
+    ]
+  },
+  {
+    "id": "2e3345ef91740485",
+    "type": "ui-table",
+    "z": "003e75aaa2880405",
+    "g": "00eba3e5252a7414",
+    "group": "76f825e60cbfe2c2",
+    "name": "Connection table",
+    "label": "",
+    "order": 3,
+    "width": 0,
+    "height": 0,
+    "maxrows": "8",
+    "passthru": false,
+    "autocols": true,
+    "showSearch": true,
+    "deselect": true,
+    "selectionType": "none",
+    "columns": [],
+    "mobileBreakpoint": "sm",
+    "mobileBreakpointType": "defaults",
+    "action": "replace",
+    "className": "",
+    "x": 730,
+    "y": 240,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "5a283579df925b67",
+    "type": "inject",
+    "z": "003e75aaa2880405",
+    "g": "9ab1f6c2842073c5",
+    "name": "",
+    "props": [],
+    "repeat": "",
+    "crontab": "",
+    "once": true,
+    "onceDelay": "0.1",
+    "topic": "",
+    "x": 150,
+    "y": 80,
+    "wires": [
+      [
+        "1cf402a0d8609d2e"
+      ]
+    ]
+  },
+  {
+    "id": "d61931ad5e5945c0",
+    "type": "function",
+    "z": "003e75aaa2880405",
+    "g": "9ab1f6c2842073c5",
+    "name": "Initialize context",
+    "func": "\n// Initialize context — sets runtime config only\n// Connections and queue are already in cache (loaded by context store on open)\nconst pb = global.get(\"parat_bridge\") || {};\n\npb.base_urls = {\n    rayvn: \"https://api.rayvn.global\",\n    wasos: \"https://dev.wasos.no\"\n};\n\nif (!pb.queue) pb.queue = { in_flight_connections: [], entry_queue: [] };\npb.queue.in_flight_connections = [];  // always reset on startup\n\nglobal.set(\"parat_bridge\", pb);\n\nconst conns = Object.keys(global.get(\"parat_bridge.connections\") || {}).length;\nconst queue = (global.get(\"parat_bridge.queue.entry_queue\") || []).length;\nnode.log(\"Active: \" + conns + \" connection(s), \" + queue + \" queued entries\");\n\nreturn msg;\n\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 600,
+    "y": 80,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "1cf402a0d8609d2e",
+    "type": "function",
+    "z": "003e75aaa2880405",
+    "g": "9ab1f6c2842073c5",
+    "name": "Initialize system functions",
+    "func": "global.set('utils', {\n\n    build_connection_name: (clients) => {\n        return [...clients]\n            .sort((a, b) => a.client_system.localeCompare(b.client_system))\n            .map(c => `${c.client_system}-${c.identifier}`)\n            .join(\"_\");\n    },\n\n    build_label: (client) => {\n        const colors = {\n            wasos:        \"#1f871f\",\n            rayvn:        \"#000000\",\n            parat_bridge: \"#b80d18\"\n        };\n        return {\n            id:       client.identifier,\n            name:     `[${client.client_system}]: ${client.name}`,\n            colorHex: colors[client.client_system] || \"#888888\"\n        };\n    },\n\n    build_callsign: (client) => `[${client.client_system}:${client.name}]`,\n\n    FILE_REASONS: {\n        OVERSIZED:        \"oversized\",\n        NON_TRANSFERABLE: \"non_transferable\",\n        DOWNLOAD_FAILED:  \"download_failed\",\n        UPLOAD_FAILED:    \"upload_failed\"\n    },\n\n    build_file_key: (message_id, connection_name, filename) => {\n        const safe = filename.replace(/[\\\\\\/\\:*?\"<>|]/g, \"_\");\n        return message_id + \"---\" + connection_name + \"---\" + safe;\n    },\n\n    parse_file_key: (key) => {\n        const raw   = key.startsWith(\"files.\") ? key.slice(\"files.\".length) : key;\n        const parts = raw.split(\"---\");\n        return {\n            message_id:      parts[0]              || null,\n            connection_name: parts[1]              || null,\n            filename:        parts.slice(2).join(\"---\") || null\n        };\n    }\n\n});\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 370,
+    "y": 80,
+    "wires": [
+      [
+        "d61931ad5e5945c0"
+      ]
+    ]
+  },
+  {
+    "id": "c0e111fc4289a4cd",
+    "type": "function",
+    "z": "003e75aaa2880405",
+    "g": "67c40d3bdd1cbf59",
+    "name": "Write to error log",
+    "func": "const log = global.get('parat_bridge.error_log') || [];\nlog.unshift(msg.error_context);\nif (log.length > 100) log.length = 100;\nglobal.set('parat_bridge.error_log', log);\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 1170,
+    "y": 420,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "157f76d46a2a7622",
+    "type": "function",
+    "z": "003e75aaa2880405",
+    "g": "67c40d3bdd1cbf59",
+    "name": "Build error message",
+    "func": "const ctx = msg.error_context || {};\nconst code = ctx.statusCode;\n\nlet type, severity, userMessage;\n\nif (!code) {\n    type = 'network';\n    severity = 'critical';\n    userMessage = '⚠️ Forbindelsen er midlertidig nede. Meldinger vil ikke leveres før forbindelsen er gjenopprettet.';\n} else if (code === 401 || code === 403) {\n    type = 'auth';\n    severity = 'critical';\n    userMessage = '⚠️ Autentisering feilet. Kontakt administrator for å fornye tilgangen.';\n} else if (code >= 500) {\n    type = 'server';\n    severity = 'critical';\n    userMessage = '⚠️ Ekstern tjeneste svarer ikke. Meldinger vil ikke leveres før tjenesten er tilgjengelig igjen.';\n} else if (code === 404) {\n    type = 'not_found'; severity = 'warning'; userMessage = null;\n} else if (code === 429) {\n    type = 'rate_limit'; severity = 'warning'; userMessage = null;\n} else if (code >= 400) {\n    type = 'client'; severity = 'warning'; userMessage = null;\n} else {\n    type = 'unknown'; severity = 'warning'; userMessage = null;\n}\n\nmsg.error_context = Object.assign({}, ctx, {\n    type,\n    severity,\n    message: type === 'network' ? 'Nettverksfeil' : `HTTP ${code}`,\n    notify_users: !!(userMessage && ctx.connection_name),\n    user_message: userMessage\n});\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 900,
+    "y": 460,
+    "wires": [
+      [
+        "c0e111fc4289a4cd",
+        "d087b4eb819a4186"
+      ]
+    ]
+  },
+  {
+    "id": "d087b4eb819a4186",
+    "type": "function",
+    "z": "003e75aaa2880405",
+    "g": "67c40d3bdd1cbf59",
+    "name": "Build user response",
+    "func": "const ctx = msg.error_context || {};\n\nif (!ctx.notify_users || !ctx.connection_name) return null;\n\n// Cascade-vern: dropp hvis entry_id starter med pb-err-\nif (ctx.entry_id && ctx.entry_id.startsWith('pb-err-')) return null;\n\n// Notification throttle: maks 1 notifikasjon per connection per 5 min\nconst cb = global.get('parat_bridge.circuit_breaker') || {};\nconst cbEntry = cb[ctx.connection_name] || {};\nconst now = Date.now();\n\nif (cbEntry.last_notified && (now - cbEntry.last_notified) < 5 * 60 * 1000) return null;\n\ncb[ctx.connection_name] = { last_notified: now };\nglobal.set('parat_bridge.circuit_breaker', cb);\n\nconst connections = global.get('parat_bridge.connections') || {};\nconst conn = connections[ctx.connection_name];\nif (!conn) return null;\n\nconst messages = Object.values(conn.clients).map(client => ({\n    topic: 'new_message',\n    entry: {\n        id: 'pb-err-' + now + '-' + Math.random().toString(36).slice(2, 7),\n        text: ctx.user_message,\n        author: '[parat_bridge]',\n        metadata: {\n            source: { client_system: 'parat_bridge', connection_name: ctx.connection_name },\n            target: client,\n            connection_name: ctx.connection_name\n        }\n    }\n}));\n\nreturn messages.map(m => ({ payload: m }));\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 1180,
+    "y": 540,
+    "wires": [
+      [
+        "5cfcc740a3ba2cfa"
+      ]
+    ]
+  },
+  {
+    "id": "5cfcc740a3ba2cfa",
+    "type": "link out",
+    "z": "003e75aaa2880405",
+    "g": "67c40d3bdd1cbf59",
+    "name": "link out 3",
+    "mode": "link",
+    "links": [
+      "9fe2d9086d510cb5"
+    ],
+    "x": 1385,
+    "y": 540,
+    "wires": []
+  },
+  {
+    "id": "8f504303d028763b",
+    "type": "function",
+    "z": "003e75aaa2880405",
+    "g": "00eba3e5252a7414",
+    "name": "Send Connections to UIB",
+    "func": "var connections = global.get('parat_bridge.connections') || {};\nmsg = {\n    topic: 'connections/update',\n    payload: connections\n};\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 470,
+    "y": 200,
+    "wires": [
+      [
+        "b0cba41bee5fa427"
+      ]
+    ]
+  },
+  {
+    "id": "b0cba41bee5fa427",
+    "type": "link out",
+    "z": "003e75aaa2880405",
+    "g": "00eba3e5252a7414",
+    "name": "Connections Link Out to UIB",
+    "mode": "link",
+    "links": [
+      "db6428985cf334dd"
+    ],
+    "x": 725,
+    "y": 200,
+    "wires": []
   },
   {
     "id": "16d793b66e21d0b0",
@@ -497,5 +501,89 @@
     "x": 255,
     "y": 740,
     "wires": []
+  },
+  {
+    "id": "c4c102d3639d4ad1",
+    "type": "function",
+    "z": "003e75aaa2880405",
+    "name": "ErrorObject",
+    "func": "// Frigjør in-flight slot\nconst connection_name = (msg.metadata && msg.metadata.connection_name)\n    || (msg.entry && msg.entry.metadata && msg.entry.metadata.connection_name)\n    || null;\n\nif (connection_name) {\n    const queue = global.get('parat_bridge.queue') || {};\n    const inFlight = (queue.in_flight_connections || []).filter(n => n !== connection_name);\n    global.set('parat_bridge.queue.in_flight_connections', inFlight);\n\n    // Inkrementer retries for entry i køen\n    const entryQueue = queue.entry_queue || [];\n    const entry_id = msg.entry && msg.entry.id;\n    if (entry_id) {\n        const idx = entryQueue.findIndex(e => e.entry.id === entry_id);\n        if (idx !== -1) {\n            entryQueue[idx]._retries = (entryQueue[idx]._retries || 0) + 1;\n            if (entryQueue[idx]._retries >= 10) {\n                // Dropp alle entries for denne connection\n                const filtered = entryQueue.filter(e =>\n                    !(e.entry.metadata && e.entry.metadata.connection_name === connection_name)\n                );\n                global.set('parat_bridge.queue.entry_queue', filtered);\n            } else {\n                global.set('parat_bridge.queue.entry_queue', entryQueue);\n            }\n        }\n    }\n}\n\nmsg.error_context = {\n    timestamp: new Date().toISOString(),\n    source: msg.error && msg.error.source ? msg.error.source.name : 'unknown',\n    raw_message: msg.error ? msg.error.message : null,\n    statusCode: (msg.payload && msg.payload.statusCode) || null,\n    connection_name: connection_name,\n    entry_id: (msg.entry && msg.entry.id) || null,\n    direction: 'unknown'\n};\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 510,
+    "y": 840,
+    "wires": [
+      [
+        "ce616cbce4705bbb"
+      ]
+    ]
+  },
+  {
+    "id": "7c6d6977d7b40460",
+    "type": "catch",
+    "z": "003e75aaa2880405",
+    "name": "",
+    "scope": null,
+    "uncaught": false,
+    "x": 300,
+    "y": 840,
+    "wires": [
+      [
+        "c4c102d3639d4ad1"
+      ]
+    ]
+  },
+  {
+    "id": "ce616cbce4705bbb",
+    "type": "link out",
+    "z": "003e75aaa2880405",
+    "name": "link out 2",
+    "mode": "link",
+    "links": [
+      "de6ca76d90c9c420"
+    ],
+    "x": 685,
+    "y": 840,
+    "wires": []
+  },
+  {
+    "id": "713fe6179c4d6ef1",
+    "type": "function",
+    "z": "003e75aaa2880405",
+    "g": "67c40d3bdd1cbf59",
+    "name": "ErrorObject(retry)",
+    "func": "const entry    = msg.entry || {};\nconst metadata = entry.metadata || {};\nconst target   = metadata.target || {};\n\nconst sourceMap = {\n    rayvn: 'POST to Rayvn log',\n    wasos: 'POST to WaSOS chat',\n    cim:   'POST to CIM'\n};\n\nmsg.error_context = {\n    timestamp:       new Date().toISOString(),\n    source:          sourceMap[target.client_system] || 'POST entries',\n    raw_message:     null,\n    statusCode:      (msg.payload && msg.payload.statusCode) || null,\n    connection_name: metadata.connection_name || null,\n    entry_id:        entry.id || null,\n    direction:       'outbound'\n};\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 490,
+    "y": 580,
+    "wires": [
+      [
+        "157f76d46a2a7622"
+      ]
+    ]
+  },
+  {
+    "id": "064e2f168d28593a",
+    "type": "link in",
+    "z": "003e75aaa2880405",
+    "g": "67c40d3bdd1cbf59",
+    "name": "message failed retry",
+    "links": [],
+    "x": 65,
+    "y": 580,
+    "wires": [
+      [
+        "713fe6179c4d6ef1"
+      ]
+    ]
   }
 ]
