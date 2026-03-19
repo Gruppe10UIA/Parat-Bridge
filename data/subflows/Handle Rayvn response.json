@@ -82,7 +82,7 @@
     "type": "function",
     "z": "f23580e27a5eb9f2",
     "name": "sort time",
-    "func": "\n// sort oldes to newest\nif (!msg.payload || msg.payload.length === 0) return null;\n\nmsg.payload.sort((a, b) => a.timeCreated - b.timeCreated);\nreturn msg;\n",
+    "func": "\n// sort oldest to newest\nif (!msg.payload || msg.payload.length === 0) return null;\n\nmsg.payload.sort((a, b) => a.timeCreated - b.timeCreated);\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
