@@ -26,11 +26,7 @@
             "port": 0
           },
           {
-            "id": "59073a67c9d5d841",
-            "port": 1
-          },
-          {
-            "id": "3dd0a303257351ac",
+            "id": "7f744bf3c0def6f6",
             "port": 0
           }
         ]
@@ -88,9 +84,7 @@
     "x": 920,
     "y": 140,
     "wires": [
-      [
-        "59073a67c9d5d841"
-      ]
+      []
     ]
   },
   {
@@ -135,44 +129,6 @@
       [
         "249894e937d53097"
       ]
-    ]
-  },
-  {
-    "id": "59073a67c9d5d841",
-    "type": "switch",
-    "z": "32cf505a4efbb214",
-    "name": "Has Geo?",
-    "property": "metadata.geo",
-    "propertyType": "msg",
-    "rules": [
-      {
-        "t": "nnull"
-      },
-      {
-        "t": "else"
-      }
-    ],
-    "checkall": "true",
-    "repair": false,
-    "outputs": 2,
-    "x": 920,
-    "y": 80,
-    "wires": [
-      [
-        "3dd0a303257351ac"
-      ],
-      []
-    ]
-  },
-  {
-    "id": "3dd0a303257351ac",
-    "type": "subflow:9f7f5ef9d0952551",
-    "z": "32cf505a4efbb214",
-    "name": "",
-    "x": 1150,
-    "y": 80,
-    "wires": [
-      []
     ]
   }
 ]
