@@ -30,7 +30,8 @@
     ],
     "env": [],
     "meta": {},
-    "color": "#DDAA99"
+    "color": "#c21000",
+    "icon": "font-awesome/fa-map-marker"
   },
   {
     "id": "855ec1eebf8bbde4",

@@ -73,7 +73,7 @@
     "y": 200,
     "wires": [
       [
-        "4d3cf68a995e7360"
+        "29974f5b972c6be6"
       ]
     ]
   },
@@ -136,7 +136,7 @@
     "from": "",
     "to": "",
     "reg": false,
-    "x": 650,
+    "x": 930,
     "y": 200,
     "wires": [
       [
@@ -184,19 +184,12 @@
     ]
   },
   {
-    "id": "4d3cf68a995e7360",
-    "type": "function",
+    "id": "29974f5b972c6be6",
+    "type": "subflow:ad3abd97c4ab0117",
     "z": "f23580e27a5eb9f2",
-    "name": "Extract Delhendelse Position",
-    "func": "const text = msg.payload.text;\nif (!text) return msg;\n\nconst regex = /Posisjonen til delhendelsen '(.+?)' ble endret til '([0-9.]+):([0-9.]+)' \\(var: '(.+?):(.+?)'\\)/;\nconst match = text.match(regex);\n\nif (match) {\n    const name = match[1];\n    const lng = parseFloat(match[2]);\n    const lat = parseFloat(match[3]);\n\n    const connection_name = msg.metadata.connection_name;\n    const key = `parat_bridge.connections.${connection_name}.delhendelse_positions`;\n    const positions = global.get(key) || [];\n\n    const existingIndex = positions.findIndex(p => p.name === name);\n    if (existingIndex >= 0) {\n        positions[existingIndex].lat = lat;\n        positions[existingIndex].lng = lng;\n    } else {\n        positions.push({ name, lat, lng });\n    }\n\n    global.set(key, positions);\n    msg.metadata.geo = { lat, lng, name };\n}\n\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 580,
-    "y": 100,
+    "name": "",
+    "x": 700,
+    "y": 200,
     "wires": [
       [
         "ec7d4f7589f03a68"

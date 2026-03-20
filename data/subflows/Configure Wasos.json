@@ -159,7 +159,7 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 260,
+    "x": 280,
     "y": 380,
     "wires": [
       [
@@ -171,7 +171,7 @@
     "id": "8c837874816e51d9",
     "type": "http request",
     "z": "a7d9b521445d1bf0",
-    "name": "",
+    "name": "Get WaSOS Room",
     "method": "GET",
     "ret": "obj",
     "paytoqs": "ignore",
