@@ -18,8 +18,8 @@
     ],
     "out": [
       {
-        "x": 600,
-        "y": 380,
+        "x": 700,
+        "y": 500,
         "wires": [
           {
             "id": "dd2f6242fcde0863",
@@ -42,7 +42,7 @@
     "y": 260,
     "wires": [
       [
-        "ebec1bfad607a0c8"
+        "9460bde585a04d50"
       ]
     ]
   },
@@ -51,15 +51,15 @@
     "type": "function",
     "z": "a7d9b521445d1bf0",
     "name": "Build wasos_config",
-    "func": "const chatroom_name = msg.config.chatroom_name;\n\nconst wasos_config = {\n    // Standard client contract fields\n    client_system: \"wasos\",\n    api_key: msg.payload.nonce,\n    identifier:    chatroom_name,\n    name:          chatroom_name,\n    timestamp:     Date.now(),\n    client_specific: {\n        // Wasos-specific fields\n        username:      msg.config.username,\n        user_id:       msg.payload.profileId    || null,\n        chatroom_name: chatroom_name,\n        group:         msg.payload.groups       || null,\n        api: {\n            key:     msg.payload.nonce,\n            expires: msg.payload.refresh_expires || null\n        }\n    }\n};\n\nmsg.payload = wasos_config\nreturn msg",
+    "func": "const chatroom_name = msg.config.chatroom_name;\n\nconst wasos_config = {\n    // Standard client contract fields\n    client_system: \"wasos\",\n    api_key: msg.payload.nonce,\n    identifier:    chatroom_name,\n    name:          chatroom_name,\n    timestamp:     Date.now(),\n    client_specific: {\n        // Wasos-specific fields\n        username:      msg.config.username,\n        user_id:       msg.payload.profileId    || null,\n        chatroom_name: chatroom_name,\n        room_id:        msg.room_id             || null,   \n        group:         msg.payload.groups       || null,\n        api: {\n            key:     msg.payload.nonce,\n            expires: msg.payload.refresh_expires || null\n        }\n    }\n};\n\nmsg.payload = wasos_config\nreturn msg",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 210,
-    "y": 380,
+    "x": 310,
+    "y": 500,
     "wires": [
       [
         "dd2f6242fcde0863"
@@ -99,8 +99,8 @@
     "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 210,
-    "y": 320,
+    "x": 690,
+    "y": 160,
     "wires": []
   },
   {
@@ -115,8 +115,8 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 430,
-    "y": 380,
+    "x": 530,
+    "y": 500,
     "wires": [
       []
     ]
@@ -146,5 +146,69 @@
       ]
     ],
     "info": "Catches all errors from nodes in this subflow\r\nand forwards them to the centralized \r\nError Handler subflow for classification,\r\nlogging and notification.\r\n"
+  },
+  {
+    "id": "9460bde585a04d50",
+    "type": "function",
+    "z": "a7d9b521445d1bf0",
+    "name": "Build Room Lookup",
+    "func": "msg._login_response = msg.payload;\n\nmsg.url = global.get(\"parat_bridge\").base_urls.wasos\n    + \"/api/chat/rooms/\" + msg.config.chatroom_name;\nmsg.headers = {\n    \"x-api-key\": msg.payload.nonce\n};\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 280,
+    "y": 380,
+    "wires": [
+      [
+        "8c837874816e51d9"
+      ]
+    ]
+  },
+  {
+    "id": "8c837874816e51d9",
+    "type": "http request",
+    "z": "a7d9b521445d1bf0",
+    "name": "Get WaSOS Room",
+    "method": "GET",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 510,
+    "y": 380,
+    "wires": [
+      [
+        "22e6310454eae977"
+      ]
+    ]
+  },
+  {
+    "id": "22e6310454eae977",
+    "type": "function",
+    "z": "a7d9b521445d1bf0",
+    "name": "Extract Room ID",
+    "func": "const room_id = msg.payload.id || null;\n\nmsg.payload = msg._login_response;\nmsg.room_id = room_id;\ndelete msg._login_response;\n\nif (!room_id) {\n    node.warn(\"Could not discover WaSOS room UUID\");\n}\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 720,
+    "y": 380,
+    "wires": [
+      [
+        "ebec1bfad607a0c8"
+      ]
+    ]
   }
 ]
