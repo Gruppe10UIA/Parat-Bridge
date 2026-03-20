@@ -19,7 +19,7 @@
     "out": [
       {
         "x": 820,
-        "y": 300,
+        "y": 380,
         "wires": [
           {
             "id": "ae71bc183d639e62",
@@ -73,7 +73,7 @@
     "y": 200,
     "wires": [
       [
-        "ec7d4f7589f03a68"
+        "4d3cf68a995e7360"
       ]
     ]
   },
@@ -110,7 +110,7 @@
     "finalize": "",
     "libs": [],
     "x": 250,
-    "y": 300,
+    "y": 380,
     "wires": [
       [
         "ae71bc183d639e62"
@@ -140,7 +140,7 @@
     "y": 200,
     "wires": [
       [
-        "91538a46d1d6d022"
+        "5fd1a34e865fd3e7"
       ]
     ]
   },
@@ -163,7 +163,7 @@
     "repair": false,
     "outputs": 2,
     "x": 500,
-    "y": 300,
+    "y": 380,
     "wires": [
       [
         "1644ded714401b10"
@@ -177,10 +177,68 @@
     "z": "f23580e27a5eb9f2",
     "name": "",
     "x": 650,
-    "y": 260,
+    "y": 340,
     "wires": [
       [],
       []
     ]
+  },
+  {
+    "id": "4d3cf68a995e7360",
+    "type": "function",
+    "z": "f23580e27a5eb9f2",
+    "name": "Extract Delhendelse Position",
+    "func": "const text = msg.payload.text;\nif (!text) return msg;\n\nconst regex = /Posisjonen til delhendelsen '(.+?)' ble endret til '([0-9.]+):([0-9.]+)' \\(var: '(.+?):(.+?)'\\)/;\nconst match = text.match(regex);\n\nif (match) {\n    const name = match[1];\n    const lng = parseFloat(match[2]);\n    const lat = parseFloat(match[3]);\n\n    const connection_name = msg.metadata.connection_name;\n    const key = `parat_bridge.connections.${connection_name}.delhendelse_positions`;\n    const positions = global.get(key) || [];\n\n    const existingIndex = positions.findIndex(p => p.name === name);\n    if (existingIndex >= 0) {\n        positions[existingIndex].lat = lat;\n        positions[existingIndex].lng = lng;\n    } else {\n        positions.push({ name, lat, lng });\n    }\n\n    global.set(key, positions);\n}\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 580,
+    "y": 100,
+    "wires": [
+      [
+        "ec7d4f7589f03a68"
+      ]
+    ]
+  },
+  {
+    "id": "5fd1a34e865fd3e7",
+    "type": "function",
+    "z": "f23580e27a5eb9f2",
+    "name": "Cross-validate Map Captures",
+    "func": "const files = msg.payload.files\n    || (msg.payload.entry && msg.payload.entry.files)\n    || [];\nif (files.length === 0) return msg;\n\nconst connection_name = msg.metadata.connection_name;\nconst key = `parat_bridge.connections.${connection_name}.delhendelse_positions`;\nconst positions = global.get(key) || [];\nif (positions.length === 0) return msg;\n\nconst mapCaptureRegex = /Map_Capture-.+?\\(([0-9.]+),([0-9.]+)\\)\\.png/;\n\nfor (const file of files) {\n    if (!file.name) continue;\n    const match = file.name.match(mapCaptureRegex);\n    if (!match) continue;\n\n    const fileLat = parseFloat(match[1]);\n    const fileLng = parseFloat(match[2]);\n\n    // Compare against stored positions (round to 6 decimals)\n    const verified = positions.find(p =>\n        p.lat.toFixed(6) === fileLat.toFixed(6) &&\n        p.lng.toFixed(6) === fileLng.toFixed(6)\n    );\n\n    if (verified) {\n        msg.metadata.geo = {\n            lat: verified.lat,\n            lng: verified.lng,\n            name: verified.name\n        };\n        node.warn(`Geo match: \"${verified.name}\" at ${verified.lat},${verified.lng}`);\n        break;\n    }\n}\n\nreturn msg;\n\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 900,
+    "y": 200,
+    "wires": [
+      [
+        "91538a46d1d6d022",
+        "e4747ba6bd96140c"
+      ]
+    ]
+  },
+  {
+    "id": "e4747ba6bd96140c",
+    "type": "debug",
+    "z": "f23580e27a5eb9f2",
+    "name": "Cross Validate Debug",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1180,
+    "y": 160,
+    "wires": []
   }
 ]
