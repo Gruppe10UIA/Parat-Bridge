@@ -361,12 +361,9 @@
     "type": "catch",
     "z": "84d1a0de660abb59",
     "name": "",
-    "scope": [
-      "02f5aa2ff841acd1",
-      "9b6e4d1e92c769d9"
-    ],
+    "scope": null,
     "uncaught": false,
-    "x": 230,
+    "x": 240,
     "y": 620,
     "wires": [
       [

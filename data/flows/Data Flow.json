@@ -140,24 +140,6 @@
     ]
   },
   {
-    "id": "d15365b38380b10d",
-    "type": "catch",
-    "z": "63f37bd7273e3fc7",
-    "name": "",
-    "scope": [
-      "75edafc7713512ab",
-      "586dc5467cc6e87f"
-    ],
-    "uncaught": false,
-    "x": 290,
-    "y": 80,
-    "wires": [
-      [
-        "e5e0314ff6b42153"
-      ]
-    ]
-  },
-  {
     "id": "e5e0314ff6b42153",
     "type": "link out",
     "z": "63f37bd7273e3fc7",
@@ -169,5 +151,23 @@
     "x": 485,
     "y": 80,
     "wires": []
+  },
+  {
+    "id": "31a3884a433fd4f0",
+    "type": "catch",
+    "z": "63f37bd7273e3fc7",
+    "name": "",
+    "scope": [
+      "586dc5467cc6e87f",
+      "75edafc7713512ab"
+    ],
+    "uncaught": false,
+    "x": 270,
+    "y": 80,
+    "wires": [
+      [
+        "e5e0314ff6b42153"
+      ]
+    ]
   }
 ]

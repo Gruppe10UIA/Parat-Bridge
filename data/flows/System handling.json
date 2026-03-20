@@ -78,10 +78,10 @@
       "713fe6179c4d6ef1",
       "064e2f168d28593a"
     ],
-    "x": 64,
-    "y": 399,
-    "w": 1402,
-    "h": 242
+    "x": 54,
+    "y": 339,
+    "w": 1392,
+    "h": 282
   },
   {
     "id": "b174b7b88e8a24b4",
@@ -177,11 +177,10 @@
       "79a2ee00d81f56b3",
       "ce616cbce4705bbb"
     ],
-    "x": 115,
-    "y": 500,
+    "x": 95,
+    "y": 440,
     "wires": [
       [
-        "0bf8491c4bebb0eb",
         "157f76d46a2a7622",
         "a8907418fbaa0775"
       ]
@@ -201,8 +200,8 @@
     "targetType": "full",
     "statusVal": "",
     "statusType": "auto",
-    "x": 940,
-    "y": 440,
+    "x": 920,
+    "y": 380,
     "wires": []
   },
   {
@@ -213,8 +212,8 @@
     "name": "message failed recieved",
     "mode": "return",
     "links": [],
-    "x": 845,
-    "y": 600,
+    "x": 575,
+    "y": 500,
     "wires": []
   },
   {
@@ -339,8 +338,8 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 1210,
-    "y": 440,
+    "x": 1190,
+    "y": 380,
     "wires": [
       []
     ]
@@ -358,8 +357,8 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 940,
-    "y": 480,
+    "x": 920,
+    "y": 420,
     "wires": [
       [
         "c0e111fc4289a4cd",
@@ -380,8 +379,8 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 1220,
-    "y": 560,
+    "x": 1200,
+    "y": 500,
     "wires": [
       [
         "5cfcc740a3ba2cfa"
@@ -398,8 +397,8 @@
     "links": [
       "9fe2d9086d510cb5"
     ],
-    "x": 1425,
-    "y": 560,
+    "x": 1405,
+    "y": 500,
     "wires": []
   },
   {
@@ -564,8 +563,8 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 530,
-    "y": 600,
+    "x": 550,
+    "y": 580,
     "wires": [
       [
         "157f76d46a2a7622"
@@ -579,11 +578,12 @@
     "g": "67c40d3bdd1cbf59",
     "name": "message failed retry",
     "links": [],
-    "x": 105,
-    "y": 600,
+    "x": 95,
+    "y": 580,
     "wires": [
       [
-        "713fe6179c4d6ef1"
+        "713fe6179c4d6ef1",
+        "0bf8491c4bebb0eb"
       ]
     ]
   },
