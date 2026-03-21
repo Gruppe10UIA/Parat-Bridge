@@ -12,4 +12,7 @@ services:
       - "1880:1880" # Default ports for a node red project
     volumes: # syncing local files to container files
       - ./data:/data
+    environment:
+      - RAYVN_EMAIL=${RAYVN_EMAIL}
+      - RAYVN_PASSWORD=${RAYVN_PASSWORD}
     entrypoint: /bin/sh -c "cd /data && npm install && npm prune && cd /usr/src/node-red && npm start -- --userDir /data" # Auto-install and sync packages from package.json on startup
