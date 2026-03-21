@@ -18,8 +18,8 @@
     ],
     "out": [
       {
-        "x": 640,
-        "y": 100,
+        "x": 760,
+        "y": 380,
         "wires": []
       }
     ],
@@ -40,6 +40,50 @@
     "finalize": "",
     "libs": [],
     "x": 200,
+    "y": 80,
+    "wires": [
+      [
+        "98261092d624bab5"
+      ]
+    ]
+  },
+  {
+    "id": "98261092d624bab5",
+    "type": "http request",
+    "z": "0f63de295e19b34d",
+    "name": "ROPC Login",
+    "method": "GET",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 410,
+    "y": 80,
+    "wires": [
+      [
+        "5b51d71c50e39778"
+      ]
+    ]
+  },
+  {
+    "id": "5b51d71c50e39778",
+    "type": "function",
+    "z": "0f63de295e19b34d",
+    "name": "Decode ID Token",
+    "func": "const id_token = msg.payload.id_token;\nif (!id_token) {\n    node.warn(\"[BOOST] ROPC login failed: no id_token\");\n    return null;\n}\n\nconst parts = id_token.split('.');\nconst payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString());\n\nmsg.smallAuthToken = payload.authToken;\nmsg.project = payload.projects[0];\n\nmsg.url = msg.project.apiUrl + \"/restapi/authProfile/\" + msg.project.userId;\nmsg.headers = { \"Authorization\": \"Bearer \" + msg.smallAuthToken };\nmsg.payload = {};  // POST with empty body                        \nreturn msg;  ",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 610,
     "y": 80,
     "wires": [
       []
