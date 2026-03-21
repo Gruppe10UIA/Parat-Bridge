@@ -1,0 +1,163 @@
+[
+  {
+    "id": "0b75059ba8c32602",
+    "type": "subflow",
+    "name": "Fetch Rayvn Files",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 40,
+        "y": 60,
+        "wires": [
+          {
+            "id": "97161ebf0e70d6be"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 820,
+        "y": 140,
+        "wires": [
+          {
+            "id": "48c37b22e884d47d",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#DDAA99",
+    "icon": "font-awesome/fa-download"
+  },
+  {
+    "id": "97161ebf0e70d6be",
+    "type": "function",
+    "z": "0b75059ba8c32602",
+    "name": "Prepare download list",
+    "func": "/**\n * Splits files for processing.\n * All Rayvn files need HTTP GET via SAS.\n */\nconst entry = msg.payload;\nconst items = msg.metadata.files.items;\nconst total = items.length;\n\nconst dl = {\n    entry_backup: JSON.parse(JSON.stringify(entry, (k, v) => k === '_buffer' ? undefined : v)),\n    connection_name: msg.metadata.connection_name,\n    message_id: entry.id,\n    metadata: msg.metadata\n};\n\nconst to_download = [];\n\nitems.forEach((file, i) => {\n    const parts = { id: msg._msgid, type: \"array\", count: total, index: i };\n\n    to_download.push({\n        _msgid: msg._msgid,\n        payload: file,\n        metadata: msg.metadata,\n        _dl: dl,\n        parts: parts,\n        _file_meta: {\n            url: file.url,\n            name: file.name || \"unknown_file\",\n            type: file.type || \"application/octet-stream\",\n            size: file.size || 0\n        }\n    });\n});\n\nreturn to_download.length ? [to_download] : null;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 200,
+    "y": 60,
+    "wires": [
+      [
+        "b00a93bcede3844f"
+      ]
+    ]
+  },
+  {
+    "id": "94a13e5e65843afc",
+    "type": "http request",
+    "z": "0b75059ba8c32602",
+    "name": "GET file (SAS)",
+    "method": "GET",
+    "ret": "bin",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 700,
+    "y": 60,
+    "wires": [
+      [
+        "1a7fcb285c7aea06"
+      ]
+    ]
+  },
+  {
+    "id": "1a7fcb285c7aea06",
+    "type": "function",
+    "z": "0b75059ba8c32602",
+    "name": "Store file via global context",
+    "func": "/**\n * Stores the downloaded file buffer in global context.\n * Returns a pruned file result object for the join node.\n */\nconst utils = global.get(\"utils\");\nconst meta = msg._file_meta;\nconst dl = msg._dl;\nconst success = msg.statusCode === 200 && msg.payload && msg.payload.length > 0;\n\nconst file = { name: meta.name, type: meta.type, size: meta.size, downloaded: success };\n\nif (success) {\n    const key = utils.build_file_key(dl.message_id, dl.connection_name, meta.name);\n    global.set(\"files.\" + key, msg.payload);\n    file.context_key = key;\n} else {\n    node.warn(\"[BOOST] File download failed. Status: \" + msg.statusCode + \", file: \" + meta.name);\n}\n\nreturn {\n    _msgid: msg._msgid,\n    topic: msg.topic,\n    payload: file,\n    parts: msg.parts,\n    _dl: msg._dl\n};\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 220,
+    "y": 140,
+    "wires": [
+      [
+        "95f44ca4268457aa"
+      ]
+    ]
+  },
+  {
+    "id": "95f44ca4268457aa",
+    "type": "join",
+    "z": "0b75059ba8c32602",
+    "name": "",
+    "mode": "auto",
+    "build": "object",
+    "property": "payload",
+    "propertyType": "msg",
+    "key": "topic",
+    "joiner": "\\n",
+    "joinerType": "str",
+    "useparts": false,
+    "accumulate": "false",
+    "timeout": "",
+    "count": "",
+    "reduceRight": false,
+    "x": 430,
+    "y": 140,
+    "wires": [
+      [
+        "48c37b22e884d47d"
+      ]
+    ]
+  },
+  {
+    "id": "48c37b22e884d47d",
+    "type": "function",
+    "z": "0b75059ba8c32602",
+    "name": "Merge files and rebuild entry",
+    "func": "const utils = global.get(\"utils\");\nconst dl = msg._dl;\nconst entry = dl.entry_backup;\nconst metadata = dl.metadata;\nconst downloaded = Array.isArray(msg.payload) ? msg.payload : [msg.payload];\n\n// Separate stored files from failures\nconst stored = downloaded.filter(f => f.downloaded);\nconst failed = downloaded\n    .filter(f => !f.downloaded)\n    .map(f => ({ name: f.name || \"ukjent fil\", reason: f.reason || utils.FILE_REASONS.DOWNLOAD_FAILED }));\n\n// Update entry\nentry.files = stored;\nentry.failed_files = [...(entry.failed_files || []), ...failed];\n\n// Sync metadata.files contract for POST side\nmetadata.files.items = stored;\nmetadata.files.failed = [...metadata.files.failed, ...failed];\n\nnode.log(\"[BOOST] File download complete for entry \" + entry.id + \": \"\n    + stored.length + \" stored, \" + failed.length + \" failed\");\n\nreturn {\n    _msgid: msg._msgid,\n    topic: msg.topic,\n    payload: entry,\n    metadata: metadata\n};\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 640,
+    "y": 140,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "b00a93bcede3844f",
+    "type": "function",
+    "z": "0b75059ba8c32602",
+    "name": "Build SAS download request",
+    "func": "const session = global.get(\"parat_bridge.ropc_session\");\nif (!session) {\n    node.warn(\"[BOOST] No ROPC session — cannot download file\");\n    msg.payload = null;\n    return msg;\n}\n\nconst file = msg._file_meta;\n\n// Pick correct SAS token based on URL pattern\nlet sasToken;\nif (file.url.includes(\"blob.core.windows.net\")) {\n    sasToken = session.filesAccessToken;\n} else {\n    sasToken = session.imagesAccessToken;\n}\n\nmsg.url = file.url + \"?\" + sasToken;\nmsg.headers = {};  // SAS handles auth, no header needed\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 460,
+    "y": 60,
+    "wires": [
+      [
+        "94a13e5e65843afc"
+      ]
+    ]
+  }
+]
