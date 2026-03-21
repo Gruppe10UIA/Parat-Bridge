@@ -30,7 +30,8 @@
     ],
     "env": [],
     "meta": {},
-    "color": "#DDAA99"
+    "color": "#8f5e5e",
+    "icon": "font-awesome/fa-terminal"
   },
   {
     "id": "5a239c30c2050fc9",
@@ -57,7 +58,7 @@
     "type": "http request",
     "z": "0f63de295e19b34d",
     "name": "POST ROPC Login",
-    "method": "GET",
+    "method": "POST",
     "ret": "obj",
     "paytoqs": "ignore",
     "url": "",
@@ -72,7 +73,8 @@
     "y": 80,
     "wires": [
       [
-        "5b51d71c50e39778"
+        "5b51d71c50e39778",
+        "bc61cd417ddb8aab"
       ]
     ]
   },
@@ -137,5 +139,22 @@
     "wires": [
       []
     ]
+  },
+  {
+    "id": "bc61cd417ddb8aab",
+    "type": "debug",
+    "z": "0f63de295e19b34d",
+    "name": "[BOOST ROPC LOGIN DEBUG]",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 710,
+    "y": 40,
+    "wires": []
   }
 ]
