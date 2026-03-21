@@ -1,0 +1,48 @@
+[
+  {
+    "id": "0f63de295e19b34d",
+    "type": "subflow",
+    "name": "ROPC Auth Refresh",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 40,
+        "y": 80,
+        "wires": [
+          {
+            "id": "5a239c30c2050fc9"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 640,
+        "y": 100,
+        "wires": []
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#DDAA99"
+  },
+  {
+    "id": "5a239c30c2050fc9",
+    "type": "function",
+    "z": "0f63de295e19b34d",
+    "name": "Build ROPC request",
+    "func": "const email = env.get(\"RAYVN_EMAIL\");\nconst password = env.get(\"RAYVN_PASSWORD\");\n\nif (!email || !password) {\n    node.warn(\"[BOOST] RAYVN_EMAIL or RAYVN_PASSWORD not set\");\n    return null;\n}\n\nmsg.url = \"https://login.rayvn.global/oauth/token\";\nmsg.headers = { \"Content-Type\": \"application/json\" };\nmsg.payload = {\n    grant_type: \"password\",\n    client_id: \"s2lU2X0OtR9LflGlXaohRSHZmLbCWq0E\",\n    username: email,\n    password: password,\n    scope: \"openid profile email\"\n};\nreturn msg;  ",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 200,
+    "y": 80,
+    "wires": [
+      []
+    ]
+  }
+]
