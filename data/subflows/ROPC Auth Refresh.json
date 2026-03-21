@@ -51,7 +51,7 @@
     "id": "98261092d624bab5",
     "type": "http request",
     "z": "0f63de295e19b34d",
-    "name": "ROPC Login",
+    "name": "POST ROPC Login",
     "method": "GET",
     "ret": "obj",
     "paytoqs": "ignore",
@@ -63,7 +63,7 @@
     "authType": "",
     "senderr": false,
     "headers": [],
-    "x": 410,
+    "x": 430,
     "y": 80,
     "wires": [
       [
@@ -83,8 +83,50 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 610,
+    "x": 650,
     "y": 80,
+    "wires": [
+      [
+        "1c4fc953356d21a3"
+      ]
+    ]
+  },
+  {
+    "id": "1c4fc953356d21a3",
+    "type": "http request",
+    "z": "0f63de295e19b34d",
+    "name": "POST authProfile",
+    "method": "POST",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 870,
+    "y": 80,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "6c8d9355a6376b12",
+    "type": "function",
+    "z": "0f63de295e19b34d",
+    "name": "Store ROPC session",
+    "func": "const profile = msg.payload;\nconst sas = profile.environmentProperties.azureStorage;\n\nconst session = {\n    enrichedToken: profile.authToken,\n    imagesAccessToken: sas.imagesAccessToken,\n    filesAccessToken: sas.filesAccessToken,\n    userId: profile.user.id,\n    projectId: profile.project.id,\n    apiUrl: msg.project.apiUrl,\n    refreshedAt: Date.now(),\n    expiresAt: Date.now() + (20 * 60 * 1000)\n};\n\nglobal.set(\"parat_bridge.ropc_session\", session);\nglobal.set(\"parat_bridge.boost_mode\", true);\n\nnode.status({ fill: \"green\", shape: \"dot\", text: \"refreshed \" + new Date().toLocaleTimeString() });\nnode.warn(\"[BOOST] Session refreshed. Expires ~\" + new Date(session.expiresAt).toLocaleTimeString());\n\nmsg.payload = session;\nreturn msg;  ",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 200,
+    "y": 180,
     "wires": [
       []
     ]
