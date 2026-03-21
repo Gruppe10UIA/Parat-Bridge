@@ -77,7 +77,9 @@
     "x": 370,
     "y": 180,
     "wires": [
-      []
+      [
+        "b559bf3caa78023c"
+      ]
     ],
     "info": "Sends the message to WaSOS chat API with POST request. This is the step that delivers the Rayvn message into the WaSOS chat."
   },
@@ -86,7 +88,7 @@
     "type": "function",
     "z": "19f5354cf4a27129",
     "name": "Format header and url",
-    "func": "const target = msg.metadata.target;\n\nif (!target || !target.api_key || !target.client_specific.chatroom_name) {\n    node.error(\"WaSOS not configured on this connection\");\n    return null;\n}\n\nmsg.url = global.get(\"parat_bridge\").base_urls.wasos\n    + \"/api/chat/messages/\" + target.client_specific.chatroom_name;\n\nmsg.headers = {\n    \"x-api-key\":    target.api_key,\n    \"Content-Type\": \"application/json\"\n};\n\nreturn msg;\n",
+    "func": "const target = msg.metadata.target;\n\nif (!target || !target.api_key || !target.client_specific.chatroom_name) {\n    node.error(\"WaSOS not configured on this connection\");\n    return null;\n}\n\nconst base = global.get(\"parat_bridge\").base_urls.wasos;\nconst room = target.client_specific.chatroom_name;\n\nif (msg._multipart) {\n    msg.url = base + \"/api/v1/chat/messages/\" + room;\n    msg.headers[\"x-api-key\"] = target.api_key;\n} else {\n    msg.url = base + \"/api/chat/messages/\" + room;\n    msg.headers = {\n        \"x-api-key\": target.api_key,\n        \"Content-Type\": \"application/json\"\n    };\n}\n\nreturn msg;     ",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -101,5 +103,22 @@
       ]
     ],
     "info": "Builds HTTP request headers and URL for WaSOS API. Sets x-api-key header from wasos_apikey and uses wasosChatroomUrl as the endpoint. Returns null if not configured."
+  },
+  {
+    "id": "b559bf3caa78023c",
+    "type": "debug",
+    "z": "19f5354cf4a27129",
+    "name": "POST wasos chat debug",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 650,
+    "y": 280,
+    "wires": []
   }
 ]

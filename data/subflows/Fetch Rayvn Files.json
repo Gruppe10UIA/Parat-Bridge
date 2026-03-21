@@ -93,7 +93,8 @@
     "y": 140,
     "wires": [
       [
-        "95f44ca4268457aa"
+        "95f44ca4268457aa",
+        "3c9fc9e907a17e2f"
       ]
     ]
   },
@@ -156,8 +157,43 @@
     "y": 60,
     "wires": [
       [
-        "94a13e5e65843afc"
+        "94a13e5e65843afc",
+        "f7ca402ce06af5d2"
       ]
     ]
+  },
+  {
+    "id": "f7ca402ce06af5d2",
+    "type": "debug",
+    "z": "0b75059ba8c32602",
+    "name": "SAS Debug",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "url",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 490,
+    "y": 20,
+    "wires": []
+  },
+  {
+    "id": "3c9fc9e907a17e2f",
+    "type": "debug",
+    "z": "0b75059ba8c32602",
+    "name": "Store File Debug",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 250,
+    "y": 200,
+    "wires": []
   }
 ]

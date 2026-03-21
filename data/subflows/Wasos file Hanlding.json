@@ -55,20 +55,38 @@
     "id": "5bccfb80b6598174",
     "type": "function",
     "z": "bfd1ac9312fd744a",
-    "name": "Upload Wasos files placeholder",
-    "func": "/**\n * Placeholder — WaSOS file upload not yet implemented.\n * All files marked as non-transferable until API support is added.\n */\nconst utils = global.get(\"utils\");\n\nmsg.metadata.files.items.forEach(file => {\n    msg.metadata.files.failed.push({\n        name: file.name || \"unknown file\",\n        reason: utils.FILE_REASONS.NON_TRANSFERABLE\n    });\n});\n\nmsg.metadata.files.items = [];\n\nreturn msg;\n",
+    "name": "Build WaSOS file upload",
+    "func": "/**                                                                                                                                                                                              \n * Reads downloaded file buffers from global context and                                                                                                                                         \n * builds a raw multipart/form-data request body for the WaSOS v1 API.                                                                                                                           \n */\nconst utils = global.get(\"utils\");\nconst items = msg.metadata.files.items;\nconst failed = msg.metadata.files.failed || [];\nconst uploaded = [];\nconst buffers = [];\n\n// Derive MIME type from filename extension                                                                                                                                                      \n// (Rayvn API returns application/octet-stream which WaSOS rejects)                                                                                                                              \nfunction getMimeType(filename) {\n    const ext = (filename || \"\").split('.').pop().toLowerCase();\n    const types = {\n        jpg: \"image/jpeg\", jpeg: \"image/jpeg\", png: \"image/png\",\n        gif: \"image/gif\", webp: \"image/webp\", bmp: \"image/bmp\",\n        svg: \"image/svg+xml\", heic: \"image/heic\",\n        pdf: \"application/pdf\",\n        mp4: \"video/mp4\", mov: \"video/quicktime\", avi: \"video/x-msvideo\",\n        mp3: \"audio/mpeg\", wav: \"audio/wav\",\n        doc: \"application/msword\", txt: \"text/plain\", csv: \"text/csv\",\n        docx: \"application/vnd.openxmlformats-officedocument.wordprocessingml.document\",\n        xlsx: \"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\",\n        zip: \"application/zip\"\n    };\n    return types[ext] || null;\n}\n\nitems.forEach(file => {\n    const buffer = file.context_key\n        ? global.get(\"files.\" + file.context_key)\n        : null;\n\n    if (!buffer || buffer.length === 0) {\n        failed.push({\n            name: file.name || \"ukjent fil\",\n            reason: utils.FILE_REASONS.DOWNLOAD_FAILED\n        });\n        if (file.context_key) global.set(\"files.\" + file.context_key, undefined);\n        return;\n    }\n\n    const mime = getMimeType(file.name) || file.type || \"application/octet-stream\";\n\n    buffers.push({ file, buffer, mime });\n    uploaded.push(file);\n    global.set(\"files.\" + file.context_key, undefined);\n});\n\nif (buffers.length > 0) {\n    const boundary = \"----PBridge\" + Date.now();\n    const CRLF = \"\\r\\n\";\n    const parts = [];\n\n    parts.push(Buffer.from(\n        \"--\" + boundary + CRLF +\n        \"Content-Disposition: form-data; name=\\\"content\\\"\" + CRLF + CRLF +\n        (msg.payload.content || \"\") + CRLF\n    ));\n\n    if (msg.payload.callsign) {\n        parts.push(Buffer.from(\n            \"--\" + boundary + CRLF +\n            \"Content-Disposition: form-data; name=\\\"callsign\\\"\" + CRLF + CRLF +\n            msg.payload.callsign + CRLF\n        ));\n    }\n\n    buffers.forEach(function (item) {\n        var fname = item.file.name || \"unknown_file\";\n        parts.push(Buffer.from(\n            \"--\" + boundary + CRLF +\n            \"Content-Disposition: form-data; name=\\\"files\\\"; filename=\\\"\" + fname + \"\\\"\" + CRLF +\n            \"Content-Type: \" + item.mime + CRLF + CRLF\n        ));\n        parts.push(item.buffer);\n        parts.push(Buffer.from(CRLF));\n    });\n\n    parts.push(Buffer.from(\"--\" + boundary + \"--\" + CRLF));\n\n    msg.payload = Buffer.concat(parts);\n    msg.headers = {\n        \"Content-Type\": \"multipart/form-data; boundary=\" + boundary\n    };\n    msg._multipart = true;\n} else {\n    msg.payload.files = [];\n}\n\nmsg.metadata.files.items = uploaded;\nmsg.metadata.files.failed = failed;\n\nreturn msg; ",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 270,
+    "x": 250,
     "y": 80,
     "wires": [
       [
-        "f6d3f391eaf3f056"
+        "f6d3f391eaf3f056",
+        "e9e3b89849e31660"
       ]
     ]
+  },
+  {
+    "id": "e9e3b89849e31660",
+    "type": "debug",
+    "z": "bfd1ac9312fd744a",
+    "name": "Build Wasos Debug",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "metadata.files",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 290,
+    "y": 160,
+    "wires": []
   }
 ]
