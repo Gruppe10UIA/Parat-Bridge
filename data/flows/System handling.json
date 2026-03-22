@@ -553,7 +553,7 @@
     "targetType": "full",
     "statusVal": "",
     "statusType": "auto",
-    "x": 800,
+    "x": 820,
     "y": 740,
     "wires": []
   },
@@ -566,8 +566,8 @@
       "e1b55b4f3352bafc"
     ],
     "uncaught": false,
-    "x": 130,
-    "y": 820,
+    "x": 210,
+    "y": 1020,
     "wires": [
       [
         "f8da51026174bbf9"
@@ -586,8 +586,8 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 300,
-    "y": 820,
+    "x": 380,
+    "y": 1020,
     "wires": [
       [
         "8a73170f0c6af5f1"
@@ -607,8 +607,8 @@
     "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 510,
-    "y": 820,
+    "x": 590,
+    "y": 1020,
     "wires": []
   },
   {
@@ -620,8 +620,53 @@
     "y": 740,
     "wires": [
       [
+        "82acce90d701c8f2",
         "dbcceb56ca322fb2"
       ]
+    ]
+  },
+  {
+    "id": "82acce90d701c8f2",
+    "type": "function",
+    "z": "003e75aaa2880405",
+    "name": "Build geo sync",
+    "func": "const connections = global.get(\"parat_bridge.connections\") || {};\nconst messages = [];\n\nfor (const [connName, conn] of Object.entries(connections)) {\n    let rayvnClient = null;\n    let wasosClient = null;\n    let rayvnId = null;\n    let wasosId = null;\n\n    for (const [id, client] of Object.entries(conn.clients || {})) {\n        if (client.client_system === \"rayvn\") {\n            rayvnClient = client;\n            rayvnId = id;\n        } else if (client.client_system === \"wasos\") {\n            wasosClient = client;\n            wasosId = id;\n        }\n    }\n\n    if (!rayvnClient || !wasosClient) continue;\n    if (!rayvnClient.client_specific?.incident_id) continue;\n\n    messages.push({\n        payload: { text: \"Geo sync\" },\n        metadata: {\n            source: { ...rayvnClient, identifier: rayvnId },\n            target: { ...wasosClient, identifier: wasosId },\n            connection_name: connName\n        }\n    });\n}\n\nif (messages.length === 0) return null;\n\nnode.status({\n    fill: \"green\", shape: \"dot\",\n    text: messages.length + \" sync \" + new Date().toLocaleTimeString()\n});\n\nreturn [messages];   ",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 140,
+    "y": 820,
+    "wires": [
+      [
+        "7e9be908955d6ced"
+      ]
+    ]
+  },
+  {
+    "id": "7e9be908955d6ced",
+    "type": "subflow:ab8b4151af828836",
+    "z": "003e75aaa2880405",
+    "name": "",
+    "x": 340,
+    "y": 820,
+    "wires": [
+      [
+        "f158184819336a61"
+      ]
+    ]
+  },
+  {
+    "id": "f158184819336a61",
+    "type": "subflow:43fbfc90cdc2a760",
+    "z": "003e75aaa2880405",
+    "name": "",
+    "x": 580,
+    "y": 820,
+    "wires": [
+      []
     ]
   }
 ]
