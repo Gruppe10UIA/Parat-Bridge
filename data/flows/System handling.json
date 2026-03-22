@@ -287,7 +287,7 @@
     "z": "003e75aaa2880405",
     "g": "9ab1f6c2842073c5",
     "name": "Initialize context",
-    "func": "\n// Initialize context — sets runtime config only\n// Connections and queue are already in cache (loaded by context store on open)\nconst pb = global.get(\"parat_bridge\") || {};\n\npb.base_urls = {\n    rayvn: \"https://api.rayvn.global\",\n    wasos: \"https://dev.wasos.no\"\n};\n\nif (!pb.queue) pb.queue = { in_flight_connections: [], entry_queue: [] };\npb.queue.in_flight_connections = [];  // always reset on startup\n\npb.boost_mode = false;\n\nglobal.set(\"parat_bridge\", pb);\n\nconst conns = Object.keys(global.get(\"parat_bridge.connections\") || {}).length;\nconst queue = (global.get(\"parat_bridge.queue.entry_queue\") || []).length;\nnode.log(\"Active: \" + conns + \" connection(s), \" + queue + \" queued entries\");\n\nreturn msg;\n\n",
+    "func": "\n// Initialize context — sets runtime config only\n// Connections and queue are already in cache (loaded by context store on open)\nconst pb = global.get(\"parat_bridge\") || {};\n\npb.base_urls = {\n    rayvn: \"https://api.rayvn.global\",\n    wasos: \"https://dev.wasos.no\"\n};\n\nif (!pb.queue) pb.queue = { in_flight_connections: [], entry_queue: [] };\npb.queue.in_flight_connections = [];  // always reset on startup\n\nconst connections = pb.connections || {};\npb.boost_mode = Object.values(connections).some(c => c.boost_mode === true);  \n\nglobal.set(\"parat_bridge\", pb);\n\nconst conns = Object.keys(global.get(\"parat_bridge.connections\") || {}).length;\nconst queue = (global.get(\"parat_bridge.queue.entry_queue\") || []).length;\nnode.log(\"Active: \" + conns + \" connection(s), \" + queue + \" queued entries\");\n\nreturn msg;\n\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -514,7 +514,7 @@
     ],
     "repeat": "840",
     "crontab": "",
-    "once": false,
+    "once": true,
     "onceDelay": "5",
     "topic": "",
     "payload": "",
@@ -523,7 +523,7 @@
     "y": 740,
     "wires": [
       [
-        "e1b55b4f3352bafc"
+        "f325ed1c3f4be423"
       ]
     ]
   },
@@ -532,7 +532,7 @@
     "type": "subflow:0f63de295e19b34d",
     "z": "003e75aaa2880405",
     "name": "",
-    "x": 340,
+    "x": 520,
     "y": 740,
     "wires": [
       [
@@ -553,8 +553,8 @@
     "targetType": "full",
     "statusVal": "",
     "statusType": "auto",
-    "x": 820,
-    "y": 740,
+    "x": 800,
+    "y": 660,
     "wires": []
   },
   {
@@ -616,7 +616,7 @@
     "type": "subflow:b1e97e7dd570373f",
     "z": "003e75aaa2880405",
     "name": "",
-    "x": 570,
+    "x": 760,
     "y": 740,
     "wires": [
       [
@@ -637,11 +637,11 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 140,
+    "x": 120,
     "y": 820,
     "wires": [
       [
-        "7e9be908955d6ced"
+        "430772632681a825"
       ]
     ]
   },
@@ -650,8 +650,8 @@
     "type": "subflow:ab8b4151af828836",
     "z": "003e75aaa2880405",
     "name": "",
-    "x": 340,
-    "y": 820,
+    "x": 190,
+    "y": 900,
     "wires": [
       [
         "f158184819336a61"
@@ -663,10 +663,110 @@
     "type": "subflow:43fbfc90cdc2a760",
     "z": "003e75aaa2880405",
     "name": "",
-    "x": 580,
-    "y": 820,
+    "x": 560,
+    "y": 900,
     "wires": [
       []
+    ]
+  },
+  {
+    "id": "f325ed1c3f4be423",
+    "type": "function",
+    "z": "003e75aaa2880405",
+    "name": "Boost guard",
+    "func": "if (global.get(\"parat_bridge.boost_mode\") !== true) return null;\nreturn msg;    ",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 310,
+    "y": 740,
+    "wires": [
+      [
+        "e1b55b4f3352bafc"
+      ]
+    ]
+  },
+  {
+    "id": "958a0eae6aaceb93",
+    "type": "link in",
+    "z": "003e75aaa2880405",
+    "name": "RPOC Link in",
+    "links": [
+      "53da37f4320a155a"
+    ],
+    "x": 325,
+    "y": 700,
+    "wires": [
+      [
+        "e1b55b4f3352bafc"
+      ]
+    ]
+  },
+  {
+    "id": "430772632681a825",
+    "type": "function",
+    "z": "003e75aaa2880405",
+    "name": "Build GET",
+    "func": "const target = msg.metadata.target;\nconst baseUrl = global.get(\"parat_bridge\").base_urls.wasos;\nconst chatroomName = target.client_specific.chatroom_name;\n\nmsg._reconcile_connKey = \"parat_bridge.connections.\" + msg.metadata.connection_name\n    + \".clients.\" + msg.metadata.source.identifier + \".client_specific\";\n\nmsg.url = baseUrl + \"/api/geo/artifacts?groups=\" + chatroomName;\nmsg.headers = {\n    \"x-api-key\": target.api_key\n};\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 300,
+    "y": 820,
+    "wires": [
+      [
+        "4ba277db9d56cf6d"
+      ]
+    ]
+  },
+  {
+    "id": "4ba277db9d56cf6d",
+    "type": "http request",
+    "z": "003e75aaa2880405",
+    "name": "",
+    "method": "GET",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 470,
+    "y": 820,
+    "wires": [
+      [
+        "305a27d40ba08080"
+      ]
+    ]
+  },
+  {
+    "id": "305a27d40ba08080",
+    "type": "function",
+    "z": "003e75aaa2880405",
+    "name": "Rebuild mapping",
+    "func": "const artifacts = msg.payload?.artifacts || [];\nconst connKey = msg._reconcile_connKey;\nconst map = {};\n\nfor (const a of artifacts) {\n    if (a.additionalInfo && a.definedShapeName?.startsWith(\"[\")) {\n        map[a.additionalInfo] = a.uuid;\n    }\n}\n\nglobal.set(connKey + \".geo_artifact_map\", map);\n\nnode.status({\n    fill: \"blue\", shape: \"dot\",\n    text: Object.keys(map).length + \" mapped \" + new Date().toLocaleTimeString()\n});\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 670,
+    "y": 820,
+    "wires": [
+      [
+        "7e9be908955d6ced"
+      ]
     ]
   }
 ]

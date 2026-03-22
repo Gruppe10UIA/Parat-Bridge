@@ -173,7 +173,7 @@
     "type": "function",
     "z": "f12d6e1c0542fc55",
     "name": "Toggle Boost",
-    "func": "const { name, enabled } = msg.payload;\n\nif (!global.get('parat_bridge.connections.' + name)) return null;\n\nglobal.set('parat_bridge.connections.' + name + '.boost_mode', enabled);\n\nconst connections = global.get('parat_bridge.connections') || {};\nconst anyBoost = Object.values(connections).some(c => c.boost_mode === true);\nglobal.set('parat_bridge.boost_mode', anyBoost);\n\nnode.status({\n    fill: enabled ? 'green' : 'grey',\n    shape: 'dot',\n    text: name + ' boost ' + (enabled ? 'ON' : 'OFF')\n        + ' ' + new Date().toLocaleTimeString()\n});\n\nreturn null;  ",
+    "func": "const { name, enabled } = msg.payload;\n\nif (!global.get('parat_bridge.connections.' + name)) return null;\n\nglobal.set('parat_bridge.connections.' + name + '.boost_mode', enabled);\n\nconst connections = global.get('parat_bridge.connections') || {};\nconst anyBoost = Object.values(connections).some(c => c.boost_mode === true);\nglobal.set('parat_bridge.boost_mode', anyBoost);\n\nnode.status({\n    fill: enabled ? 'green' : 'grey',\n    shape: 'dot',\n    text: name + ' boost ' + (enabled ? 'ON' : 'OFF')\n        + ' ' + new Date().toLocaleTimeString()\n});\n\nif (enabled) return msg;\nreturn null;    ",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -183,7 +183,22 @@
     "x": 910,
     "y": 200,
     "wires": [
-      []
+      [
+        "53da37f4320a155a"
+      ]
     ]
+  },
+  {
+    "id": "53da37f4320a155a",
+    "type": "link out",
+    "z": "f12d6e1c0542fc55",
+    "name": "RPOC Toggle link out",
+    "mode": "link",
+    "links": [
+      "958a0eae6aaceb93"
+    ],
+    "x": 1035,
+    "y": 200,
+    "wires": []
   }
 ]

@@ -7,11 +7,11 @@
     "category": "",
     "in": [
       {
-        "x": 100,
+        "x": 40,
         "y": 200,
         "wires": [
           {
-            "id": "69725644404947db"
+            "id": "b4bf34d0fd5d03d0"
           }
         ]
       }
@@ -146,7 +146,7 @@
     "checkall": "true",
     "repair": false,
     "outputs": 2,
-    "x": 210,
+    "x": 370,
     "y": 200,
     "wires": [
       [
@@ -162,7 +162,7 @@
     "type": "subflow:bfd1ac9312fd744a",
     "z": "c52035853d082eb0",
     "name": "",
-    "x": 390,
+    "x": 430,
     "y": 140,
     "wires": [
       [
@@ -196,9 +196,7 @@
     "x": 720,
     "y": 140,
     "wires": [
-      [
-        "2433d904dc8aad39"
-      ],
+      [],
       [
         "3aec3cee24c67625"
       ]
@@ -209,10 +207,55 @@
     "type": "subflow:43fbfc90cdc2a760",
     "z": "c52035853d082eb0",
     "name": "",
-    "x": 1000,
-    "y": 100,
+    "x": 320,
+    "y": 80,
     "wires": [
-      []
+      [
+        "755ef6af7df28ea2"
+      ]
+    ]
+  },
+  {
+    "id": "b4bf34d0fd5d03d0",
+    "type": "function",
+    "z": "c52035853d082eb0",
+    "name": "Route mapFeatures",
+    "func": "const geo = msg.metadata?.geo;\n\nif (geo && geo.type === \"mapFeatures\") {\n    msg._chat_payload = Object.assign({}, msg.payload);\n    return [msg, null];\n}\n\nreturn [null, msg];  ",
+    "outputs": 2,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 190,
+    "y": 200,
+    "wires": [
+      [
+        "2433d904dc8aad39"
+      ],
+      [
+        "69725644404947db"
+      ]
+    ]
+  },
+  {
+    "id": "755ef6af7df28ea2",
+    "type": "function",
+    "z": "c52035853d082eb0",
+    "name": "Build artifact chat preview",
+    "func": "const preview = msg._artifact_preview;\nconst payload = msg._chat_payload;\nif (!payload) return null;\n\nconst source = msg.metadata.source;\nconst logName = source.name || source.client_specific?.log_name || \"Ukjent\";\n\nif (preview) {\n    const verb = preview.action === \"create\" ? \"La til\" : \"oppdaterte\";\n    payload.content = \"[\" + source.client_system + \" - \" + logName + \"] \"\n        + verb + \" \" + (preview.name || \"objekt\") + \" på kartet\";\n    payload.isLocation = true;\n    payload.data = {\n        kind: \"artifact\",\n        uuid: preview.uuid,\n        uri: \"/api/geo/artifacts/\" + preview.uuid\n    };\n} else {\n    payload.content = \"[\" + source.client_system + \" - \" + logName + \"] \"\n        + \"fjernet objekt fra kartet\";\n}\n\nmsg.payload = payload;\ndelete msg.metadata.geo;\ndelete msg._chat_payload;\ndelete msg._artifact_preview;\n\nreturn msg;  ",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 590,
+    "y": 80,
+    "wires": [
+      [
+        "c183c9c59dd87d68"
+      ]
     ]
   }
 ]
