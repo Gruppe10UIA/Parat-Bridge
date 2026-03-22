@@ -123,7 +123,6 @@
     "y": 200,
     "wires": [
       [
-        "275fb321d293db05",
         "dc0d2fae53535825"
       ]
     ]
@@ -175,10 +174,12 @@
     "type": "subflow:9f7f5ef9d0952551",
     "z": "c52035853d082eb0",
     "name": "",
-    "x": 970,
-    "y": 180,
+    "x": 890,
+    "y": 140,
     "wires": [
-      []
+      [
+        "275fb321d293db05"
+      ]
     ]
   },
   {
@@ -186,19 +187,22 @@
     "type": "function",
     "z": "c52035853d082eb0",
     "name": "Has Geo?",
-    "func": "const geo = msg.metadata?.geo;\nif (!geo) return [null, null];\n\nif (geo.type === \"mapFeatures\") {\n    return [msg, null]; // Output 1 → Geo Artifacts                                                                                                                                            \n}\nreturn [null, msg]; // Output 2 → Markers (existing)  ",
-    "outputs": 2,
+    "func": "const geo = msg.metadata?.geo;\nif (!geo) return [null, null, msg]; // Output 3 → no geo → Return response\n\nif (geo.type === \"mapFeatures\") {\n    return [msg, null, null]; // Output 1 → Geo Artifacts (unused)\n}\nreturn [null, msg, null]; // Output 2 → Markers → POST WaSOS geo",
+    "outputs": 3,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 720,
-    "y": 140,
+    "x": 880,
+    "y": 200,
     "wires": [
       [],
       [
         "3aec3cee24c67625"
+      ],
+      [
+        "275fb321d293db05"
       ]
     ]
   },
