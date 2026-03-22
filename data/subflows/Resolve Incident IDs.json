@@ -1,0 +1,98 @@
+[
+  {
+    "id": "b1e97e7dd570373f",
+    "type": "subflow",
+    "name": "Resolve Incident IDs",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 60,
+        "y": 120,
+        "wires": [
+          {
+            "id": "243deedef787aecb"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 900,
+        "y": 120,
+        "wires": [
+          {
+            "id": "f9c26f3817491273",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#8aedb8",
+    "icon": "font-awesome/fa-id-badge"
+  },
+  {
+    "id": "243deedef787aecb",
+    "type": "function",
+    "z": "b1e97e7dd570373f",
+    "name": "Build incidents request",
+    "func": "const session = global.get(\"parat_bridge.ropc_session\");\nif (!session || !session.enrichedToken) {\n    node.warn(\"[BOOST] No ROPC session available for incident resolution\");\n    return null;\n}\n\nmsg.url = session.apiUrl + \"/restapi/periodic/\"\n    + session.projectId + \"/incidents/\" + session.userId;\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + session.enrichedToken\n};\n\nreturn msg;   ",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 220,
+    "y": 120,
+    "wires": [
+      [
+        "e0275b5f3db88bf3"
+      ]
+    ]
+  },
+  {
+    "id": "e0275b5f3db88bf3",
+    "type": "http request",
+    "z": "b1e97e7dd570373f",
+    "name": "GET Internal incidents",
+    "method": "GET",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 460,
+    "y": 120,
+    "wires": [
+      [
+        "f9c26f3817491273"
+      ]
+    ]
+  },
+  {
+    "id": "f9c26f3817491273",
+    "type": "function",
+    "z": "b1e97e7dd570373f",
+    "name": "Match and store incident IDs",
+    "func": "const incidents = msg.payload;\nif (!Array.isArray(incidents)) {\n    node.warn(\"[BOOST] Unexpected incidents response\");\n    return null;\n}\n\nconst connections = global.get(\"parat_bridge.connections\") || {};\nlet resolved = 0;\n\nfor (const [name, conn] of Object.entries(connections)) {\n    for (const [id, client] of Object.entries(conn.clients || {})) {\n        if (client.client_system !== \"rayvn\") continue;\n\n        const logName = client.client_specific?.log_name || client.name;\n        const match = incidents.find(inc => inc.name === logName);\n\n        if (match) {\n            client.client_specific.incident_id = match.id;\n            resolved++;\n        } else {\n            node.warn(\"[BOOST] No incident match for log: \" + logName);\n        }\n    }\n}\n\nglobal.set(\"parat_bridge.connections\", connections);\nnode.status({\n    fill: resolved > 0 ? \"green\" : \"yellow\",\n    shape: \"dot\",\n    text: resolved + \" resolved \" + new Date().toLocaleTimeString()\n});\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 720,
+    "y": 120,
+    "wires": [
+      []
+    ]
+  }
+]

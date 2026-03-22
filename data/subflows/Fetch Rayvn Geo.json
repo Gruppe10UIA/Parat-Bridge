@@ -1,0 +1,103 @@
+[
+  {
+    "id": "ab8b4151af828836",
+    "type": "subflow",
+    "name": "Fetch Rayvn Geo",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 60,
+        "y": 180,
+        "wires": [
+          {
+            "id": "809e38fc59063194"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 880,
+        "y": 300,
+        "wires": [
+          {
+            "id": "809e38fc59063194",
+            "port": 1
+          },
+          {
+            "id": "007d952871924bb8",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#eb6c77",
+    "icon": "font-awesome/fa-map"
+  },
+  {
+    "id": "809e38fc59063194",
+    "type": "function",
+    "z": "ab8b4151af828836",
+    "name": "Prepare geo fetch",
+    "func": "  const session = global.get(\"parat_bridge.ropc_session\");\n  const source = msg.metadata.source;\n  const incidentId = source.client_specific?.incident_id;\n\n  // Rewrite notification text\n  const clientName = source.client_system || \"Ukjent\";\n  const logName = source.name || source.client_specific?.log_name || \"Ukjent\";\n  msg.payload.text = \"[\" + clientName + \" - \" + logName + \"] oppdaterte kartet på deres ende\";    \n\n  if (!session || !session.enrichedToken || !incidentId) {\n      node.warn(\"[BOOST] Cannot fetch geo — no session or incident_id\");\n      return [null, msg];\n  }\n\n  // Save entry before HTTP request overwrites payload\n  msg._original_entry = msg.payload;\n\n  msg.url = session.apiUrl + \"/restapi/incidents/\"\n      + incidentId + \"/periodic/\" + session.userId;\n  msg.headers = { \"Authorization\": \"Bearer \" + session.enrichedToken };\n\n  return [msg, null];",
+    "outputs": 2,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 210,
+    "y": 180,
+    "wires": [
+      [
+        "2c6dad789a2b09c1"
+      ],
+      []
+    ]
+  },
+  {
+    "id": "2c6dad789a2b09c1",
+    "type": "http request",
+    "z": "ab8b4151af828836",
+    "name": "GET Internal incident",
+    "method": "GET",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 420,
+    "y": 140,
+    "wires": [
+      [
+        "007d952871924bb8"
+      ]
+    ]
+  },
+  {
+    "id": "007d952871924bb8",
+    "type": "function",
+    "z": "ab8b4151af828836",
+    "name": "Process mapFeatures",
+    "func": "const incident = msg.payload;\nconst rawFeatures = incident?.mapFeatures;\nconst source = msg.metadata.source;\nconst connKey = \"parat_bridge.connections.\" + msg.metadata.connection_name\n    + \".clients.\" + source.identifier + \".client_specific\";\n\n// Parse mapFeatures\nlet features = null;\nif (rawFeatures) {\n    try {\n        const parsed = JSON.parse(rawFeatures);\n        if (Array.isArray(parsed)) {\n            // Legacy format → normalize to GeoJSON FeatureCollection\n            features = parsed.map(item => {\n                const lit = item.literal;\n                let geometry;\n                if (lit.type === \"circle\") {\n                    geometry = { type: \"Point\", coordinates: [lit.center.lng, lit.center.lat] };\n                } else if (lit.type === \"rectangle\") {\n                    const b = lit.bounds;\n                    geometry = {\n                        type: \"Polygon\",\n                        coordinates: [[\n                            [b.west, b.south], [b.east, b.south],\n                            [b.east, b.north], [b.west, b.north],\n                            [b.west, b.south]\n                        ]]\n                    };\n                }\n                return {\n                    id: item.id,\n                    name: item.name || \"\",\n                    color: lit.fillColor || \"#337ab7\",\n                    geometry: geometry,\n                    radius: lit.type === \"circle\" ? lit.radius : undefined\n                };\n            });\n        } else if (parsed.type === \"FeatureCollection\") {\n            features = parsed.features.map(f => ({\n                id: f.id,\n                name: f.properties?.name || \"\",\n                color: f.properties?.color || \"#337ab7\",\n                geometry: f.geometry,\n                isCircle: f.properties?.isCircle || false,\n                isRectangle: f.properties?.isRectangle || false\n            }));\n        }\n    } catch (e) {\n        node.warn(\"[BOOST] Failed to parse mapFeatures: \" + e.message);\n    }\n}\n\n// Diff against last known\nconst lastFeatures = global.get(connKey + \".last_map_features\") || [];\nconst lastIds = new Set(lastFeatures.map(f => f.id));\nconst currentIds = new Set((features || []).map(f => f.id));\n\nconst added = (features || []).filter(f => !lastIds.has(f.id));\nconst removed = lastFeatures.filter(f => !currentIds.has(f.id));\nconst kept = (features || []).filter(f => lastIds.has(f.id));\nconst changed = kept.filter(f => {\n    const old = lastFeatures.find(o => o.id === f.id);\n    return JSON.stringify(old) !== JSON.stringify(f);\n});\n\n// Store current state\nglobal.set(connKey + \".last_map_features\", features || []);\n\n// Restore original entry as payload\nmsg.payload = msg._original_entry;\ndelete msg._original_entry;\n\nif (added.length === 0 && removed.length === 0 && changed.length === 0) {\n    return msg;\n}\n\nmsg.metadata.geo = {\n    type: \"mapFeatures\",\n    added: added,\n    removed: removed,\n    changed: changed,\n    all: features\n};\n\nnode.status({\n    fill: \"green\", shape: \"dot\",\n    text: \"+\" + added.length + \" -\" + removed.length\n        + \" ~\" + changed.length + \" \" + new Date().toLocaleTimeString()\n});\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 660,
+    "y": 140,
+    "wires": [
+      []
+    ]
+  }
+]

@@ -32,6 +32,10 @@
           {
             "id": "8cdf72e0f2f40f73",
             "port": 0
+          },
+          {
+            "id": "b9e30d8338da9d27",
+            "port": 0
           }
         ]
       }
@@ -77,7 +81,7 @@
     "y": 200,
     "wires": [
       [
-        "29974f5b972c6be6"
+        "7f3f82a358e2a810"
       ]
     ]
   },
@@ -140,7 +144,7 @@
     "from": "",
     "to": "",
     "reg": false,
-    "x": 930,
+    "x": 1110,
     "y": 200,
     "wires": [
       [
@@ -195,7 +199,7 @@
     "type": "subflow:ad3abd97c4ab0117",
     "z": "f23580e27a5eb9f2",
     "name": "",
-    "x": 700,
+    "x": 900,
     "y": 200,
     "wires": [
       [
@@ -229,6 +233,59 @@
     "statusType": "auto",
     "x": 870,
     "y": 520,
+    "wires": []
+  },
+  {
+    "id": "b9e30d8338da9d27",
+    "type": "subflow:ab8b4151af828836",
+    "z": "f23580e27a5eb9f2",
+    "name": "",
+    "x": 920,
+    "y": 100,
+    "wires": [
+      [
+        "5817c50c2f27f148"
+      ]
+    ]
+  },
+  {
+    "id": "7f3f82a358e2a810",
+    "type": "function",
+    "z": "f23580e27a5eb9f2",
+    "name": "Route Kartdata",
+    "func": "const boost = global.get(\"parat_bridge.boost_mode\") === true;\nconst text = (msg.payload.text || \"\").trim();\n\nif (boost && text === \"Kartdata oppdatert\") {\n    return [msg, null]; // Output 1 → Fetch Rayvn Geo                                                                                                                                            \n}\nreturn [null, msg]; // Output 2 → Extract Delhendelse Position                                                                                                                                   \n",
+    "outputs": 2,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 500,
+    "y": 140,
+    "wires": [
+      [
+        "b9e30d8338da9d27"
+      ],
+      [
+        "29974f5b972c6be6"
+      ]
+    ]
+  },
+  {
+    "id": "5817c50c2f27f148",
+    "type": "debug",
+    "z": "f23580e27a5eb9f2",
+    "name": "Rayvn GeoJSON Debug",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1230,
+    "y": 100,
     "wires": []
   }
 ]

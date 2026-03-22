@@ -306,7 +306,7 @@
     "z": "003e75aaa2880405",
     "g": "9ab1f6c2842073c5",
     "name": "Initialize system functions",
-    "func": "global.set('utils', {\n\n    build_connection_name: (clients) => {\n        return [...clients]\n            .sort((a, b) => a.client_system.localeCompare(b.client_system))\n            .map(c => `${c.client_system}-${c.identifier}`)\n            .join(\"_\");\n    },\n\n    build_label: (client) => {\n        const colors = {\n            wasos:        \"#1f871f\",\n            rayvn:        \"#000000\",\n            parat_bridge: \"#b80d18\"\n        };\n        return {\n            id:       client.identifier,\n            name:     `[${client.client_system}]: ${client.name}`,\n            colorHex: colors[client.client_system] || \"#888888\"\n        };\n    },\n\n    build_callsign: (client) => `[${client.client_system}:${client.name}]`,\n\n    FILE_REASONS: {\n        OVERSIZED:        \"oversized\",\n        NON_TRANSFERABLE: \"non_transferable\",\n        DOWNLOAD_FAILED:  \"download_failed\",\n        UPLOAD_FAILED:    \"upload_failed\",\n        COMPRESS_FAILED: \"compress_failed\"\n    },\n\n    is_compressible: (mime_type) => {\n        if (!mime_type) return false;\n        return ['video/', 'audio/', 'image/'].some(prefix => mime_type.startsWith(prefix));\n    },\n\n    build_file_key: (message_id, connection_name, filename) => {\n        const safe = filename.replace(/[\\\\\\/\\:*?\"<>|]/g, \"_\");\n        return message_id + \"---\" + connection_name + \"---\" + safe;\n    },\n\n    parse_file_key: (key) => {\n        const raw   = key.startsWith(\"files.\") ? key.slice(\"files.\".length) : key;\n        const parts = raw.split(\"---\");\n        return {\n            message_id:      parts[0]              || null,\n            connection_name: parts[1]              || null,\n            filename:        parts.slice(2).join(\"---\") || null\n        };\n    },\n\n    is_bridge_message: (text) => {\n        return /\\[(?:wasos|rayvn|cim|parat_bridge)(?::|])/.test(text);\n    },\n\n    get_system_attributes: (system) => {\n        const attributes = {\n            rayvn: {\n                max_upload_bytes: 1048576, // 1 MB\n                can_upload: false,\n                can_download: true\n            },\n            wasos: {\n                max_upload_bytes: null,\n                can_upload: true,\n                can_download: false\n            },\n            cim: {\n                max_upload_bytes: null,\n                can_upload: false,\n                can_download: false\n            }\n        };\n        return attributes[system] || null;\n    }\n\n});\n\nreturn msg;",
+    "func": "global.set('utils', {\n\n    build_connection_name: (clients) => {\n        return [...clients]\n            .sort((a, b) => a.client_system.localeCompare(b.client_system))\n            .map(c => `${c.client_system}-${c.identifier}`)\n            .join(\"_\");\n    },\n\n    build_label: (client) => {\n        const colors = {\n            wasos:        \"#1f871f\",\n            rayvn:        \"#000000\",\n            parat_bridge: \"#b80d18\"\n        };\n        return {\n            id:       client.identifier,\n            name:     `[${client.client_system}]: ${client.name}`,\n            colorHex: colors[client.client_system] || \"#888888\"\n        };\n    },\n\n    build_callsign: (client) => `[${client.client_system}:${client.name}]`,\n\n    FILE_REASONS: {\n        OVERSIZED:        \"oversized\",\n        NON_TRANSFERABLE: \"non_transferable\",\n        DOWNLOAD_FAILED:  \"download_failed\",\n        UPLOAD_FAILED:    \"upload_failed\",\n        COMPRESS_FAILED: \"compress_failed\"\n    },\n\n    is_compressible: (mime_type) => {\n        if (!mime_type) return false;\n        return ['video/', 'audio/', 'image/'].some(prefix => mime_type.startsWith(prefix));\n    },\n\n    get_mime_type: (filename) => {\n        const ext = (filename || \"\").split('.').pop().toLowerCase();\n        const types = {\n            jpg: \"image/jpeg\", jpeg: \"image/jpeg\", png: \"image/png\",\n            gif: \"image/gif\", webp: \"image/webp\", bmp: \"image/bmp\",\n            svg: \"image/svg+xml\", heic: \"image/heic\",\n            pdf: \"application/pdf\",\n            mp4: \"video/mp4\", mov: \"video/quicktime\", avi: \"video/x-msvideo\",\n            mp3: \"audio/mpeg\", wav: \"audio/wav\",\n            doc: \"application/msword\", txt: \"text/plain\", csv: \"text/csv\",\n            docx: \"application/vnd.openxmlformats-officedocument.wordprocessingml.document\",\n            xlsx: \"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\",\n            zip: \"application/zip\"\n        };\n        return types[ext] || null;\n    },  \n\n    build_file_key: (message_id, connection_name, filename) => {\n        const safe = filename.replace(/[\\\\\\/\\:*?\"<>|]/g, \"_\");\n        return message_id + \"---\" + connection_name + \"---\" + safe;\n    },\n\n    parse_file_key: (key) => {\n        const raw   = key.startsWith(\"files.\") ? key.slice(\"files.\".length) : key;\n        const parts = raw.split(\"---\");\n        return {\n            message_id:      parts[0]              || null,\n            connection_name: parts[1]              || null,\n            filename:        parts.slice(2).join(\"---\") || null\n        };\n    },\n\n    is_bridge_message: (text) => {\n        return /\\[(?:wasos|rayvn|cim|parat_bridge)(?::|])/.test(text);\n    },\n\n    get_system_attributes: (system) => {\n        const attributes = {\n            rayvn: {\n                max_upload_bytes: 1048576, // 1 MB\n                can_upload: false,\n                can_download: true\n            },\n            wasos: {\n                max_upload_bytes: null,\n                can_upload: true,\n                can_download: false\n            },\n            cim: {\n                max_upload_bytes: null,\n                can_upload: false,\n                can_download: false\n            }\n        };\n        return attributes[system] || null;\n    }\n\n});\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -514,7 +514,7 @@
     ],
     "repeat": "840",
     "crontab": "",
-    "once": true,
+    "once": false,
     "onceDelay": "5",
     "topic": "",
     "payload": "",
@@ -532,11 +532,11 @@
     "type": "subflow:0f63de295e19b34d",
     "z": "003e75aaa2880405",
     "name": "",
-    "x": 330,
+    "x": 340,
     "y": 740,
     "wires": [
       [
-        "dbcceb56ca322fb2"
+        "bc2d8bc3713275bf"
       ]
     ]
   },
@@ -553,7 +553,7 @@
     "targetType": "full",
     "statusVal": "",
     "statusType": "auto",
-    "x": 560,
+    "x": 800,
     "y": 740,
     "wires": []
   },
@@ -586,7 +586,7 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 340,
+    "x": 300,
     "y": 820,
     "wires": [
       [
@@ -607,8 +607,21 @@
     "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 550,
+    "x": 510,
     "y": 820,
     "wires": []
+  },
+  {
+    "id": "bc2d8bc3713275bf",
+    "type": "subflow:b1e97e7dd570373f",
+    "z": "003e75aaa2880405",
+    "name": "",
+    "x": 570,
+    "y": 740,
+    "wires": [
+      [
+        "dbcceb56ca322fb2"
+      ]
+    ]
   }
 ]
