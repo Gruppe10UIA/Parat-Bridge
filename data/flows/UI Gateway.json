@@ -43,8 +43,8 @@
     "type": "function",
     "z": "f12d6e1c0542fc55",
     "name": "Route UIB Messages",
-    "func": "if (msg.topic === 'form/submit') {\n    var rayvn = {\n        payload: {\n            rayvn_api_key: msg.payload.rayvn_api_key,\n            rayvn_log_name: msg.payload.rayvn_log_name\n        }\n    };\n\n    var wasos = {\n        payload: {\n            wasos_username: msg.payload.wasos_username,\n            wasos_password: msg.payload.wasos_password,\n            wasos_chatroom_name: msg.payload.wasos_chatroom_name\n        }\n    };\n\n    return [rayvn, wasos, null, null];\n}\n\nif (msg.topic === 'connection/toggle') {\n    return [null, null, msg, null];\n}\n\nif (msg.topic === 'connection/remove') {\n    return [null, null, null, msg];\n}\n\nreturn [null, null, null, null];",
-    "outputs": 4,
+    "func": "if (msg.topic === 'form/submit') {\n    var rayvn = {\n        payload: {\n            rayvn_api_key: msg.payload.rayvn_api_key,\n            rayvn_log_name: msg.payload.rayvn_log_name\n        }\n    };\n\n    var wasos = {\n        payload: {\n            wasos_username: msg.payload.wasos_username,\n            wasos_password: msg.payload.wasos_password,\n            wasos_chatroom_name: msg.payload.wasos_chatroom_name\n        }\n    };\n\n    return [rayvn, wasos, null, null, null];\n}\n\nif (msg.topic === 'connection/toggle') {\n    return [null, null, msg, null, null];\n}\n\nif (msg.topic === 'connection/remove') {\n    return [null, null, null, msg, null];\n}\n\nif (msg.topic === 'connection/boost') {\n    return [null, null, null, null, msg];\n}    \n\nreturn [null, null, null, null, null];   ",
+    "outputs": 5,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
@@ -64,6 +64,9 @@
       ],
       [
         "25c0da690faa36fe"
+      ],
+      [
+        "3705f82e49672ad4"
       ]
     ]
   },
@@ -160,7 +163,25 @@
     "finalize": "",
     "libs": [],
     "x": 940,
-    "y": 180,
+    "y": 160,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "3705f82e49672ad4",
+    "type": "function",
+    "z": "f12d6e1c0542fc55",
+    "name": "Toggle Boost",
+    "func": "const { name, enabled } = msg.payload;\n\nif (!global.get('parat_bridge.connections.' + name)) return null;\n\nglobal.set('parat_bridge.connections.' + name + '.boost_mode', enabled);\n\nconst connections = global.get('parat_bridge.connections') || {};\nconst anyBoost = Object.values(connections).some(c => c.boost_mode === true);\nglobal.set('parat_bridge.boost_mode', anyBoost);\n\nnode.status({\n    fill: enabled ? 'green' : 'grey',\n    shape: 'dot',\n    text: name + ' boost ' + (enabled ? 'ON' : 'OFF')\n        + ' ' + new Date().toLocaleTimeString()\n});\n\nreturn null;  ",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 910,
+    "y": 200,
     "wires": [
       []
     ]

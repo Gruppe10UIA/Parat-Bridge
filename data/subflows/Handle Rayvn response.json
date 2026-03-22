@@ -253,7 +253,7 @@
     "type": "function",
     "z": "f23580e27a5eb9f2",
     "name": "Route Kartdata",
-    "func": "const boost = global.get(\"parat_bridge.boost_mode\") === true;\nconst text = (msg.payload.text || \"\").trim();\n\nif (boost && text === \"Kartdata oppdatert\") {\n    return [msg, null]; // Output 1 → Fetch Rayvn Geo                                                                                                                                            \n}\nreturn [null, msg]; // Output 2 → Extract Delhendelse Position                                                                                                                                   \n",
+    "func": "const boost = global.get(\"parat_bridge.connections.\"\n    + msg.metadata.connection_name + \".boost_mode\") === true;\nconst text = (msg.payload.text || \"\").trim();\n\nif (boost && text === \"Kartdata oppdatert\") {\n    return [msg, null]; // Output 1 → Fetch Rayvn Geo                                                                                                                                            \n}\nreturn [null, msg]; // Output 2 → Extract Delhendelse Position                                                                                                                                   \n",
     "outputs": 2,
     "timeout": 0,
     "noerr": 0,
