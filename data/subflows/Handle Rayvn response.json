@@ -1,0 +1,189 @@
+[
+  {
+    "id": "15215b18f4fbcbdd",
+    "type": "subflow",
+    "name": "Handle Rayvn response",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 60,
+        "y": 200,
+        "wires": [
+          {
+            "id": "2299041e567b7f54"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 1000,
+        "y": 380,
+        "wires": [
+          {
+            "id": "ae71bc183d639e62",
+            "port": 1
+          },
+          {
+            "id": "1644ded714401b10",
+            "port": 1
+          },
+          {
+            "id": "c1d2e3f4a5b60001",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#C0DEED",
+    "icon": "font-awesome/fa-cogs"
+  },
+  {
+    "id": "2299041e567b7f54",
+    "type": "function",
+    "z": "15215b18f4fbcbdd",
+    "name": "sort time",
+    "func": "if (!msg.payload || msg.payload.length === 0) return null;\nmsg.payload.sort((a, b) => a.timeCreated - b.timeCreated);\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 200,
+    "y": 200,
+    "wires": [
+      [
+        "ac3d866e6e1ffb07"
+      ]
+    ]
+  },
+  {
+    "id": "ac3d866e6e1ffb07",
+    "type": "function",
+    "z": "15215b18f4fbcbdd",
+    "name": "Filter",
+    "func": "const cursor_ts = msg.metadata.source.timestamp;\nconst utils = global.get(\"utils\");\nconst connection = msg.metadata.connection_name;\nconst source = msg.metadata.source.identifier;\n\nmsg.payload = msg.payload.filter(entry => {\n    if (entry.timeCreated <= cursor_ts) return false;\n    if (entry.text && utils.is_bridge_message(entry.text)) return false;\n    if (entry.loggedByFullName && utils.is_bridge_message(entry.loggedByFullName)) return false;\n    return true;\n});\n\nif (msg.payload.length === 0) return null;\n\nglobal.set(\n    `parat_bridge.connections.${connection}.clients.${source}.timestamp`,\n    msg.payload[msg.payload.length - 1].timeCreated\n);\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 350,
+    "y": 200,
+    "wires": [
+      [
+        "051a2682dd9853b9"
+      ]
+    ]
+  },
+  {
+    "id": "051a2682dd9853b9",
+    "type": "split",
+    "z": "15215b18f4fbcbdd",
+    "name": "",
+    "splt": "\\n",
+    "spltType": "str",
+    "arraySplt": 1,
+    "arraySpltType": "len",
+    "stream": false,
+    "addname": "",
+    "property": "payload",
+    "x": 490,
+    "y": 200,
+    "wires": [
+      [
+        "29974f5b972c6be6"
+      ]
+    ]
+  },
+  {
+    "id": "29974f5b972c6be6",
+    "type": "subflow:ad3abd97c4ab0117",
+    "z": "15215b18f4fbcbdd",
+    "name": "",
+    "x": 700,
+    "y": 200,
+    "wires": [
+      [
+        "91538a46d1d6d022"
+      ]
+    ]
+  },
+  {
+    "id": "91538a46d1d6d022",
+    "type": "function",
+    "z": "15215b18f4fbcbdd",
+    "name": "Extract signed URLs to files",
+    "func": "/**\n * Extracts signed Rayvn attachment URLs from entry text.\n *\n * Signed URLs are generated when a Rayvn user right-clicks an attachment\n * and copies the link. They are publicly accessible without authentication.\n *\n * Found URLs become synthetic file objects on payload.files and are stripped\n * from text. The standard Classify files → Fetch Rayvn files pipeline then\n * downloads and forwards them to WaSOS.\n *\n * If no URLs are found, payload.files stays empty. metadata.files set by\n * Classify files (NON_TRANSFERABLE) is preserved so the notification fires.\n */\nconst url_pattern = /https?:\\/\\/\\S+/gi;\nconst text        = msg.payload.text || \"\";\nconst matches     = [...text.matchAll(url_pattern)]\n    .map(m => m[0].replace(/[.,;!?]+$/, \"\"))\n    .filter(url => url.includes(\"sig=\"));\n\nif (matches.length === 0) return msg;\n\nmsg.payload.files = matches.map(url => ({\n    name: url.split(\"?\")[0].split(\"/\").pop() || \"attachment\",\n    type: \"application/octet-stream\",\n    size: 0,\n    url\n}));\n\nlet new_text = text;\nfor (const url of matches) {\n    new_text = new_text.split(url).join(\"\");\n}\nmsg.payload.text = new_text.trim();\n\nmsg.metadata.files = undefined;\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 250,
+    "y": 380,
+    "wires": [
+      [
+        "ae71bc183d639e62"
+      ]
+    ]
+  },
+  {
+    "id": "ae71bc183d639e62",
+    "type": "switch",
+    "z": "15215b18f4fbcbdd",
+    "name": "Has files?",
+    "property": "payload.files",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "nempty"
+      },
+      {
+        "t": "else"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 2,
+    "x": 500,
+    "y": 380,
+    "wires": [
+      [
+        "1644ded714401b10"
+      ],
+      []
+    ]
+  },
+  {
+    "id": "1644ded714401b10",
+    "type": "subflow:2f9af747886c939b",
+    "z": "15215b18f4fbcbdd",
+    "name": "",
+    "x": 670,
+    "y": 340,
+    "wires": [
+      [
+        "c1d2e3f4a5b60001"
+      ],
+      []
+    ]
+  },
+  {
+    "id": "c1d2e3f4a5b60001",
+    "type": "subflow:fb0c9d2e3a1847f5",
+    "z": "15215b18f4fbcbdd",
+    "name": "",
+    "x": 840,
+    "y": 300,
+    "wires": [
+      []
+    ]
+  }
+]
