@@ -124,7 +124,7 @@
     "wires": [
       [
         "275fb321d293db05",
-        "91d6556fbd741877"
+        "dc0d2fae53535825"
       ]
     ]
   },
@@ -171,35 +171,46 @@
     ]
   },
   {
-    "id": "91d6556fbd741877",
-    "type": "switch",
+    "id": "3aec3cee24c67625",
+    "type": "subflow:9f7f5ef9d0952551",
+    "z": "c52035853d082eb0",
+    "name": "",
+    "x": 970,
+    "y": 180,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "dc0d2fae53535825",
+    "type": "function",
     "z": "c52035853d082eb0",
     "name": "Has Geo?",
-    "property": "metadata.geo",
-    "propertyType": "msg",
-    "rules": [
-      {
-        "t": "nnull"
-      }
-    ],
-    "checkall": "true",
-    "repair": false,
-    "outputs": 1,
-    "x": 680,
+    "func": "const geo = msg.metadata?.geo;\nif (!geo) return [null, null];\n\nif (geo.type === \"mapFeatures\") {\n    return [msg, null]; // Output 1 → Geo Artifacts                                                                                                                                            \n}\nreturn [null, msg]; // Output 2 → Markers (existing)  ",
+    "outputs": 2,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 720,
     "y": 140,
     "wires": [
+      [
+        "2433d904dc8aad39"
+      ],
       [
         "3aec3cee24c67625"
       ]
     ]
   },
   {
-    "id": "3aec3cee24c67625",
-    "type": "subflow:9f7f5ef9d0952551",
+    "id": "2433d904dc8aad39",
+    "type": "subflow:43fbfc90cdc2a760",
     "z": "c52035853d082eb0",
     "name": "",
-    "x": 910,
-    "y": 140,
+    "x": 1000,
+    "y": 100,
     "wires": [
       []
     ]

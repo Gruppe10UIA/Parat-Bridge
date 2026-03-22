@@ -1,0 +1,156 @@
+[
+  {
+    "id": "43fbfc90cdc2a760",
+    "type": "subflow",
+    "name": "POST WaSOS Geo Artifacts",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 60,
+        "y": 100,
+        "wires": [
+          {
+            "id": "2a17ed9ae1cb4f66"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 640,
+        "y": 180,
+        "wires": [
+          {
+            "id": "7302436439b35407",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#DDAA99",
+    "icon": "font-awesome/fa-map-signs"
+  },
+  {
+    "id": "2a17ed9ae1cb4f66",
+    "type": "function",
+    "z": "43fbfc90cdc2a760",
+    "name": "Prepare operations",
+    "func": "const geo = msg.metadata.geo;\nif (!geo) return null;\n\nconst source = msg.metadata.source;\nconst connKey = \"parat_bridge.connections.\" + msg.metadata.connection_name\n    + \".clients.\" + source.identifier + \".client_specific\";\nconst artifactMap = global.get(connKey + \".geo_artifact_map\") || {};\n\nconst operations = [];\n\nfor (const f of (geo.added || [])) {\n    operations.push({ action: \"create\", feature: f });\n}\n\nfor (const f of (geo.removed || [])) {\n    const uuid = artifactMap[f.id];\n    if (uuid) {\n        operations.push({ action: \"delete\", feature: f, wasos_uuid: uuid });\n    }\n}\n\nfor (const f of (geo.changed || [])) {\n    const uuid = artifactMap[f.id];\n    if (uuid) {\n        operations.push({ action: \"update\", feature: f, wasos_uuid: uuid });\n    } else {\n        operations.push({ action: \"create\", feature: f });\n    }\n}\n\nif (operations.length === 0) return null;\n\nmsg._artifact_connKey = connKey;\nmsg.payload = operations;\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 210,
+    "y": 100,
+    "wires": [
+      [
+        "edc68956f1961b55"
+      ]
+    ]
+  },
+  {
+    "id": "edc68956f1961b55",
+    "type": "split",
+    "z": "43fbfc90cdc2a760",
+    "name": "",
+    "splt": "\\n",
+    "spltType": "str",
+    "arraySplt": 1,
+    "arraySpltType": "len",
+    "stream": false,
+    "addname": "",
+    "property": "payload",
+    "x": 390,
+    "y": 100,
+    "wires": [
+      [
+        "10853fe189414ef5"
+      ]
+    ]
+  },
+  {
+    "id": "10853fe189414ef5",
+    "type": "function",
+    "z": "43fbfc90cdc2a760",
+    "name": "Build request",
+    "func": "const op = msg.payload;\nconst target = msg.metadata.target;\nconst baseUrl = global.get(\"parat_bridge\").base_urls.wasos;\nconst chatroomName = target.client_specific.chatroom_name;\n\nmsg.headers = {\n    \"x-api-key\": target.api_key,\n    \"Content-Type\": \"application/json\"\n};\n\nconst artifact = {\n    geom: op.feature.geometry,\n    definedShapeName: \"[\" + msg.metadata.source.client_system + \" - \"\n        + (msg.metadata.source.name || msg.metadata.source.client_specific?.log_name || \"Ukjent\")\n        + \"] \" + (op.feature.name || \"\"),\n    artifactType: \"drawing\",\n    axisStyle: {\n        color: op.feature.color || \"#337ab7\",\n        fillColor: op.feature.color || \"#337ab7\",\n        fillOpacity: 0.2,\n        opacity: 1,\n        weight: 3\n    },\n    groups: [chatroomName],\n    owners: []\n};\n\nif (op.action === \"create\") {\n    msg.method = \"POST\";\n    msg.url = baseUrl + \"/api/geo/artifacts\";\n    msg.payload = artifact;\n} else if (op.action === \"update\") {\n    msg.method = \"PUT\";\n    msg.url = baseUrl + \"/api/geo/artifacts/\" + op.wasos_uuid;\n    msg.payload = artifact;\n} else if (op.action === \"delete\") {\n    msg.method = \"DELETE\";\n    msg.url = baseUrl + \"/api/geo/artifacts/\" + op.wasos_uuid;\n    msg.payload = {};\n}\n\nmsg._operation = op;\n\nreturn msg;     ",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 550,
+    "y": 100,
+    "wires": [
+      [
+        "37caf15431743f4d"
+      ]
+    ]
+  },
+  {
+    "id": "37caf15431743f4d",
+    "type": "http request",
+    "z": "43fbfc90cdc2a760",
+    "name": "",
+    "method": "use",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 290,
+    "y": 180,
+    "wires": [
+      [
+        "7302436439b35407",
+        "b6c2e0b17a15ee11"
+      ]
+    ]
+  },
+  {
+    "id": "7302436439b35407",
+    "type": "function",
+    "z": "43fbfc90cdc2a760",
+    "name": "Process response",
+    "func": "const op = msg._operation;\nconst connKey = msg._artifact_connKey;\nconst statusCode = msg.statusCode;\n\nif (op.action === \"create\" && (statusCode === 200 || statusCode === 201)) {\n    const uuid = msg.payload?.uuid;\n    if (uuid) {\n        const map = global.get(connKey + \".geo_artifact_map\") || {};\n        map[op.feature.id] = uuid;\n        global.set(connKey + \".geo_artifact_map\", map);\n        node.status({\n            fill: \"green\", shape: \"dot\",\n            text: \"+\" + op.feature.name + \" \" + new Date().toLocaleTimeString()\n        });\n    }\n} else if (op.action === \"delete\" && (statusCode === 200 || statusCode === 204)) {\n    const map = global.get(connKey + \".geo_artifact_map\") || {};\n    delete map[op.feature.id];\n    global.set(connKey + \".geo_artifact_map\", map);\n    node.status({\n        fill: \"yellow\", shape: \"ring\",\n        text: \"-\" + op.feature.name + \" \" + new Date().toLocaleTimeString()\n    });\n} else if (op.action === \"update\" && statusCode === 200) {\n    node.status({\n        fill: \"blue\", shape: \"dot\",\n        text: \"~\" + op.feature.name + \" \" + new Date().toLocaleTimeString()\n    });\n} else {\n    node.warn(\"[BOOST] Artifact \" + op.action + \" failed: \" + statusCode\n        + \" for feature \" + (op.feature.name || op.feature.id));\n}\n\nreturn msg;  ",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 490,
+    "y": 180,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "b6c2e0b17a15ee11",
+    "type": "debug",
+    "z": "43fbfc90cdc2a760",
+    "name": "TO WASOS GOJSON DEBUG",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 550,
+    "y": 320,
+    "wires": []
+  }
+]
