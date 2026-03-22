@@ -1,0 +1,236 @@
+[
+  {
+    "id": "61f685a3bc5e8d53",
+    "type": "subflow",
+    "name": "POST to Wasos chat (1)",
+    "info": "Posts a bridged entry to the WaSOS chat API.\n\n### Input\n`msg.payload` = WaSOS POST body, `msg.metadata.target` = WaSOS Client\n\n### Logic\nSets `x-api-key` header, URL `/api/chat/messages/{chatroom_name}`, sends POST. 500ms delay between requests.\n\nWhen files are present, Wasos file Hanlding does the POST directly via\nnodeFetch (multipart). A bypass switch routes those messages straight to\nReturn response, skipping the HTTP node.\n\n### Output\n`msg.topic = \"response\"`, `msg.result = true/false`, `msg.statusCode`",
+    "category": "",
+    "in": [
+      {
+        "x": 100,
+        "y": 200,
+        "wires": [
+          {
+            "id": "274d01098c112c18"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 360,
+        "y": 380,
+        "wires": [
+          {
+            "id": "5c52c8029f1e8069",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#AAAA66",
+    "icon": "font-awesome/fa-send"
+  },
+  {
+    "id": "274d01098c112c18",
+    "type": "switch",
+    "z": "61f685a3bc5e8d53",
+    "name": "files",
+    "property": "metadata.files",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "nnull"
+      },
+      {
+        "t": "else"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 2,
+    "x": 210,
+    "y": 200,
+    "wires": [
+      [
+        "30054ec1677c162f"
+      ],
+      [
+        "ead511a0316594e9"
+      ]
+    ]
+  },
+  {
+    "id": "30054ec1677c162f",
+    "type": "subflow:bfd1ac9312fd744a",
+    "z": "61f685a3bc5e8d53",
+    "name": "",
+    "x": 390,
+    "y": 140,
+    "wires": [
+      [
+        "c55c5a8fa96dabbe"
+      ]
+    ]
+  },
+  {
+    "id": "c55c5a8fa96dabbe",
+    "type": "switch",
+    "z": "61f685a3bc5e8d53",
+    "name": "already posted?",
+    "property": "_wasos_posted",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "true"
+      },
+      {
+        "t": "else"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 2,
+    "x": 570,
+    "y": 140,
+    "wires": [
+      [
+        "5c52c8029f1e8069"
+      ],
+      [
+        "ead511a0316594e9"
+      ]
+    ]
+  },
+  {
+    "id": "ead511a0316594e9",
+    "type": "subflow:19f5354cf4a27129",
+    "z": "61f685a3bc5e8d53",
+    "name": "",
+    "x": 780,
+    "y": 200,
+    "wires": [
+      [
+        "5c52c8029f1e8069",
+        "c93660cf24a54407"
+      ]
+    ]
+  },
+  {
+    "id": "5c52c8029f1e8069",
+    "type": "function",
+    "z": "61f685a3bc5e8d53",
+    "name": "Return response",
+    "func": "msg.topic = \"response\"\n\nif (msg.statusCode == 200) {\n    msg.result = true\n} else {\n    msg.result = false\n}\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 180,
+    "y": 360,
+    "wires": [
+      [
+        "08b244af86fb4752"
+      ]
+    ]
+  },
+  {
+    "id": "08b244af86fb4752",
+    "type": "switch",
+    "z": "61f685a3bc5e8d53",
+    "name": "notification",
+    "property": "payload",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "jsonata_exp",
+        "v": "msg.result = true and $count(msg.metadata.files.failed) > 0\t",
+        "vt": "jsonata"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 1,
+    "x": 410,
+    "y": 340,
+    "wires": [
+      [
+        "8092faa2458b52e1"
+      ]
+    ]
+  },
+  {
+    "id": "8092faa2458b52e1",
+    "type": "function",
+    "z": "61f685a3bc5e8d53",
+    "name": "build notification",
+    "func": "/**\n * Builds a notification payload for the source client.\n * Only reached after a successful POST when issues need reporting.\n */\nconst notification = {\n    payload: {\n        entry_id: msg.entry.id,\n        failed_files: msg.metadata.files.failed,\n        entry_author: msg.entry.author,\n        metadata: msg.metadata\n    }\n};\n\nreturn notification;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 640,
+    "y": 340,
+    "wires": [
+      [
+        "d96330fa92495c34"
+      ]
+    ]
+  },
+  {
+    "id": "d96330fa92495c34",
+    "type": "link call",
+    "z": "61f685a3bc5e8d53",
+    "name": "",
+    "links": [
+      "16d793b66e21d0b0"
+    ],
+    "linkType": "static",
+    "timeout": "30",
+    "x": 660,
+    "y": 300,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "c93660cf24a54407",
+    "type": "switch",
+    "z": "61f685a3bc5e8d53",
+    "name": "Has Geo?",
+    "property": "metadata.geo",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "nnull"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 1,
+    "x": 780,
+    "y": 140,
+    "wires": [
+      [
+        "16dc83de49f34071"
+      ]
+    ]
+  },
+  {
+    "id": "16dc83de49f34071",
+    "type": "subflow:9f7f5ef9d0952551",
+    "z": "61f685a3bc5e8d53",
+    "name": "",
+    "x": 1010,
+    "y": 140,
+    "wires": [
+      []
+    ]
+  }
+]

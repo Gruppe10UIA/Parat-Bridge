@@ -1,0 +1,78 @@
+[
+  {
+    "id": "c8d7e6f5a4b30219",
+    "type": "subflow",
+    "name": "Get Rayvn file",
+    "info": "Fetches a single file from a publicly-accessible signed Rayvn URL.\n\n### Input\n- msg.payload — synthetic file object with .url (full signed URL), .name, .type, .size\n- msg.metadata — standard metadata\n- msg._dl — download context (message_id, connection_name)\n- msg.parts — join parts for reassembly\n\n### Logic\n1. Build download request — sets msg.url to the signed URL, builds _file_meta. No auth header required.\n2. GET file — HTTP request, returns binary buffer.\n\n### Output\n- msg.payload — binary Buffer (or empty on failure)\n- msg.statusCode — HTTP status\n- msg._file_meta — { url, name, type, size }\n- msg.parts — preserved for join node\n- msg._dl — preserved for merge node",
+    "category": "",
+    "in": [
+      {
+        "x": 60,
+        "y": 180,
+        "wires": [
+          {
+            "id": "e1f2a3b4c5d60001"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 860,
+        "y": 180,
+        "wires": [
+          {
+            "id": "e1f2a3b4c5d60002",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#E9967A",
+    "icon": "font-awesome/fa-file-photo-o"
+  },
+  {
+    "id": "e1f2a3b4c5d60001",
+    "type": "function",
+    "z": "c8d7e6f5a4b30219",
+    "name": "Build download request",
+    "func": "/**\n * Builds a plain HTTP GET request for a signed Rayvn URL.\n * No authentication required — signed URLs are publicly accessible.\n * Mirrors Get Wasos file — Build download request.\n */\nconst file = msg.payload;\n\nreturn {\n    _msgid:     msg._msgid,\n    _dl:        msg._dl,\n    parts:      msg.parts,\n    metadata:   msg.metadata,\n    _file_meta: {\n        url:  file.url,\n        name: file.name || \"attachment\",\n        type: file.type || \"application/octet-stream\",\n        size: file.size || 0\n    },\n    url:   file.url,\n    topic: msg.topic\n};\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 250,
+    "y": 180,
+    "wires": [
+      [
+        "e1f2a3b4c5d60002"
+      ]
+    ]
+  },
+  {
+    "id": "e1f2a3b4c5d60002",
+    "type": "http request",
+    "z": "c8d7e6f5a4b30219",
+    "name": "GET file from Rayvn",
+    "method": "GET",
+    "ret": "bin",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 600,
+    "y": 160,
+    "wires": [
+      []
+    ]
+  }
+]

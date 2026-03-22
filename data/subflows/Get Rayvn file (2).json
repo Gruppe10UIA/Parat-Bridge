@@ -1,0 +1,98 @@
+[
+  {
+    "id": "2b2f848906015542",
+    "type": "subflow",
+    "name": "Get Rayvn file (2)",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 60,
+        "y": 180,
+        "wires": [
+          {
+            "id": "1518105ef3dbf272"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 1120,
+        "y": 160,
+        "wires": [
+          {
+            "id": "b08e50f909f88d3a",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#E9967A",
+    "icon": "font-awesome/fa-file-photo-o"
+  },
+  {
+    "id": "1518105ef3dbf272",
+    "type": "function",
+    "z": "2b2f848906015542",
+    "name": "Build download request",
+    "func": "const file = msg.payload;\n\nreturn {\n    _msgid:     msg._msgid,\n    _dl:        msg._dl,\n    parts:      msg.parts,\n    metadata:   msg.metadata,\n    _file_meta: {\n        url:  file.url,\n        name: file.name || \"attachment\",\n        type: file.type || \"application/octet-stream\",\n        size: file.size || 0\n    },\n    url:   file.url,\n    topic: msg.topic\n};\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 250,
+    "y": 180,
+    "wires": [
+      [
+        "41d75c97da2c83f4"
+      ]
+    ]
+  },
+  {
+    "id": "41d75c97da2c83f4",
+    "type": "http request",
+    "z": "2b2f848906015542",
+    "name": "GET file from Rayvn",
+    "method": "GET",
+    "ret": "bin",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 540,
+    "y": 320,
+    "wires": [
+      [
+        "b08e50f909f88d3a"
+      ]
+    ]
+  },
+  {
+    "id": "b08e50f909f88d3a",
+    "type": "function",
+    "z": "2b2f848906015542",
+    "name": "Capture response headers",
+    "func": "/**\n * Node-RED HTTP request node places response headers in msg.headers.\n * Resolves actual Content-Type and filename and writes into _file_meta.\n */\nconst headers = msg.headers || {};\n\nnode.warn(\"response headers: \" + JSON.stringify(headers));\n\nconst raw_ct      = headers['content-type'] || headers['Content-Type'] || msg._file_meta.type;\nconst actual_type = raw_ct.split(\";\")[0].trim();\n\nlet actual_name   = msg._file_meta.name;\nconst disposition = headers['content-disposition'] || headers['Content-Disposition'] || \"\";\nconst cd_match    = disposition.match(/filename\\*?=['\"]?(?:UTF-8'')?([^;'\"\\r\\n]+)/i);\n\nif (cd_match) {\n    actual_name = decodeURIComponent(cd_match[1].trim());\n} else if (!actual_name.includes(\".\")) {\n    const ext_map = {\n        \"image/jpeg\":      \".jpg\",\n        \"image/png\":       \".png\",\n        \"image/gif\":       \".gif\",\n        \"image/webp\":      \".webp\",\n        \"application/pdf\": \".pdf\",\n        \"video/mp4\":       \".mp4\"\n    };\n    actual_name = actual_name + (ext_map[actual_type] || \"\");\n}\n\nif (actual_type === \"application/octet-stream\") {\n    const ext_from_name = actual_name.split(\".\").pop().toLowerCase();\n    const name_map = {\n        \"jpg\":  \"image/jpeg\",\n        \"jpeg\": \"image/jpeg\",\n        \"png\":  \"image/png\",\n        \"gif\":  \"image/gif\",\n        \"webp\": \"image/webp\",\n        \"pdf\":  \"application/pdf\",\n        \"mp4\":  \"video/mp4\"\n    };\n    if (name_map[ext_from_name]) {\n        msg._file_meta.type = name_map[ext_from_name];\n    }\n}\n\n\nmsg._file_meta.name = actual_name;\n\nnode.warn(\"resolved: \" + actual_name + \" / \" + actual_type);\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 840,
+    "y": 100,
+    "wires": [
+      []
+    ]
+  }
+]

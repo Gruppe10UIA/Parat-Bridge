@@ -1,0 +1,98 @@
+[
+  {
+    "id": "5ccbb09da713ac49",
+    "type": "subflow",
+    "name": "Get Rayvn file (1)",
+    "info": "Fetches a single file from a publicly-accessible signed Rayvn URL.\n\n### Input\n- msg.payload — synthetic file object with .url (full signed URL), .name, .type, .size\n- msg.metadata — standard metadata\n- msg._dl — download context (message_id, connection_name)\n- msg.parts — join parts for reassembly\n\n### Logic\n1. Build download request — sets msg.url to the signed URL, builds _file_meta.\n2. GET file — HTTP request, returns binary buffer.\n3. Capture response headers — writes actual Content-Type and filename from response headers into _file_meta.\n\n### Output\n- msg.payload — binary Buffer\n- msg.statusCode — HTTP status\n- msg._file_meta — { url, name, type, size } resolved from response headers\n- msg.parts — preserved for join node\n- msg._dl — preserved for merge node",
+    "category": "",
+    "in": [
+      {
+        "x": 60,
+        "y": 180,
+        "wires": [
+          {
+            "id": "75d58c27c7d02d52"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 820,
+        "y": 180,
+        "wires": [
+          {
+            "id": "c94fd57a4041c50e",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#E9967A",
+    "icon": "font-awesome/fa-file-photo-o"
+  },
+  {
+    "id": "75d58c27c7d02d52",
+    "type": "function",
+    "z": "5ccbb09da713ac49",
+    "name": "Build download request",
+    "func": "const file = msg.payload;\n\nreturn {\n    _msgid:     msg._msgid,\n    _dl:        msg._dl,\n    parts:      msg.parts,\n    metadata:   msg.metadata,\n    _file_meta: {\n        url:  file.url,\n        name: file.name || \"attachment\",\n        type: file.type || \"application/octet-stream\",\n        size: file.size || 0\n    },\n    url:   file.url,\n    topic: msg.topic\n};\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 250,
+    "y": 180,
+    "wires": [
+      [
+        "d16edfe43a3532e9"
+      ]
+    ]
+  },
+  {
+    "id": "d16edfe43a3532e9",
+    "type": "http request",
+    "z": "5ccbb09da713ac49",
+    "name": "GET file from Rayvn",
+    "method": "GET",
+    "ret": "bin",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 460,
+    "y": 180,
+    "wires": [
+      [
+        "c94fd57a4041c50e"
+      ]
+    ]
+  },
+  {
+    "id": "c94fd57a4041c50e",
+    "type": "function",
+    "z": "5ccbb09da713ac49",
+    "name": "Capture response headers",
+    "func": "/**\n * Resolves actual Content-Type and filename from HTTP response headers\n * and writes them into _file_meta immediately after the HTTP GET.\n * Ensures Store file via global context always has correct metadata\n * regardless of what the signed URL path looks like.\n */\nconst headers = msg.responseHeaders || {};\n\nconst raw_ct      = headers['content-type'] || headers['Content-Type'] || msg._file_meta.type;\nconst actual_type = raw_ct.split(\";\")[0].trim();\n\nlet actual_name   = msg._file_meta.name;\nconst disposition = headers['content-disposition'] || headers['Content-Disposition'] || \"\";\nconst cd_match    = disposition.match(/filename\\*?=['\"]?(?:UTF-8'')?([^;'\"\\r\\n]+)/i);\n\nif (cd_match) {\n    actual_name = decodeURIComponent(cd_match[1].trim());\n} else if (!actual_name.includes(\".\")) {\n    const ext_map = {\n        \"image/jpeg\":      \".jpg\",\n        \"image/png\":       \".png\",\n        \"image/gif\":       \".gif\",\n        \"image/webp\":      \".webp\",\n        \"application/pdf\": \".pdf\",\n        \"video/mp4\":       \".mp4\"\n    };\n    actual_name = actual_name + (ext_map[actual_type] || \"\");\n}\n\nmsg._file_meta.type = actual_type;\nmsg._file_meta.name = actual_name;\n\nnode.log(\"Resolved: \" + actual_name + \" (\" + actual_type + \")\");\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 660,
+    "y": 180,
+    "wires": [
+      []
+    ]
+  }
+]

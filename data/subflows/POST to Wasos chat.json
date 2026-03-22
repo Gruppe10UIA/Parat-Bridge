@@ -38,7 +38,7 @@
     "type": "function",
     "z": "c52035853d082eb0",
     "name": "Return response",
-    "func": "msg.topic = \"response\"\n\nif (msg.statusCode == 200) {\n    msg.result = true\n} else {\n    msg.result = false\n}\n\nreturn msg;",
+    "func": "msg.topic = \"response\"\n\nnode.warn(\"WaSOS response: \" + msg.statusCode + \" — \" + JSON.stringify(msg.payload).slice(0, 200));\n\nif (msg.statusCode == 200) {\n    msg.result = true\n} else {\n    msg.result = false\n}\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -63,7 +63,7 @@
     ],
     "linkType": "static",
     "timeout": "30",
-    "x": 660,
+    "x": 900,
     "y": 300,
     "wires": [
       []
@@ -119,13 +119,10 @@
     "type": "subflow:19f5354cf4a27129",
     "z": "c52035853d082eb0",
     "name": "",
-    "x": 680,
-    "y": 200,
+    "x": 1060,
+    "y": 40,
     "wires": [
-      [
-        "275fb321d293db05",
-        "91d6556fbd741877"
-      ]
+      []
     ]
   },
   {
@@ -150,10 +147,10 @@
     "y": 200,
     "wires": [
       [
-        "2e459edb36f9f0d9"
+        "f71c7e2223dab011"
       ],
       [
-        "c183c9c59dd87d68"
+        "d67117527838f384"
       ]
     ]
   },
@@ -162,12 +159,10 @@
     "type": "subflow:bfd1ac9312fd744a",
     "z": "c52035853d082eb0",
     "name": "",
-    "x": 390,
-    "y": 140,
+    "x": 790,
+    "y": 60,
     "wires": [
-      [
-        "c183c9c59dd87d68"
-      ]
+      []
     ]
   },
   {
@@ -202,6 +197,33 @@
     "y": 140,
     "wires": [
       []
+    ]
+  },
+  {
+    "id": "d67117527838f384",
+    "type": "subflow:61f685a3bc5e8d53",
+    "z": "c52035853d082eb0",
+    "name": "",
+    "x": 590,
+    "y": 220,
+    "wires": [
+      [
+        "91d6556fbd741877",
+        "275fb321d293db05"
+      ]
+    ]
+  },
+  {
+    "id": "f71c7e2223dab011",
+    "type": "subflow:42a9bcd7ad1794ab",
+    "z": "c52035853d082eb0",
+    "name": "",
+    "x": 370,
+    "y": 60,
+    "wires": [
+      [
+        "d67117527838f384"
+      ]
     ]
   }
 ]
