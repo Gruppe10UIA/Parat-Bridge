@@ -745,7 +745,8 @@
     "y": 820,
     "wires": [
       [
-        "305a27d40ba08080"
+        "305a27d40ba08080",
+        "76cb988d4c3e6dbf"
       ]
     ]
   },
@@ -768,5 +769,22 @@
         "7e9be908955d6ced"
       ]
     ]
+  },
+  {
+    "id": "76cb988d4c3e6dbf",
+    "type": "debug",
+    "z": "003e75aaa2880405",
+    "name": "HTTP RESOLVE DEBUG",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 870,
+    "y": 900,
+    "wires": []
   }
 ]
