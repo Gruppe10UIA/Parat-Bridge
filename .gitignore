@@ -36,3 +36,5 @@ data/bridge-files/
 data/uibuilder/package.json
 data/uibuilder/package.json.bak
 data/uibuilder/.config
+
+.env

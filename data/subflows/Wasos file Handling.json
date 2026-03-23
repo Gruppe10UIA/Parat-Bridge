@@ -1,0 +1,74 @@
+[
+  {
+    "id": "bfd1ac9312fd744a",
+    "type": "subflow",
+    "name": "Wasos file Handling",
+    "info": "Prepares downloaded file buffers for the WaSOS JSON POST endpoint.\n                                                                                                                                                                                                   \n### Input\n- msg.payload — WaSOS message body (from Bridge to Wasos)                                                                                                                                        \n- msg.metadata.files.items — file objects with .context_key references                                                                                                                           \n                                                                                                                                                                                                   \n### Logic                                                                                                                                                                                        \nReads pre-downloaded buffers from global context via context_key.                                                                                                                                \nConverts each to a NewFileRequest object (filename, extension, filetype, blob).                                                                                                                  \nPatches msg.payload.content with failure notice if any files failed.                                                                                                                             \n                                                                                                                                                                                                   \n### Output                                                                                                                                                                                       \n- msg.payload.files — array of NewFileRequest objects ready for JSON POST                                                                                                                        \n- msg.metadata.files.failed — updated with any buffer read failures",
+    "category": "",
+    "in": [
+      {
+        "x": 60,
+        "y": 80,
+        "wires": [
+          {
+            "id": "5bccfb80b6598174"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 740,
+        "y": 80,
+        "wires": [
+          {
+            "id": "f6d3f391eaf3f056",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#FFAAAA",
+    "icon": "font-awesome/fa-cloud-upload"
+  },
+  {
+    "id": "5bccfb80b6598174",
+    "type": "function",
+    "z": "bfd1ac9312fd744a",
+    "name": "Upload files to WaSOS",
+    "func": "/**\n * Prepares file attachments for the WaSOS JSON endpoint.                                                                                                                                        \n *              \n * Reads pre-downloaded buffers from global context (stored by                                                                                                                                   \n * Fetch Rayvn files) and converts them to NewFileRequest objects\n * on msg.payload.files for the standard JSON POST.                                                                                                                                              \n *              \n * When no buffers are available, msg.payload.files stays empty\n * and the message is sent as text-only.                                                                                                                                                         \n *\n * Failures are appended to metadata.files.failed.                                                                                                                                               \n */\nconst utils = global.get(\"utils\");\nconst items = msg.metadata.files.items;\n\nconst loaded = [];\nconst failed = [];\n\nfor (const file of items) {\n    const buffer = global.get(\"files.\" + file.context_key);\n    if (!buffer || buffer.length === 0) {\n        node.warn(\"No buffer for: \" + file.context_key);\n        failed.push({ name: file.name || \"unknown file\", reason: utils.FILE_REASONS.UPLOAD_FAILED });\n        continue;\n    }\n\n    const name = file.name || \"file.bin\";\n    const ext = name.includes(\".\") ? name.split(\".\").pop() : \"\";\n\n    loaded.push({\n        filename: name,\n        extension: ext,\n        filetype: file.type || \"application/octet-stream\",\n        blob: Array.from(buffer)\n    });\n\n    node.log(\"Prepared for WaSOS: \" + name + \" (\" + buffer.length + \" bytes, \" + file.type + \")\");\n}\n\nif (failed.length > 0) {\n    msg.metadata.files.failed = [...msg.metadata.files.failed, ...failed];\n}\n\nconst all_failed = msg.metadata.files.failed;\nif (all_failed.length > 0) {\n    const total = loaded.length + all_failed.length;\n    const notice = \" [\" + all_failed.length + \"/\" + total\n        + \" vedlegg ikke overført. Avsender mottar instruks om alternativ håndtering]\";\n    msg.payload.content = (msg.payload.content || \"\") + notice;\n}\n\nmsg.payload.files = loaded;\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 260,
+    "y": 80,
+    "wires": [
+      [
+        "f6d3f391eaf3f056"
+      ]
+    ]
+  },
+  {
+    "id": "f6d3f391eaf3f056",
+    "type": "function",
+    "z": "bfd1ac9312fd744a",
+    "name": "Patch receiver text",
+    "func": "/**\n * Mirrors Handle Rayvn files upload — Patch receiver text.\n *\n * Content patching is handled inside Upload files to WaSOS because\n * msg.payload becomes a Buffer when files are loaded. Passthrough only.\n */\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 500,
+    "y": 80,
+    "wires": [
+      []
+    ]
+  }
+]

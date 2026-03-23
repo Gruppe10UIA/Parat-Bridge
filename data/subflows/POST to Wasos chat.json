@@ -3,7 +3,7 @@
     "id": "c52035853d082eb0",
     "type": "subflow",
     "name": "POST to Wasos chat",
-    "info": "Posts a bridged entry to the WaSOS chat API.\n\n### Input\n`msg.payload` = WaSOS POST body, `msg.metadata.target` = WaSOS Client\n\n### Logic\nWhen metadata.files is present, Wasos file Hanlding runs first.\nIf it completed the POST directly (multipart), _wasos_posted is set\nand the HTTP node is bypassed. Otherwise the JSON endpoint is used.\n\n### Output\n`msg.topic = \"response\"`, `msg.result = true/false`, `msg.statusCode`",
+    "info": "Posts a bridged entry to the WaSOS chat API.                                                                                                                                                     \n   \n### Input                                                                                                                                                                                        \n`msg.payload` = WaSOS POST body, `msg.metadata.target` = WaSOS Client\n                                                                                                                                                                                                   \n### Logic\nWhen metadata.files is present, Wasos file Handling runs first to prepare file attachments on msg.payload.files. The message then proceeds to the standard JSON POST like any other message.     \n                                                                                                                                                                                                   \n### Output\n`msg.topic = \"response\"`, `msg.result = true/false`, `msg.statusCode`",
     "category": "",
     "in": [
       {
@@ -67,38 +67,9 @@
     "type": "subflow:bfd1ac9312fd744a",
     "z": "c52035853d082eb0",
     "name": "",
-    "x": 390,
+    "x": 450,
     "y": 140,
     "wires": [
-      [
-        "aa11bb22cc33dd44"
-      ]
-    ]
-  },
-  {
-    "id": "aa11bb22cc33dd44",
-    "type": "switch",
-    "z": "c52035853d082eb0",
-    "name": "already posted?",
-    "property": "_wasos_posted",
-    "propertyType": "msg",
-    "rules": [
-      {
-        "t": "nnull"
-      },
-      {
-        "t": "else"
-      }
-    ],
-    "checkall": "true",
-    "repair": false,
-    "outputs": 2,
-    "x": 570,
-    "y": 140,
-    "wires": [
-      [
-        "275fb321d293db05"
-      ],
       [
         "c183c9c59dd87d68"
       ]
