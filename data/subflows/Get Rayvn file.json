@@ -1,0 +1,98 @@
+[
+  {
+    "id": "c8d7e6f5a4b30219",
+    "type": "subflow",
+    "name": "Get Rayvn file",
+    "info": "Fetches a single file from a publicly-accessible signed Rayvn URL.\nMirrors Get Wasos file.\n\n### Input\n- msg.payload — synthetic file object with .url (full signed URL), .name, .type, .size\n- msg.metadata — standard metadata\n- msg._dl — download context (message_id, connection_name)\n- msg.parts — join parts for reassembly\n\n### Logic\n1. Build download request — sets msg.url, no auth header required.\n2. GET file — HTTP request, returns binary buffer.\n3. Capture response headers — resolves actual Content-Type and filename from\n   response headers and writes into _file_meta before leaving this subflow.\n\n### Output\n- msg.payload — binary Buffer\n- msg.statusCode — HTTP status\n- msg._file_meta — { url, name, type, size } resolved from response headers\n- msg.parts — preserved for join node\n- msg._dl — preserved for merge node",
+    "category": "",
+    "in": [
+      {
+        "x": 60,
+        "y": 180,
+        "wires": [
+          {
+            "id": "e1f2a3b4c5d60001"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 880,
+        "y": 180,
+        "wires": [
+          {
+            "id": "e1f2a3b4c5d60003",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#E9967A",
+    "icon": "font-awesome/fa-file-photo-o"
+  },
+  {
+    "id": "e1f2a3b4c5d60001",
+    "type": "function",
+    "z": "c8d7e6f5a4b30219",
+    "name": "Build download request",
+    "func": "/**\n * Builds a plain HTTP GET request for a signed Rayvn URL.\n * No authentication required — signed URLs are publicly accessible.\n * Mirrors Get Wasos file — Build download request.\n */\nconst file = msg.payload;\n\nreturn {\n    _msgid:     msg._msgid,\n    _dl:        msg._dl,\n    parts:      msg.parts,\n    metadata:   msg.metadata,\n    _file_meta: {\n        url:  file.url,\n        name: file.name || \"attachment\",\n        type: file.type || \"application/octet-stream\",\n        size: file.size || 0\n    },\n    url:   file.url,\n    topic: msg.topic\n};\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 250,
+    "y": 180,
+    "wires": [
+      [
+        "e1f2a3b4c5d60002"
+      ]
+    ]
+  },
+  {
+    "id": "e1f2a3b4c5d60002",
+    "type": "http request",
+    "z": "c8d7e6f5a4b30219",
+    "name": "GET file from Rayvn",
+    "method": "GET",
+    "ret": "bin",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 480,
+    "y": 180,
+    "wires": [
+      [
+        "e1f2a3b4c5d60003"
+      ]
+    ]
+  },
+  {
+    "id": "e1f2a3b4c5d60003",
+    "type": "function",
+    "z": "c8d7e6f5a4b30219",
+    "name": "Capture response headers",
+    "func": "/**                                                                                                                                                                                              \n * Resolves actual Content-Type and filename from HTTP response headers                                                                                                                          \n * (msg.headers in Node-RED) and writes into _file_meta.                                                                                                                                         \n *                                                                                                                                                                                               \n * Azure blob storage always returns application/octet-stream as Content-Type                                                                                                                    \n * regardless of file type. The filename is derived from Content-Disposition                                                                                                                     \n * first, then from the URL path. When Content-Type is still octet-stream,                                                                                                                       \n * utils.get_mime_type() resolves the correct type from the filename extension.                                                                                                                  \n */\nconst utils = global.get(\"utils\");\nconst headers = msg.headers || {};\n\nconst raw_ct = headers['content-type'] || msg._file_meta.type;\nconst actual_type = raw_ct.split(\";\")[0].trim();\n\nlet actual_name = msg._file_meta.name;\nconst disposition = headers['content-disposition'] || \"\";\nconst cd_match = disposition.match(/filename\\*?=['\"]?(?:UTF-8'')?([^;'\"\\r\\n]+)/i);\n\nif (cd_match) {\n    actual_name = decodeURIComponent(cd_match[1].trim());\n}\n\nif (actual_type === \"application/octet-stream\") {\n    msg._file_meta.type = utils.get_mime_type(actual_name) || actual_type;\n} else {\n    msg._file_meta.type = actual_type;\n}\n\nmsg._file_meta.name = actual_name;\n\nnode.log(\"Resolved: \" + actual_name + \" (\" + msg._file_meta.type + \")\");\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 720,
+    "y": 180,
+    "wires": [
+      []
+    ]
+  }
+]
