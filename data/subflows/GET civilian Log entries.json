@@ -18,12 +18,16 @@
     ],
     "out": [
       {
-        "x": 720,
-        "y": 180,
+        "x": 1200,
+        "y": 240,
         "wires": [
           {
-            "id": "ea497d5ba41aa790",
+            "id": "38b5926f94135c20",
             "port": 0
+          },
+          {
+            "id": "38b5926f94135c20",
+            "port": 1
           }
         ]
       }
@@ -52,7 +56,7 @@
     "z": "0fad769721e9978c",
     "name": "",
     "x": 380,
-    "y": 180,
+    "y": 240,
     "wires": [
       [
         "ea497d5ba41aa790"
@@ -71,8 +75,8 @@
     "stream": false,
     "addname": "",
     "property": "payload",
-    "x": 210,
-    "y": 180,
+    "x": 190,
+    "y": 240,
     "wires": [
       [
         "cb79364a16a2822e"
@@ -95,7 +99,7 @@
     "y": 80,
     "wires": [
       [
-        "7d334210bedb119c"
+        "f33b56437d70761a"
       ]
     ]
   },
@@ -131,10 +135,82 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 590,
-    "y": 180,
+    "x": 630,
+    "y": 240,
     "wires": [
+      [
+        "38b5926f94135c20"
+      ]
+    ]
+  },
+  {
+    "id": "38b5926f94135c20",
+    "type": "function",
+    "z": "0fad769721e9978c",
+    "name": "Notification on connection",
+    "func": "// Normal entry fra Prune msg — msg.entry finnes\nif (msg.entry) {\n    const connName = msg.entry.metadata.connection_name;\n    const connections = global.get('parat_bridge.connections') || {};\n    const conn = connections[connName];\n\n    if (conn && conn._initial_count !== undefined) {\n        conn._initial_delivered = (conn._initial_delivered || 0) + 1;\n\n        if (conn._initial_delivered >= conn._initial_count) {\n            node.send([msg, null]);\n\n            const clientList = Object.values(conn.clients);\n            const now = Date.now();\n\n            clientList.forEach((client, idx) => {\n                const otherNames = clientList\n                    .filter(c => c.identifier !== client.identifier)\n                    .map(c => c.name)\n                    .join(' og ');\n\n                node.send([null, {\n                    topic: 'new_message',\n                    entry: {\n                        id: 'pb-err-' + (now + idx) + '-connected-' + Math.random().toString(36).slice(2, 5),\n                        text: '✅ Tilkobling etablert. Du er nå koblet til ' + otherNames + '. Meldinger kan sendes begge veier.',\n                        timestamp: now + idx,\n                        author: 'System-melding',\n                        files: [],\n                        labels: [],\n                        metadata: {\n                            source: { client_system: 'parat_bridge', name: 'parat_bridge', identifier: 'parat_bridge' },\n                            target: client,\n                            connection_name: connName\n                        }\n                    }\n                }]);\n            });\n\n            delete conn._initial_count;\n            delete conn._initial_delivered;\n            global.set('parat_bridge.connections.' + connName, conn);\n            return null;\n        }\n\n        global.set('parat_bridge.connections.' + connName, conn);\n    }\n\n    return [msg, null];\n}\n\n// Tom array-tilfelle — msg.metadata fra switch output 2\nconst connName = msg.metadata && msg.metadata.connection_name;\nconst connections = global.get('parat_bridge.connections') || {};\nconst conn = connections[connName];\n\nif (conn && connName) {\n    const clientList = Object.values(conn.clients);\n    const now = Date.now();\n\n    clientList.forEach((client, idx) => {\n        const otherNames = clientList\n            .filter(c => c.identifier !== client.identifier)\n            .map(c => c.name)\n            .join(' og ');\n\n        node.send([null, {\n            topic: 'new_message',\n            entry: {\n                id: 'pb-err-' + (now + idx) + '-connected-' + Math.random().toString(36).slice(2, 5),\n                text: '✅ Tilkobling etablert. Du er nå koblet til ' + otherNames + '. Meldinger kan sendes begge veier.',\n                timestamp: now + idx,\n                author: 'System-melding',\n                files: [],\n                labels: [],\n                metadata: {\n                    source: { client_system: 'parat_bridge', name: 'parat_bridge', identifier: 'parat_bridge' },\n                    target: client,\n                    connection_name: connName\n                }\n            }\n        }]);\n    });\n}\n\nreturn null;\n",
+    "outputs": 2,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 970,
+    "y": 240,
+    "wires": [
+      [],
       []
+    ]
+  },
+  {
+    "id": "f33b56437d70761a",
+    "type": "switch",
+    "z": "0fad769721e9978c",
+    "name": "",
+    "property": "payload.length",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "gt",
+        "v": "0",
+        "vt": "num"
+      },
+      {
+        "t": "else"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 2,
+    "x": 790,
+    "y": 80,
+    "wires": [
+      [
+        "fd9f16755b0ea080"
+      ],
+      [
+        "38b5926f94135c20"
+      ]
+    ]
+  },
+  {
+    "id": "fd9f16755b0ea080",
+    "type": "function",
+    "z": "0fad769721e9978c",
+    "name": "Set initial count",
+    "func": "const connName = msg.metadata.connection_name;\nconst connections = global.get('parat_bridge.connections') || {};\nconst conn = connections[connName];\nif (conn) {\n    conn._initial_count = msg.payload.length;\n    conn._initial_delivered = 0;\n    global.set('parat_bridge.connections.' + connName, conn);\n}\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 500,
+    "y": 140,
+    "wires": [
+      [
+        "7d334210bedb119c"
+      ]
     ]
   }
 ]

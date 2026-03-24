@@ -6,6 +6,7 @@
         "node-fetch": "^2.7.0",
         "node-red-contrib-flow-manager": "~0.7.4",
         "node-red-contrib-uibuilder": "~7.5.0",
+        "sharp": "^0.33.0",
         "write-file-atomic": "^7.0.1"
     }
 }

@@ -292,32 +292,5 @@
         "1a6d4e2b65052fcc"
       ]
     ]
-  },
-  {
-    "id": "b4a456641b6c852d",
-    "type": "catch",
-    "z": "7613a77a1b834225",
-    "name": "",
-    "scope": null,
-    "uncaught": false,
-    "x": 800,
-    "y": 40,
-    "wires": [
-      [
-        "94c79020b3f58aba"
-      ]
-    ],
-    "info": "Catches all errors from nodes in this subflow\r\nand forwards them to the centralized \r\nError Handler subflow for classification,\r\nlogging and notification."
-  },
-  {
-    "id": "94c79020b3f58aba",
-    "type": "link out",
-    "z": "7613a77a1b834225",
-    "name": "LinkOut(exceptions)",
-    "mode": "link",
-    "links": [],
-    "x": 945,
-    "y": 40,
-    "wires": []
   }
 ]

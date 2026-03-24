@@ -18,8 +18,8 @@
     ],
     "out": [
       {
-        "x": 900,
-        "y": 120,
+        "x": 1040,
+        "y": 60,
         "wires": [
           {
             "id": "2a7cc21f4ee7dbe5",
@@ -97,7 +97,7 @@
     "type": "function",
     "z": "2e632affbd071524",
     "name": "Dequeue successful post",
-    "func": "const connection_name = msg.entry.metadata.connection_name;\n\n// Remove the delivered entry from the queue\nconst queue = global.get(\"parat_bridge.queue.entry_queue\") || [];\nglobal.set(\"parat_bridge.queue.entry_queue\", queue.filter(i => i.entry.id !== msg.entry.id));\n\n// Release the connection slot\nconst in_flight = global.get(\"parat_bridge.queue.in_flight_connections\") || [];\nglobal.set(\"parat_bridge.queue.in_flight_connections\", in_flight.filter(c => c !== connection_name));\n\nreturn msg;\n",
+    "func": "const connection_name = msg.entry.metadata.connection_name;\nconst targetId = msg.entry.metadata.target && msg.entry.metadata.target.identifier;\n\n// Remove the delivered entry from the queue\nconst queue = global.get(\"parat_bridge.queue.entry_queue\") || [];\nglobal.set(\"parat_bridge.queue.entry_queue\", queue.filter(i => i.entry.id !== msg.entry.id));\n\n// Release the connection slot\nconst in_flight = global.get(\"parat_bridge.queue.in_flight_connections\") || [];\nglobal.set(\"parat_bridge.queue.in_flight_connections\", in_flight.filter(c => c !== connection_name));\n\n// Fjern entry fra failed_entries hvis den lå der\nif (connection_name && targetId) {\n    const connections = global.get('parat_bridge.connections') || {};\n    const conn = connections[connection_name];\n    if (conn && conn.failed_entries && conn.failed_entries[targetId]) {\n        const before = conn.failed_entries[targetId].length;\n        conn.failed_entries[targetId] = conn.failed_entries[targetId]\n            .filter(e => e.id !== msg.entry.id);\n        if (conn.failed_entries[targetId].length !== before) {\n            global.set('parat_bridge.connections.' + connection_name, conn);\n        }\n    }\n\n    // Recovery: sjekk om dette er siste recovery-melding → send ✅\n    if (msg.entry._recovery === true && conn) {\n        conn._recovery_context = conn._recovery_context || {};\n        const ctx = conn._recovery_context[targetId];\n        if (ctx) {\n            ctx.delivered = (ctx.delivered || 0) + 1;\n            if (ctx.delivered >= ctx.total) {\n                const entryQueue = global.get('parat_bridge.queue.entry_queue') || [];\n                const now = Date.now();\n\n                // ✅ til mottaker\n                const currentTarget = conn.clients && conn.clients[targetId];\n                if (currentTarget) {\n                    entryQueue.push({\n                        entry: {\n                            id: 'pb-err-' + now + '-restored-' + Math.random().toString(36).slice(2, 5),\n                            text: '✅ Tilkoblingen er gjenopprettet. Vanlig meldingsflyt er gjenopptatt.',\n                            timestamp: now,\n                            author: 'System-melding',\n                            files: [],\n                            labels: [],\n                            metadata: {\n                                source: { client_system: 'parat_bridge', name: 'parat_bridge', identifier: 'parat_bridge' },\n                                target: currentTarget,\n                                connection_name: connection_name\n                            }\n                        },\n                        _retries: 0\n                    });\n                }\n\n                // ✅ til avsendere\n                const senderClients = Object.values(conn.clients || {}).filter(c => c.identifier !== targetId);\n                senderClients.forEach((senderClient, sIdx) => {\n                    entryQueue.push({\n                        entry: {\n                            id: 'pb-err-' + (now + 1 + sIdx) + '-sender-restored-' + Math.random().toString(36).slice(2, 5),\n                            text: '✅ Tilkoblingen er gjenopprettet. Meldingene dine er nå levert.',\n                            timestamp: now + 1 + sIdx,\n                            author: 'System-melding',\n                            files: [],\n                            labels: [],\n                            metadata: {\n                                source: { client_system: 'parat_bridge', name: 'parat_bridge', identifier: 'parat_bridge' },\n                                target: senderClient,\n                                connection_name: connection_name\n                            }\n                        },\n                        _retries: 0\n                    });\n                });\n\n                global.set('parat_bridge.queue.entry_queue', entryQueue);\n\n                // Rydd opp recovery-kontekst\n                delete conn._recovery_context[targetId];\n                conn.status = conn.status || {};\n                conn.status.failed_clients = (conn.status.failed_clients || []).filter(id => id !== targetId);\n                node.log('Recovery complete for ' + targetId + ': ✅ notifications sent');\n            }\n            global.set('parat_bridge.connections.' + connection_name, conn);\n        }\n    }\n}\n\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -105,10 +105,11 @@
     "finalize": "",
     "libs": [],
     "x": 590,
-    "y": 120,
+    "y": 60,
     "wires": [
       [
-        "b517dd3e71771eb0"
+        "b517dd3e71771eb0",
+        "6326017a2f7a72af"
       ]
     ]
   },
@@ -117,7 +118,7 @@
     "type": "function",
     "z": "2e632affbd071524",
     "name": "Send message",
-    "func": "const queue     = global.get(\"parat_bridge.queue.entry_queue\") || [];\nlet   in_flight = global.get(\"parat_bridge.queue.in_flight_connections\") || [];\n\n// Prune stale in-flight slots — remove any connection with no entries left in the queue\nin_flight = in_flight.filter(connection_name =>\n    queue.some(i => i.entry.metadata.connection_name === connection_name)\n);\n\n// Find and claim the first sendable entry per connection\nconst to_send = [];\n\nqueue.forEach(i => {\n    const connection_name = i.entry.metadata.connection_name;\n    if (in_flight.includes(connection_name)) return;\n    to_send.push({ ...msg, entry: i.entry });\n    in_flight.push(connection_name);    \n});\n\nif (to_send.length === 0) {\n    global.set(\"parat_bridge.queue.in_flight_connections\", in_flight);\n    return null;\n}\n\nglobal.set(\"parat_bridge.queue.in_flight_connections\", in_flight);\nreturn [to_send];\n",
+    "func": "const queue     = global.get(\"parat_bridge.queue.entry_queue\") || [];\nlet   in_flight = global.get(\"parat_bridge.queue.in_flight_connections\") || [];\n\n// Prune stale in-flight slots — remove any connection with no entries left in the queue\nin_flight = in_flight.filter(connection_name =>\n    queue.some(i => i.entry.metadata.connection_name === connection_name)\n);\n\n// Find and claim the first sendable entry per connection\nconst to_send = [];\n\nqueue.forEach(i => {\n    const connection_name = i.entry.metadata.connection_name;\n    if (in_flight.includes(connection_name)) return;\n    to_send.push({ topic: 'new_message', entry: i.entry });\n    in_flight.push(connection_name);    \n});\n\nif (to_send.length === 0) {\n    global.set(\"parat_bridge.queue.in_flight_connections\", in_flight);\n    return null;\n}\n\nglobal.set(\"parat_bridge.queue.in_flight_connections\", in_flight);\nreturn [to_send];\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -136,7 +137,7 @@
     "type": "function",
     "z": "2e632affbd071524",
     "name": "Retry",
-    "func": "const MAX_RETRIES = 10;\nconst connection_name = msg.entry.metadata.connection_name;\n\nconst queue     = global.get(\"parat_bridge.queue.entry_queue\") || [];\nconst in_flight = global.get(\"parat_bridge.queue.in_flight_connections\") || [];\nconst item      = queue.find(i => i.entry.id === msg.entry.id);\n\n// Helper — releases the connection slot\nconst release_slot = () =>\n    in_flight.filter(c => c !== connection_name);\n\n// Entry no longer in queue — release slot and trigger send to continue\nif (!item) {\n    global.set(\"parat_bridge.queue.in_flight_connections\", release_slot());\n    return [null, msg];\n}\n\nitem._retries++;\n\n// Max retries reached — drop all entries for this connection, release slot\n// Notify failure handler and trigger send to continue with other connections\nif (item._retries > MAX_RETRIES) {\n    node.warn(\"Max retries reached — dropping all queued entries for connection: \" + connection_name);\n    global.set(\"parat_bridge.queue.entry_queue\",\n        queue.filter(i => i.entry.metadata.connection_name !== connection_name)\n    );\n    global.set(\"parat_bridge.queue.in_flight_connections\", release_slot());\n    return [msg, msg];  // output 1: failure handler — output 2: send node\n}\n\n// Still within retry limit — release slot so send node re-picks this entry naturally\nnode.log(\"Retrying entry \" + msg.entry.id + \" (attempt \" + item._retries + \" of \" + MAX_RETRIES + \")\");\nglobal.set(\"parat_bridge.queue.entry_queue\", queue);\nglobal.set(\"parat_bridge.queue.in_flight_connections\", release_slot());\n\nreturn [null, msg];  // output 2: send node picks up the retried entry\n",
+    "func": "const MAX_RETRIES = 10;\nconst connection_name = msg.entry.metadata.connection_name;\n\nconst queue     = global.get(\"parat_bridge.queue.entry_queue\") || [];\nconst in_flight = global.get(\"parat_bridge.queue.in_flight_connections\") || [];\nconst item      = queue.find(i => i.entry.id === msg.entry.id);\n\n// Helper — releases the connection slot\nconst release_slot = () =>\n    in_flight.filter(c => c !== connection_name);\n\n// Entry no longer in queue — release slot and trigger send to continue\nif (!item) {\n    global.set(\"parat_bridge.queue.in_flight_connections\", release_slot());\n    return [null, msg];\n}\n\nitem._retries++;\n\n// Max retries reached — drop all entries for this connection, release slot\n// Notify failure handler and trigger send to continue with other connections\nif (item._retries > MAX_RETRIES) {\n    // Before dropping: rescue any _recovery entries back to failed_entries.\n    // This prevents message loss when the connection is still down when a\n    // recovery cycle is running — without this the recovery messages would\n    // be silently discarded and never delivered.\n    const recoveryEntries = queue.filter(i =>\n        i.entry.metadata &&\n        i.entry.metadata.connection_name === connection_name &&\n        i.entry._recovery === true\n    );\n    if (recoveryEntries.length > 0) {\n        const connections = global.get('parat_bridge.connections') || {};\n        const conn = connections[connection_name];\n        if (conn) {\n            conn.failed_entries = conn.failed_entries || {};\n            conn.status = conn.status || {};\n            conn.status.failed_clients = conn.status.failed_clients || [];\n            conn._recovery_context = conn._recovery_context || {};\n            recoveryEntries.forEach(({ entry: rEntry }) => {\n                const tId = rEntry.metadata &&\n                    rEntry.metadata.target &&\n                    rEntry.metadata.target.identifier;\n                if (!tId) return;\n                conn.failed_entries[tId] = conn.failed_entries[tId] || [];\n                const toSave = { ...rEntry };\n                delete toSave._recovery;\n                if (!conn.failed_entries[tId].some(e => e.id === toSave.id)) {\n                    conn.failed_entries[tId].push(toSave);\n                }\n                if (!conn.status.failed_clients.includes(tId)) {\n                    conn.status.failed_clients.push(tId);\n                }\n                // Reset stale recovery context so next Check recovery starts fresh\n                delete conn._recovery_context[tId];\n            });\n            global.set('parat_bridge.connections', connections);\n            node.warn('MAX_RETRIES: rescued ' + recoveryEntries.length +\n                ' recovery entries back to failed_entries for ' + connection_name);\n        }\n    }\n\n    node.warn(\"Max retries reached — dropping all queued entries for connection: \" + connection_name);\n    global.set(\"parat_bridge.queue.entry_queue\",\n        queue.filter(i => i.entry.metadata.connection_name !== connection_name)\n    );\n    global.set(\"parat_bridge.queue.in_flight_connections\", release_slot());\n    return [msg, msg];  // output 1: failure handler — output 2: send node\n}\n\n// Still within retry limit — release slot so send node re-picks this entry naturally\nnode.log(\"Retrying entry \" + msg.entry.id + \" (attempt \" + item._retries + \" of \" + MAX_RETRIES + \")\");\nglobal.set(\"parat_bridge.queue.entry_queue\", queue);\nglobal.set(\"parat_bridge.queue.in_flight_connections\", release_slot());\n\nreturn [null, msg];  // output 2: send node picks up the retried entry\n",
     "outputs": 2,
     "timeout": 0,
     "noerr": 0,
@@ -185,7 +186,7 @@
     "statusVal": "",
     "statusType": "auto",
     "x": 590,
-    "y": 80,
+    "y": 20,
     "wires": []
   },
   {
@@ -287,6 +288,53 @@
       ],
       [
         "3242f4f6bd93e62d"
+      ]
+    ]
+  },
+  {
+    "id": "6326017a2f7a72af",
+    "type": "function",
+    "z": "2e632affbd071524",
+    "name": "Check recovery",
+    "func": "const entry = msg.entry;\nconst metadata = entry && entry.metadata;\nconst connection_name = metadata && metadata.connection_name;\n\nconst connections = global.get('parat_bridge.connections') || {};\n\nconst toCheck = connection_name\n    ? (connections[connection_name] ? { [connection_name]: connections[connection_name] } : {})\n    : connections;\n\nconst entryQueue = global.get('parat_bridge.queue.entry_queue') || [];\nconst cb = global.get('parat_bridge.circuit_breaker') || {};\nlet anyChange = false;\n\nObject.entries(toCheck).forEach(([connName, conn]) => {\n    if (!conn || !conn.active) return;\n\n    const failedEntries = conn.failed_entries || {};\n    const targetIds = Object.keys(failedEntries).filter(id =>\n        Array.isArray(failedEntries[id]) && failedEntries[id].length > 0\n    );\n    if (targetIds.length === 0) return;\n\n    conn._recovery_context = conn._recovery_context || {};\n\n    targetIds.forEach((targetId, idx) => {\n        // Ikke start ny recovery hvis det allerede er aktive recovery-entries i køen\n        const activeRecovery = entryQueue.some(e =>\n            e.entry._recovery === true &&\n            e.entry.metadata &&\n            e.entry.metadata.connection_name === connName &&\n            e.entry.metadata.target &&\n            e.entry.metadata.target.identifier === targetId\n        );\n        if (activeRecovery) {\n            node.log('Recovery already in progress for ' + targetId + ', skipping');\n            return;\n        }\n\n        // Kombiner failed_entries med meldinger som fremdeles retrier i køen\n        const failedOnly = failedEntries[targetId];\n        const pendingInQueue = entryQueue.filter(e =>\n            e.entry.metadata &&\n            e.entry.metadata.connection_name === connName &&\n            e.entry.metadata.target &&\n            e.entry.metadata.target.identifier === targetId &&\n            !(e.entry.id && e.entry.id.startsWith('pb-err-')) &&\n            !e.entry._recovery\n        );\n        const entries = [\n            ...failedOnly,\n            ...pendingInQueue.map(e => e.entry)\n        ];\n        if (entries.length === 0) return;\n\n        // Fjern queue-stragglerne (de blir re-køet som recovery)\n        const straggleIds = new Set(pendingInQueue.map(e => e.entry.id));\n        for (let i = entryQueue.length - 1; i >= 0; i--) {\n            if (straggleIds.has(entryQueue[i].entry.id)) entryQueue.splice(i, 1);\n        }\n\n        const currentTarget = conn.clients[targetId];\n        if (!currentTarget) return;\n\n        const base = Date.now() + idx * 10;\n\n        // ⚠️ til mottaker\n        entryQueue.push({\n            entry: {\n                id: 'pb-err-' + base + '-broken-' + Math.random().toString(36).slice(2, 5),\n                text: '⚠️ Tilkoblingen ble brutt. Følgende ' + entries.length + ' melding(er) er ettersendt:',\n                timestamp: base,\n                author: 'System-melding',\n                files: [],\n                labels: [],\n                metadata: {\n                    source: { client_system: 'parat_bridge', name: 'parat_bridge', identifier: 'parat_bridge' },\n                    target: currentTarget,\n                    connection_name: connName\n                }\n            },\n            _retries: 0\n        });\n\n        // Tapte meldinger, merket med _recovery: true\n        entries.forEach(e => {\n            entryQueue.push({\n                entry: { ...e, _recovery: true, metadata: { ...e.metadata, target: currentTarget } },\n                _retries: 0\n            });\n        });\n\n        // Lagre recovery-kontekst (✅ sendes når alle er levert av Dequeue successful post)\n        conn._recovery_context[targetId] = { total: entries.length, delivered: 0 };\n        conn.failed_entries[targetId] = [];\n        conn.status.failed_clients = (conn.status.failed_clients || []).filter(id => id !== targetId);\n        delete cb[connName + '::' + targetId];\n        node.log('Recovery: re-queued ' + entries.length + ' entries for ' + targetId + ' in ' + connName);\n        anyChange = true;\n    });\n});\n\nif (anyChange) {\n    global.set('parat_bridge.queue.entry_queue', entryQueue);\n    global.set('parat_bridge.connections', connections);\n    global.set('parat_bridge.circuit_breaker', cb);\n}\n\nreturn null;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 940,
+    "y": 100,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "80356fa371529126",
+    "type": "inject",
+    "z": "2e632affbd071524",
+    "name": "Inject",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "repeat": "30",
+    "crontab": "",
+    "once": false,
+    "onceDelay": "5",
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 670,
+    "y": 120,
+    "wires": [
+      [
+        "6326017a2f7a72af"
       ]
     ]
   }

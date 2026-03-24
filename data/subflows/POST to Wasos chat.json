@@ -24,10 +24,6 @@
           {
             "id": "275fb321d293db05",
             "port": 0
-          },
-          {
-            "id": "6e6ce6cb44b295c2",
-            "port": 1
           }
         ]
       }
@@ -85,21 +81,17 @@
         "t": "jsonata_exp",
         "v": "msg.result = true and $count(msg.metadata.files.failed) > 0\t",
         "vt": "jsonata"
-      },
-      {
-        "t": "else"
       }
     ],
     "checkall": "true",
     "repair": false,
-    "outputs": 2,
+    "outputs": 1,
     "x": 410,
     "y": 340,
     "wires": [
       [
         "c073c2ba149126e0"
-      ],
-      []
+      ]
     ]
   },
   {

@@ -1,0 +1,241 @@
+[
+  {
+    "id": "f0eb857d54dfb4ac",
+    "type": "subflow",
+    "name": "Handle Wasos response",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 60,
+        "y": 260,
+        "wires": [
+          {
+            "id": "f825c79007c454f4"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 1080,
+        "y": 260,
+        "wires": [
+          {
+            "id": "dbb24ef25fdc8c5d",
+            "port": 1
+          },
+          {
+            "id": "f3b264c59b6ea9be",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#C0DEED",
+    "icon": "font-awesome/fa-gears"
+  },
+  {
+    "id": "871c0cd773068b95",
+    "type": "function",
+    "z": "f0eb857d54dfb4ac",
+    "name": "Filter",
+    "func": "const cursor_ts = msg.metadata.source.timestamp;\nconst utils = global.get(\"utils\");\nconst connection = msg.metadata.connection_name;\nconst source = msg.metadata.source.identifier;\n\n\n// Filter conditions\nmsg.payload = msg.payload.filter(entry => {\n    if (new Date(entry.createdAt).getTime() <= cursor_ts) return false;\n    if (entry.content && utils.is_bridge_message(entry.content)) return false;\n    if (entry.username && utils.is_bridge_message(entry.username)) return false;\n    return true;\n});\n\nif (msg.payload.length === 0) return null;\n\n// Update timestamp\nglobal.set(\n    `parat_bridge.connections.${connection}.clients.${source}.timestamp`,\n    new Date(msg.payload[msg.payload.length - 1].createdAt).getTime()\n);\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 190,
+    "y": 220,
+    "wires": [
+      [
+        "5742f4a043b191b2"
+      ]
+    ]
+  },
+  {
+    "id": "5742f4a043b191b2",
+    "type": "split",
+    "z": "f0eb857d54dfb4ac",
+    "name": "",
+    "splt": "\\n",
+    "spltType": "str",
+    "arraySplt": 1,
+    "arraySpltType": "len",
+    "stream": false,
+    "addname": "",
+    "property": "payload",
+    "x": 190,
+    "y": 180,
+    "wires": [
+      [
+        "d358d09fb2962a76"
+      ]
+    ]
+  },
+  {
+    "id": "f825c79007c454f4",
+    "type": "function",
+    "z": "f0eb857d54dfb4ac",
+    "name": "sort time",
+    "func": "// Sort messages oldest-first so the filter advances the cursor correctly\nif (!msg.payload || msg.payload.length === 0) return null;\n\nmsg.payload.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 180,
+    "y": 260,
+    "wires": [
+      [
+        "871c0cd773068b95"
+      ]
+    ]
+  },
+  {
+    "id": "dbb24ef25fdc8c5d",
+    "type": "switch",
+    "z": "f0eb857d54dfb4ac",
+    "name": "Has files?",
+    "property": "payload.files",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "nempty"
+      },
+      {
+        "t": "else"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 2,
+    "x": 700,
+    "y": 260,
+    "wires": [
+      [
+        "752d14e886897aea"
+      ],
+      []
+    ]
+  },
+  {
+    "id": "f3b264c59b6ea9be",
+    "type": "subflow:ea1089b94046dd14",
+    "z": "f0eb857d54dfb4ac",
+    "name": "",
+    "x": 930,
+    "y": 180,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "23fa26880adeffb6",
+    "type": "subflow:2f9af747886c939b",
+    "z": "f0eb857d54dfb4ac",
+    "name": "",
+    "x": 910,
+    "y": 220,
+    "wires": [
+      [
+        "f3b264c59b6ea9be"
+      ],
+      []
+    ]
+  },
+  {
+    "id": "752d14e886897aea",
+    "type": "change",
+    "z": "f0eb857d54dfb4ac",
+    "name": "file adapter",
+    "rules": [
+      {
+        "t": "set",
+        "p": "payload.files",
+        "pt": "msg",
+        "to": "payload.files",
+        "tot": "msg"
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 710,
+    "y": 220,
+    "wires": [
+      [
+        "23fa26880adeffb6"
+      ]
+    ]
+  },
+  {
+    "id": "d358d09fb2962a76",
+    "type": "switch",
+    "z": "f0eb857d54dfb4ac",
+    "name": "Location?",
+    "property": "payload.location",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "true"
+      },
+      {
+        "t": "else"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 2,
+    "x": 420,
+    "y": 260,
+    "wires": [
+      [
+        "417b1860ce9b5c77"
+      ],
+      [
+        "dbb24ef25fdc8c5d"
+      ]
+    ]
+  },
+  {
+    "id": "4e7728e912f1e338",
+    "type": "function",
+    "z": "f0eb857d54dfb4ac",
+    "name": "Attach image to entry",
+    "func": "if (msg.mapImage) {\n    const file = {\n        name: msg.mapImage.name,\n        type: msg.mapImage.type,\n        size: msg.mapImage.buffer.length,\n        _buffer: msg.mapImage.buffer\n    };\n\n    msg.payload.files = (msg.payload.files || []).concat(file);\n    delete msg.mapImage;\n}\n\n// Extract description and coordinates from GeoJSON\nconst geo = JSON.parse(msg.payload.content);\nconst [lng, lat] = geo.geometry.coordinates;\nconst description = geo.properties.description || \"\";\nconst mapsLink = \"Klikk her for å åpne i Google Maps:\\nhttps://www.google.com/maps?q=\" + lat + \"%2C\" + lng;\nmsg.payload.content = description ? description + \"\\n\\n\" + mapsLink : mapsLink;\n\ndelete msg.isLocation;\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 460,
+    "y": 180,
+    "wires": [
+      [
+        "dbb24ef25fdc8c5d"
+      ]
+    ]
+  },
+  {
+    "id": "417b1860ce9b5c77",
+    "type": "subflow:80fa8c207ee7ae78",
+    "z": "f0eb857d54dfb4ac",
+    "name": "",
+    "x": 460,
+    "y": 220,
+    "wires": [
+      [
+        "4e7728e912f1e338"
+      ]
+    ]
+  }
+]
