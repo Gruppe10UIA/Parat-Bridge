@@ -18,7 +18,7 @@
     ],
     "out": [
       {
-        "x": 820,
+        "x": 880,
         "y": 180,
         "wires": [
           {
@@ -69,7 +69,7 @@
     "authType": "",
     "senderr": false,
     "headers": [],
-    "x": 460,
+    "x": 480,
     "y": 180,
     "wires": [
       [
@@ -82,14 +82,14 @@
     "type": "function",
     "z": "c8d7e6f5a4b30219",
     "name": "Capture response headers",
-    "func": "/**                                                                                                                                                                                              \n * Resolves actual Content-Type and filename from HTTP response headers                                                                                                                          \n * (msg.headers in Node-RED) and writes into _file_meta.                                                                                                                                         \n *                                                                                                                                                                                               \n * Azure blob storage always returns application/octet-stream as Content-Type                                                                                                                    \n * regardless of file type. The filename is derived from Content-Disposition                                                                                                                     \n * first, then from the URL path. When Content-Type is still octet-stream,                                                                                                                       \n * utils.get_mime_type() resolves the correct type from the filename extension.                                                                                                                  \n */\nconst utils = global.get(\"utils\");\nconst headers = msg.headers || {};\n\nconst raw_ct = headers['content-type'] || msg._file_meta.type;\nconst actual_type = raw_ct.split(\";\")[0].trim();\n\nlet actual_name = msg._file_meta.name;\nconst disposition = headers['content-disposition'] || \"\";\nconst cd_match = disposition.match(/filename\\*?=['\"]?(?:UTF-8'')?([^;'\"\\r\\n]+)/i);\n\nif (cd_match) {\n    actual_name = decodeURIComponent(cd_match[1].trim());\n}\n\nif (actual_type === \"application/octet-stream\") {\n    msg._file_meta.type = utils.get_mime_type(actual_name) || actual_type;\n} else {\n    msg._file_meta.type = actual_type;\n}\n\nmsg._file_meta.name = actual_name;\n\nnode.log(\"Resolved: \" + actual_name + \" (\" + msg._file_meta.type + \")\");\n\nreturn msg;  ",
+    "func": "/**                                                                                                                                                                                              \n * Resolves actual Content-Type and filename from HTTP response headers                                                                                                                          \n * (msg.headers in Node-RED) and writes into _file_meta.                                                                                                                                         \n *                                                                                                                                                                                               \n * Azure blob storage always returns application/octet-stream as Content-Type                                                                                                                    \n * regardless of file type. The filename is derived from Content-Disposition                                                                                                                     \n * first, then from the URL path. When Content-Type is still octet-stream,                                                                                                                       \n * utils.get_mime_type() resolves the correct type from the filename extension.                                                                                                                  \n */\nconst utils = global.get(\"utils\");\nconst headers = msg.headers || {};\n\nconst raw_ct = headers['content-type'] || msg._file_meta.type;\nconst actual_type = raw_ct.split(\";\")[0].trim();\n\nlet actual_name = msg._file_meta.name;\nconst disposition = headers['content-disposition'] || \"\";\nconst cd_match = disposition.match(/filename\\*?=['\"]?(?:UTF-8'')?([^;'\"\\r\\n]+)/i);\n\nif (cd_match) {\n    actual_name = decodeURIComponent(cd_match[1].trim());\n}\n\nif (actual_type === \"application/octet-stream\") {\n    msg._file_meta.type = utils.get_mime_type(actual_name) || actual_type;\n} else {\n    msg._file_meta.type = actual_type;\n}\n\nmsg._file_meta.name = actual_name;\n\nnode.log(\"Resolved: \" + actual_name + \" (\" + msg._file_meta.type + \")\");\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 660,
+    "x": 720,
     "y": 180,
     "wires": [
       []

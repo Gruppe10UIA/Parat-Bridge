@@ -116,7 +116,7 @@
     "repair": false,
     "outputs": 2,
     "x": 700,
-    "y": 300,
+    "y": 260,
     "wires": [
       [
         "752d14e886897aea"
