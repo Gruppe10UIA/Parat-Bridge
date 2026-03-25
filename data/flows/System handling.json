@@ -386,7 +386,7 @@
     "z": "003e75aaa2880405",
     "g": "00eba3e5252a7414",
     "name": "Get error log",
-    "func": "let errorLog = global.get('error_log') || [];\n\n// Vis de siste 10 feilene, nyeste først\nconst recent = errorLog.slice(-10).reverse();\n\nmsg.payload = recent.map(e => ({\n    time: e.timestamp.replace('T', ' ').substring(0, 19),\n    type: e.type.toUpperCase(),\n    source: e.source,\n    status: e.statusCode || 'none',\n    message: e.message.substring(0, 60)\n}));\n\nreturn msg;\n",
+    "func": "let errorLog = global.get('parat_bridge.error_log') || [];\n\n// Vis de siste 10 feilene, nyeste først (allerede sortert, nyeste først fra Write to error log)\nconst recent = errorLog.slice(0, 10);\n\nmsg.payload = recent.map(e => ({\n    time: e.timestamp.replace('T', ' ').substring(0, 19),\n    type: e.type.toUpperCase(),\n    source: e.source,\n    status: e.statusCode || 'none',\n    message: (e.message || '').substring(0, 60)\n}));\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
