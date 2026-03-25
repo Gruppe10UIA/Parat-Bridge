@@ -122,32 +122,6 @@
     ]
   },
   {
-    "id": "184bec083fd6670d",
-    "type": "subflow:7cecb563cf8b234a",
-    "z": "a7d9b521445d1bf0",
-    "name": "",
-    "x": 480,
-    "y": 180,
-    "wires": [],
-    "info": "Centralized error handler for this subflow.\r\nReceives errors from the catch node and:\r\n- Classifies and logs the error\r\n- Sends notification to Rayvn and WaSOS\r\n  if 5+ consecutive failures occur"
-  },
-  {
-    "id": "31ae2fb7589e6f67",
-    "type": "catch",
-    "z": "a7d9b521445d1bf0",
-    "name": "",
-    "scope": null,
-    "uncaught": false,
-    "x": 300,
-    "y": 180,
-    "wires": [
-      [
-        "184bec083fd6670d"
-      ]
-    ],
-    "info": "Catches all errors from nodes in this subflow\r\nand forwards them to the centralized \r\nError Handler subflow for classification,\r\nlogging and notification.\r\n"
-  },
-  {
     "id": "9460bde585a04d50",
     "type": "function",
     "z": "a7d9b521445d1bf0",

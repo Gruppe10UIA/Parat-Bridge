@@ -87,20 +87,36 @@ function loadAndPruneFiles(connections) {
     return retained;
 }
 
+const ERROR_LOG_FILE = BASE_DIR + 'error_log.json';
+
+function loadErrorLog() {
+    try {
+        if (fs.existsSync(ERROR_LOG_FILE)) {
+            return JSON.parse(fs.readFileSync(ERROR_LOG_FILE, 'utf8'));
+        }
+    } catch (err) {
+        console.warn('[context-store] Failed to read error log:', err.message);
+    }
+    return [];
+}
+
 function loadBridgeData() {
     const connections = loadConnections();
     const entry_queue = loadQueue();
     const files_index = loadAndPruneFiles(connections);
+    const error_log   = loadErrorLog();
 
     console.log('[context-store] Pre-loaded ' + Object.keys(connections).length +
-        ' connection(s), ' + entry_queue.length + ' queue entries, and ' +
-        files_index.length + ' file(s) from disk');
+        ' connection(s), ' + entry_queue.length + ' queue entries, ' +
+        files_index.length + ' file(s), and ' + error_log.length + ' error log entries from disk');
 
     return {
         connections:  connections,
         queue:        { in_flight_connections: [], entry_queue: entry_queue },
-        files_index:  files_index
+        files_index:  files_index,
+        error_log:    error_log
     };
 }
+
 
 module.exports = { loadBridgeData };

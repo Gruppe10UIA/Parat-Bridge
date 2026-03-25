@@ -106,7 +106,7 @@
     "type": "function",
     "z": "901ed98289cc4ecd",
     "name": "Invalidate Rayvn API key",
-    "func": "// Set the Rayvn API key to an invalid value on the first active connection\n// Used to test error handling and retry logic\nconst data = global.get(\"parat_bridge\");\nconst activeConnections = data.connections.filter(c => c.active);\n\nif (activeConnections.length === 0) {\n    node.warn(\"No active connections to invalidate\");\n    return null;\n}\n\nconst targetConnection = activeConnections[0];\ntargetConnection.rayvn.api_key = \"invalid_key_for_testing\";\nglobal.set(\"parat_bridge\", data);\n\nnode.warn(\"Rayvn API key invalidated for connection: \" + targetConnection.label);\nreturn msg;",
+    "func": "const data = global.get(\"parat_bridge\");\nconst connections = data.connections;\nconst activeNames = Object.keys(connections).filter(name => connections[name].active);\n\nif (activeNames.length === 0) {\n    node.warn(\"No active connections to invalidate\");\n    return null;\n}\n\nconst targetName = activeNames[0];\nconst clients = connections[targetName].clients;\nconst rayvnId = Object.keys(clients).find(id => clients[id].client_system === 'rayvn');\n\nif (!rayvnId) {\n    node.warn(\"No Rayvn client found in connection: \" + targetName);\n    return null;\n}\n\nflow.set(\"test_restore\", {\n    connection_name: targetName,\n    client_id: rayvnId,\n    api_key: clients[rayvnId].api_key\n});\n\nclients[rayvnId].api_key = \"invalid_key_for_testing\";\nglobal.set(\"parat_bridge.connections\", connections);\nnode.warn(\"Rayvn API key invalidated for: \" + targetName);\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -509,6 +509,241 @@
     "wires": [
       [
         "4bb221810c3a9cba"
+      ]
+    ]
+  },
+  {
+    "id": "924197353edcf05e",
+    "type": "function",
+    "z": "901ed98289cc4ecd",
+    "name": "Restore Rayvn API",
+    "func": "const restore = flow.get(\"test_restore\");\n\nif (!restore) {\n    node.warn(\"No stored key to restore — was invalidate run first?\");\n    return null;\n}\n\nconst connections = global.get(\"parat_bridge.connections\") || {};\nconst clients = connections[restore.connection_name] && connections[restore.connection_name].clients;\n\nif (!clients || !clients[restore.client_id]) {\n    node.warn(\"Client not found\");\n    return null;\n}\n\nclients[restore.client_id].api_key = restore.api_key;\nglobal.set(\"parat_bridge.connections\", connections);\nflow.set(\"test_restore\", null);\n\nnode.warn(\"Rayvn API key restored for: \" + restore.connection_name);\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 770,
+    "y": 680,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "f8dba63ac3dca5a0",
+    "type": "inject",
+    "z": "901ed98289cc4ecd",
+    "name": "",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 460,
+    "y": 680,
+    "wires": [
+      [
+        "924197353edcf05e"
+      ]
+    ]
+  },
+  {
+    "id": "603fa99f568af75f",
+    "type": "function",
+    "z": "901ed98289cc4ecd",
+    "name": "clear queue",
+    "func": "global.set('parat_bridge.queue.entry_queue', []);\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 790,
+    "y": 780,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "f6e05235e0aa45a7",
+    "type": "inject",
+    "z": "901ed98289cc4ecd",
+    "name": "",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 480,
+    "y": 780,
+    "wires": [
+      [
+        "603fa99f568af75f"
+      ]
+    ]
+  },
+  {
+    "id": "4d38af29e97e3420",
+    "type": "function",
+    "z": "901ed98289cc4ecd",
+    "name": "Clear error",
+    "func": "global.set('parat_bridge.error_log', []);\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 810,
+    "y": 860,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "a1f685d59a4c1bd2",
+    "type": "inject",
+    "z": "901ed98289cc4ecd",
+    "name": "",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 480,
+    "y": 860,
+    "wires": [
+      [
+        "4d38af29e97e3420"
+      ]
+    ]
+  },
+  {
+    "id": "0c59313f69c01d5a",
+    "type": "function",
+    "z": "901ed98289cc4ecd",
+    "name": "InvalidateWaSOS URL",
+    "func": "const pb = global.get(\"parat_bridge\");\npb.base_urls.wasos = \"https://invalid-url-for-testing.example.com\";\nglobal.set(\"parat_bridge\", pb);\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 840,
+    "y": 940,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "b9efa68a67af24e3",
+    "type": "function",
+    "z": "901ed98289cc4ecd",
+    "name": "RestoreWaSOSURL",
+    "func": "const pb = global.get(\"parat_bridge\");\npb.base_urls.wasos = \"https://dev.wasos.no\";\nglobal.set(\"parat_bridge\", pb);\nnode.warn(\"WaSOS base URL restored\");\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 840,
+    "y": 1020,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "d2b08e97d2685bb7",
+    "type": "inject",
+    "z": "901ed98289cc4ecd",
+    "name": "",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 460,
+    "y": 940,
+    "wires": [
+      [
+        "0c59313f69c01d5a"
+      ]
+    ]
+  },
+  {
+    "id": "1944d927d6e84ce9",
+    "type": "inject",
+    "z": "901ed98289cc4ecd",
+    "name": "",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 460,
+    "y": 1020,
+    "wires": [
+      [
+        "b9efa68a67af24e3"
       ]
     ]
   }
