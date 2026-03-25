@@ -494,7 +494,7 @@
     "id": "1beaed95586efc2b",
     "type": "link out",
     "z": "003e75aaa2880405",
-    "name": "message failed recieved",
+    "name": "message failed received",
     "mode": "return",
     "links": [],
     "x": 175,
