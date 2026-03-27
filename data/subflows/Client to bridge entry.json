@@ -99,7 +99,7 @@
     "type": "function",
     "z": "35dc868e3a5c1ab2",
     "name": "Wasos to Bridge Log",
-    "func": "const entry = msg.payload;\n\nconst text = entry.content || \"\";\n\n\n\nmsg.payload = {\n    id: entry.id,\n    text: text,\n    timestamp: new Date(entry.createdAt).getTime(),\n    author: entry.username || \"\",\n    labels: []\n};\n\nreturn msg;",
+    "func": "const entry = msg.payload;\nconst text = entry.content || \"\";\n\nconst labels = [];\n\nif (msg.metadata?.target?.client_system === \"rayvn\") {\n    const connection_name = msg.metadata.connection_name;\n    const wasos_tag_id = global.get(`parat_bridge.connections.${connection_name}.tags.wasos`);\n\n    if (wasos_tag_id) {\n        labels.push({ id: wasos_tag_id });\n    } else {\n        node.warn(\"Missing WaSOS Rayvn tag id for connection: \" + connection_name);\n    }\n}\n\nmsg.payload = {\n    id: entry.id,\n    text: text,\n    timestamp: new Date(entry.createdAt).getTime(),\n    author: entry.username || \"\",\n    labels: labels\n};\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,

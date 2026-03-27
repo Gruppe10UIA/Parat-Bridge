@@ -99,7 +99,7 @@
     "type": "function",
     "z": "41215cf9ced60b7f",
     "name": "Bridge to Rayvn",
-    "func": "/**\n * Adapts a bridge entry to the Rayvn log entry format.\n *\n * Sets msg.metadata = entry.metadata — the two are the same object from here on.\n * File upload is handled downstream in Handle Rayvn files upload,\n * which reads files from metadata.files.items.\n */\nconst entry = msg.entry;\nconst source = entry.metadata.source;\nconst utils = global.get(\"utils\");\n\nmsg.metadata = entry.metadata;\nmsg.payload = {\n    text: `${utils.build_callsign(source)} ${entry.author}: ${entry.text || \"\"}`,\n    keyEvent: false,\n    releasedInfo: false,\n    loggedByFullName: `${utils.build_callsign(source)} ${entry.author}`,\n    labels: []\n};\n\nreturn msg;\n",
+    "func": "/**\n * Adapts a bridge entry to the Rayvn log entry format.\n *\n * Sets msg.metadata = entry.metadata — the two are the same object from here on.\n * File upload is handled downstream in Handle Rayvn files upload,\n * which reads files from metadata.files.items.\n */\nconst entry = msg.entry;\nconst source = entry.metadata.source;\nconst utils = global.get(\"utils\");\n\nmsg.metadata = entry.metadata;\nmsg.payload = {\n    text: `${utils.build_callsign(source)} ${entry.author}: ${entry.text || \"\"}`,\n    keyEvent: false,\n    releasedInfo: false,\n    loggedByFullName: `${utils.build_callsign(source)} ${entry.author}`,\n    labels: entry.labels || []\n};\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,

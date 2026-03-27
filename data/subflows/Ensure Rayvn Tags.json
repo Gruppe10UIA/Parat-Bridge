@@ -1,0 +1,146 @@
+[
+  {
+    "id": "76306b91d72b810c",
+    "type": "subflow",
+    "name": "Ensure Rayvn Tags",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 60,
+        "y": 120,
+        "wires": [
+          {
+            "id": "7b17770e81f908b9"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 820,
+        "y": 200,
+        "wires": [
+          {
+            "id": "bea82122599ad9e0",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#DDAA99"
+  },
+  {
+    "id": "7b17770e81f908b9",
+    "type": "function",
+    "z": "76306b91d72b810c",
+    "name": "Extract Rayvn group ID",
+    "func": "const clients = Object.values(msg.payload || {});\nconst rayvn = clients.find(client => client.client_system === \"rayvn\");\n\nif (!rayvn) {\n    node.error(\"Rayvn client not found in joined config payload\", msg);\n    return null;\n}\n\nconst api_key = rayvn.client_specific?.api_key || rayvn.api_key;\nif (!api_key) {\n    node.error(\"Rayvn API key missing on Rayvn client\", msg);\n    return null;\n}\n\nconst parts = api_key.split(\".\");\nif (parts.length < 2) {\n    node.error(\"Rayvn API key does not contain a decodable middle segment\", msg);\n    return null;\n}\n\nconst base64url = parts[1];\nconst base64 = base64url\n    .replace(/-/g, \"+\")\n    .replace(/_/g, \"/\")\n    .padEnd(Math.ceil(base64url.length / 4) * 4, \"=\");\n\nlet decoded;\nlet payload;\n\ntry {\n    decoded = Buffer.from(base64, \"base64\").toString(\"utf8\");\n    payload = JSON.parse(decoded);\n} catch (err) {\n    node.error(\"Failed to decode Rayvn API key payload: \" + err.message, msg);\n    return null;\n}\n\nconst group_id = payload.group?.id;\nif (!group_id) {\n    node.error(\"group.id missing from decoded Rayvn API key payload\", msg);\n    return null;\n}\n\nmsg.rayvn_client = rayvn;\nmsg.rayvn_group_id = group_id;\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 230,
+    "y": 120,
+    "wires": [
+      [
+        "d5fabaa51b62787c"
+      ]
+    ]
+  },
+  {
+    "id": "d5fabaa51b62787c",
+    "type": "function",
+    "z": "76306b91d72b810c",
+    "name": "Build tag request",
+    "func": "const rayvn = msg.rayvn_client;\nconst group_id = msg.rayvn_group_id;\n\nif (!rayvn || !group_id) {\n    node.error(\"Missing Rayvn client or group id before tag creation\", msg);\n    return null;\n}\n\nconst base_url = global.get(\"parat_bridge\").base_urls.rayvn;\nconst auth_key = rayvn.client_specific?.api_key || rayvn.api_key;\n\nconst tags = [\n    {\n        key: \"parat_bridge\",\n        name: \"Parat Bridge\",\n        colorHex: \"#b80d18\"\n    },\n    {\n        key: \"wasos\",\n        name: \"WaSOS\",\n        colorHex: \"#828d62\"\n    }\n];\n\nconst messages = tags.map((tag, index) => ({\n    ...msg,\n    joined_payload: msg.payload,\n    parts: {\n        id: msg._msgid + \"-rayvn-tags\",\n        type: \"array\",\n        count: tags.length,\n        index: index\n    },\n    _tag_key: tag.key,\n    _tag_name: tag.name,\n    url: base_url + \"/tags\",\n    method: \"POST\",\n    headers: {\n        \"Authorization\": \"Bearer \" + auth_key,\n        \"Content-Type\": \"application/json\",\n        \"Accept\": \"application/json\"\n    },\n    payload: JSON.stringify({\n        name: tag.name,\n        group: {\n            id: group_id\n        },\n        type: \"LOG_ENTRY\",\n        colorHex: tag.colorHex,\n        groupScopeType: \"LOCAL\"\n    })\n}));\n\nreturn [messages];",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 470,
+    "y": 120,
+    "wires": [
+      [
+        "dc18cd1daf6768dd"
+      ]
+    ]
+  },
+  {
+    "id": "dc18cd1daf6768dd",
+    "type": "http request",
+    "z": "76306b91d72b810c",
+    "name": "POST tags to Rayvn",
+    "method": "use",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 700,
+    "y": 120,
+    "wires": [
+      [
+        "92e2b434c697953d"
+      ]
+    ]
+  },
+  {
+    "id": "92e2b434c697953d",
+    "type": "join",
+    "z": "76306b91d72b810c",
+    "name": "Join tag responses",
+    "mode": "custom",
+    "build": "array",
+    "property": "",
+    "propertyType": "full",
+    "key": "topic",
+    "joiner": "\\n",
+    "joinerType": "str",
+    "useparts": true,
+    "accumulate": false,
+    "timeout": "",
+    "count": "2",
+    "reduceRight": false,
+    "reduceExp": "",
+    "reduceInit": "",
+    "reduceInitType": "",
+    "reduceFixup": "",
+    "x": 220,
+    "y": 200,
+    "wires": [
+      [
+        "bea82122599ad9e0"
+      ]
+    ]
+  },
+  {
+    "id": "bea82122599ad9e0",
+    "type": "function",
+    "z": "76306b91d72b810c",
+    "name": "Build connection tags",
+    "func": "const responses = Array.isArray(msg.payload) ? msg.payload : [msg.payload];\n\nconst connection_tags = {\n    parat_bridge: null,\n    wasos: null\n};\n\nlet joined_payload = null;\n\nfor (const item of responses) {\n    if (!joined_payload && item.joined_payload) {\n        joined_payload = item.joined_payload;\n    }\n\n    const tag_key = item._tag_key;\n    const tag_id = item.payload?.id;\n\n    if (!tag_key) {\n        node.error(\"Joined Rayvn tag response missing _tag_key\", msg);\n        return null;\n    }\n\n    if (!tag_id) {\n        node.error(\"Joined Rayvn tag response missing payload.id\", msg);\n        return null;\n    }\n\n    connection_tags[tag_key] = tag_id;\n}\n\nif (!joined_payload || Array.isArray(joined_payload)) {\n    node.error(\"Original joined client payload was not preserved through Rayvn tag creation\", msg);\n    return null;\n}\n\nreturn {\n    _msgid: msg._msgid,\n    payload: joined_payload,\n    connection_tags: connection_tags\n};\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 460,
+    "y": 200,
+    "wires": [
+      []
+    ]
+  }
+]
