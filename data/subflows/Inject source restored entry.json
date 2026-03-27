@@ -1,0 +1,52 @@
+[
+  {
+    "id": "4f8a1c2e9b3d7056",
+    "type": "subflow",
+    "name": "Inject source restored entry",
+    "info": "Creates a synthetic 'source restored' system entry and prepares it for the standard pipeline.\n\n### Input\n`msg.metadata` — connection metadata with the recovered source client and target client.\n\n### Trigger\nOnly reached via a switch node that confirms `msg.wasDown === true`.\n\n### Output\n`msg.payload` — bridge-format entry `{ id, text, timestamp, author, files: [], labels: [] }`\n`msg.metadata.source` — overwritten with the parat-bridge sentinel so `Client to bridge entry` passes it through without transformation.\n\n### Pipeline continuation\nOutput feeds into `Client to bridge entry` (parat-bridge path) → `Attach metadata and prune` → `log queue`.",
+    "category": "",
+    "in": [
+      {
+        "x": 80,
+        "y": 160,
+        "wires": [
+          {
+            "id": "4f8a1c2e9b3d7057"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 480,
+        "y": 160,
+        "wires": [
+          {
+            "id": "4f8a1c2e9b3d7057",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#C0DEED",
+    "icon": "font-awesome/fa-check"
+  },
+  {
+    "id": "4f8a1c2e9b3d7057",
+    "type": "function",
+    "z": "4f8a1c2e9b3d7056",
+    "name": "Build restored entry",
+    "func": "const sourceName = msg.metadata.source.name || msg.metadata.source.identifier;\nconst now = Date.now();\n\nmsg.payload = {\n    id:        'pb-att-' + now + '-src-up-' + Math.random().toString(36).slice(2, 5),\n    text:      '\\u2705 Tilkoblingen til ' + sourceName + ' er gjenopprettet.',\n    timestamp: now,\n    author:    'System-melding',\n    files:     [],\n    labels:    []\n};\n\nmsg.metadata = {\n    source: { client_system: 'parat-bridge', name: 'parat_bridge', identifier: 'parat_bridge' },\n    target: msg.metadata.target,\n    connection_name: msg.metadata.connection_name\n};\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 280,
+    "y": 160,
+    "wires": [[]]
+  }
+]

@@ -28,6 +28,10 @@
           {
             "id": "06d24b79b54a8d5c",
             "port": 0
+          },
+          {
+            "id": "b5f34d81a2eafe20",
+            "port": 0
           }
         ]
       }
@@ -36,6 +40,16 @@
     "meta": {},
     "color": "#D8BFD8",
     "icon": "font-awesome/fa-file-text-o"
+  },
+  {
+    "id": "b5f34d81a2eafe20",
+    "type": "junction",
+    "z": "35dc868e3a5c1ab2",
+    "x": 440,
+    "y": 300,
+    "wires": [
+      []
+    ]
   },
   {
     "id": "0fadacd5c3f883bd",
@@ -59,11 +73,16 @@
         "t": "eq",
         "v": "cim",
         "vt": "str"
+      },
+      {
+        "t": "eq",
+        "v": "parat_bridge",
+        "vt": "str"
       }
     ],
     "checkall": "false",
     "repair": false,
-    "outputs": 3,
+    "outputs": 4,
     "x": 230,
     "y": 240,
     "wires": [
@@ -73,7 +92,10 @@
       [
         "06d24b79b54a8d5c"
       ],
-      []
+      [],
+      [
+        "b5f34d81a2eafe20"
+      ]
     ]
   },
   {
