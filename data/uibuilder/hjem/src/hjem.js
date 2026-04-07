@@ -105,7 +105,7 @@ function renderConnectionCard(connection) {
         <div class="connection-actions">
             <button class="btn-action btn-toggle ${connection.active ? 'btn-stop' : 'btn-start'}">${connection.active ? 'Stopp' : 'Start'}</button>
             <button class="btn-action btn-details" disabled>Detaljer</button>
-            <button class="btn-action btn-remove">Fjern</button>
+            <button class="btn-action btn-remove" disabled>Fjern</button>
         </div>
     `
 
