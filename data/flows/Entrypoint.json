@@ -7,31 +7,6 @@
     "info": "Configuration UI for Parat-Bridge. Handles setup of Rayvn API credentials and WaSOS login. Validates input, authenticates with both services, and stores configuration in global variables."
   },
   {
-    "id": "96e90febc19e0c83",
-    "type": "group",
-    "z": "84d1a0de660abb59",
-    "name": "Initialization",
-    "style": {
-      "stroke": "#ffff3f",
-      "fill": "#ffffbf",
-      "label": true,
-      "label-position": "n",
-      "color": "#000000"
-    },
-    "nodes": [
-      "03c1d5a79bea3bbf",
-      "7cf27d9c1bf7f451",
-      "03c1f0752644b9c0",
-      "e6785e6cf6e666cf",
-      "a7ccd4d8c49ceaff",
-      "be554d1eb57375c1"
-    ],
-    "x": 74,
-    "y": 399,
-    "w": 792,
-    "h": 122
-  },
-  {
     "id": "354aca9dbc391ace",
     "type": "group",
     "z": "84d1a0de660abb59",
@@ -62,163 +37,134 @@
     "h": 242
   },
   {
-    "id": "c3faa9283c8ae054",
-    "type": "link in",
+    "id": "96e90febc19e0c83",
+    "type": "group",
     "z": "84d1a0de660abb59",
-    "g": "354aca9dbc391ace",
-    "name": "UIB Link in to Configure WaSOS",
-    "links": [
-      "4da735d9ab626fa3"
+    "name": "Initialization",
+    "style": {
+      "stroke": "#ffff3f",
+      "fill": "#ffffbf",
+      "label": true,
+      "label-position": "n",
+      "color": "#000000"
+    },
+    "nodes": [
+      "03c1d5a79bea3bbf",
+      "7cf27d9c1bf7f451",
+      "03c1f0752644b9c0",
+      "e6785e6cf6e666cf",
+      "a7ccd4d8c49ceaff",
+      "be554d1eb57375c1"
     ],
-    "x": 185,
-    "y": 280,
-    "wires": [
-      [
-        "02f5aa2ff841acd1",
-        "3f5a48b721dae9db"
-      ]
-    ]
+    "x": 74,
+    "y": 399,
+    "w": 792,
+    "h": 122
   },
   {
-    "id": "f63d35f5fb7dc607",
-    "type": "link in",
-    "z": "84d1a0de660abb59",
-    "g": "354aca9dbc391ace",
-    "name": "UIB Link in to Configure Rayvn",
-    "links": [
-      "ee7dab60e6fc914e"
-    ],
-    "x": 185,
-    "y": 160,
-    "wires": [
-      [
-        "9b6e4d1e92c769d9",
-        "989d45634f23b97e"
-      ]
-    ]
-  },
-  {
-    "id": "be554d1eb57375c1",
-    "type": "debug",
+    "id": "03c1d5a79bea3bbf",
+    "type": "subflow:0fad769721e9978c",
     "z": "84d1a0de660abb59",
     "g": "96e90febc19e0c83",
-    "name": "initial log entries",
+    "name": "",
+    "x": 490,
+    "y": 480,
+    "wires": [
+      [
+        "be554d1eb57375c1",
+        "a7ccd4d8c49ceaff"
+      ]
+    ]
+  },
+  {
+    "id": "3f5a48b721dae9db",
+    "type": "debug",
+    "z": "84d1a0de660abb59",
+    "g": "354aca9dbc391ace",
+    "name": "Wasos output",
     "active": false,
     "tosidebar": true,
     "console": false,
     "tostatus": false,
-    "complete": "true",
-    "targetType": "full",
+    "complete": "payload",
+    "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 740,
-    "y": 440,
-    "wires": []
-  },
-  {
-    "id": "a7ccd4d8c49ceaff",
-    "type": "link out",
-    "z": "84d1a0de660abb59",
-    "g": "96e90febc19e0c83",
-    "name": "initial log post",
-    "mode": "link",
-    "links": [
-      "9fe2d9086d510cb5"
-    ],
-    "x": 825,
-    "y": 480,
-    "wires": []
-  },
-  {
-    "id": "e6785e6cf6e666cf",
-    "type": "debug",
-    "z": "84d1a0de660abb59",
-    "g": "96e90febc19e0c83",
-    "name": "Initialize connection",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "true",
-    "targetType": "full",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 230,
-    "y": 440,
-    "wires": []
-  },
-  {
-    "id": "7cf27d9c1bf7f451",
-    "type": "subflow:c45e2eb6a51516d0",
-    "z": "84d1a0de660abb59",
-    "g": "96e90febc19e0c83",
-    "name": "",
-    "x": 190,
-    "y": 480,
-    "wires": [
-      [
-        "03c1d5a79bea3bbf",
-        "03c1f0752644b9c0",
-        "e6785e6cf6e666cf"
-      ]
-    ]
-  },
-  {
-    "id": "03c1f0752644b9c0",
-    "type": "subflow:3241f77fe5e4f9ea",
-    "z": "84d1a0de660abb59",
-    "g": "96e90febc19e0c83",
-    "name": "",
-    "x": 500,
-    "y": 440,
-    "wires": []
-  },
-  {
-    "id": "f7bbfc371ab086b1",
-    "type": "subflow:99c17cced97ac339",
-    "z": "84d1a0de660abb59",
-    "g": "354aca9dbc391ace",
-    "name": "",
     "x": 180,
-    "y": 200,
-    "wires": [
-      [
-        "9b6e4d1e92c769d9"
-      ],
-      [
-        "02f5aa2ff841acd1"
-      ]
-    ]
+    "y": 240,
+    "wires": []
   },
   {
-    "id": "9b6e4d1e92c769d9",
-    "type": "subflow:5da162b98b7b6b86",
+    "id": "989d45634f23b97e",
+    "type": "debug",
     "z": "84d1a0de660abb59",
     "g": "354aca9dbc391ace",
-    "name": "",
-    "x": 430,
-    "y": 160,
-    "wires": [
-      [
-        "4290cc6fa1aadff0",
-        "794b757ef07a4e19"
-      ]
-    ]
+    "name": "Rayvn output",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 180,
+    "y": 120,
+    "wires": []
   },
   {
-    "id": "02f5aa2ff841acd1",
-    "type": "subflow:a7d9b521445d1bf0",
+    "id": "794b757ef07a4e19",
+    "type": "debug",
     "z": "84d1a0de660abb59",
     "g": "354aca9dbc391ace",
-    "name": "",
-    "x": 430,
-    "y": 280,
-    "wires": [
-      [
-        "4290cc6fa1aadff0",
-        "a81cbcc889952fb3"
-      ]
-    ]
+    "name": "Config Rayvn",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 420,
+    "y": 120,
+    "wires": []
+  },
+  {
+    "id": "a81cbcc889952fb3",
+    "type": "debug",
+    "z": "84d1a0de660abb59",
+    "g": "354aca9dbc391ace",
+    "name": "Config Wasos",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 420,
+    "y": 240,
+    "wires": []
+  },
+  {
+    "id": "293cf0ecd677bac0",
+    "type": "debug",
+    "z": "84d1a0de660abb59",
+    "g": "354aca9dbc391ace",
+    "name": "correct config",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 700,
+    "y": 180,
+    "wires": []
   },
   {
     "id": "4290cc6fa1aadff0",
@@ -247,113 +193,214 @@
     "wires": [
       [
         "293cf0ecd677bac0",
-        "7cf27d9c1bf7f451"
+        "7cf27d9c1bf7f451",
+        "5ee678ae28671a86"
       ]
     ]
   },
   {
-    "id": "293cf0ecd677bac0",
-    "type": "debug",
+    "id": "02f5aa2ff841acd1",
+    "type": "subflow:a7d9b521445d1bf0",
     "z": "84d1a0de660abb59",
     "g": "354aca9dbc391ace",
-    "name": "correct config",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 700,
-    "y": 180,
-    "wires": []
+    "name": "",
+    "x": 430,
+    "y": 280,
+    "wires": [
+      [
+        "4290cc6fa1aadff0",
+        "a81cbcc889952fb3"
+      ]
+    ]
   },
   {
-    "id": "a81cbcc889952fb3",
-    "type": "debug",
+    "id": "9b6e4d1e92c769d9",
+    "type": "subflow:5da162b98b7b6b86",
     "z": "84d1a0de660abb59",
     "g": "354aca9dbc391ace",
-    "name": "Config Wasos",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 420,
-    "y": 240,
-    "wires": []
+    "name": "",
+    "x": 430,
+    "y": 160,
+    "wires": [
+      [
+        "4290cc6fa1aadff0",
+        "794b757ef07a4e19"
+      ]
+    ]
   },
   {
-    "id": "794b757ef07a4e19",
-    "type": "debug",
+    "id": "f7bbfc371ab086b1",
+    "type": "subflow:99c17cced97ac339",
     "z": "84d1a0de660abb59",
     "g": "354aca9dbc391ace",
-    "name": "Config Rayvn",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 420,
-    "y": 120,
-    "wires": []
-  },
-  {
-    "id": "989d45634f23b97e",
-    "type": "debug",
-    "z": "84d1a0de660abb59",
-    "g": "354aca9dbc391ace",
-    "name": "Rayvn output",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
+    "name": "",
     "x": 180,
-    "y": 120,
-    "wires": []
+    "y": 200,
+    "wires": [
+      [
+        "9b6e4d1e92c769d9"
+      ],
+      [
+        "02f5aa2ff841acd1"
+      ]
+    ]
   },
   {
-    "id": "3f5a48b721dae9db",
-    "type": "debug",
-    "z": "84d1a0de660abb59",
-    "g": "354aca9dbc391ace",
-    "name": "Wasos output",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 180,
-    "y": 240,
-    "wires": []
-  },
-  {
-    "id": "03c1d5a79bea3bbf",
-    "type": "subflow:0fad769721e9978c",
+    "id": "03c1f0752644b9c0",
+    "type": "subflow:3241f77fe5e4f9ea",
     "z": "84d1a0de660abb59",
     "g": "96e90febc19e0c83",
     "name": "",
-    "x": 490,
+    "x": 500,
+    "y": 440,
+    "wires": []
+  },
+  {
+    "id": "7cf27d9c1bf7f451",
+    "type": "subflow:c45e2eb6a51516d0",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "name": "",
+    "x": 190,
     "y": 480,
     "wires": [
       [
-        "be554d1eb57375c1",
-        "a7ccd4d8c49ceaff"
+        "03c1d5a79bea3bbf",
+        "03c1f0752644b9c0",
+        "e6785e6cf6e666cf"
       ]
     ]
+  },
+  {
+    "id": "e6785e6cf6e666cf",
+    "type": "debug",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "name": "Initialize connection",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 230,
+    "y": 440,
+    "wires": []
+  },
+  {
+    "id": "a7ccd4d8c49ceaff",
+    "type": "link out",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "name": "initial log post",
+    "mode": "link",
+    "links": [
+      "9fe2d9086d510cb5"
+    ],
+    "x": 825,
+    "y": 480,
+    "wires": []
+  },
+  {
+    "id": "be554d1eb57375c1",
+    "type": "debug",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "name": "initial log entries",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 740,
+    "y": 440,
+    "wires": []
+  },
+  {
+    "id": "f63d35f5fb7dc607",
+    "type": "link in",
+    "z": "84d1a0de660abb59",
+    "g": "354aca9dbc391ace",
+    "name": "UIB Link in to Configure Rayvn",
+    "links": [
+      "ee7dab60e6fc914e"
+    ],
+    "x": 185,
+    "y": 160,
+    "wires": [
+      [
+        "9b6e4d1e92c769d9",
+        "989d45634f23b97e"
+      ]
+    ]
+  },
+  {
+    "id": "c3faa9283c8ae054",
+    "type": "link in",
+    "z": "84d1a0de660abb59",
+    "g": "354aca9dbc391ace",
+    "name": "UIB Link in to Configure WaSOS",
+    "links": [
+      "4da735d9ab626fa3"
+    ],
+    "x": 185,
+    "y": 280,
+    "wires": [
+      [
+        "02f5aa2ff841acd1",
+        "3f5a48b721dae9db"
+      ]
+    ]
+  },
+  {
+    "id": "0e69bee8a84bf6e6",
+    "type": "subflow:02a04be64d32ccd1",
+    "z": "84d1a0de660abb59",
+    "name": "",
+    "x": 1040,
+    "y": 220,
+    "wires": [
+      [
+        "b9aeddc7b76f4eba"
+      ]
+    ]
+  },
+  {
+    "id": "5ee678ae28671a86",
+    "type": "function",
+    "z": "84d1a0de660abb59",
+    "name": "Prepare opprettet payload",
+    "func": "/**                                                                                                                                                               \n * Reads the current connection object from globals (Initialize                                                                                                 \n * connection will have ensured it exists by the time the queue                                                                                                   \n * processes us — both run from the same join output), then                                                                                                       \n * hands it to Notify connection lifecycle.                                                                                                                       \n */\nconst utils = global.get(\"utils\");\nconst clients = Object.values(msg.payload);\nif (clients.length !== 2) return null;\n\nconst name = utils.build_connection_name(clients);\nconst connection = global.get(\"parat_bridge.connections.\" + name);\n\n// Race-safety: if Initialize connection has not created it yet,                                                                                                  \n// synthesize a minimal connection object from the join payload.                                                                                                  \n// (Build lifecycle notifications only reads .clients and .name.)                                                                                                 \nconst safe_connection = connection || {\n    name: name,\n    clients: msg.payload\n};\n\nreturn {\n    payload: safe_connection,\n    event: \"opprettet\"\n}; ",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 1040,
+    "y": 140,
+    "wires": [
+      [
+        "0e69bee8a84bf6e6"
+      ]
+    ]
+  },
+  {
+    "id": "b9aeddc7b76f4eba",
+    "type": "link out",
+    "z": "84d1a0de660abb59",
+    "name": "Connection lifecycle link out",
+    "mode": "link",
+    "links": [
+      "9fe2d9086d510cb5"
+    ],
+    "x": 1045,
+    "y": 280,
+    "wires": []
   }
 ]

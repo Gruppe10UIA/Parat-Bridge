@@ -98,7 +98,7 @@
     "type": "function",
     "z": "f12d6e1c0542fc55",
     "name": "Toggle Connection",
-    "func": "const { name, active } = msg.payload;\nconst path = 'parat_bridge.connections.' + name + '.active';\nglobal.set(path, active);\nreturn null;",
+    "func": "/**                                                                                                                                                               \n * Sets the connection active flag, then emits a lifecycle payload so                                                                                           \n * Notify Connection Lifecycle pushes notifications to both sides.                                                                                                \n */\nconst { name, active } = msg.payload;\nconst path = \"parat_bridge.connections.\" + name + \".active\";\nconst connection = global.get(\"parat_bridge.connections.\" + name);\n\nif (!connection) return null;\n\nglobal.set(path, active);\n\nmsg.payload = connection;\nmsg.event = active ? \"opprettet\" : \"stopped\";\nreturn msg;         ",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -108,7 +108,9 @@
     "x": 930,
     "y": 120,
     "wires": [
-      []
+      [
+        "7a9c4e6cee6ad43e"
+      ]
     ]
   },
   {
@@ -164,5 +166,31 @@
     "wires": [
       []
     ]
+  },
+  {
+    "id": "7a9c4e6cee6ad43e",
+    "type": "subflow:02a04be64d32ccd1",
+    "z": "f12d6e1c0542fc55",
+    "name": "",
+    "x": 1180,
+    "y": 120,
+    "wires": [
+      [
+        "bbc67d0260da7625"
+      ]
+    ]
+  },
+  {
+    "id": "bbc67d0260da7625",
+    "type": "link out",
+    "z": "f12d6e1c0542fc55",
+    "name": "UI Notification lifecycle link out",
+    "mode": "link",
+    "links": [
+      "9fe2d9086d510cb5"
+    ],
+    "x": 1355,
+    "y": 120,
+    "wires": []
   }
 ]

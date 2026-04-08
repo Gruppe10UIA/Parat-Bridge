@@ -74,12 +74,15 @@
       "157f76d46a2a7622",
       "d087b4eb819a4186",
       "5cfcc740a3ba2cfa",
-      "a8907418fbaa0775"
+      "a8907418fbaa0775",
+      "216f18ba8736713b",
+      "113b88136931cd38",
+      "42e78f23eac5adcb"
     ],
     "x": 54,
     "y": 339,
     "w": 792,
-    "h": 202
+    "h": 262
   },
   {
     "id": "b0cba41bee5fa427",
@@ -337,14 +340,17 @@
     "z": "003e75aaa2880405",
     "g": "67c40d3bdd1cbf59",
     "name": "message failed",
-    "links": [],
+    "links": [
+      "8229df8e89be6c6e"
+    ],
     "x": 95,
     "y": 420,
     "wires": [
       [
         "0bf8491c4bebb0eb",
         "157f76d46a2a7622",
-        "a8907418fbaa0775"
+        "a8907418fbaa0775",
+        "216f18ba8736713b"
       ]
     ]
   },
@@ -439,7 +445,7 @@
     "name": "attachment notification ",
     "links": [],
     "x": 85,
-    "y": 580,
+    "y": 620,
     "wires": [
       [
         "14f95d6e748d45c9",
@@ -460,7 +466,7 @@
     "finalize": "",
     "libs": [],
     "x": 290,
-    "y": 580,
+    "y": 620,
     "wires": [
       [
         "31b41dcb6554ca99"
@@ -480,7 +486,7 @@
     "finalize": "",
     "libs": [],
     "x": 570,
-    "y": 580,
+    "y": 620,
     "wires": [
       [
         "5cfcc740a3ba2cfa"
@@ -495,7 +501,56 @@
     "mode": "return",
     "links": [],
     "x": 185,
-    "y": 660,
+    "y": 700,
+    "wires": []
+  },
+  {
+    "id": "216f18ba8736713b",
+    "type": "function",
+    "z": "003e75aaa2880405",
+    "g": "67c40d3bdd1cbf59",
+    "name": "Prepare lifecycle lost",
+    "func": "/**                                                                                                                                                               \n * On retry exhaustion, mark the connection inactive and emit a                                                                                                 \n * lifecycle payload so Notify Connection Lifecycle pushes a \"lost\"                                                                                               \n * notification — asymmetric: the side whose message failed gets                                                                                                  \n * \"din siste melding er ikke sendt\", the other side gets the                                                                                                     \n * \"har feilet og fått beskjed\" variant.                                                                                                                          \n */\nconst entry = msg.entry;\nif (!entry) return null;\n\n// Skip if the failed entry is itself a parat_bridge system message —                                                                                             \n// prevents recursive lost → retry → lost loops if a side is unreachable.                                                                                       \nif (entry.metadata && entry.metadata.source &&\n    entry.metadata.source.client_system === \"parat_bridge\") {\n    return null;\n}\n\nconst connection_name = entry.metadata && entry.metadata.connection_name;\nif (!connection_name) return null;\n\nconst connection = global.get(\"parat_bridge.connections.\" + connection_name);\nif (!connection) return null;\n\n// One-shot guard: if the connection is already inactive, don't re-fire.\nif (!connection.active) return null;\n\n// Mark inactive so polling stops; queue's send doesn't filter on `active`,                                                                                       \n// so the notifications we are about to enqueue still go out.                                                                                                     \nglobal.set(\"parat_bridge.connections.\" + connection_name + \".active\", false);\n\nreturn {\n    payload: connection,\n    event: \"lost\",\n    failed_identifier: entry.metadata.source && entry.metadata.source.identifier\n};\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 240,
+    "y": 560,
+    "wires": [
+      [
+        "113b88136931cd38"
+      ]
+    ]
+  },
+  {
+    "id": "113b88136931cd38",
+    "type": "subflow:02a04be64d32ccd1",
+    "z": "003e75aaa2880405",
+    "g": "67c40d3bdd1cbf59",
+    "name": "",
+    "x": 500,
+    "y": 560,
+    "wires": [
+      [
+        "42e78f23eac5adcb"
+      ]
+    ]
+  },
+  {
+    "id": "42e78f23eac5adcb",
+    "type": "link out",
+    "z": "003e75aaa2880405",
+    "g": "67c40d3bdd1cbf59",
+    "name": "System handling lifecycle link out",
+    "mode": "link",
+    "links": [
+      "9fe2d9086d510cb5"
+    ],
+    "x": 665,
+    "y": 560,
     "wires": []
   }
 ]
