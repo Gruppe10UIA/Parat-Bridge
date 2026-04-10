@@ -115,7 +115,8 @@
     "y": 380,
     "wires": [
       [
-        "445fefd13d36c08e"
+        "445fefd13d36c08e",
+        "04c9e0a16297534e"
       ]
     ]
   },
@@ -250,5 +251,16 @@
     "y": 220,
     "wires": [],
     "info": "Centralized error handler for this subflow.\r\nReceives errors from the catch node and:\r\n- Classifies and logs the error\r\n- Sends notification to Rayvn and WaSOS\r\n  if 5+ consecutive failures occur\r\n"
+  },
+  {
+    "id": "04c9e0a16297534e",
+    "type": "subflow:02cbb173fe7ccf09",
+    "z": "5da162b98b7b6b86",
+    "name": "",
+    "x": 580,
+    "y": 420,
+    "wires": [
+      []
+    ]
   }
 ]
