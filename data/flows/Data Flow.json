@@ -76,7 +76,8 @@
       "a7ccd4d8c49ceaff",
       "b9aeddc7b76f4eba",
       "bbc67d0260da7625",
-      "42e78f23eac5adcb"
+      "42e78f23eac5adcb",
+      "57d5bf76cd8227d9"
     ],
     "x": 225,
     "y": 240,
@@ -108,7 +109,7 @@
     "y": 320,
     "wires": [
       [
-        "e697704ac6fdfeab"
+        "60f0362e2b1b92d7"
       ]
     ]
   },
@@ -139,26 +140,6 @@
       ],
       [
         "586dc5467cc6e87f"
-      ]
-    ]
-  },
-  {
-    "id": "e697704ac6fdfeab",
-    "type": "function",
-    "z": "63f37bd7273e3fc7",
-    "name": "Pluck delhendelse sysmsg",
-    "func": "const sysmsg = msg.entry && msg.entry.metadata && msg.entry.metadata._delhendelse_sysmsg;\nif (sysmsg) {\n    delete msg.entry.metadata._delhendelse_sysmsg;\n    node.send(sysmsg);\n}\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 380,
-    "y": 400,
-    "wires": [
-      [
-        "60f0362e2b1b92d7"
       ]
     ]
   }
