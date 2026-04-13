@@ -43,8 +43,7 @@ For detailed guides, see the [Wiki](https://github.com/Gruppe10UIA/Parat-Bridge/
 - [Docker](https://www.docker.com/) - Containerization
 - [Rayvn](https://rayvn.global/) - Incident management platform
 - [WaSOS](https://wasos.no/) - Tactical communication system
-
-
+- [FFmpeg](https://ffmpeg.org/) - Media processing (installed in the docker container)
 ## Team
 
 ParatAI
