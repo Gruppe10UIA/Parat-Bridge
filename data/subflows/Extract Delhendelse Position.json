@@ -7,8 +7,8 @@
     "category": "",
     "in": [
       {
-        "x": 200,
-        "y": 40,
+        "x": 160,
+        "y": 100,
         "wires": [
           {
             "id": "73e15b4c1da0b4ea"
@@ -18,8 +18,8 @@
     ],
     "out": [
       {
-        "x": 560,
-        "y": 40,
+        "x": 520,
+        "y": 100,
         "wires": [
           {
             "id": "73e15b4c1da0b4ea",
@@ -38,15 +38,15 @@
     "type": "function",
     "z": "ad3abd97c4ab0117",
     "name": "Extract Delhendelse Position",
-    "func": "const text = msg.payload.text;\nif (!text) return msg;\n\nconst regex = /Posisjonen til delhendelsen '(.+?)' ble endret til '([0-9.]+):([0-9.]+)' \\(var: '(.+?):(.+?)'\\)/s;\nconst match = text.match(regex);\n\nif (match) {\n    const name = match[1];\n    const lng = parseFloat(match[2]);\n    const lat = parseFloat(match[3]);\n\n    const connection_name = msg.metadata.connection_name;\n    const source_id = msg.metadata.source.identifier;\n\n    const conns = global.get(\"parat_bridge.connections\") || {};\n    const client = conns[connection_name] && conns[connection_name].clients && conns[connection_name].clients[source_id];\n    const positions = (client && client.client_specific && client.client_specific.delhendelse_positions) || [];\n\n    const existingIndex = positions.findIndex(p => p.name === name);\n    if (existingIndex >= 0) {\n        positions[existingIndex].lat = lat;\n        positions[existingIndex].lng = lng;\n    } else {\n        positions.push({ name, lat, lng });\n    }\n\n    const key = `parat_bridge.connections.${connection_name}.clients.${source_id}.client_specific.delhendelse_positions`;\n    global.set(key, positions);\n    // Only trigger geo POST for the last position event per delhendelse\n    // (flagged by initial fetch pipeline). Ongoing polling has no flag,                                                                                            \n    // so undefined !== false passes through normally.                                                                                                              \n    if (msg.payload._is_last_geo !== false) {\n        msg.metadata.geo = { lat, lng, name };\n    }\n}\n\nreturn msg;  ",
+    "func": "const text = msg.payload && msg.payload.text;\nif (!text) return msg;\n\nconst regex = /Posisjonen til delhendelsen '(.+?)' ble endret til '([0-9.]+):([0-9.]+)' \\(var: '(.+?):(.+?)'\\)/s;\nconst match = text.match(regex);\nif (!match) return msg;\n\nconst name = match[1];\nconst lng = parseFloat(match[2]);\nconst lat = parseFloat(match[3]);\nconst var_lng = match[4];\nconst var_lat = match[5];\nconst is_initial = (var_lng === \"null\" && var_lat === \"null\");\n\nconst connection_name = msg.metadata.connection_name;\nconst source_id = msg.metadata.source.identifier;\n\nconst conns = global.get(\"parat_bridge.connections\") || {};\nconst connection = conns[connection_name];\nconst client = connection && connection.clients && connection.clients[source_id];\nconst positions = (client && client.client_specific && client.client_specific.delhendelse_positions) || [];\n\nconst existingIndex = positions.findIndex(p => p.name === name);\nif (existingIndex >= 0) {\n    positions[existingIndex].lat = lat;\n    positions[existingIndex].lng = lng;\n} else {\n    positions.push({ name, lat, lng });\n}\n\nconst key = `parat_bridge.connections.${connection_name}.clients.${source_id}.client_specific.delhendelse_positions`;\nglobal.set(key, positions);\n\nif (msg.payload._is_last_geo !== false) {\n    msg.metadata.geo = { lat, lng, name };\n}\n\n// --- New: piggyback a Rayvn-bound system entry on msg.metadata ---                                                                                                \n// Same gating as the geo POST so we don't spam during initial backfill.\nif (msg.payload._is_last_geo !== false && connection && connection.clients) {\n    const rayvn_client = connection.clients[source_id];\n    if (rayvn_client && rayvn_client.client_system === \"rayvn\") {\n        const phrase = is_initial\n            ? `📍 Delhendelsen '${name}' har blitt angitt en posisjon og er blitt delt med WaSOS.`\n            : `📍 Posisjonen til delhendelsen '${name}' har blitt oppdatert og er blitt delt med WaSOS.`;\n\n        const now = Date.now();\n        const rand = Math.random().toString(36).substr(2, 6);\n\n        msg.metadata._delhendelse_sysmsg = {\n            topic: \"new_message\",\n            entry: {\n                id: `pb-delhendelse-${is_initial ? \"new\" : \"upd\"}-${now}-${rand}`,\n                text: phrase,\n                timestamp: now,\n                author: \"System-melding\",\n                labels: [],\n                metadata: {\n                    source: { client_system: \"parat_bridge\", name: \"parat_bridge\", identifier: \"parat_bridge\" },\n                    target: rayvn_client,\n                    connection_name: connection_name,\n                    files: null\n                }\n            }\n        };\n    }\n}\n\nreturn msg; ",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 380,
-    "y": 40,
+    "x": 340,
+    "y": 100,
     "wires": [
       []
     ]
