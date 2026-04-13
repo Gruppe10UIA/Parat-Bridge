@@ -47,7 +47,7 @@
     "type": "function",
     "z": "6bf90543469b320d",
     "name": "Decode api key",
-    "func": "const config = msg.payload\n\nif (!config.client_specific.api_key) {\n    return null\n}\n\nconst user = JSON.parse(atob(config.client_specific.api_key.split(\".\")[1]));\nmsg.group_id = user.group.id\nreturn msg;\n\n",
+    "func": "const api_key = msg.payload.client_specific.api_key\n\nif (!api_key) {\n    node.err(\"no api key to decode\")\n    return null\n}\n\nconst user = JSON.parse(Buffer.from(\n    api_key.split(\".\")[1], \"base64\").toString(\"utf-8\")\n    );\nmsg.group_id = user.group.id\nreturn msg;\n\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
