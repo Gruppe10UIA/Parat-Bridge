@@ -85,6 +85,30 @@
     "h": 82
   },
   {
+    "id": "45c0aac31b9755a0",
+    "type": "group",
+    "z": "003e75aaa2880405",
+    "name": "Informative system messages",
+    "style": {
+      "stroke": "#92d04f",
+      "label": true,
+      "color": "#000000",
+      "fill": "#c8e7a7",
+      "label-position": "n"
+    },
+    "nodes": [
+      "57d5bf76cd8227d9",
+      "4cf8114d2d57a6c1",
+      "a98862c6ac834868",
+      "be6a1bd2925fe3af",
+      "fbcc19628777d325"
+    ],
+    "x": 44,
+    "y": 779,
+    "w": 812,
+    "h": 142
+  },
+  {
     "id": "42e78f23eac5adcb",
     "type": "link out",
     "z": "003e75aaa2880405",
@@ -557,6 +581,7 @@
     "id": "57d5bf76cd8227d9",
     "type": "link out",
     "z": "003e75aaa2880405",
+    "g": "45c0aac31b9755a0",
     "name": "push to queue",
     "mode": "link",
     "links": [
@@ -570,6 +595,7 @@
     "id": "4cf8114d2d57a6c1",
     "type": "link in",
     "z": "003e75aaa2880405",
+    "g": "45c0aac31b9755a0",
     "name": "delhendelse notification",
     "links": [],
     "x": 85,
@@ -585,6 +611,7 @@
     "id": "a98862c6ac834868",
     "type": "function",
     "z": "003e75aaa2880405",
+    "g": "45c0aac31b9755a0",
     "name": "Build delhendelse notification text",
     "func": "const event = msg.payload;\nconst name = event.name;\nconst is_initial = event.is_initial;\n\nmsg._notification_text = is_initial\n    ? `📍 Delhendelsen '${name}' har blitt angitt en posisjon og er blitt delt med WaSOS.`\n    : `📍 Posisjonen til delhendelsen '${name}' har blitt oppdatert og er blitt delt med WaSOS.`;\n\nmsg._event = event;\n\nreturn msg; ",
     "outputs": 1,
@@ -605,6 +632,7 @@
     "id": "be6a1bd2925fe3af",
     "type": "function",
     "z": "003e75aaa2880405",
+    "g": "45c0aac31b9755a0",
     "name": "Build delhendelse queue-ready entry",
     "func": "const event = msg._event;\nconst now = Date.now();\n\nreturn {\n    topic: \"new_message\",\n    entry: {\n        id: \"pb-delhendelse-\" + now + \"-\" + Math.random().toString(36).substr(2, 6),\n        text: msg._notification_text,\n        timestamp: now,\n        author: \"System-melding\",\n        labels: [],\n        metadata: {\n            source: {\n                client_system: \"parat_bridge\",\n                name: \"parat_bridge\",\n                identifier: \"parat_bridge\"\n            },\n            target: event.target,\n            connection_name: event.connection_name,\n            files: null\n        }\n    }\n};",
     "outputs": 1,
@@ -625,6 +653,7 @@
     "id": "fbcc19628777d325",
     "type": "link out",
     "z": "003e75aaa2880405",
+    "g": "45c0aac31b9755a0",
     "name": "delhendelse notification received",
     "mode": "return",
     "links": [],
