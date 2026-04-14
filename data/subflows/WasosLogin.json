@@ -18,11 +18,11 @@
     ],
     "out": [
       {
-        "x": 720,
+        "x": 920,
         "y": 220,
         "wires": [
           {
-            "id": "289d03d3b8475ebf",
+            "id": "3c8a66a849d6b7db",
             "port": 0
           }
         ]
@@ -54,7 +54,9 @@
     "x": 470,
     "y": 220,
     "wires": [
-      []
+      [
+        "3c8a66a849d6b7db"
+      ]
     ]
   },
   {
@@ -102,5 +104,40 @@
     "y": 380,
     "wires": [],
     "info": "Centralized error handler for this subflow.\r\nReceives errors from the catch node and:\r\n- Classifies and logs the error\r\n- Sends notification to Rayvn and WaSOS\r\n  if 5+ consecutive failures occur\r\n"
+  },
+  {
+    "id": "31bfa888e9c5f374",
+    "type": "debug",
+    "z": "80f93fa22c15ece3",
+    "name": "wasos api key",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 460,
+    "y": 180,
+    "wires": []
+  },
+  {
+    "id": "3c8a66a849d6b7db",
+    "type": "function",
+    "z": "80f93fa22c15ece3",
+    "name": "validate api response",
+    "func": "// Network or connection error — HTTP node forwarded it as a message\nif (msg.error) {\n    node.error(\"WaSOS login request failed: \" + msg.error.message, msg);\n    return null;\n}\n\n// Non-200 response — bad credentials or server-side problem\nif (msg.statusCode !== 200) {\n    const detail = msg.payload?.message || msg.payload?.error || JSON.stringify(msg.payload);\n    node.error(\"WaSOS login rejected (HTTP \" + msg.statusCode + \"): \" + detail, msg);\n    return null;\n}\n\n// 200 OK but nonce field is absent — unexpected API change or malformed response\nif (!(\"nonce\" in (msg.payload ?? {}))) {\n    node.error(\"WaSOS login succeeded (HTTP 200) but response contains no nonce field. Payload: \" + JSON.stringify(msg.payload), msg);\n    return null;\n}\n\n// Nonce field present but empty — API returned the field with no value\nif (!msg.payload.nonce || typeof msg.payload.nonce !== \"string\" || msg.payload.nonce.trim() === \"\") {\n    node.error(\"WaSOS login succeeded (HTTP 200) but nonce is empty or invalid. Got: \" + JSON.stringify(msg.payload.nonce), msg);\n    return null;\n}\n\nnode.log(\"WaSOS login successful for user '\" + msg.config.username + \"' — nonce received.\");\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 720,
+    "y": 220,
+    "wires": [
+      []
+    ]
   }
 ]

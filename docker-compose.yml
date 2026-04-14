@@ -8,6 +8,8 @@ services:
     #dns:
     #  - 8.8.8.8
     #  - 8.8.4.4
+    environment:
+      - TZ=Europe/Oslo
     ports:
       - "1880:1880" # Default ports for a node red project
     volumes: # syncing local files to container files

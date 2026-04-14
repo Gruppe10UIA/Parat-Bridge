@@ -57,11 +57,12 @@
       "c3faa9283c8ae054",
       "4c407091f641842f",
       "cd8ec7101703dbb5",
-      "65326760bdf87cf5"
+      "65326760bdf87cf5",
+      "56faa1ada622da1a"
     ],
     "x": 74,
     "y": 79,
-    "w": 892,
+    "w": 1032,
     "h": 262
   },
   {
@@ -412,7 +413,7 @@
     "z": "84d1a0de660abb59",
     "g": "354aca9dbc391ace",
     "name": "Validate clients",
-    "func": "const clients = Object.values(msg.payload);\n\nif (clients.length !== 2) {\n    node.error(\"Incomplete connection - expected 2 clients, got \" + clients.length + \". Dropping message.\");\n    return null;\n}\n\n// Verify both clients are different systems\nconst systems = clients.map(c => c.client_system);\nif (systems[0] === systems[1]) {\n    node.error(\"Invalid connection - both clients are \" + systems[0] + \". Dropping message.\");\n    return null;\n}\n\nreturn msg;\n",
+    "func": "// Guard against null/non-object payloads — Object.values(null) would throw uncaught\nif (!msg.payload || typeof msg.payload !== \"object\" || Array.isArray(msg.payload)) {\n    node.error(\"Expected an object payload, got: \" + typeof msg.payload);\n    return null;\n}\n\nconst clients = Object.values(msg.payload);\n\n// Join produced nothing — both configure flows may have failed silently\nif (clients.length === 0) {\n    node.error(\"No clients in payload — join produced an empty object.\");\n    return null;\n}\n\n// Only one side arrived — the other likely timed out or errored upstream\nif (clients.length === 1) {\n    const system = clients[0].client_system ?? \"(unknown)\";\n    node.error(\"Only one client arrived (\" + system + \") — the other may have timed out or failed upstream.\");\n    return null;\n}\n\n// More than two — likely a duplicate configure event fired and the join accumulated extras\nif (clients.length > 2) {\n    const systems = clients.map(c => c.client_system ?? \"(unknown)\").join(\", \");\n    node.error(\"Expected 2 clients, got \" + clients.length + \" (\" + systems + \")\");\n    return null;\n}\n\nconst [a, b] = clients;\n\n// Missing client_system means a malformed config slipped through — would silently pass the same-system check as undefined === undefined\nif (!a.client_system || !b.client_system) {\n    const missing = [!a.client_system && \"first\", !b.client_system && \"second\"].filter(Boolean).join(\" and \");\n    node.error(\"client_system missing on \" + missing + \" client — malformed config object.\");\n    return null;\n}\n\n// Both sides configured the same system — connection requires exactly one rayvn and one wasos\nif (a.client_system === b.client_system) {\n    node.error(\"Both clients are '\" + a.client_system + \"' — expected one rayvn and one wasos.\");\n    return null;\n}\n\nnode.log(\"Valid client pair: \" + a.client_system + \" (\" + a.identifier + \") ↔ \" + b.client_system + \" (\" + b.identifier + \")\");\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -423,8 +424,7 @@
     "y": 260,
     "wires": [
       [
-        "7cf27d9c1bf7f451",
-        "5ee678ae28671a86"
+        "56faa1ada622da1a"
       ]
     ]
   },
@@ -496,6 +496,29 @@
     "wires": [
       [
         "b9aeddc7b76f4eba"
+      ]
+    ]
+  },
+  {
+    "id": "56faa1ada622da1a",
+    "type": "function",
+    "z": "84d1a0de660abb59",
+    "d": true,
+    "g": "354aca9dbc391ace",
+    "name": "function 1",
+    "func": "\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 1020,
+    "y": 260,
+    "wires": [
+      [
+        "7cf27d9c1bf7f451",
+        "5ee678ae28671a86"
       ]
     ]
   }

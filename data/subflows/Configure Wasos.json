@@ -18,7 +18,7 @@
     ],
     "out": [
       {
-        "x": 700,
+        "x": 800,
         "y": 500,
         "wires": [
           {
@@ -58,7 +58,7 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 310,
+    "x": 410,
     "y": 500,
     "wires": [
       [
@@ -115,7 +115,7 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 530,
+    "x": 630,
     "y": 500,
     "wires": [
       []
@@ -187,7 +187,7 @@
     "y": 380,
     "wires": [
       [
-        "22e6310454eae977"
+        "d670053d4634aadd"
       ]
     ]
   },
@@ -203,11 +203,48 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 720,
-    "y": 380,
+    "x": 220,
+    "y": 500,
     "wires": [
       [
         "ebec1bfad607a0c8"
+      ]
+    ]
+  },
+  {
+    "id": "c679dc34fa92f727",
+    "type": "debug",
+    "z": "a7d9b521445d1bf0",
+    "name": "get wasos room",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 500,
+    "y": 340,
+    "wires": []
+  },
+  {
+    "id": "d670053d4634aadd",
+    "type": "function",
+    "z": "a7d9b521445d1bf0",
+    "name": "Validate Wasos response",
+    "func": "// Non-200 response — classify by status for easier debugging\nif (msg.statusCode !== 200) {\n    if (msg.statusCode === 401 || msg.statusCode === 403) {\n        node.error(\"WaSOS room lookup unauthorised (HTTP \" + msg.statusCode + \") — nonce may be invalid or expired.\", msg);\n    } else if (msg.statusCode === 404) {\n        node.error(\"WaSOS chatroom not found (HTTP 404) — check that '\" + msg.config.chatroom_name + \"' exists and the name matches exactly.\", msg);\n    } else {\n        const detail = msg.payload?.message || msg.payload?.error || JSON.stringify(msg.payload);\n        node.error(\"WaSOS room lookup failed (HTTP \" + msg.statusCode + \"): \" + detail, msg);\n    }\n    return null;\n}\n\n// Room object returned but UUID field is absent — unexpected API shape\nif (!(\"id\" in (msg.payload ?? {}))) {\n    node.error(\"WaSOS room response missing 'id' field — unexpected response shape. Payload: \" + JSON.stringify(msg.payload), msg);\n    return null;\n}\n\n// UUID field present but empty or not a string\nif (!msg.payload.id || typeof msg.payload.id !== \"string\" || msg.payload.id.trim() === \"\") {\n    node.error(\"WaSOS room 'id' is present but empty or invalid. Got: \" + JSON.stringify(msg.payload.id), msg);\n    return null;\n}\n\nnode.log(\"WaSOS room '\" + msg.config.chatroom_name + \"' resolved — room ID: \" + msg.payload.id);\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 750,
+    "y": 380,
+    "wires": [
+      [
+        "22e6310454eae977"
       ]
     ]
   }
