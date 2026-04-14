@@ -16,72 +16,101 @@
         ]
       }
     ],
-    "out": [],
+    "out": [
+      {
+        "x": 580,
+        "y": 80,
+        "wires": [
+          {
+            "id": "9cf36e023f03b484",
+            "port": 0
+          }
+        ]
+      }
+    ],
     "env": [],
     "meta": {},
     "color": "#FDF0C2",
     "icon": "font-awesome/fa-tags"
   },
   {
-    "id": "400a7e97f8f067b1",
-    "type": "function",
-    "z": "6bf90543469b320d",
-    "name": "Build tag request",
-    "func": "const utils = global.get(\"utils\");                                                                                                                                         \nconst base_url = global.get(\"parat_bridge\").base_urls.rayvn;                                                                                                               \n                                                                                                                                                                            \nconst headers = { \"Authorization\": \"Bearer \" + msg.payload.client_specific.api_key };                                                                                      \nconst group_id = msg.group_id;                                                                                                                                             \n                                                                                                                                                                            \nconst build_tag_msg = (tag) => ({\n    headers,\n    url:  base_url + \"/tags\",\n    body: { ...utils.RAYVN_TAGS[tag], group: { id: group_id } }                                                                                                            \n});\n                                                                                                                                                                            \nreturn [[ build_tag_msg(\"WASOS\"), build_tag_msg(\"PARAT_BRIDGE\") ]];",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 470,
-    "y": 80,
-    "wires": [
-      [
-        "31d6acc5ec26efed"
-      ]
-    ]
-  },
-  {
     "id": "f2af31d46751473f",
     "type": "function",
     "z": "6bf90543469b320d",
     "name": "Decode api key",
-    "func": "const config = msg.payload\n\nif (!config.client_specific.api_key) {\n    return null\n}\n\nconst user = JSON.parse(atob(config.client_specific.api_key.split(\".\")[1]));\nmsg.group_id = user.group.id\nreturn msg;\n\n",
+    "func": "const config = msg.payload\n\nif (!config.client_specific.api_key) {\n    return null\n}\n\nconst user = JSON.parse(\n        Buffer.from(config.client_specific.api_key.split(\".\")[1], \"base64\").toString(\"utf-8\")\n    );\nmsg.group_id = user.group.id\nreturn msg;\n\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 220,
+    "x": 200,
     "y": 80,
     "wires": [
       [
-        "400a7e97f8f067b1"
+        "83b9fca324ad48ea",
+        "9cf36e023f03b484"
       ]
     ]
   },
   {
-    "id": "31d6acc5ec26efed",
-    "type": "http request",
+    "id": "83b9fca324ad48ea",
+    "type": "debug",
     "z": "6bf90543469b320d",
-    "name": "",
-    "method": "POST",
-    "ret": "txt",
-    "paytoqs": "ignore",
-    "url": "",
-    "tls": "",
-    "persist": false,
-    "proxy": "",
-    "insecureHTTPParser": false,
-    "authType": "",
-    "senderr": false,
-    "headers": [],
-    "x": 710,
+    "name": "decode api key",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 200,
+    "y": 40,
+    "wires": []
+  },
+  {
+    "id": "9cf36e023f03b484",
+    "type": "function",
+    "z": "6bf90543469b320d",
+    "name": "POST tags",
+    "func": "const utils    = global.get(\"utils\");                                                                                                                          \nconst base_url = global.get(\"parat_bridge\").base_urls.rayvn;                                                                                                   \nconst api_key  = msg.payload.client_specific.api_key;                                                                                                          \nconst group_id = msg.group_id;                                                                                                                                 \n                                                                                                                                                                \nconst headers = {                                                                                                                                              \n    \"Authorization\": \"Bearer \" + api_key,                                                                                                                      \n    \"Content-Type\":  \"application/json\"                                                                                                                        \n};                                                                                                                                                             \n            \nfunction request(method, path, body) {                                                                                                                         \n    return new Promise((resolve, reject) => {\n        const url     = new URL(base_url + path);\n        const payload = body ? JSON.stringify(body) : null;                                                                                                    \n        const req     = https.request({\n            hostname: url.hostname,                                                                                                                            \n            path:     url.pathname,\n            method,\n            headers:  { ...headers, \"Content-Length\": payload ? Buffer.byteLength(payload) : 0 }\n        }, res => {                   \n            let data = \"\";                                                                                                                                     \n            res.on(\"data\", chunk => data += chunk);\n            res.on(\"end\", () => {                                                                                                                              \n                try { resolve({ status: res.statusCode, data: JSON.parse(data) }); }\n                catch (e) { resolve({ status: res.statusCode, data }); }\n            });                                                                                                                                                \n        });   \n        req.on(\"error\", reject);                                                                                                                               \n        if (payload) req.write(payload);\n        req.end();\n    });                                                                                                                                                        \n}                                     \n                                                                                                                                                                \n(async () => {  \n    try {\n        const existing = (await request(\"GET\", \"/tags\", null)).data;\n\n        for (const [key, template] of Object.entries(utils.RAYVN_TAGS)) {                                                                                      \n            const regex = new RegExp(\"^\" + template.name + \"$\", \"i\");\n            const match = existing.find(t => regex.test(t.name));                                                                                              \n            const body  = { ...template, group: { id: group_id } };\n                                    \n            let resolved;\n            if (match) {          \n                resolved = (await request(\"POST\", \"/tags/\" + match.id, body)).data;\n                node.log(\"Tag updated: \" + template.name + \" (\" + match.id + \")\");                                                                             \n            } else {                  \n                resolved = (await request(\"POST\", \"/tags\", body)).data;                                                                                        \n                node.log(\"Tag created: \" + template.name + \" (\" + resolved.id + \")\");\n            }                                                                                                                                                  \n                                \n            msg.payload.client_specific.tags = msg.payload.client_specific.tags || {};\n            msg.payload.client_specific.tags[key] = resolved;                                                                                                  \n        }                         \n                                                                                                                                                                \n        node.send(msg);                                                                                                                                        \n    } catch (e) {\n        node.error(\"POST tags failed: \" + e.message, msg);                                                                                                     \n    }           \n})();                             \n                                    \nreturn null;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [
+      {
+        "var": "https",
+        "module": "https"
+      }
+    ],
+    "x": 430,
     "y": 80,
     "wires": [
-      []
+      [
+        "31fc2c0aa6adbb18"
+      ]
     ]
+  },
+  {
+    "id": "31fc2c0aa6adbb18",
+    "type": "debug",
+    "z": "6bf90543469b320d",
+    "name": "POST rayvn tags response",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 480,
+    "y": 40,
+    "wires": []
   }
 ]

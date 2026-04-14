@@ -24,6 +24,27 @@
     "icon": "node-red/bridge.svg"
   },
   {
+    "id": "5851956660723990",
+    "type": "group",
+    "z": "7613a77a1b834225",
+    "name": "Response adapter",
+    "style": {
+      "stroke": "#6f2fa0",
+      "fill": "#dbcbe7",
+      "label": true,
+      "label-position": "n",
+      "color": "#000000"
+    },
+    "nodes": [
+      "c742e6faf67ffe65",
+      "cd2019698fb7440a"
+    ],
+    "x": 334,
+    "y": 439,
+    "w": 712,
+    "h": 82
+  },
+  {
     "id": "df3ce13d4cb1f110",
     "type": "group",
     "z": "7613a77a1b834225",
@@ -51,27 +72,6 @@
     "h": 129.5
   },
   {
-    "id": "5851956660723990",
-    "type": "group",
-    "z": "7613a77a1b834225",
-    "name": "Response adapter",
-    "style": {
-      "stroke": "#6f2fa0",
-      "fill": "#dbcbe7",
-      "label": true,
-      "label-position": "n",
-      "color": "#000000"
-    },
-    "nodes": [
-      "c742e6faf67ffe65",
-      "cd2019698fb7440a"
-    ],
-    "x": 334,
-    "y": 439,
-    "w": 722,
-    "h": 82
-  },
-  {
     "id": "541256dfc9983e5c",
     "type": "junction",
     "z": "7613a77a1b834225",
@@ -85,16 +85,118 @@
     ]
   },
   {
-    "id": "f46dc7f992ab9495",
-    "type": "subflow:15215b18f4fbcbdd",
+    "id": "cd2019698fb7440a",
+    "type": "function",
+    "z": "7613a77a1b834225",
+    "g": "5851956660723990",
+    "name": "Attach metadata and prune msg object",
+    "func": "/**\n * Cleans the msg object and builds the entry structure\n * used throughout the POST flow.\n */\nreturn {\n    _msgid: msg._msgid,\n    topic:  \"new_message\",\n    entry: {\n        id:        msg.payload.id,\n        text:      msg.payload.text,\n        timestamp: msg.payload.timestamp,\n        author:    msg.payload.author,\n        labels:    msg.payload.labels || [],\n        metadata:  msg.metadata\n    }\n};\n\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 870,
+    "y": 480,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "e79abe64c9510751",
+    "type": "inject",
+    "z": "7613a77a1b834225",
+    "g": "df3ce13d4cb1f110",
+    "name": "",
+    "props": [],
+    "repeat": "3",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 270,
+    "y": 260,
+    "wires": [
+      [
+        "ea7ebf58285971a8"
+      ]
+    ]
+  },
+  {
+    "id": "ea7ebf58285971a8",
+    "type": "function",
+    "z": "7613a77a1b834225",
+    "g": "df3ce13d4cb1f110",
+    "name": "Pass active connections",
+    "func": "\n// Get all acive connections from connections Object\nconst connections = global.get(\"parat_bridge.connections\");\nif (!connections) return null;\nconst active_connections = Object.values(connections).filter(c => c.active);\n\nif (active_connections.length === 0) { return null; }\n\nconst messages = [];\n\n// Loop over each active connection\nactive_connections.forEach(connection => {\n    // loop over each client in connection\n    Object.values(connection.clients).forEach(client => {\n\n        // Find the target by excluding self using the unique identifier\n        const target = Object.values(connection.clients)\n            .find(c => c.identifier !== client.identifier);\n\n        // Build the message and attach metadata\n        messages.push({\n            topic: client.client_system,   // routes to correct request builder\n            metadata: {\n                source: client,\n                target: target,\n                connection_name: connection.name\n            }\n        });\n    });\n});\n\n// send each message one at a time\nreturn [messages];\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 330,
+    "y": 300,
+    "wires": [
+      [
+        "08b97ed44f272d94"
+      ]
+    ]
+  },
+  {
+    "id": "658eed5b7407996c",
+    "type": "subflow:f0eb857d54dfb4ac",
     "z": "7613a77a1b834225",
     "g": "df3ce13d4cb1f110",
     "name": "",
     "x": 970,
-    "y": 260,
+    "y": 300,
     "wires": [
       [
         "541256dfc9983e5c"
+      ]
+    ]
+  },
+  {
+    "id": "f8d5272182de5652",
+    "type": "subflow:e97e0c90387d0adc",
+    "z": "7613a77a1b834225",
+    "g": "df3ce13d4cb1f110",
+    "name": "",
+    "x": 700,
+    "y": 300,
+    "wires": [
+      [
+        "658eed5b7407996c"
+      ]
+    ]
+  },
+  {
+    "id": "8673cf0ab571261b",
+    "type": "subflow:a1b5b8de4109fab7",
+    "z": "7613a77a1b834225",
+    "g": "df3ce13d4cb1f110",
+    "name": "",
+    "x": 700,
+    "y": 260,
+    "wires": [
+      [
+        "f46dc7f992ab9495"
+      ]
+    ]
+  },
+  {
+    "id": "c742e6faf67ffe65",
+    "type": "subflow:35dc868e3a5c1ab2",
+    "z": "7613a77a1b834225",
+    "g": "5851956660723990",
+    "name": "",
+    "x": 460,
+    "y": 480,
+    "wires": [
+      [
+        "cd2019698fb7440a"
       ]
     ]
   },
@@ -139,119 +241,17 @@
     ]
   },
   {
-    "id": "c742e6faf67ffe65",
-    "type": "subflow:35dc868e3a5c1ab2",
-    "z": "7613a77a1b834225",
-    "g": "5851956660723990",
-    "name": "",
-    "x": 460,
-    "y": 480,
-    "wires": [
-      [
-        "cd2019698fb7440a"
-      ]
-    ]
-  },
-  {
-    "id": "8673cf0ab571261b",
-    "type": "subflow:a1b5b8de4109fab7",
-    "z": "7613a77a1b834225",
-    "g": "df3ce13d4cb1f110",
-    "name": "",
-    "x": 700,
-    "y": 260,
-    "wires": [
-      [
-        "f46dc7f992ab9495"
-      ]
-    ]
-  },
-  {
-    "id": "f8d5272182de5652",
-    "type": "subflow:e97e0c90387d0adc",
-    "z": "7613a77a1b834225",
-    "g": "df3ce13d4cb1f110",
-    "name": "",
-    "x": 700,
-    "y": 300,
-    "wires": [
-      [
-        "658eed5b7407996c"
-      ]
-    ]
-  },
-  {
-    "id": "658eed5b7407996c",
-    "type": "subflow:f0eb857d54dfb4ac",
+    "id": "f46dc7f992ab9495",
+    "type": "subflow:15215b18f4fbcbdd",
     "z": "7613a77a1b834225",
     "g": "df3ce13d4cb1f110",
     "name": "",
     "x": 970,
-    "y": 300,
+    "y": 260,
     "wires": [
       [
         "541256dfc9983e5c"
       ]
-    ]
-  },
-  {
-    "id": "ea7ebf58285971a8",
-    "type": "function",
-    "z": "7613a77a1b834225",
-    "g": "df3ce13d4cb1f110",
-    "name": "Pass active connections",
-    "func": "\n// Get all acive connections from connections Object\nconst connections = global.get(\"parat_bridge.connections\");\nif (!connections) return null;\nconst active_connections = Object.values(connections).filter(c => c.active);\n\nif (active_connections.length === 0) { return null; }\n\nconst messages = [];\n\n// Loop over each active connection\nactive_connections.forEach(connection => {\n    // loop over each client in connection\n    Object.values(connection.clients).forEach(client => {\n\n        // Find the target by excluding self using the unique identifier\n        const target = Object.values(connection.clients)\n            .find(c => c.identifier !== client.identifier);\n\n        // Build the message and attach metadata\n        messages.push({\n            topic: client.client_system,   // routes to correct request builder\n            metadata: {\n                source: client,\n                target: target,\n                connection_name: connection.name\n            }\n        });\n    });\n});\n\n// send each message one at a time\nreturn [messages];\n",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 330,
-    "y": 300,
-    "wires": [
-      [
-        "08b97ed44f272d94"
-      ]
-    ]
-  },
-  {
-    "id": "e79abe64c9510751",
-    "type": "inject",
-    "z": "7613a77a1b834225",
-    "g": "df3ce13d4cb1f110",
-    "name": "",
-    "props": [],
-    "repeat": "3",
-    "crontab": "",
-    "once": false,
-    "onceDelay": 0.1,
-    "topic": "",
-    "x": 270,
-    "y": 260,
-    "wires": [
-      [
-        "ea7ebf58285971a8"
-      ]
-    ]
-  },
-  {
-    "id": "cd2019698fb7440a",
-    "type": "function",
-    "z": "7613a77a1b834225",
-    "g": "5851956660723990",
-    "name": "Attach metadata and prune msg object",
-    "func": "/**\n * Cleans the msg object and builds the entry structure\n * used throughout the POST flow.\n */\nreturn {\n    _msgid: msg._msgid,\n    topic:  \"new_message\",\n    entry: {\n        id:        msg.payload.id,\n        text:      msg.payload.text,\n        timestamp: msg.payload.timestamp,\n        author:    msg.payload.author,\n        labels:    msg.payload.labels || [],\n        metadata:  msg.metadata\n    }\n};\n\n",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 870,
-    "y": 480,
-    "wires": [
-      []
     ]
   },
   {

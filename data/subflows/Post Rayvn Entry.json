@@ -52,7 +52,9 @@
     "x": 400,
     "y": 340,
     "wires": [
-      []
+      [
+        "5d0a8ffbc38eeddc"
+      ]
     ]
   },
   {
@@ -76,7 +78,8 @@
     "y": 120,
     "wires": [
       [
-        "a52a99cc5482559e"
+        "a52a99cc5482559e",
+        "2841ed2bb575aba8"
       ]
     ]
   },
@@ -99,5 +102,39 @@
         "a4324541f882f82c"
       ]
     ]
+  },
+  {
+    "id": "2841ed2bb575aba8",
+    "type": "debug",
+    "z": "b5c88de3cb9383d5",
+    "name": "rayvn innput",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 740,
+    "y": 100,
+    "wires": []
+  },
+  {
+    "id": "5d0a8ffbc38eeddc",
+    "type": "debug",
+    "z": "b5c88de3cb9383d5",
+    "name": "Rayvn output",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 830,
+    "y": 340,
+    "wires": []
   }
 ]
