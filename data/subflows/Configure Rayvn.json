@@ -84,7 +84,7 @@
     "type": "function",
     "z": "5da162b98b7b6b86",
     "name": "get log id from log name",
-    "func": "let result = msg.payload;\nlet name = msg.config_variables.rayvn_log_name;\n\n// Find the log id where the name matches\nmsg.payload = result.find(item => item.name === name)?.id;\nreturn msg;",
+    "func": "let result = msg.payload;\nlet name = msg.config_variables.rayvn_log_name;\n\n// Find the log id where the name matches\nmsg.payload = result.find(item => item.name === name)?.id;\n\nif (!msg.payload) {\n    node.error(\"Rayvn log name not found: '\" + msg.config_variables.rayvn_log_name + \"' — check that the name matches exactly.\", msg);\n    return null;\n}\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,

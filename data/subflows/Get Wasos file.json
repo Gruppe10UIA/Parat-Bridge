@@ -60,7 +60,7 @@
     "type": "function",
     "z": "a04671bb4cc2108f",
     "name": "Build download request",
-    "func": "/**\n * Builds an HTTP GET request to download one file from WaSOS.\n * Prunes msg to only the properties needed downstream.\n */\nconst file = msg.payload;\nconst source = msg.metadata.source;\nconst base_url = global.get(\"parat_bridge\").base_urls.wasos;\n\nnode.warn(\"[DOWNLOAD] URL: \" + base_url + file.url);\n\nreturn {\n    _msgid: msg._msgid,\n    _dl: msg._dl,\n    parts: msg.parts,\n    metadata: msg.metadata,\n    _file_meta: {\n        url: file.url,\n        name: file.name || \"unknown_file\",\n        type: file.type || \"application/octet-stream\",\n        size: file.size || 0\n    },\n    url: base_url + file.url,\n    headers: { \"x-api-key\": source.client_specific.api.key },\n    topic: msg.topic\n};\n",
+    "func": "/**\n * Builds an HTTP GET request to download one file from WaSOS.\n * Prunes msg to only the properties needed downstream.\n */\nconst file = msg.payload;\nconst source = msg.metadata.source;\nconst base_url = global.get(\"parat_bridge\").base_urls.wasos;\n\nnode.error(\"[DOWNLOAD] URL: \" + base_url + file.url);\n\nreturn {\n    _msgid: msg._msgid,\n    _dl: msg._dl,\n    parts: msg.parts,\n    metadata: msg.metadata,\n    _file_meta: {\n        url: file.url,\n        name: file.name || \"unknown_file\",\n        type: file.type || \"application/octet-stream\",\n        size: file.size || 0\n    },\n    url: base_url + file.url,\n    headers: { \"x-api-key\": source.client_specific.api.key },\n    topic: msg.topic\n};\n",
     "outputs": 1,
     "timeout": "",
     "noerr": 0,

@@ -196,7 +196,7 @@
     "type": "function",
     "z": "a7d9b521445d1bf0",
     "name": "Extract Room ID",
-    "func": "const room_id = msg.payload.id || null;\n\nmsg.payload = msg._login_response;\nmsg.room_id = room_id;\ndelete msg._login_response;\n\nif (!room_id) {\n    node.warn(\"Could not discover WaSOS room UUID\");\n    return null\n}\n\nreturn msg;",
+    "func": "const room_id = msg.payload.id || null;\n\nmsg.payload = msg._login_response;\nmsg.room_id = room_id;\ndelete msg._login_response;\n\nif (!room_id) {\n    node.error(\"Could not discover WaSOS room UUID\");\n    return null\n}\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,

@@ -412,7 +412,7 @@
     "z": "84d1a0de660abb59",
     "g": "354aca9dbc391ace",
     "name": "Validate clients",
-    "func": "const clients = Object.values(msg.payload);\n\nif (clients.length !== 2) {\n    node.warn(\"Incomplete connection - expected 2 clients, got \" + clients.length + \". Dropping message.\");\n    return null;\n}\n\n// Verify both clients are different systems\nconst systems = clients.map(c => c.client_system);\nif (systems[0] === systems[1]) {\n    node.warn(\"Invalid connection - both clients are \" + systems[0] + \". Dropping message.\");\n    return null;\n}\n\nreturn msg;\n",
+    "func": "const clients = Object.values(msg.payload);\n\nif (clients.length !== 2) {\n    node.error(\"Incomplete connection - expected 2 clients, got \" + clients.length + \". Dropping message.\");\n    return null;\n}\n\n// Verify both clients are different systems\nconst systems = clients.map(c => c.client_system);\nif (systems[0] === systems[1]) {\n    node.error(\"Invalid connection - both clients are \" + systems[0] + \". Dropping message.\");\n    return null;\n}\n\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
