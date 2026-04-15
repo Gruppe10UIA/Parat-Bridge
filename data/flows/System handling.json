@@ -101,7 +101,8 @@
       "a8907418fbaa0775",
       "216f18ba8736713b",
       "113b88136931cd38",
-      "42e78f23eac5adcb"
+      "42e78f23eac5adcb",
+      "82ed6384ef94b701"
     ],
     "x": 54,
     "y": 339,
@@ -397,7 +398,7 @@
     "z": "003e75aaa2880405",
     "g": "00eba3e5252a7414",
     "name": "Format connections table",
-    "func": "const connections = global.get(\"parat_bridge.connections\");\n\nif (!connections) {\n    msg.payload = [];\n    return msg;\n}\n\n\nmsg.payload = Object.values(connections).map(conn => {\n    const clients = Object.values(conn.clients);\n    return {\n        \"Klient 1\": `${clients[0].client_system} — ${clients[0].name}`,\n        \"Klient 2\": `${clients[1].client_system} — ${clients[1].name}`,\n        status:     conn.active ? \"🟢 aktiv\" : \"🔴 inaktiv\",\n        created:    new Date(conn.time_created).toLocaleString()\n    };\n});\n\n\nreturn msg;\n",
+    "func": "const connections = global.get(\"parat_bridge.connections\");\n\nif (!connections || typeof connections !== \"object\") {\n    msg.payload = [];\n    return msg;\n}\n\nconst formatClient = (c) => {\n    if (!c) return \"—\";\n    const system = c.client_system ?? \"?\";\n    const name = c.name ?? \"?\";\n    return `${system} — ${name}`;\n};\n\nconst formatCreated = (t) => {\n    if (!t) return \"—\";\n    const d = new Date(t);\n    return isNaN(d.getTime()) ? \"—\" : d.toLocaleString();\n};\n\nmsg.payload = Object.values(connections).map(conn => {\n    const clients = conn && conn.clients ? Object.values(conn.clients) : [];\n    return {\n        \"Klient 1\": formatClient(clients[0]),\n        \"Klient 2\": formatClient(clients[1]),\n        status: conn && conn.active ? \"🟢 aktiv\" : \"🔴 inaktiv\",\n        created: formatCreated(conn && conn.time_created)\n    };\n});\n\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -430,7 +431,7 @@
     "z": "003e75aaa2880405",
     "g": "67c40d3bdd1cbf59",
     "name": "message failed output",
-    "active": false,
+    "active": true,
     "tosidebar": true,
     "console": false,
     "tostatus": false,
@@ -458,7 +459,8 @@
         "0bf8491c4bebb0eb",
         "157f76d46a2a7622",
         "a8907418fbaa0775",
-        "216f18ba8736713b"
+        "216f18ba8736713b",
+        "82ed6384ef94b701"
       ]
     ]
   },
@@ -689,6 +691,23 @@
     "links": [],
     "x": 415,
     "y": 720,
+    "wires": []
+  },
+  {
+    "id": "82ed6384ef94b701",
+    "type": "function",
+    "z": "003e75aaa2880405",
+    "g": "67c40d3bdd1cbf59",
+    "name": "deactivate connection",
+    "func": "const connection_name = msg.entry.metadata.connection_name || null\n\nif (connection_name) {\n    global.set(`parat_bridge.connections.${connection_name}.active`, false)\n    node.log(\"connection deactivated: \" + connection_name);\n}\n\n",
+    "outputs": 0,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 340,
+    "y": 480,
     "wires": []
   }
 ]
