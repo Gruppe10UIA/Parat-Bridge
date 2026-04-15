@@ -603,7 +603,7 @@
     "z": "003e75aaa2880405",
     "g": "67c40d3bdd1cbf59",
     "name": "deactivate connection",
-    "func": "const connection_name = msg.entry.metadata.connection_name || null\n\nif (connection_name) {\n    global.set(`parat_bridge.connections.${connection_name}.active`, false)\n    node.log(\"connection deactivated: \" + connection_name);\n}\n\n",
+    "func": "const connection_name = msg.entry.metadata.connection_name || null\nconst connection = global.get(`parat_bridge.connections.${connection_name}`)\n\nif (connection_name && connection) {\n    global.set(`parat_bridge.connections.${connection_name}.active`, false)\n    node.log(\"connection deactivated: \" + connection_name);\n}\n\n",
     "outputs": 0,
     "timeout": 0,
     "noerr": 0,
