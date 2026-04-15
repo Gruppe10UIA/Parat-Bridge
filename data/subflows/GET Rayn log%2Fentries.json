@@ -22,17 +22,7 @@
         "y": 160,
         "wires": [
           {
-            "id": "3536fd102da3727b",
-            "port": 0
-          }
-        ]
-      },
-      {
-        "x": 660,
-        "y": 280,
-        "wires": [
-          {
-            "id": "131e3be5940d6698",
+            "id": "117c225f8da1d516",
             "port": 0
           }
         ]
@@ -94,18 +84,16 @@
     "type": "function",
     "z": "a1b5b8de4109fab7",
     "name": "Reset poll failure count",
-    "func": "const connectionName = msg.metadata?.connection_name || null;\nconst sourceIdentifier = msg.metadata?.source?.identifier || null;\n\nif (connectionName && sourceIdentifier) {\n    const failureCounts = global.get(\"failure_counts\") || {};\n    delete failureCounts[`${connectionName}::${sourceIdentifier}`];\n    global.set(\"failure_counts\", failureCounts);\n}\n\nreturn msg;",
-    "outputs": 1,
+    "func": "const connectionName = msg.metadata?.connection_name || null;\nconst sourceIdentifier = msg.metadata?.source?.identifier || null;\n\nif (connectionName && sourceIdentifier) {\n    const failureCounts = global.get(\"failure_counts\") || {};\n    delete failureCounts[`${connectionName}::${sourceIdentifier}`];\n    global.set(\"failure_counts\", failureCounts);\n}",
+    "outputs": 0,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 700,
-    "y": 160,
-    "wires": [
-      []
-    ]
+    "x": 720,
+    "y": 80,
+    "wires": []
   },
   {
     "id": "1b8bbf1bbd9390e5",
@@ -130,6 +118,24 @@
     "z": "a1b5b8de4109fab7",
     "name": "",
     "x": 530,
+    "y": 280,
+    "wires": [
+      [
+        "b199d86a9e7b4876"
+      ]
+    ]
+  },
+  {
+    "id": "b199d86a9e7b4876",
+    "type": "link call",
+    "z": "a1b5b8de4109fab7",
+    "name": "",
+    "links": [
+      "f14ca558111b51e5"
+    ],
+    "linkType": "static",
+    "timeout": "30",
+    "x": 770,
     "y": 280,
     "wires": [
       []
