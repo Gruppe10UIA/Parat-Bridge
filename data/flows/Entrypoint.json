@@ -7,6 +7,31 @@
     "info": "Configuration UI for Parat-Bridge. Handles setup of Rayvn API credentials and WaSOS login. Validates input, authenticates with both services, and stores configuration in global variables."
   },
   {
+    "id": "96e90febc19e0c83",
+    "type": "group",
+    "z": "84d1a0de660abb59",
+    "name": "Initialization",
+    "style": {
+      "stroke": "#ffff3f",
+      "fill": "#ffffbf",
+      "label": true,
+      "label-position": "n",
+      "color": "#000000"
+    },
+    "nodes": [
+      "03c1d5a79bea3bbf",
+      "7cf27d9c1bf7f451",
+      "03c1f0752644b9c0",
+      "e6785e6cf6e666cf",
+      "a7ccd4d8c49ceaff",
+      "be554d1eb57375c1"
+    ],
+    "x": 74,
+    "y": 399,
+    "w": 792,
+    "h": 122
+  },
+  {
     "id": "354aca9dbc391ace",
     "type": "group",
     "z": "84d1a0de660abb59",
@@ -40,58 +65,47 @@
     "h": 262
   },
   {
-    "id": "96e90febc19e0c83",
-    "type": "group",
-    "z": "84d1a0de660abb59",
-    "name": "Initialization",
-    "style": {
-      "stroke": "#ffff3f",
-      "fill": "#ffffbf",
-      "label": true,
-      "label-position": "n",
-      "color": "#000000"
-    },
-    "nodes": [
-      "03c1d5a79bea3bbf",
-      "7cf27d9c1bf7f451",
-      "03c1f0752644b9c0",
-      "e6785e6cf6e666cf",
-      "a7ccd4d8c49ceaff",
-      "be554d1eb57375c1"
-    ],
-    "x": 74,
-    "y": 399,
-    "w": 792,
-    "h": 122
-  },
-  {
-    "id": "65326760bdf87cf5",
-    "type": "function",
+    "id": "c3faa9283c8ae054",
+    "type": "link in",
     "z": "84d1a0de660abb59",
     "g": "354aca9dbc391ace",
-    "name": "Validate clients",
-    "func": "const clients = Object.values(msg.payload);\n\nif (clients.length !== 2) {\n    node.error(\"Incomplete connection - expected 2 clients, got \" + clients.length + \". Dropping message.\");\n    return null;\n}\n\n// Verify both clients are different systems\nconst systems = clients.map(c => c.client_system);\nif (systems[0] === systems[1]) {\n    node.error(\"Invalid connection - both clients are \" + systems[0] + \". Dropping message.\");\n    return null;\n}\n\nreturn msg;\n",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 860,
-    "y": 260,
+    "name": "UIB Link in to Configure WaSOS",
+    "links": [
+      "4da735d9ab626fa3"
+    ],
+    "x": 185,
+    "y": 280,
     "wires": [
       [
-        "7cf27d9c1bf7f451",
-        "5ee678ae28671a86"
+        "02f5aa2ff841acd1",
+        "3f5a48b721dae9db"
       ]
     ]
   },
   {
-    "id": "cd8ec7101703dbb5",
-    "type": "debug",
+    "id": "f63d35f5fb7dc607",
+    "type": "link in",
     "z": "84d1a0de660abb59",
     "g": "354aca9dbc391ace",
-    "name": "parts",
+    "name": "UIB Link in to Configure Rayvn",
+    "links": [
+      "ee7dab60e6fc914e"
+    ],
+    "x": 185,
+    "y": 160,
+    "wires": [
+      [
+        "9b6e4d1e92c769d9",
+        "989d45634f23b97e"
+      ]
+    ]
+  },
+  {
+    "id": "be554d1eb57375c1",
+    "type": "debug",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "name": "initial log entries",
     "active": false,
     "tosidebar": true,
     "console": false,
@@ -100,143 +114,114 @@
     "targetType": "full",
     "statusVal": "",
     "statusType": "auto",
-    "x": 630,
-    "y": 300,
+    "x": 740,
+    "y": 440,
     "wires": []
   },
   {
-    "id": "4c407091f641842f",
-    "type": "change",
+    "id": "a7ccd4d8c49ceaff",
+    "type": "link out",
     "z": "84d1a0de660abb59",
-    "g": "354aca9dbc391ace",
-    "name": "create parts",
-    "rules": [
-      {
-        "t": "set",
-        "p": "parts.id",
-        "pt": "msg",
-        "to": "conn_id",
-        "tot": "msg"
-      }
+    "g": "96e90febc19e0c83",
+    "name": "initial log post",
+    "mode": "link",
+    "links": [
+      "9fe2d9086d510cb5"
     ],
-    "action": "",
-    "property": "",
-    "from": "",
-    "to": "",
-    "reg": false,
-    "x": 650,
-    "y": 260,
-    "wires": [
-      [
-        "4290cc6fa1aadff0",
-        "cd8ec7101703dbb5"
-      ]
-    ]
+    "x": 825,
+    "y": 480,
+    "wires": []
   },
   {
-    "id": "03c1d5a79bea3bbf",
-    "type": "subflow:0fad769721e9978c",
+    "id": "e6785e6cf6e666cf",
+    "type": "debug",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "name": "Initialize connection",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 230,
+    "y": 440,
+    "wires": []
+  },
+  {
+    "id": "7cf27d9c1bf7f451",
+    "type": "subflow:c45e2eb6a51516d0",
     "z": "84d1a0de660abb59",
     "g": "96e90febc19e0c83",
     "name": "",
-    "x": 490,
+    "x": 190,
     "y": 480,
     "wires": [
       [
-        "be554d1eb57375c1",
-        "a7ccd4d8c49ceaff"
+        "03c1d5a79bea3bbf",
+        "03c1f0752644b9c0",
+        "e6785e6cf6e666cf"
       ]
     ]
   },
   {
-    "id": "3f5a48b721dae9db",
-    "type": "debug",
+    "id": "03c1f0752644b9c0",
+    "type": "subflow:3241f77fe5e4f9ea",
+    "z": "84d1a0de660abb59",
+    "g": "96e90febc19e0c83",
+    "name": "",
+    "x": 500,
+    "y": 440,
+    "wires": []
+  },
+  {
+    "id": "f7bbfc371ab086b1",
+    "type": "subflow:99c17cced97ac339",
     "z": "84d1a0de660abb59",
     "g": "354aca9dbc391ace",
-    "name": "Wasos output",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "true",
-    "targetType": "full",
-    "statusVal": "",
-    "statusType": "auto",
+    "name": "",
     "x": 180,
-    "y": 240,
-    "wires": []
+    "y": 200,
+    "wires": [
+      [
+        "9b6e4d1e92c769d9"
+      ],
+      [
+        "02f5aa2ff841acd1"
+      ]
+    ]
   },
   {
-    "id": "989d45634f23b97e",
-    "type": "debug",
+    "id": "9b6e4d1e92c769d9",
+    "type": "subflow:5da162b98b7b6b86",
     "z": "84d1a0de660abb59",
     "g": "354aca9dbc391ace",
-    "name": "Rayvn output",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "true",
-    "targetType": "full",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 180,
-    "y": 120,
-    "wires": []
+    "name": "",
+    "x": 430,
+    "y": 160,
+    "wires": [
+      [
+        "794b757ef07a4e19",
+        "4c407091f641842f"
+      ]
+    ]
   },
   {
-    "id": "794b757ef07a4e19",
-    "type": "debug",
+    "id": "02f5aa2ff841acd1",
+    "type": "subflow:a7d9b521445d1bf0",
     "z": "84d1a0de660abb59",
     "g": "354aca9dbc391ace",
-    "name": "Config Rayvn",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "true",
-    "targetType": "full",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 420,
-    "y": 120,
-    "wires": []
-  },
-  {
-    "id": "a81cbcc889952fb3",
-    "type": "debug",
-    "z": "84d1a0de660abb59",
-    "g": "354aca9dbc391ace",
-    "name": "Config Wasos",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "true",
-    "targetType": "full",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 420,
-    "y": 240,
-    "wires": []
-  },
-  {
-    "id": "293cf0ecd677bac0",
-    "type": "debug",
-    "z": "84d1a0de660abb59",
-    "g": "354aca9dbc391ace",
-    "name": "correct config",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 700,
-    "y": 180,
-    "wires": []
+    "name": "",
+    "x": 430,
+    "y": 280,
+    "wires": [
+      [
+        "a81cbcc889952fb3",
+        "4c407091f641842f"
+      ]
+    ]
   },
   {
     "id": "4290cc6fa1aadff0",
@@ -270,84 +255,83 @@
     ]
   },
   {
-    "id": "02f5aa2ff841acd1",
-    "type": "subflow:a7d9b521445d1bf0",
+    "id": "293cf0ecd677bac0",
+    "type": "debug",
     "z": "84d1a0de660abb59",
     "g": "354aca9dbc391ace",
-    "name": "",
-    "x": 430,
-    "y": 280,
-    "wires": [
-      [
-        "a81cbcc889952fb3",
-        "4c407091f641842f"
-      ]
-    ]
+    "name": "correct config",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 700,
+    "y": 180,
+    "wires": []
   },
   {
-    "id": "9b6e4d1e92c769d9",
-    "type": "subflow:5da162b98b7b6b86",
+    "id": "a81cbcc889952fb3",
+    "type": "debug",
     "z": "84d1a0de660abb59",
     "g": "354aca9dbc391ace",
-    "name": "",
-    "x": 430,
-    "y": 160,
-    "wires": [
-      [
-        "794b757ef07a4e19",
-        "4c407091f641842f"
-      ]
-    ]
+    "name": "Config Wasos",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 420,
+    "y": 240,
+    "wires": []
   },
   {
-    "id": "f7bbfc371ab086b1",
-    "type": "subflow:99c17cced97ac339",
+    "id": "794b757ef07a4e19",
+    "type": "debug",
     "z": "84d1a0de660abb59",
     "g": "354aca9dbc391ace",
-    "name": "",
+    "name": "Config Rayvn",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 420,
+    "y": 120,
+    "wires": []
+  },
+  {
+    "id": "989d45634f23b97e",
+    "type": "debug",
+    "z": "84d1a0de660abb59",
+    "g": "354aca9dbc391ace",
+    "name": "Rayvn output",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
     "x": 180,
-    "y": 200,
-    "wires": [
-      [
-        "9b6e4d1e92c769d9"
-      ],
-      [
-        "02f5aa2ff841acd1"
-      ]
-    ]
-  },
-  {
-    "id": "03c1f0752644b9c0",
-    "type": "subflow:3241f77fe5e4f9ea",
-    "z": "84d1a0de660abb59",
-    "g": "96e90febc19e0c83",
-    "name": "",
-    "x": 500,
-    "y": 440,
+    "y": 120,
     "wires": []
   },
   {
-    "id": "7cf27d9c1bf7f451",
-    "type": "subflow:c45e2eb6a51516d0",
-    "z": "84d1a0de660abb59",
-    "g": "96e90febc19e0c83",
-    "name": "",
-    "x": 190,
-    "y": 480,
-    "wires": [
-      [
-        "03c1d5a79bea3bbf",
-        "03c1f0752644b9c0",
-        "e6785e6cf6e666cf"
-      ]
-    ]
-  },
-  {
-    "id": "e6785e6cf6e666cf",
+    "id": "3f5a48b721dae9db",
     "type": "debug",
     "z": "84d1a0de660abb59",
-    "g": "96e90febc19e0c83",
-    "name": "Initialize connection",
+    "g": "354aca9dbc391ace",
+    "name": "Wasos output",
     "active": false,
     "tosidebar": true,
     "console": false,
@@ -356,30 +340,60 @@
     "targetType": "full",
     "statusVal": "",
     "statusType": "auto",
-    "x": 230,
-    "y": 440,
+    "x": 180,
+    "y": 240,
     "wires": []
   },
   {
-    "id": "a7ccd4d8c49ceaff",
-    "type": "link out",
+    "id": "03c1d5a79bea3bbf",
+    "type": "subflow:0fad769721e9978c",
     "z": "84d1a0de660abb59",
     "g": "96e90febc19e0c83",
-    "name": "initial log post",
-    "mode": "link",
-    "links": [
-      "9fe2d9086d510cb5"
-    ],
-    "x": 825,
+    "name": "",
+    "x": 490,
     "y": 480,
-    "wires": []
+    "wires": [
+      [
+        "be554d1eb57375c1",
+        "a7ccd4d8c49ceaff"
+      ]
+    ]
   },
   {
-    "id": "be554d1eb57375c1",
+    "id": "4c407091f641842f",
+    "type": "change",
+    "z": "84d1a0de660abb59",
+    "g": "354aca9dbc391ace",
+    "name": "create parts",
+    "rules": [
+      {
+        "t": "set",
+        "p": "parts.id",
+        "pt": "msg",
+        "to": "conn_id",
+        "tot": "msg"
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 650,
+    "y": 260,
+    "wires": [
+      [
+        "4290cc6fa1aadff0",
+        "cd8ec7101703dbb5"
+      ]
+    ]
+  },
+  {
+    "id": "cd8ec7101703dbb5",
     "type": "debug",
     "z": "84d1a0de660abb59",
-    "g": "96e90febc19e0c83",
-    "name": "initial log entries",
+    "g": "354aca9dbc391ace",
+    "name": "parts",
     "active": false,
     "tosidebar": true,
     "console": false,
@@ -388,43 +402,29 @@
     "targetType": "full",
     "statusVal": "",
     "statusType": "auto",
-    "x": 740,
-    "y": 440,
+    "x": 630,
+    "y": 300,
     "wires": []
   },
   {
-    "id": "f63d35f5fb7dc607",
-    "type": "link in",
+    "id": "65326760bdf87cf5",
+    "type": "function",
     "z": "84d1a0de660abb59",
     "g": "354aca9dbc391ace",
-    "name": "UIB Link in to Configure Rayvn",
-    "links": [
-      "ee7dab60e6fc914e"
-    ],
-    "x": 185,
-    "y": 160,
+    "name": "Validate clients",
+    "func": "// Guard against null/non-object payloads — Object.values(null) would throw uncaught\nif (!msg.payload || typeof msg.payload !== \"object\" || Array.isArray(msg.payload)) {\n    node.error(\"Expected an object payload, got: \" + typeof msg.payload);\n    return null;\n}\n\nconst clients = Object.values(msg.payload);\n\n// Join produced nothing — both configure flows may have failed silently\nif (clients.length === 0) {\n    node.error(\"No clients in payload — join produced an empty object.\");\n    return null;\n}\n\n// Only one side arrived — the other likely timed out or errored upstream\nif (clients.length === 1) {\n    const system = clients[0].client_system ?? \"(unknown)\";\n    node.error(\"Only one client arrived (\" + system + \") — the other may have timed out or failed upstream.\");\n    return null;\n}\n\n// More than two — likely a duplicate configure event fired and the join accumulated extras\nif (clients.length > 2) {\n    const systems = clients.map(c => c.client_system ?? \"(unknown)\").join(\", \");\n    node.error(\"Expected 2 clients, got \" + clients.length + \" (\" + systems + \")\");\n    return null;\n}\n\nconst [a, b] = clients;\n\n// Missing client_system means a malformed config slipped through — would silently pass the same-system check as undefined === undefined\nif (!a.client_system || !b.client_system) {\n    const missing = [!a.client_system && \"first\", !b.client_system && \"second\"].filter(Boolean).join(\" and \");\n    node.error(\"client_system missing on \" + missing + \" client — malformed config object.\");\n    return null;\n}\n\n// Both sides configured the same system — connection requires exactly one rayvn and one wasos\nif (a.client_system === b.client_system) {\n    node.error(\"Both clients are '\" + a.client_system + \"' — expected one rayvn and one wasos.\");\n    return null;\n}\n\nnode.log(\"Valid client pair: \" + a.client_system + \" (\" + a.identifier + \") ↔ \" + b.client_system + \" (\" + b.identifier + \")\");\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 860,
+    "y": 260,
     "wires": [
       [
-        "9b6e4d1e92c769d9",
-        "989d45634f23b97e"
-      ]
-    ]
-  },
-  {
-    "id": "c3faa9283c8ae054",
-    "type": "link in",
-    "z": "84d1a0de660abb59",
-    "g": "354aca9dbc391ace",
-    "name": "UIB Link in to Configure WaSOS",
-    "links": [
-      "4da735d9ab626fa3"
-    ],
-    "x": 185,
-    "y": 280,
-    "wires": [
-      [
-        "02f5aa2ff841acd1",
-        "3f5a48b721dae9db"
+        "7cf27d9c1bf7f451",
+        "5ee678ae28671a86"
       ]
     ]
   },
