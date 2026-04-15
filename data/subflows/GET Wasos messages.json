@@ -22,17 +22,7 @@
         "y": 80,
         "wires": [
           {
-            "id": "abfc97909e0db1e3",
-            "port": 0
-          }
-        ]
-      },
-      {
-        "x": 600,
-        "y": 200,
-        "wires": [
-          {
-            "id": "dca7a7d3d41d39ea",
+            "id": "c5d7db6374aeaab0",
             "port": 0
           }
         ]
@@ -115,17 +105,15 @@
     "z": "e97e0c90387d0adc",
     "name": "Reset poll failure count",
     "func": "const connectionName = msg.metadata?.connection_name || null;\nconst sourceIdentifier = msg.metadata?.source?.identifier || null;\n\nif (connectionName && sourceIdentifier) {\n    const failureCounts = global.get(\"failure_counts\") || {};\n    delete failureCounts[`${connectionName}::${sourceIdentifier}`];\n    global.set(\"failure_counts\", failureCounts);\n}\n\nreturn msg;",
-    "outputs": 1,
+    "outputs": 0,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 1040,
-    "y": 80,
-    "wires": [
-      []
-    ]
+    "x": 1060,
+    "y": 20,
+    "wires": []
   },
   {
     "id": "90fe80c8f00999d4",
@@ -151,6 +139,24 @@
     "z": "e97e0c90387d0adc",
     "name": "",
     "x": 470,
+    "y": 200,
+    "wires": [
+      [
+        "1887e2e1ecedb304"
+      ]
+    ]
+  },
+  {
+    "id": "1887e2e1ecedb304",
+    "type": "link call",
+    "z": "e97e0c90387d0adc",
+    "name": "",
+    "links": [
+      "f14ca558111b51e5"
+    ],
+    "linkType": "static",
+    "timeout": "30",
+    "x": 770,
     "y": 200,
     "wires": [
       []
