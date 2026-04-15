@@ -660,5 +660,23 @@
     "x": 185,
     "y": 700,
     "wires": []
+  },
+  {
+    "id": "f14ca558111b51e5",
+    "type": "link in",
+    "z": "003e75aaa2880405",
+    "name": "connection lifecycle event",
+    "links": [
+      "b9aeddc7b76f4eba",
+      "bbc67d0260da7625",
+      "32fdf7686dadfa44"
+    ],
+    "x": 345,
+    "y": 680,
+    "wires": [
+      [
+        "113b88136931cd38"
+      ]
+    ]
   }
 ]

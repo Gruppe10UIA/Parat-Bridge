@@ -248,7 +248,9 @@
     "name": "",
     "x": 1110,
     "y": 220,
-    "wires": [],
+    "wires": [
+      []
+    ],
     "info": "Centralized error handler for this subflow.\r\nReceives errors from the catch node and:\r\n- Classifies and logs the error\r\n- Sends notification to Rayvn and WaSOS\r\n  if 5+ consecutive failures occur\r\n"
   },
   {
