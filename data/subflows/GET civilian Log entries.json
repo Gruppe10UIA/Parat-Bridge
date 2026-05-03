@@ -95,7 +95,7 @@
     "y": 80,
     "wires": [
       [
-        "7d334210bedb119c"
+        "c92d8d18d05f572c"
       ]
     ]
   },
@@ -104,7 +104,7 @@
     "type": "function",
     "z": "0fad769721e9978c",
     "name": "Attach metadata",
-    "func": "const connection = msg.payload;\nconst clients    = Object.values(connection.clients);\nconst target     = clients.find(c => c.client_system === \"wasos\");\nconst source     = clients.find(c => c.client_system !== \"wasos\");\n\nmsg.topic    = source.client_system;\nmsg.metadata = {\n    source:     source,\n    target:     target,\n    connection_name: connection.name\n};\n\nreturn msg;\n",
+    "func": "const connection = msg.payload;\nconst clients = Object.values(connection.clients);\nconst target = clients.find(c => c.client_system === \"wasos\");\nconst source = clients.find(c => c.client_system !== \"wasos\");\n\nmsg.topic = source.client_system;\nmsg.metadata = {\n    source: source,\n    target: target,\n    connection_name: connection.name,\n    initial_sync: true\n};\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -147,6 +147,26 @@
     "wires": [
       [
         "cb79364a16a2822e"
+      ]
+    ]
+  },
+  {
+    "id": "c92d8d18d05f572c",
+    "type": "function",
+    "z": "0fad769721e9978c",
+    "name": "Flag last positions",
+    "func": "/**             \n * Annotates each entry with whether it is the last position event\n * for its delhendelse. Only the last one should trigger a geo POST,                                                                                                \n * preventing duplicate markers during initial batch processing.                                                                                                    \n */\nconst regex = /Posisjonen til delhendelsen '(.+?)' ble endret til/s;\nconst lastIndex = {};\n\nmsg.payload.forEach((entry, idx) => {\n    if (entry.text) {\n        const match = entry.text.match(regex);\n        if (match) lastIndex[match[1]] = idx;\n    }\n});\n\nmsg.payload.forEach((entry, idx) => {\n    if (entry.text) {\n        const match = entry.text.match(regex);\n        if (match) entry._is_last_geo = (lastIndex[match[1]] === idx);\n    }\n});\n\nreturn msg;  ",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 850,
+    "y": 80,
+    "wires": [
+      [
+        "7d334210bedb119c"
       ]
     ]
   }

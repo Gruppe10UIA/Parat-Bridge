@@ -7,8 +7,8 @@
     "category": "",
     "in": [
       {
-        "x": 200,
-        "y": 40,
+        "x": 160,
+        "y": 100,
         "wires": [
           {
             "id": "73e15b4c1da0b4ea"
@@ -18,8 +18,8 @@
     ],
     "out": [
       {
-        "x": 560,
-        "y": 40,
+        "x": 520,
+        "y": 60,
         "wires": [
           {
             "id": "73e15b4c1da0b4ea",
@@ -38,15 +38,34 @@
     "type": "function",
     "z": "ad3abd97c4ab0117",
     "name": "Extract Delhendelse Position",
-    "func": "  const text = msg.payload.text;                                                                                                                                                                   \n  if (!text) return msg;                                                                                                                                                                           \n                                                                                                                                                                                                   \n  const regex = /Posisjonen til delhendelsen '(.+?)' ble endret til '([0-9.]+):([0-9.]+)' \\(var: '(.+?):(.+?)'\\)/;                                                                                 \n  const match = text.match(regex);                                                                                                                                                                 \n                                                                                                                                                                                                   \n  if (match) {    \n      const name = match[1];\n      const lng = parseFloat(match[2]);\n      const lat = parseFloat(match[3]);                                                                                                                                                            \n   \n      const connection_name = msg.metadata.connection_name;                                                                                                                                        \n      const source_id = msg.metadata.source.identifier;\n      const key = `parat_bridge.connections.${connection_name}.clients.${source_id}.client_specific.delhendelse_positions`;                                                                                       \n      const positions = global.get(key) || [];\n                                                                                                                                                                                                   \n      const existingIndex = positions.findIndex(p => p.name === name);\n      if (existingIndex >= 0) {                                                                                                                                                                    \n          positions[existingIndex].lat = lat;\n          positions[existingIndex].lng = lng;\n      } else {                                                                                                                                                                                     \n          positions.push({ name, lat, lng });\n      }                                                                                                                                                                                            \n                  \n      global.set(key, positions);                                                                                                                                                                  \n      msg.metadata.geo = { lat, lng, name };\n  }                                                                                                                                                                                                \n   \n  return msg;  ",
-    "outputs": 1,
+    "func": "const text = msg.payload && msg.payload.text;\nif (!text) return [msg, null];\n\nconst regex = /Posisjonen til delhendelsen '(.+?)' ble endret til '([0-9.]+):([0-9.]+)' \\(var: '(.+?):(.+?)'\\)/s;\nconst match = text.match(regex);\nif (!match) return [msg, null];\n\nconst name = match[1];\nconst lng = parseFloat(match[2]);\nconst lat = parseFloat(match[3]);\nconst var_lng = match[4];\nconst var_lat = match[5];\nconst is_initial = (var_lng === \"null\" && var_lat === \"null\");\n\nconst connection_name = msg.metadata.connection_name;\nconst source_id = msg.metadata.source.identifier;\n\nconst conns = global.get(\"parat_bridge.connections\") || {};\nconst connection = conns[connection_name];\nconst client = connection && connection.clients && connection.clients[source_id];\nconst positions = (client && client.client_specific && client.client_specific.delhendelse_positions) || [];\n\nconst existingIndex = positions.findIndex(p => p.name === name);\nif (existingIndex >= 0) {\n    positions[existingIndex].lat = lat;\n    positions[existingIndex].lng = lng;\n} else {\n    positions.push({ name, lat, lng });\n}\n\nconst key = `parat_bridge.connections.${connection_name}.clients.${source_id}.client_specific.delhendelse_positions`;\nglobal.set(key, positions);\n\nconst is_last = msg.payload._is_last_geo !== false;\n\nif (is_last) {\n    msg.metadata.geo = { lat, lng, name };\n}\n\nlet notification = null;\nif (\n    is_last &&\n    !msg.metadata.initial_sync &&\n    client &&\n    client.client_system === \"rayvn\"\n) {\n    notification = {\n        payload: {\n            name: name,\n            is_initial: is_initial,\n            target: client,\n            connection_name: connection_name\n        }\n    };\n}\n\nreturn [msg, notification];",
+    "outputs": 2,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 380,
-    "y": 40,
+    "x": 340,
+    "y": 100,
+    "wires": [
+      [],
+      [
+        "978bf4d63c5e9888"
+      ]
+    ]
+  },
+  {
+    "id": "978bf4d63c5e9888",
+    "type": "link call",
+    "z": "ad3abd97c4ab0117",
+    "name": "delhendelse notification",
+    "links": [
+      "4cf8114d2d57a6c1"
+    ],
+    "linkType": "static",
+    "timeout": "30",
+    "x": 610,
+    "y": 140,
     "wires": [
       []
     ]

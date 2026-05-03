@@ -54,12 +54,15 @@
       "989d45634f23b97e",
       "3f5a48b721dae9db",
       "f63d35f5fb7dc607",
-      "c3faa9283c8ae054"
+      "c3faa9283c8ae054",
+      "4c407091f641842f",
+      "cd8ec7101703dbb5",
+      "65326760bdf87cf5"
     ],
     "x": 74,
     "y": 79,
-    "w": 792,
-    "h": 242
+    "w": 892,
+    "h": 262
   },
   {
     "id": "c3faa9283c8ae054",
@@ -200,8 +203,8 @@
     "y": 160,
     "wires": [
       [
-        "4290cc6fa1aadff0",
-        "794b757ef07a4e19"
+        "794b757ef07a4e19",
+        "4c407091f641842f"
       ]
     ]
   },
@@ -215,8 +218,8 @@
     "y": 280,
     "wires": [
       [
-        "4290cc6fa1aadff0",
-        "a81cbcc889952fb3"
+        "a81cbcc889952fb3",
+        "4c407091f641842f"
       ]
     ]
   },
@@ -233,9 +236,9 @@
     "key": "payload.identifier",
     "joiner": "\\n",
     "joinerType": "str",
-    "useparts": false,
+    "useparts": true,
     "accumulate": false,
-    "timeout": "",
+    "timeout": "5",
     "count": "2",
     "reduceRight": false,
     "reduceExp": "",
@@ -247,7 +250,7 @@
     "wires": [
       [
         "293cf0ecd677bac0",
-        "7cf27d9c1bf7f451"
+        "65326760bdf87cf5"
       ]
     ]
   },
@@ -279,8 +282,8 @@
     "tosidebar": true,
     "console": false,
     "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
+    "complete": "true",
+    "targetType": "full",
     "statusVal": "",
     "statusType": "auto",
     "x": 420,
@@ -297,8 +300,8 @@
     "tosidebar": true,
     "console": false,
     "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
+    "complete": "true",
+    "targetType": "full",
     "statusVal": "",
     "statusType": "auto",
     "x": 420,
@@ -315,8 +318,8 @@
     "tosidebar": true,
     "console": false,
     "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
+    "complete": "true",
+    "targetType": "full",
     "statusVal": "",
     "statusType": "auto",
     "x": 180,
@@ -333,8 +336,8 @@
     "tosidebar": true,
     "console": false,
     "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
+    "complete": "true",
+    "targetType": "full",
     "statusVal": "",
     "statusType": "auto",
     "x": 180,
@@ -353,6 +356,133 @@
       [
         "be554d1eb57375c1",
         "a7ccd4d8c49ceaff"
+      ]
+    ]
+  },
+  {
+    "id": "4c407091f641842f",
+    "type": "change",
+    "z": "84d1a0de660abb59",
+    "g": "354aca9dbc391ace",
+    "name": "create parts",
+    "rules": [
+      {
+        "t": "set",
+        "p": "parts.id",
+        "pt": "msg",
+        "to": "conn_id",
+        "tot": "msg"
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 650,
+    "y": 260,
+    "wires": [
+      [
+        "4290cc6fa1aadff0",
+        "cd8ec7101703dbb5"
+      ]
+    ]
+  },
+  {
+    "id": "cd8ec7101703dbb5",
+    "type": "debug",
+    "z": "84d1a0de660abb59",
+    "g": "354aca9dbc391ace",
+    "name": "parts",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 630,
+    "y": 300,
+    "wires": []
+  },
+  {
+    "id": "65326760bdf87cf5",
+    "type": "function",
+    "z": "84d1a0de660abb59",
+    "g": "354aca9dbc391ace",
+    "name": "Validate clients",
+    "func": "// Guard against null/non-object payloads — Object.values(null) would throw uncaught\nif (!msg.payload || typeof msg.payload !== \"object\" || Array.isArray(msg.payload)) {\n    node.error(\"Expected an object payload, got: \" + typeof msg.payload);\n    return null;\n}\n\nconst clients = Object.values(msg.payload);\n\n// Join produced nothing — both configure flows may have failed silently\nif (clients.length === 0) {\n    node.error(\"No clients in payload — join produced an empty object.\");\n    return null;\n}\n\n// Only one side arrived — the other likely timed out or errored upstream\nif (clients.length === 1) {\n    const system = clients[0].client_system ?? \"(unknown)\";\n    node.error(\"Only one client arrived (\" + system + \") — the other may have timed out or failed upstream.\");\n    return null;\n}\n\n// More than two — likely a duplicate configure event fired and the join accumulated extras\nif (clients.length > 2) {\n    const systems = clients.map(c => c.client_system ?? \"(unknown)\").join(\", \");\n    node.error(\"Expected 2 clients, got \" + clients.length + \" (\" + systems + \")\");\n    return null;\n}\n\nconst [a, b] = clients;\n\n// Missing client_system means a malformed config slipped through — would silently pass the same-system check as undefined === undefined\nif (!a.client_system || !b.client_system) {\n    const missing = [!a.client_system && \"first\", !b.client_system && \"second\"].filter(Boolean).join(\" and \");\n    node.error(\"client_system missing on \" + missing + \" client — malformed config object.\");\n    return null;\n}\n\n// Both sides configured the same system — connection requires exactly one rayvn and one wasos\nif (a.client_system === b.client_system) {\n    node.error(\"Both clients are '\" + a.client_system + \"' — expected one rayvn and one wasos.\");\n    return null;\n}\n\nnode.log(\"Valid client pair: \" + a.client_system + \" (\" + a.identifier + \") ↔ \" + b.client_system + \" (\" + b.identifier + \")\");\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 860,
+    "y": 260,
+    "wires": [
+      [
+        "7cf27d9c1bf7f451",
+        "5ee678ae28671a86"
+      ]
+    ]
+  },
+  {
+    "id": "5ee678ae28671a86",
+    "type": "function",
+    "z": "84d1a0de660abb59",
+    "name": "Prepare opprettet payload",
+    "func": "/**                                                                                                                                                                 \n * Reads the current connection object from globals, then\n * hands it to Notify Connection Lifecycle.                                                                                                                         \n */\nconst utils = global.get(\"utils\");\nconst clients = Object.values(msg.payload);\nif (clients.length !== 2) return null;\n\nconst name = utils.build_connection_name(clients);\nconst connection = (global.get(\"parat_bridge.connections\") || {})[name];\n\n// Race-safety: if Initialize connection has not created it yet,                                                                                                    \n// synthesize a minimal connection object from the join payload.\nconst safe_connection = connection || {\n    name: name,\n    clients: msg.payload\n};\n\nreturn {\n    payload: safe_connection,\n    event: \"opprettet\"\n};",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 1020,
+    "y": 100,
+    "wires": [
+      [
+        "fc2f8e608720e06c"
+      ]
+    ]
+  },
+  {
+    "id": "b9aeddc7b76f4eba",
+    "type": "link out",
+    "z": "84d1a0de660abb59",
+    "name": "Connection lifecycle link out",
+    "mode": "link",
+    "links": [
+      "f14ca558111b51e5"
+    ],
+    "x": 1165,
+    "y": 140,
+    "wires": []
+  },
+  {
+    "id": "fc2f8e608720e06c",
+    "type": "delay",
+    "z": "84d1a0de660abb59",
+    "name": "",
+    "pauseType": "delay",
+    "timeout": "3",
+    "timeoutUnits": "seconds",
+    "rate": "1",
+    "nbRateUnits": "1",
+    "rateUnits": "second",
+    "randomFirst": "1",
+    "randomLast": "5",
+    "randomUnits": "seconds",
+    "drop": false,
+    "allowrate": false,
+    "outputs": 1,
+    "x": 1060,
+    "y": 140,
+    "wires": [
+      [
+        "b9aeddc7b76f4eba"
       ]
     ]
   }

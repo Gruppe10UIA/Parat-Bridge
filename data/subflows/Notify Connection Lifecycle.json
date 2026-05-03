@@ -1,0 +1,53 @@
+[
+  {
+    "id": "02a04be64d32ccd1",
+    "type": "subflow",
+    "name": "Notify Connection Lifecycle",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 100,
+        "y": 100,
+        "wires": [
+          {
+            "id": "230fe91a9b07a0a7"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 460,
+        "y": 100,
+        "wires": [
+          {
+            "id": "230fe91a9b07a0a7",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#DDAA99"
+  },
+  {
+    "id": "230fe91a9b07a0a7",
+    "type": "function",
+    "z": "02a04be64d32ccd1",
+    "name": "Build lifecycle notifications",
+    "func": "/**\n  * Builds queue-ready parat_bridge system notifications for a\n  * connection lifecycle event.                                                                                                                                    \n  *\n  * Input:                                                                                                                                                         \n  *   msg.payload           = connection object                                                                                                                  \n  *   msg.event             = \"opprettet\" | \"stopped\" | \"lost\"                                                                                                     \n  *   msg.failed_identifier = (only for \"lost\") identifier of the side                                                                                           \n  *                           whose outgoing message could not be delivered                                                                                        \n  *                                                                                                                                                                \n  * Output: array-of-array of queue-ready msgs (one per direction).\n  */\nconst connection = msg.payload;\nconst event = msg.event;\n\nif (!connection || !connection.clients) return null;\n\nconst clients = Object.values(connection.clients);\nif (clients.length !== 2) return null;\n\nconst bridge_source = {\n    client_system: \"parat_bridge\",\n    name: \"parat_bridge\",\n    identifier: \"parat_bridge\"\n};\n\nconst failed_identifier = msg.failed_identifier;\nconst failed_client = failed_identifier\n    ? clients.find(c => c.identifier === failed_identifier)\n    : null;\nconst failed_name = failed_client\n    ? (failed_client.name || failed_client.client_system)\n    : null;\n\nconst phrase_for = (target) => {\n    const other = clients.find(c => c.identifier !== target.identifier) || clients[0];\n    const other_name = other.name || other.client_system;\n\n    if (event === \"opprettet\") {\n        let line = `🛜 Tilkobling mot ${other_name} er opprettet.`;\n        if (target.client_system === \"rayvn\") {\n            line += `\\n📍 Posisjoner på delhendelser deles automatisk til WaSOS.`;\n        }\n        return line;\n    }\n\n    if (event === \"stopped\") {\n        return `❌ Tilkobling til ${other_name} er stoppet - videre meldinger vil ikke bli sendt.`;\n    }\n\n    if (event === \"lost\") {\n        if (failed_identifier && target.identifier === failed_identifier) {\n            return `❌ Tilkobling til ${other_name} er mistet - din siste melding er ikke sendt.`;\n        }\n        return `❌ Tilkobling til ${other_name} er mistet og har problemer - videre meldinger vil ikke bli levert før tilkoblingen er gjenopprettet.`;\n    }\n\n    return `❌ Tilkobling til ${other_name} er mistet.`;\n};  \n\nconst now = Date.now();\nconst rand = () => Math.random().toString(36).substr(2, 6);\n\nconst notifications = clients.map(target => ({\n    topic: \"new_message\",\n    entry: {\n        id: `pb-conn-${event}-${now}-${rand()}`,\n        text: phrase_for(target),\n        timestamp: now,\n        author: \"System-melding\",\n        labels: [],\n        metadata: {\n            source: bridge_source,\n            target: target,\n            connection_name: connection.name,\n            files: null\n        }\n    }\n}));\n\nreturn [notifications];    ",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 280,
+    "y": 100,
+    "wires": [
+      []
+    ]
+  }
+]

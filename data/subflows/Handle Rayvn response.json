@@ -185,5 +185,56 @@
     "wires": [
       []
     ]
+  },
+  {
+    "id": "1628c8ba2335ce92",
+    "type": "debug",
+    "z": "15215b18f4fbcbdd",
+    "name": "has file",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 500,
+    "y": 340,
+    "wires": []
+  },
+  {
+    "id": "be18f84c50e6bc5c",
+    "type": "debug",
+    "z": "15215b18f4fbcbdd",
+    "name": "classify file",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 670,
+    "y": 300,
+    "wires": []
+  },
+  {
+    "id": "e6b4ae2724701cf6",
+    "type": "debug",
+    "z": "15215b18f4fbcbdd",
+    "name": "fetch rayvn file",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 820,
+    "y": 260,
+    "wires": []
   }
 ]

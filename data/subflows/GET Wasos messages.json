@@ -45,7 +45,7 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 290,
+    "x": 270,
     "y": 80,
     "wires": [
       [
@@ -93,6 +93,71 @@
     "libs": [],
     "x": 830,
     "y": 80,
+    "wires": [
+      [
+        "abfc97909e0db1e3"
+      ]
+    ]
+  },
+  {
+    "id": "abfc97909e0db1e3",
+    "type": "function",
+    "z": "e97e0c90387d0adc",
+    "name": "Reset poll failure count",
+    "func": "const connectionName = msg.metadata?.connection_name || null;\nconst sourceIdentifier = msg.metadata?.source?.identifier || null;\n\nif (connectionName && sourceIdentifier) {\n    const failureCounts = global.get(\"failure_counts\") || {};\n    delete failureCounts[`${connectionName}::${sourceIdentifier}`];\n    global.set(\"failure_counts\", failureCounts);\n}\n\nreturn msg;",
+    "outputs": 0,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 1060,
+    "y": 20,
+    "wires": []
+  },
+  {
+    "id": "90fe80c8f00999d4",
+    "type": "catch",
+    "z": "e97e0c90387d0adc",
+    "name": "",
+    "scope": [
+      "1d0194e0031045d5",
+      "c5d7db6374aeaab0"
+    ],
+    "uncaught": false,
+    "x": 290,
+    "y": 200,
+    "wires": [
+      [
+        "dca7a7d3d41d39ea"
+      ]
+    ]
+  },
+  {
+    "id": "dca7a7d3d41d39ea",
+    "type": "subflow:7cecb563cf8b234a",
+    "z": "e97e0c90387d0adc",
+    "name": "",
+    "x": 470,
+    "y": 200,
+    "wires": [
+      [
+        "1887e2e1ecedb304"
+      ]
+    ]
+  },
+  {
+    "id": "1887e2e1ecedb304",
+    "type": "link call",
+    "z": "e97e0c90387d0adc",
+    "name": "",
+    "links": [
+      "f14ca558111b51e5"
+    ],
+    "linkType": "static",
+    "timeout": "30",
+    "x": 770,
+    "y": 200,
     "wires": [
       []
     ]

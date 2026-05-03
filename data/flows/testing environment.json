@@ -511,5 +511,63 @@
         "4bb221810c3a9cba"
       ]
     ]
+  },
+  {
+    "id": "508080f1bea4511a",
+    "type": "inject",
+    "z": "901ed98289cc4ecd",
+    "name": "Test mistet melding",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "str",
+    "x": 410,
+    "y": 680,
+    "wires": [
+      [
+        "4a363d6362b94be0"
+      ]
+    ]
+  },
+  {
+    "id": "4a363d6362b94be0",
+    "type": "function",
+    "z": "901ed98289cc4ecd",
+    "name": "Build fake failed entry ",
+    "func": "/**                                                                                                                                                               \n * Synthesizes the same msg shape that log queue's Retry function emits\n * when MAX_RETRIES is exhausted. Targets the first active connection                                                                                             \n * found in globals.                                                                                                                                            \n */\nconst conns = global.get(\"parat_bridge.connections\") || {};\nconst name = Object.keys(conns).find(k => conns[k] && conns[k].active);\n\nif (!name) {\n    node.warn(\"Test: no active connection in globals — set up a connection via Hjem first.\");\n    return null;\n}\n\nconst conn = conns[name];\nconst clients = Object.values(conn.clients);\n\nmsg.entry = {\n    id: \"test-failure-\" + Date.now(),\n    text: \"synthetic failed entry for mistet test\",\n    timestamp: Date.now(),\n    author: \"test\",\n    labels: [],\n    metadata: {\n        source: clients[0],          // pretend client[0] sent it                                                                                                 \n        target: clients[1],          // pretend client[1] was the failing receiver                                                                                \n        connection_name: name,\n        files: null\n    }\n};\n\nnode.warn(\"Test: firing fake failure for connection \" + name);\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 640,
+    "y": 680,
+    "wires": [
+      [
+        "8229df8e89be6c6e"
+      ]
+    ]
+  },
+  {
+    "id": "8229df8e89be6c6e",
+    "type": "link out",
+    "z": "901ed98289cc4ecd",
+    "name": "Test → message failed   ",
+    "mode": "link",
+    "links": [
+      "de6ca76d90c9c420"
+    ],
+    "x": 795,
+    "y": 680,
+    "wires": []
   }
 ]

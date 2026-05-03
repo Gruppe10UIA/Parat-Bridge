@@ -43,13 +43,18 @@
     "type": "function",
     "z": "f12d6e1c0542fc55",
     "name": "Route UIB Messages",
-    "func": "if (msg.topic === 'form/submit') {\n    var rayvn = {\n        payload: {\n            rayvn_api_key: msg.payload.rayvn_api_key,\n            rayvn_log_name: msg.payload.rayvn_log_name,\n            rayvn_sender_name: msg.payload.rayvn_sender_name\n        }\n    };\n\n    var wasos = {\n        payload: {\n            wasos_username: msg.payload.wasos_username,\n            wasos_password: msg.payload.wasos_password,\n            wasos_chatroom_name: msg.payload.wasos_chatroom_name,\n            wasos_sender_name: msg.payload.wasos_sender_name\n        }\n    };\n\n    return [rayvn, wasos, null, null];\n}\n\nif (msg.topic === 'connection/toggle') {\n    return [null, null, msg, null];\n}\n\nif (msg.topic === 'connection/remove') {\n    return [null, null, null, msg];\n}\n\nreturn [null, null, null, null];",
+    "func": "if (msg.topic === 'form/submit') {\n\n    const conn_id = crypto\n        .createHash('sha256')\n        .update(JSON.stringify({\n            rayvn_api_key: msg.payload.rayvn_api_key,\n            rayvn_log_name: msg.payload.rayvn_log_name,\n            wasos_username: msg.payload.wasos_username,\n            wasos_password: msg.payload.wasos_password,\n            wasos_chatroom_name: msg.payload.wasos_chatroom_name\n        }))\n        .digest('hex')\n        .substring(0, 16);\n\n    var rayvn = {\n        payload: {\n            rayvn_api_key: msg.payload.rayvn_api_key,\n            rayvn_log_name: msg.payload.rayvn_log_name,\n            rayvn_sender_name: msg.payload.rayvn_sender_name\n        },\n        conn_id: conn_id\n    };\n\n    var wasos = {\n        payload: {\n            wasos_username: msg.payload.wasos_username,\n            wasos_password: msg.payload.wasos_password,\n            wasos_chatroom_name: msg.payload.wasos_chatroom_name,\n            wasos_sender_name: msg.payload.wasos_sender_name\n        },\n        conn_id: conn_id\n    };\n\n    return [rayvn, wasos, null, null];\n}\n\nif (msg.topic === 'connection/toggle') {\n    return [null, null, msg, null];\n}\n\nif (msg.topic === 'connection/remove') {\n    return [null, null, null, msg];\n}\n\nreturn [null, null, null, null];",
     "outputs": 4,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
-    "libs": [],
+    "libs": [
+      {
+        "var": "crypto",
+        "module": "crypto"
+      }
+    ],
     "x": 640,
     "y": 120,
     "wires": [
@@ -98,7 +103,7 @@
     "type": "function",
     "z": "f12d6e1c0542fc55",
     "name": "Toggle Connection",
-    "func": "const { name, active } = msg.payload;\nconst path = 'parat_bridge.connections.' + name + '.active';\nglobal.set(path, active);\nreturn null;",
+    "func": "/**                                                                                                                                                                 \n * Sets the connection active flag, then emits a lifecycle payload so\n * Notify Connection Lifecycle pushes notifications to both sides.\n */\nconst { name, active } = msg.payload;\nconst connection = (global.get(\"parat_bridge.connections\") || {})[name];\n\nif (!connection) return null;\n\nglobal.set(\"parat_bridge.connections.\" + name + \".active\", active);\n\nmsg.payload = connection;\nmsg.event = active ? \"opprettet\" : \"stopped\";\nreturn msg;   ",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -108,7 +113,9 @@
     "x": 930,
     "y": 120,
     "wires": [
-      []
+      [
+        "bbc67d0260da7625"
+      ]
     ]
   },
   {
@@ -152,7 +159,7 @@
     "type": "function",
     "z": "f12d6e1c0542fc55",
     "name": "Remove Connection",
-    "func": "const { name } = msg.payload;\n\nif (!global.get('parat_bridge.connections.' + name)) return null;\n\nglobal.set('parat_bridge.connections.' + name, null);\n\nreturn null;\n",
+    "func": "const { name } = msg.payload;\n\nif (!(global.get(\"parat_bridge.connections\") || {})[name]) return null;\n\nglobal.set(\"parat_bridge.connections.\" + name, null);\n\nreturn null;    ",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -164,5 +171,18 @@
     "wires": [
       []
     ]
+  },
+  {
+    "id": "bbc67d0260da7625",
+    "type": "link out",
+    "z": "f12d6e1c0542fc55",
+    "name": "UI Notification lifecycle link out",
+    "mode": "link",
+    "links": [
+      "f14ca558111b51e5"
+    ],
+    "x": 1075,
+    "y": 120,
+    "wires": []
   }
 ]
