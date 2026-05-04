@@ -31,3 +31,10 @@ lib/
 
 # Parat-Bridge runtime data
 data/bridge-files/
+
+# ui-builder generated files
+data/uibuilder/package.json
+data/uibuilder/package.json.bak
+data/uibuilder/.config
+
+.env

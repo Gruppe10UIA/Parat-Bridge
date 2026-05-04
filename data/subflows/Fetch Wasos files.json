@@ -1,0 +1,260 @@
+[
+  {
+    "id": "ea1089b94046dd14",
+    "type": "subflow",
+    "name": "Fetch Wasos files",
+    "info": "Fetches all transferable files for a single WaSOS entry.\n\n### Input\n- msg.payload — entry object with .files array, pre-filtered by Check file sizes (WaSOS)\n- msg.metadata — standard metadata (source, target, connection_name)\n\n### Logic\n1. Prepare download list — backs up entry, sends one message per file with join parts\n2. Get WaSOS file (per file) — builds HTTP GET, downloads buffer, stores in global context\n3. Join — reassembles file results into array\n4. Merge files and rebuild entry — separates successful downloads from failures, merges with oversized failures from backup, rebuilds entry\n\n### Output\n- msg.payload — rebuilt entry with updated .files (downloaded) and .failed_files (oversized + download failures)\n- msg.metadata — preserved from input\n",
+    "category": "",
+    "in": [
+      {
+        "x": 60,
+        "y": 280,
+        "wires": [
+          {
+            "id": "1f81434e8a02a248"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 1000,
+        "y": 360,
+        "wires": [
+          {
+            "id": "f99e990ce3eabc8d",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#E7E7AE",
+    "icon": "node-red/file-in.svg"
+  },
+  {
+    "id": "1f81434e8a02a248",
+    "type": "function",
+    "z": "ea1089b94046dd14",
+    "name": "Prepare download list",
+    "func": "/**\n * Splits files for processing.\n * Output 1: files needing HTTP GET → Get Wasos file\n * Output 2: files with pre-loaded buffer → straight to Compress?\n */\nconst entry = msg.payload;\nconst items = msg.metadata.files.items;\nconst total = items.length;\n\nconst dl = {\n    entry_backup: JSON.parse(JSON.stringify(entry, (k, v) => k === '_buffer' ? undefined : v)),\n    connection_name: msg.metadata.connection_name,\n    message_id: entry.id,\n    metadata: msg.metadata\n};\n\nconst to_download = [];\nconst pre_loaded = [];\n\nitems.forEach((file, i) => {\n    const parts = { id: msg._msgid, type: \"array\", count: total, index: i };\n\n    if (file._buffer) {\n        // Pre-loaded buffer — bypass HTTP GET\n        pre_loaded.push({\n            _msgid: msg._msgid,\n            payload: file._buffer,\n            statusCode: 200,\n            metadata: msg.metadata,\n            _dl: dl,\n            parts: parts,\n            _file_meta: {\n                name: file.name,\n                type: file.type || \"image/png\",\n                size: file._buffer.length\n            }\n        });\n    } else {\n        // WaSOS file — needs HTTP GET\n        to_download.push({\n            _msgid: msg._msgid,\n            payload: file,\n            metadata: msg.metadata,\n            _dl: dl,\n            parts: parts\n        });\n    }\n});\n\nreturn [\n    to_download.length ? to_download : null,\n    pre_loaded.length ? pre_loaded : null\n];\n",
+    "outputs": 2,
+    "timeout": "",
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 220,
+    "y": 280,
+    "wires": [
+      [
+        "2f471865d6543010"
+      ],
+      [
+        "f41c3863e5e1cad7"
+      ]
+    ]
+  },
+  {
+    "id": "2f471865d6543010",
+    "type": "subflow:a04671bb4cc2108f",
+    "z": "ea1089b94046dd14",
+    "name": "",
+    "x": 220,
+    "y": 240,
+    "wires": [
+      [
+        "f41c3863e5e1cad7"
+      ]
+    ]
+  },
+  {
+    "id": "11c364b2f19beedd",
+    "type": "function",
+    "z": "ea1089b94046dd14",
+    "name": "Store file via global context",
+    "func": "/**\n * Stores the downloaded file buffer in global context.\n * Returns a pruned file result object for the join node.\n */\nconst utils = global.get(\"utils\");\nconst meta = msg._file_meta;\nconst dl = msg._dl;\nconst success = msg.statusCode === 200 && msg.payload && msg.payload.length > 0;\n\nconst file = { name: meta.name, type: meta.type, size: meta.size, downloaded: success };\n\nif (success) {\n    const key = utils.build_file_key(dl.message_id, dl.connection_name, meta.name);\n    global.set(\"files.\" + key, msg.payload);\n    file.context_key = key;\n} else {\n    node.error(\"File download failed. Status: \" + msg.statusCode + \", file: \" + meta.name);\n}\n\nreturn {\n    _msgid: msg._msgid,\n    topic: msg.topic,\n    payload: file,\n    parts: msg.parts,\n    _dl: msg._dl\n};\n",
+    "outputs": 1,
+    "timeout": "",
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 720,
+    "y": 280,
+    "wires": [
+      [
+        "fef7788da99b233a"
+      ]
+    ]
+  },
+  {
+    "id": "f41c3863e5e1cad7",
+    "type": "function",
+    "z": "ea1089b94046dd14",
+    "name": "Compress?",
+    "func": "const utils = global.get(\"utils\");\nconst target_attr = utils.get_system_attributes(msg.metadata.target.client_system);\n\n// Skip failed downloads or empty responses\nif (!msg.payload || msg.payload.length === 0 || msg.statusCode !== 200) {\n    return [null, msg];\n}\n\n// Route oversized files to compression\nif (target_attr.max_upload_bytes && msg.payload.length > target_attr.max_upload_bytes) {\n    return [msg, null];\n}\nreturn [null, msg];\n",
+    "outputs": 2,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 450,
+    "y": 280,
+    "wires": [
+      [
+        "0f8d501b85f5a793"
+      ],
+      [
+        "11c364b2f19beedd"
+      ]
+    ]
+  },
+  {
+    "id": "0f8d501b85f5a793",
+    "type": "subflow:877a76e7a01fd7ae",
+    "z": "ea1089b94046dd14",
+    "name": "",
+    "x": 460,
+    "y": 240,
+    "wires": [
+      [
+        "11c364b2f19beedd"
+      ]
+    ]
+  },
+  {
+    "id": "2f68fcf5b759cffe",
+    "type": "debug",
+    "z": "ea1089b94046dd14",
+    "name": "compressed file",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 720,
+    "y": 180,
+    "wires": []
+  },
+  {
+    "id": "12a7e608c149a8fd",
+    "type": "debug",
+    "z": "ea1089b94046dd14",
+    "name": "noncompressed file",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 730,
+    "y": 220,
+    "wires": []
+  },
+  {
+    "id": "f304d3a165b7f290",
+    "type": "debug",
+    "z": "ea1089b94046dd14",
+    "name": "post storage file",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1020,
+    "y": 240,
+    "wires": []
+  },
+  {
+    "id": "0959a371c9a79c8a",
+    "type": "debug",
+    "z": "ea1089b94046dd14",
+    "name": "downloaded item",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 230,
+    "y": 200,
+    "wires": []
+  },
+  {
+    "id": "fef7788da99b233a",
+    "type": "join",
+    "z": "ea1089b94046dd14",
+    "name": "",
+    "mode": "auto",
+    "build": "object",
+    "property": "payload",
+    "propertyType": "msg",
+    "key": "topic",
+    "joiner": "\\n",
+    "joinerType": "str",
+    "useparts": false,
+    "accumulate": true,
+    "timeout": "",
+    "count": "",
+    "reduceRight": false,
+    "reduceExp": "",
+    "reduceInit": "",
+    "reduceInitType": "",
+    "reduceFixup": "",
+    "x": 310,
+    "y": 380,
+    "wires": [
+      [
+        "f99e990ce3eabc8d"
+      ]
+    ]
+  },
+  {
+    "id": "29ce7e9f9756967b",
+    "type": "debug",
+    "z": "ea1089b94046dd14",
+    "name": "wasos file",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 540,
+    "y": 340,
+    "wires": []
+  },
+  {
+    "id": "f99e990ce3eabc8d",
+    "type": "function",
+    "z": "ea1089b94046dd14",
+    "name": "Merge files and rebuild entry",
+    "func": "const utils      = global.get(\"utils\");\nconst dl         = msg._dl;\nconst entry      = dl.entry_backup;\nconst metadata   = dl.metadata;\nconst downloaded = Array.isArray(msg.payload) ? msg.payload : [msg.payload];\n\n// Separate stored files from failures\nconst stored = downloaded.filter(f => f.downloaded);\nconst failed = downloaded\n    .filter(f => !f.downloaded)\n    .map(f => ({ name: f.name || \"ukjent fil\", reason: f.reason || utils.FILE_REASONS.DOWNLOAD_FAILED }));\n\n// Update entry\nentry.files = stored;\nentry.failed_files = [...(entry.failed_files || []), ...failed];\n\n// Sync metadata.files contract for POST side\nmetadata.files.items = stored;\nmetadata.files.failed = [...metadata.files.failed, ...failed];\n\nnode.log(\"File download complete for entry \" + entry.id + \": \"\n    + stored.length + \" stored, \" + failed.length + \" failed\");\n\nreturn {\n    _msgid:   msg._msgid,\n    topic:    msg.topic,\n    payload:  entry,\n    metadata: metadata\n};\n",
+    "outputs": 1,
+    "timeout": "",
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 560,
+    "y": 380,
+    "wires": [
+      []
+    ]
+  }
+]

@@ -1,0 +1,103 @@
+[
+  {
+    "id": "b5c88de3cb9383d5",
+    "type": "subflow",
+    "name": "Post Rayvn Entry",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 40,
+        "y": 120,
+        "wires": [
+          {
+            "id": "ce6f80cc72848224"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 660,
+        "y": 180,
+        "wires": [
+          {
+            "id": "a52a99cc5482559e",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#DEB887",
+    "icon": "font-awesome/fa-send"
+  },
+  {
+    "id": "a52a99cc5482559e",
+    "type": "http request",
+    "z": "b5c88de3cb9383d5",
+    "name": "POST To Rayvn Entry Point",
+    "method": "POST",
+    "ret": "txt",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 400,
+    "y": 340,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "a4324541f882f82c",
+    "type": "delay",
+    "z": "b5c88de3cb9383d5",
+    "name": "",
+    "pauseType": "delay",
+    "timeout": "100",
+    "timeoutUnits": "milliseconds",
+    "rate": "1",
+    "nbRateUnits": "1",
+    "rateUnits": "second",
+    "randomFirst": "1",
+    "randomLast": "5",
+    "randomUnits": "seconds",
+    "drop": false,
+    "allowrate": false,
+    "outputs": 1,
+    "x": 410,
+    "y": 120,
+    "wires": [
+      [
+        "a52a99cc5482559e"
+      ]
+    ]
+  },
+  {
+    "id": "ce6f80cc72848224",
+    "type": "function",
+    "z": "b5c88de3cb9383d5",
+    "name": "Format header and url",
+    "func": "const target = msg.metadata.target;\n\nif (!target || !target.api_key || !target.client_specific.log_id) {\n    node.error(\"Rayvn ikke konfigurert på denne tilkoblingen\");\n    return null;\n}\n\nmsg.url = global.get(\"parat_bridge\").base_urls.rayvn\n    + \"/logs/\" + target.client_specific.log_id + \"/entry\";\n\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + target.api_key,\n    \"Content-Type\":  \"application/json\",\n    \"Accept\":        \"application/json\"\n};\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 200,
+    "y": 120,
+    "wires": [
+      [
+        "a4324541f882f82c"
+      ]
+    ]
+  }
+]

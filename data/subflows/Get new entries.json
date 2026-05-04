@@ -8,11 +8,11 @@
     "in": [],
     "out": [
       {
-        "x": 1080,
-        "y": 360,
+        "x": 1160,
+        "y": 480,
         "wires": [
           {
-            "id": "ea7ebf58285971a8",
+            "id": "cd2019698fb7440a",
             "port": 0
           }
         ]
@@ -27,7 +27,7 @@
     "id": "5851956660723990",
     "type": "group",
     "z": "7613a77a1b834225",
-    "name": "Response handling",
+    "name": "Response adapter",
     "style": {
       "stroke": "#6f2fa0",
       "fill": "#dbcbe7",
@@ -37,12 +37,11 @@
     },
     "nodes": [
       "c742e6faf67ffe65",
-      "ea7ebf58285971a8",
-      "8e7999633660b2fd"
+      "cd2019698fb7440a"
     ],
-    "x": 34,
-    "y": 319,
-    "w": 822,
+    "x": 334,
+    "y": 439,
+    "w": 712,
     "h": 82
   },
   {
@@ -59,16 +58,50 @@
     },
     "nodes": [
       "08b97ed44f272d94",
-      "e79abe64c9510751",
-      "1a6d4e2b65052fcc",
-      "94cdd66cf607a970",
       "8673cf0ab571261b",
-      "f8d5272182de5652"
+      "f8d5272182de5652",
+      "658eed5b7407996c",
+      "541256dfc9983e5c",
+      "ea7ebf58285971a8",
+      "e79abe64c9510751",
+      "f46dc7f992ab9495"
     ],
-    "x": 34,
-    "y": 99,
-    "w": 972,
-    "h": 149.5
+    "x": 174,
+    "y": 219,
+    "w": 1012,
+    "h": 129.5
+  },
+  {
+    "id": "541256dfc9983e5c",
+    "type": "junction",
+    "z": "7613a77a1b834225",
+    "g": "df3ce13d4cb1f110",
+    "x": 1160,
+    "y": 300,
+    "wires": [
+      [
+        "c742e6faf67ffe65"
+      ]
+    ]
+  },
+  {
+    "id": "cd2019698fb7440a",
+    "type": "function",
+    "z": "7613a77a1b834225",
+    "g": "5851956660723990",
+    "name": "Attach metadata and prune msg object",
+    "func": "/**\n * Cleans the msg object and builds the entry structure\n * used throughout the POST flow.\n */\nreturn {\n    _msgid: msg._msgid,\n    topic:  \"new_message\",\n    entry: {\n        id:        msg.payload.id,\n        text:      msg.payload.text,\n        timestamp: msg.payload.timestamp,\n        author:    msg.payload.author,\n        labels:    msg.payload.labels || [],\n        metadata:  msg.metadata\n    }\n};\n\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 870,
+    "y": 480,
+    "wires": [
+      []
+    ]
   },
   {
     "id": "e79abe64c9510751",
@@ -82,16 +115,16 @@
     "once": false,
     "onceDelay": 0.1,
     "topic": "",
-    "x": 130,
-    "y": 200,
+    "x": 270,
+    "y": 260,
     "wires": [
       [
-        "1a6d4e2b65052fcc"
+        "ea7ebf58285971a8"
       ]
     ]
   },
   {
-    "id": "1a6d4e2b65052fcc",
+    "id": "ea7ebf58285971a8",
     "type": "function",
     "z": "7613a77a1b834225",
     "g": "df3ce13d4cb1f110",
@@ -104,7 +137,7 @@
     "finalize": "",
     "libs": [],
     "x": 330,
-    "y": 200,
+    "y": 300,
     "wires": [
       [
         "08b97ed44f272d94"
@@ -112,30 +145,60 @@
     ]
   },
   {
-    "id": "6c9f36725782f795",
-    "type": "subflow:7cecb563cf8b234a",
+    "id": "658eed5b7407996c",
+    "type": "subflow:f0eb857d54dfb4ac",
     "z": "7613a77a1b834225",
+    "g": "df3ce13d4cb1f110",
     "name": "",
     "x": 970,
-    "y": 40,
-    "wires": [],
-    "info": "Centralized error handler for this subflow.\r\nReceives errors from the catch node and:\r\n- Classifies and logs the error\r\n- Sends notification to Rayvn and WaSOS\r\n  if 5+ consecutive failures occur"
-  },
-  {
-    "id": "b4a456641b6c852d",
-    "type": "catch",
-    "z": "7613a77a1b834225",
-    "name": "",
-    "scope": null,
-    "uncaught": false,
-    "x": 800,
-    "y": 40,
+    "y": 300,
     "wires": [
       [
-        "6c9f36725782f795"
+        "541256dfc9983e5c"
       ]
-    ],
-    "info": "Catches all errors from nodes in this subflow\r\nand forwards them to the centralized \r\nError Handler subflow for classification,\r\nlogging and notification."
+    ]
+  },
+  {
+    "id": "f8d5272182de5652",
+    "type": "subflow:e97e0c90387d0adc",
+    "z": "7613a77a1b834225",
+    "g": "df3ce13d4cb1f110",
+    "name": "",
+    "x": 690,
+    "y": 300,
+    "wires": [
+      [
+        "658eed5b7407996c"
+      ]
+    ]
+  },
+  {
+    "id": "8673cf0ab571261b",
+    "type": "subflow:a1b5b8de4109fab7",
+    "z": "7613a77a1b834225",
+    "g": "df3ce13d4cb1f110",
+    "name": "",
+    "x": 680,
+    "y": 260,
+    "wires": [
+      [
+        "f46dc7f992ab9495"
+      ]
+    ]
+  },
+  {
+    "id": "c742e6faf67ffe65",
+    "type": "subflow:35dc868e3a5c1ab2",
+    "z": "7613a77a1b834225",
+    "g": "5851956660723990",
+    "name": "",
+    "x": 460,
+    "y": 480,
+    "wires": [
+      [
+        "cd2019698fb7440a"
+      ]
+    ]
   },
   {
     "id": "08b97ed44f272d94",
@@ -166,7 +229,7 @@
     "repair": false,
     "outputs": 3,
     "x": 510,
-    "y": 200,
+    "y": 300,
     "wires": [
       [
         "8673cf0ab571261b"
@@ -178,99 +241,63 @@
     ]
   },
   {
-    "id": "c742e6faf67ffe65",
-    "type": "subflow:35dc868e3a5c1ab2",
-    "z": "7613a77a1b834225",
-    "g": "5851956660723990",
-    "name": "",
-    "x": 160,
-    "y": 360,
-    "wires": [
-      [
-        "8e7999633660b2fd"
-      ]
-    ]
-  },
-  {
-    "id": "94cdd66cf607a970",
-    "type": "split",
+    "id": "f46dc7f992ab9495",
+    "type": "subflow:15215b18f4fbcbdd",
     "z": "7613a77a1b834225",
     "g": "df3ce13d4cb1f110",
     "name": "",
-    "splt": "\\n",
-    "spltType": "str",
-    "arraySplt": 1,
-    "arraySpltType": "len",
-    "stream": false,
-    "addname": "",
-    "property": "payload",
-    "x": 930,
-    "y": 200,
+    "x": 970,
+    "y": 260,
     "wires": [
       [
-        "c742e6faf67ffe65"
+        "541256dfc9983e5c"
       ]
     ]
   },
   {
-    "id": "ea7ebf58285971a8",
-    "type": "function",
+    "id": "6c9f36725782f795",
+    "type": "subflow:7cecb563cf8b234a",
     "z": "7613a77a1b834225",
-    "g": "5851956660723990",
-    "name": "Attach metadata and prune msg object",
-    "func": "return {\n    _msgid: msg._msgid,\n    topic: \"new_message\",  \n    entry: {\n        id:        msg.payload.id,\n        text:      msg.payload.text,\n        timestamp: msg.payload.timestamp,\n        author:    msg.payload.author,\n        files:     msg.payload.files,\n        labels:    msg.payload.labels,\n        metadata:  msg.metadata\n    }\n};\n",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 680,
-    "y": 360,
+    "name": "",
+    "x": 730,
+    "y": 120,
+    "wires": [
+      [
+        "b2153a126537e813"
+      ]
+    ],
+    "info": "Centralized error handler for this subflow.\r\nReceives errors from the catch node and:\r\n- Classifies and logs the error\r\n- Sends notification to Rayvn and WaSOS\r\n  if 5+ consecutive failures occur"
+  },
+  {
+    "id": "b4a456641b6c852d",
+    "type": "catch",
+    "z": "7613a77a1b834225",
+    "name": "",
+    "scope": null,
+    "uncaught": false,
+    "x": 560,
+    "y": 120,
+    "wires": [
+      [
+        "6c9f36725782f795"
+      ]
+    ],
+    "info": "Catches all errors from nodes in this subflow\r\nand forwards them to the centralized \r\nError Handler subflow for classification,\r\nlogging and notification."
+  },
+  {
+    "id": "b2153a126537e813",
+    "type": "link call",
+    "z": "7613a77a1b834225",
+    "name": "",
+    "links": [
+      "f14ca558111b51e5"
+    ],
+    "linkType": "static",
+    "timeout": "30",
+    "x": 970,
+    "y": 120,
     "wires": [
       []
-    ]
-  },
-  {
-    "id": "8e7999633660b2fd",
-    "type": "subflow:0047704f35a57b0c",
-    "z": "7613a77a1b834225",
-    "g": "5851956660723990",
-    "name": "",
-    "x": 380,
-    "y": 360,
-    "wires": [
-      [
-        "ea7ebf58285971a8"
-      ]
-    ]
-  },
-  {
-    "id": "8673cf0ab571261b",
-    "type": "subflow:a1b5b8de4109fab7",
-    "z": "7613a77a1b834225",
-    "g": "df3ce13d4cb1f110",
-    "name": "",
-    "x": 720,
-    "y": 140,
-    "wires": [
-      [
-        "94cdd66cf607a970"
-      ]
-    ]
-  },
-  {
-    "id": "f8d5272182de5652",
-    "type": "subflow:e97e0c90387d0adc",
-    "z": "7613a77a1b834225",
-    "g": "df3ce13d4cb1f110",
-    "name": "",
-    "x": 720,
-    "y": 200,
-    "wires": [
-      [
-        "94cdd66cf607a970"
-      ]
     ]
   }
 ]

@@ -1,38 +1,28 @@
 [
   {
-    "id": "209f3c980818c499",
+    "id": "c52035853d082eb0",
     "type": "subflow",
     "name": "POST to Wasos chat",
-    "info": "Posts a bridged entry to the WaSOS chat API.\n\n### Input\n`msg.payload` = WaSOS POST body, `msg.metadata.target` = WaSOS Client\n\n### Logic\nSets `x-api-key` header, URL `/api/chat/messages/{chatroom_name}`, sends POST. 500ms delay between requests.\n\n### Output\n`msg.topic = \"response\"`, `msg.result = true/false`, `msg.statusCode`",
+    "info": "Posts a bridged entry to the WaSOS chat API.                                                                                                                                                     \n   \n### Input                                                                                                                                                                                        \n`msg.payload` = WaSOS POST body, `msg.metadata.target` = WaSOS Client\n                                                                                                                                                                                                   \n### Logic\nWhen metadata.files is present, Wasos file Handling runs first to prepare file attachments on msg.payload.files. The message then proceeds to the standard JSON POST like any other message.     \n                                                                                                                                                                                                   \n### Output\n`msg.topic = \"response\"`, `msg.result = true/false`, `msg.statusCode`",
     "category": "",
     "in": [
       {
-        "x": 160,
+        "x": 100,
         "y": 200,
         "wires": [
           {
-            "id": "4b7da576ce1ab299"
+            "id": "69725644404947db"
           }
         ]
       }
     ],
     "out": [
       {
-        "x": 700,
-        "y": 300,
-        "wires": [
-          {
-            "id": "41621a8a87543cf1",
-            "port": 0
-          }
-        ]
-      },
-      {
-        "x": 700,
+        "x": 360,
         "y": 380,
         "wires": [
           {
-            "id": "d8ba5952c6f01ecb",
+            "id": "275fb321d293db05",
             "port": 0
           }
         ]
@@ -44,90 +34,172 @@
     "icon": "font-awesome/fa-send"
   },
   {
-    "id": "41621a8a87543cf1",
-    "type": "http request",
-    "z": "209f3c980818c499",
-    "name": "POST Chat Message To Wasos",
-    "method": "POST",
-    "ret": "txt",
-    "paytoqs": "ignore",
-    "url": "",
-    "tls": "",
-    "persist": false,
-    "proxy": "",
-    "insecureHTTPParser": false,
-    "authType": "",
-    "senderr": true,
-    "headers": [],
-    "x": 470,
-    "y": 300,
-    "wires": [
-      [
-        "d8ba5952c6f01ecb"
-      ]
+    "id": "69725644404947db",
+    "type": "switch",
+    "z": "c52035853d082eb0",
+    "name": "files",
+    "property": "metadata.files",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "nnull"
+      },
+      {
+        "t": "else"
+      }
     ],
-    "info": "Sends the message to WaSOS chat API with POST request. This is the step that delivers the Rayvn message into the WaSOS chat."
-  },
-  {
-    "id": "4b7da576ce1ab299",
-    "type": "function",
-    "z": "209f3c980818c499",
-    "name": "Format header and url",
-    "func": "const target = msg.metadata.target;\n\nif (!target || !target.api_key || !target.client_specific.chatroom_name) {\n    node.error(\"WaSOS not configured on this connection\");\n    return null;\n}\n\nmsg.url = global.get(\"parat_bridge\").base_urls.wasos\n    + \"/api/chat/messages/\" + target.client_specific.chatroom_name;\n\nmsg.headers = {\n    \"x-api-key\":    target.api_key,\n    \"Content-Type\": \"application/json\"\n};\n\nreturn msg;\n",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 380,
+    "checkall": "true",
+    "repair": false,
+    "outputs": 2,
+    "x": 210,
     "y": 200,
     "wires": [
       [
-        "c3ddcb7e014d64ed"
-      ]
-    ],
-    "info": "Builds HTTP request headers and URL for WaSOS API. Sets x-api-key header from wasos_apikey and uses wasosChatroomUrl as the endpoint. Returns null if not configured."
-  },
-  {
-    "id": "c3ddcb7e014d64ed",
-    "type": "delay",
-    "z": "209f3c980818c499",
-    "name": "",
-    "pauseType": "delay",
-    "timeout": "100",
-    "timeoutUnits": "milliseconds",
-    "rate": "1",
-    "nbRateUnits": "1",
-    "rateUnits": "second",
-    "randomFirst": "1",
-    "randomLast": "5",
-    "randomUnits": "seconds",
-    "drop": false,
-    "allowrate": false,
-    "outputs": 1,
-    "x": 590,
-    "y": 200,
-    "wires": [
+        "2e459edb36f9f0d9"
+      ],
       [
-        "41621a8a87543cf1"
+        "c183c9c59dd87d68"
       ]
     ]
   },
   {
-    "id": "d8ba5952c6f01ecb",
+    "id": "2e459edb36f9f0d9",
+    "type": "subflow:bfd1ac9312fd744a",
+    "z": "c52035853d082eb0",
+    "name": "",
+    "x": 450,
+    "y": 140,
+    "wires": [
+      [
+        "c183c9c59dd87d68"
+      ]
+    ]
+  },
+  {
+    "id": "c183c9c59dd87d68",
+    "type": "subflow:19f5354cf4a27129",
+    "z": "c52035853d082eb0",
+    "name": "",
+    "x": 780,
+    "y": 200,
+    "wires": [
+      [
+        "275fb321d293db05",
+        "91d6556fbd741877"
+      ]
+    ]
+  },
+  {
+    "id": "275fb321d293db05",
     "type": "function",
-    "z": "209f3c980818c499",
+    "z": "c52035853d082eb0",
     "name": "Return response",
-    "func": "msg.topic = \"response\"\n\nif (msg.statusCode == 200) {\n    msg.result = true\n} else {\n    msg.result = false\n}\n\nreturn msg;",
+    "func": "msg.topic = \"response\";\n\nif (msg.statusCode == 200) {\n    msg.result = true;\n} else {\n    msg.result = false;\n}\n\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 500,
-    "y": 380,
+    "x": 180,
+    "y": 360,
+    "wires": [
+      [
+        "6e6ce6cb44b295c2"
+      ]
+    ]
+  },
+  {
+    "id": "6e6ce6cb44b295c2",
+    "type": "switch",
+    "z": "c52035853d082eb0",
+    "name": "notification",
+    "property": "payload",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "jsonata_exp",
+        "v": "msg.result = true and $count(msg.metadata.files.failed) > 0\t",
+        "vt": "jsonata"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 1,
+    "x": 410,
+    "y": 340,
+    "wires": [
+      [
+        "c073c2ba149126e0"
+      ]
+    ]
+  },
+  {
+    "id": "c073c2ba149126e0",
+    "type": "function",
+    "z": "c52035853d082eb0",
+    "name": "build notification",
+    "func": "/**\n * Builds a notification payload for the source client.\n * Only reached after a successful POST when file failures need reporting.\n */\nconst notification = {\n    payload: {\n        entry_id:     msg.entry.id,\n        failed_files: msg.metadata.files.failed,\n        entry_author: msg.entry.author,\n        metadata:     msg.metadata\n    }\n};\n\nreturn notification;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 640,
+    "y": 340,
+    "wires": [
+      [
+        "0774675a09e94ddd"
+      ]
+    ]
+  },
+  {
+    "id": "0774675a09e94ddd",
+    "type": "link call",
+    "z": "c52035853d082eb0",
+    "name": "",
+    "links": [
+      "16d793b66e21d0b0"
+    ],
+    "linkType": "static",
+    "timeout": "30",
+    "x": 660,
+    "y": 300,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "91d6556fbd741877",
+    "type": "switch",
+    "z": "c52035853d082eb0",
+    "name": "Has Geo?",
+    "property": "metadata.geo",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "nnull"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 1,
+    "x": 780,
+    "y": 140,
+    "wires": [
+      [
+        "3aec3cee24c67625"
+      ]
+    ]
+  },
+  {
+    "id": "3aec3cee24c67625",
+    "type": "subflow:9f7f5ef9d0952551",
+    "z": "c52035853d082eb0",
+    "name": "",
+    "x": 1010,
+    "y": 140,
     "wires": [
       []
     ]

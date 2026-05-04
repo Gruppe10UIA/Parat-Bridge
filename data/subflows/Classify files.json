@@ -1,0 +1,65 @@
+[
+  {
+    "id": "2f9af747886c939b",
+    "type": "subflow",
+    "name": "Classify files",
+    "info": "Determines which files on an entry can be transferred to the target system.\n\n### Input\n- msg.payload.files — array of file objects                                                                                                                                                      \n- msg.metadata.source / msg.metadata.target — client objects                                                                                                                                     \n   \n### Logic                                                                                                                                                                                        \nChecks source.can_upload && target.can_download via system attributes.\nRejects unsigned Rayvn API URLs (missing sig= parameter).                                                                                                                                        \nFlags oversized files based on target.max_upload_bytes.                                                                                                                                          \n                                                                                                                                                                                                   \n### Output (2 ports)                                                                                                                                                                             \n- Port 1: msg with metadata.files.items (transferable files) — at least one item                                                                                                                 \n- Port 2: msg with metadata.files.failed (all files failed or non-transferable)",
+    "category": "",
+    "in": [
+      {
+        "x": 60,
+        "y": 80,
+        "wires": [
+          {
+            "id": "e647d1f988565fdd"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 440,
+        "y": 60,
+        "wires": [
+          {
+            "id": "e647d1f988565fdd",
+            "port": 0
+          }
+        ]
+      },
+      {
+        "x": 480,
+        "y": 120,
+        "wires": [
+          {
+            "id": "e647d1f988565fdd",
+            "port": 1
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#E7E7AE",
+    "icon": "font-awesome/fa-file-text"
+  },
+  {
+    "id": "e647d1f988565fdd",
+    "type": "function",
+    "z": "2f9af747886c939b",
+    "name": "Classify files",
+    "func": "const utils = global.get(\"utils\");\nconst source_attr = utils.get_system_attributes(msg.metadata.source.client_system);\nconst target_attr = utils.get_system_attributes(msg.metadata.target.client_system);\n\nconst can_transfer = source_attr.can_upload && target_attr.can_download;\n\nconst files = msg.payload.files || [];\nconst items = [];\nconst failed = [];\n\nif (!can_transfer) {\n    files.forEach(file => {\n        failed.push({ name: file.name || \"ukjent fil\", reason: utils.FILE_REASONS.NON_TRANSFERABLE });\n    });\n} else {\n    files.forEach(file => {\n        if (msg.metadata.source.client_system === \"rayvn\"\n            && file.url && file.url.includes(\"rayvn.global\")\n            && !file.url.includes(\"sig=\")) {\n            failed.push({ name: file.name || \"ukjent fil\", reason: utils.FILE_REASONS.NON_TRANSFERABLE });\n            return;\n        }\n        if (target_attr.max_upload_bytes && file.size && file.size > target_attr.max_upload_bytes) {\n            file.reason = utils.FILE_REASONS.OVERSIZED;\n        }\n        items.push(file);\n    });\n}\n\n\nmsg.metadata.files = { items, failed };\n\nif (items.length > 0) return [msg, null];\nreturn [null, msg];\n",
+    "outputs": 2,
+    "timeout": "",
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 210,
+    "y": 80,
+    "wires": [
+      [],
+      []
+    ]
+  }
+]

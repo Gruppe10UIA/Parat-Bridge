@@ -8,6 +8,8 @@
  * Reads:
  *   /data/bridge-files/connections/*.json  → connection objects keyed by name
  *   /data/bridge-files/queue.json          → entry_queue array
+ *   /data/bridge-files/files/              → scanned to build files_index,
+ *                                            orphaned files pruned immediately
  */
 
 const fs = require('fs');
@@ -15,12 +17,8 @@ const fs = require('fs');
 const BASE_DIR        = '/data/bridge-files/';
 const QUEUE_FILE      = BASE_DIR + 'queue.json';
 const CONNECTIONS_DIR = BASE_DIR + 'connections/';
+const FILES_DIR       = BASE_DIR + 'files/';
 
-/**
- * Reads all persisted connection files from disk.
- *
- * @returns {Object} connections keyed by name
- */
 function loadConnections() {
     const connections = {};
     try {
@@ -35,11 +33,6 @@ function loadConnections() {
     return connections;
 }
 
-/**
- * Reads the persisted queue from disk.
- *
- * @returns {Array} the entry_queue array (empty if file missing or invalid)
- */
 function loadQueue() {
     try {
         if (fs.existsSync(QUEUE_FILE)) {
@@ -53,20 +46,60 @@ function loadQueue() {
 }
 
 /**
- * Loads all persisted bridge data from disk.
+ * Scans the files directory, prunes orphaned files immediately, and returns
+ * the index of retained files. A file is orphaned if its connection_name
+ * does not match any loaded connection.
  *
- * @returns {Object} the parat_bridge object ready to be placed in the scope cache
+ * Key format: {message_id}---{connection_name}---{filename}
+ * This is the only place that enumerates and prunes the files directory; other
+ * modules may still access individual files within it.
+ *
+ * @param {Object} connections - already-loaded connections, keyed by name
+ * @returns {Array} context keys for retained files, e.g. ["files.abc---conn---photo.jpg"]
  */
+function loadAndPruneFiles(connections) {
+    const retained = [];
+
+    try {
+        if (!fs.existsSync(FILES_DIR)) return retained;
+
+        const filenames = fs.readdirSync(FILES_DIR).filter(f => f.length > 0);
+
+        for (const filename of filenames) {
+            const parts           = filename.split("---");
+            const connection_name = parts[1] || null;
+
+            if (connection_name && connections[connection_name]) {
+                retained.push("files." + filename);
+            } else {
+                try {
+                    fs.unlinkSync(FILES_DIR + filename);
+                    console.log('[context-store] Pruned orphaned file: ' + filename);
+                } catch (err) {
+                    console.warn('[context-store] Failed to prune file:', filename, err.message);
+                }
+            }
+        }
+    } catch (err) {
+        console.warn('[context-store] Failed to read files directory:', err.message);
+    }
+
+    return retained;
+}
+
 function loadBridgeData() {
     const connections = loadConnections();
     const entry_queue = loadQueue();
+    const files_index = loadAndPruneFiles(connections);
 
     console.log('[context-store] Pre-loaded ' + Object.keys(connections).length +
-        ' connection(s) and ' + entry_queue.length + ' queue entries from disk');
+        ' connection(s), ' + entry_queue.length + ' queue entries, and ' +
+        files_index.length + ' file(s) from disk');
 
     return {
-        connections: connections,
-        queue: { in_flight_connections: [], entry_queue: entry_queue }
+        connections:  connections,
+        queue:        { in_flight_connections: [], entry_queue: entry_queue },
+        files_index:  files_index
     };
 }
 

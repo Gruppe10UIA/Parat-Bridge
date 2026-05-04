@@ -18,7 +18,7 @@
     ],
     "out": [
       {
-        "x": 680,
+        "x": 660,
         "y": 240,
         "wires": [
           {
@@ -42,7 +42,7 @@
     "type": "switch",
     "z": "35dc868e3a5c1ab2",
     "name": "",
-    "property": "topic",
+    "property": "metadata.source.client_system",
     "propertyType": "msg",
     "rules": [
       {
@@ -81,7 +81,7 @@
     "type": "function",
     "z": "35dc868e3a5c1ab2",
     "name": "Rayvn to Bridge Log",
-    "func": "const entry = msg.payload;\n\nmsg.payload = {\n    id:        entry.id,\n    text:      entry.text             || \"\",\n    timestamp: entry.timeCreated,\n    author:    entry.loggedByFullName || \"\",\n    files:     entry.files            || [],\n    labels:    entry.labels           || []\n};\n\nreturn msg;",
+    "func": "const entry = msg.payload;\n\nmsg.payload = {\n    id:        entry.id,\n    text:      entry.text             || \"\",\n    timestamp: entry.timeCreated,\n    author:    entry.loggedByFullName || \"\",\n    labels:    entry.labels           || [],\n};\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -89,7 +89,7 @@
     "finalize": "",
     "libs": [],
     "x": 440,
-    "y": 180,
+    "y": 200,
     "wires": [
       []
     ]
@@ -99,7 +99,7 @@
     "type": "function",
     "z": "35dc868e3a5c1ab2",
     "name": "Wasos to Bridge Log",
-    "func": "const entry = msg.payload;\n\nmsg.payload = {\n    id:        entry.id,\n    text:      entry.content  || \"\",\n    timestamp: new Date(entry.createdAt).getTime(),\n    author:    entry.username || \"\",\n    files:     entry.files    || [],\n    labels:    []\n};\n\nreturn msg;\n",
+    "func": "const entry = msg.payload;\n\nconst text = entry.content || \"\";\n\n\n\nmsg.payload = {\n    id: entry.id,\n    text: text,\n    timestamp: new Date(entry.createdAt).getTime(),\n    author: entry.username || \"\",\n    labels: []\n};\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,

@@ -1,0 +1,75 @@
+[
+  {
+    "id": "877a76e7a01fd7ae",
+    "type": "subflow",
+    "name": "Compress Files",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 80,
+        "y": 100,
+        "wires": [
+          {
+            "id": "31919019d2d7f328"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 760,
+        "y": 100,
+        "wires": [
+          {
+            "id": "31919019d2d7f328",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#518c69",
+    "icon": "font-awesome/fa-compress"
+  },
+  {
+    "id": "31919019d2d7f328",
+    "type": "function",
+    "z": "877a76e7a01fd7ae",
+    "name": "Compress File Buffers",
+    "func": "/**\n * Compresses a single file buffer in place.\n * Updates msg.payload with compressed buffer and msg._file_meta with new metadata.\n * On failure, sets msg.payload to null so Store file marks it as failed.\n */\nconst utils = global.get(\"utils\");\nconst meta = msg._file_meta;\nconst buffer = msg.payload;\nconst target_attr = utils.get_system_attributes(msg.metadata.target.client_system);\nconst TARGET_SIZE = target_attr.max_upload_bytes;\n\nmsg._file_reason = undefined;\n\nconst mark_failed = () => {\n    msg.payload = null;\n    msg._file_reason = utils.FILE_REASONS.COMPRESS_FAILED;\n    return msg;\n};\n\n// Not compressible — can't reduce size, fail\nif (!utils.is_compressible(meta.type)) {\n    node.error(\"[COMPRESS] Not compressible: \" + meta.name);\n    return mark_failed();\n}\n\nconst isImage = meta.type.startsWith(\"image/\");\nconst isVideo = meta.type.startsWith(\"video/\");\n\n// --- IMAGE: compress with sharp ---\nif (isImage) {\n    try {\n        let quality = 80;\n        let compressed = await sharp(buffer).rotate().jpeg({ quality }).toBuffer();\n\n        while (compressed.length > TARGET_SIZE && quality > 10) {\n            quality -= 10;\n            compressed = await sharp(buffer).rotate().jpeg({ quality }).toBuffer();\n        }\n\n        if (compressed.length <= TARGET_SIZE) {\n            msg.payload = compressed;\n            msg._file_meta.name = meta.name.replace(/\\.[^.]+$/, \"\") + \".jpg\";\n            msg._file_meta.type = \"image/jpeg\";\n            msg._file_meta.size = compressed.length;\n            node.error(\"[SHARP] \" + meta.name + \": \" + buffer.length + \" → \" + compressed.length + \" bytes (quality: \" + quality + \")\");\n        } else {\n            node.error(\"[SHARP] Could not compress \" + meta.name + \" under target\");\n            return mark_failed();\n        }\n    } catch (e) {\n        node.error(\"[SHARP] Error: \" + e.message);\n        return mark_failed();\n    }\n    return msg;\n}\n\n// --- VIDEO/AUDIO: compress with ffmpeg via temp files ---\nconst tmpIn = path.join(os.tmpdir(), \"parat_compress_\" + Date.now() + \"_in_\" + meta.name);\nconst ext = isVideo ? \".mp4\" : \".aac\";\nconst tmpOut = path.join(os.tmpdir(), \"parat_compress_\" + Date.now() + \"_out\" + ext);\n\n// Helper: spawn process, collect stdout/stderr\nconst run = (cmd, args) => new Promise((resolve, reject) => {\n    const proc = childProcess.spawn(cmd, args);\n    const chunks = [];\n    let stderr = \"\";\n\n    proc.stdout.on(\"data\", chunk => chunks.push(chunk));\n    proc.stderr.on(\"data\", chunk => { stderr += chunk; });\n    proc.on(\"close\", code => {\n        if (code !== 0) return reject(new Error(stderr || \"exit code \" + code));\n        resolve(Buffer.concat(chunks));\n    });\n    proc.on(\"error\", reject);\n});\n\ntry {\n    fs.writeFileSync(tmpIn, buffer);\n\n    const probeOut = await run(\"ffprobe\", [\n        \"-v\", \"error\",\n        \"-show_entries\", \"format=duration\",\n        \"-of\", \"default=noprint_wrappers=1:nokey=1\",\n        tmpIn\n    ]);\n    const duration = parseFloat(probeOut.toString());\n    if (isNaN(duration) || duration <= 0) throw new Error(\"Invalid duration\");\n\n    const targetBytes = TARGET_SIZE - (32 * 1024);\n    const audioBitrate = 64000;\n    const totalBitrate = Math.floor((targetBytes * 8) / duration);\n    const videoBitrate = Math.max(totalBitrate - audioBitrate, 50000);\n\n    const args = [\"-i\", tmpIn, \"-y\"];\n\n    if (isVideo) {\n        args.push(\n            \"-vcodec\", \"libx264\",\n            \"-b:v\", videoBitrate + \"\",\n            \"-maxrate\", videoBitrate + \"\",\n            \"-bufsize\", Math.floor(videoBitrate / 2) + \"\",\n            \"-preset\", \"fast\",\n            \"-vf\", \"scale=min(640\\\\,iw):min(480\\\\,ih):force_original_aspect_ratio=decrease,scale=trunc(iw/2)*2:trunc(ih/2)*2\",\n            \"-acodec\", \"aac\",\n            \"-b:a\", \"64k\",\n            \"-movflags\", \"frag_keyframe+empty_moov\",\n            \"-f\", \"mp4\"\n        );\n    } else {\n        const audioBr = Math.min(Math.floor(totalBitrate), 128000);\n        args.push(\"-acodec\", \"aac\", \"-b:a\", audioBr + \"\", \"-f\", \"adts\");\n    }\n\n    args.push(tmpOut);\n\n    await run(\"ffmpeg\", args);\n    const compressed = fs.readFileSync(tmpOut);\n\n    node.error(\"[FFMPEG] \" + meta.name + \": \" + buffer.length + \" → \" + compressed.length + \" bytes (duration: \" + duration.toFixed(1) + \"s)\");\n\n    msg.payload = compressed;\n    if (isVideo) {\n        msg._file_meta.name = meta.name.replace(/\\.[^.]+$/, \"\") + \".mp4\";\n        msg._file_meta.type = \"video/mp4\";\n    }\n    msg._file_meta.size = compressed.length;\n} catch (e) {\n    node.error(\"[FFMPEG] Failed for \" + meta.name + \": \" + e.message);\n    return mark_failed();\n} finally {\n    try { fs.unlinkSync(tmpIn); } catch (_) { }\n    try { fs.unlinkSync(tmpOut); } catch (_) { }\n}\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [
+      {
+        "var": "childProcess",
+        "module": "child_process"
+      },
+      {
+        "var": "sharp",
+        "module": "sharp"
+      },
+      {
+        "var": "fs",
+        "module": "fs"
+      },
+      {
+        "var": "os",
+        "module": "os"
+      },
+      {
+        "var": "path",
+        "module": "path"
+      }
+    ],
+    "x": 420,
+    "y": 100,
+    "wires": [
+      []
+    ]
+  }
+]

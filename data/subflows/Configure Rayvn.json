@@ -84,14 +84,14 @@
     "type": "function",
     "z": "5da162b98b7b6b86",
     "name": "get log id from log name",
-    "func": "let result = msg.payload;\nlet name = msg.config_variables.rayvn_log_name;\n\n// Find the log id where the name matches\nmsg.payload = result.find(item => item.name === name)?.id;\nreturn msg;",
+    "func": "let result = msg.payload;\nlet name = msg.config_variables.rayvn_log_name;\n\n// Find the log id where the name matches\nmsg.payload = result.find(item => item.name === name)?.id;\n\nif (!msg.payload) {\n    node.error(\"Rayvn log name not found: '\" + msg.config_variables.rayvn_log_name + \"' — check that the name matches exactly.\", msg);\n    return null;\n}\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 310,
+    "x": 230,
     "y": 380,
     "wires": [
       [
@@ -104,18 +104,18 @@
     "type": "function",
     "z": "5da162b98b7b6b86",
     "name": "Build Rayvn config",
-    "func": "// resolved from log name in previous node\nconst log_id = msg.payload;\n\nconst rayvn_config = {\n    // Standard client contract fields\n    client_system: \"rayvn\",\n    api_key: msg.config_variables.rayvn_api_key,\n    identifier:    log_id,\n    name:          msg.config_variables.rayvn_log_name,\n    timestamp:     Date.now(),\n    client_specific: {\n        // Rayvn-specific fields\n        api_key:  msg.config_variables.rayvn_api_key,\n        log_name: msg.config_variables.rayvn_log_name,\n        log_id:   log_id\n    }\n};\n\nmsg.payload = rayvn_config;\nreturn msg;\n",
+    "func": "// resolved from log name in previous node\nconst log_id = msg.payload;\nconst sender_override = (msg.config_variables.rayvn_sender_name || \"\").trim() || null;\nconst log_name = msg.config_variables.rayvn_log_name;\n\nconst rayvn_config = {\n    // Standard client contract fields\n    client_system: \"rayvn\",\n    api_key: msg.config_variables.rayvn_api_key,\n    identifier: log_id,\n    name: sender_override || log_name,\n    timestamp: Date.now(),\n    client_specific: {\n        // Rayvn-specific fields\n        api_key: msg.config_variables.rayvn_api_key,\n        log_name: log_name,\n        log_id: log_id,\n        sender_override: sender_override\n    }\n};\n\nmsg.payload = rayvn_config;\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 590,
+    "x": 450,
     "y": 380,
     "wires": [
       [
-        "445fefd13d36c08e"
+        "fce00da06fb562a7"
       ]
     ]
   },
@@ -166,7 +166,7 @@
     "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 270,
+    "x": 190,
     "y": 340,
     "wires": []
   },
@@ -183,7 +183,7 @@
     "targetType": "msg",
     "statusVal": "",
     "statusType": "auto",
-    "x": 610,
+    "x": 470,
     "y": 340,
     "wires": []
   },
@@ -219,7 +219,7 @@
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 870,
+    "x": 910,
     "y": 380,
     "wires": [
       []
@@ -248,7 +248,22 @@
     "name": "",
     "x": 1110,
     "y": 220,
-    "wires": [],
+    "wires": [
+      []
+    ],
     "info": "Centralized error handler for this subflow.\r\nReceives errors from the catch node and:\r\n- Classifies and logs the error\r\n- Sends notification to Rayvn and WaSOS\r\n  if 5+ consecutive failures occur\r\n"
+  },
+  {
+    "id": "fce00da06fb562a7",
+    "type": "subflow:6bf90543469b320d",
+    "z": "5da162b98b7b6b86",
+    "name": "",
+    "x": 670,
+    "y": 380,
+    "wires": [
+      [
+        "445fefd13d36c08e"
+      ]
+    ]
   }
 ]

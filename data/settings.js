@@ -9,5 +9,8 @@ module.exports = {
         default: {
             module: require("/data/custom-scripts/context-store")
         }
+    },
+    uibuilder: {
+        uibRoot: '/data/uibuilder'
     }
 }

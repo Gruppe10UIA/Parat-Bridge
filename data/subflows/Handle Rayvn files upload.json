@@ -1,0 +1,79 @@
+[
+  {
+    "id": "158402d297efa0f8",
+    "type": "subflow",
+    "name": "Handle Rayvn files upload",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 60,
+        "y": 80,
+        "wires": [
+          {
+            "id": "26f3d698a874789b"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 620,
+        "y": 80,
+        "wires": [
+          {
+            "id": "b261534cb074e698",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#FFAAAA",
+    "icon": "font-awesome/fa-cloud-upload"
+  },
+  {
+    "id": "26f3d698a874789b",
+    "type": "function",
+    "z": "158402d297efa0f8",
+    "name": "Upload files to Rayvn",
+    "func": "/**\n * Uploads file buffers to the Rayvn /files endpoint.\n *\n * Fetches buffers from global context — if no buffer exists the file\n * is recorded as an upload failure.\n *\n * Upload failures are appended to metadata.files.failed.\n * On completion: msg.payload.files = array of Rayvn file IDs.\n */\nconst target = msg.metadata.target;\nconst baseUrl = global.get(\"parat_bridge\").base_urls.rayvn;\nconst utils = global.get(\"utils\");\nconst items = msg.metadata.files.items;\n\nconst resolved = [];\nconst failed = [];\n\nfor (const file of items) {\n    const buffer = global.get(\"files.\" + file.context_key);\n\n    if (!buffer || buffer.length === 0) {\n        node.error(\"No buffer for: \" + file.context_key);\n        failed.push({ name: file.name || \"unknown file\", reason: utils.FILE_REASONS.UPLOAD_FAILED });\n        continue;\n    }\n\n    try {\n        const boundary = \"----PBBoundary\" + Date.now();\n        const header = `--${boundary}\\r\\nContent-Disposition: form-data; name=\"file\"; filename=\"${file.name || \"file.bin\"}\"\\r\\nContent-Type: ${file.type || \"application/octet-stream\"}\\r\\n\\r\\n`;\n        const footer = `\\r\\n--${boundary}--\\r\\n`;\n        const body = Buffer.concat([Buffer.from(header), buffer, Buffer.from(footer)]);\n\n        const res = await nodeFetch(baseUrl + \"/files\", {\n            method: \"POST\",\n            headers: {\n                \"Authorization\": \"Bearer \" + target.api_key,\n                \"Content-Type\": \"multipart/form-data; boundary=\" + boundary\n            },\n            body\n        });\n\n        if (res.ok) {\n            const data = await res.json();\n            resolved.push(data.id);\n            node.log(`File uploaded: ${file.name} → ${data.id}`);\n        } else {\n            node.error(`Rayvn /files returned ${res.status} for ${file.name}`);\n            failed.push({ name: file.name || \"unknown file\", reason: utils.FILE_REASONS.UPLOAD_FAILED });\n        }\n    } catch (e) {\n        node.error(`Error uploading ${file.name}: ${e.message}`);\n        failed.push({ name: file.name || \"unknown file\", reason: utils.FILE_REASONS.UPLOAD_FAILED });\n    }\n}\n\nmsg.payload.files = resolved;\n\nif (failed.length > 0) {\n    msg.metadata.files.failed = [\n        ...msg.metadata.files.failed,\n        ...failed\n    ];\n}\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [
+      {
+        "var": "nodeFetch",
+        "module": "node-fetch"
+      }
+    ],
+    "x": 220,
+    "y": 80,
+    "wires": [
+      [
+        "b261534cb074e698"
+      ]
+    ]
+  },
+  {
+    "id": "b261534cb074e698",
+    "type": "function",
+    "z": "158402d297efa0f8",
+    "name": "Patch receiver text",
+    "func": "/**\n * Patches msg.payload.text with a receiver notice if any files failed.\n * Runs after upload — metadata.files.failed is the complete failure picture.\n */\nconst failed = msg.metadata.files.failed;\n\nif (failed.length === 0) return msg;\n\nconst succeeded = msg.payload.files.length;\nconst total = succeeded + failed.length;\nconst notice = \" [\" + failed.length + \"/\" + total\n    + \" vedlegg ikke overført. Avsender mottar instruks om alternativ håndtering]\";\n\nmsg.payload.text = (msg.payload.text || \"\") + notice;\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 450,
+    "y": 80,
+    "wires": [
+      []
+    ]
+  }
+]

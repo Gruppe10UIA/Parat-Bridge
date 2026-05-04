@@ -1,38 +1,28 @@
 [
   {
-    "id": "4a6a1af9b9af6b0f",
+    "id": "b2abcd423e9a8bc6",
     "type": "subflow",
     "name": "POST to Rayvn log",
-    "info": "Posts a bridged entry to the Rayvn log API.\n\n### Input\n`msg.payload` = Rayvn POST body, `msg.metadata.target` = Rayvn Client\n\n### Logic\nSets `Authorization: Bearer {api_key}`, URL `/logs/{log_id}/entry`, sends POST. 500ms delay between requests.\n\n### Output\n`msg.topic = \"response\"`, `msg.result = true/false`, `msg.statusCode`",
+    "info": "Uploads attachments and posts an entry to the Rayvn log.\n\n### Input\nMsg after Bridge to Rayvn:\n- `msg.entry`                 — original bridge entry (files with context_keys)\n- `msg.metadata`              — same object as entry.metadata (set by Bridge to Rayvn)\n- `msg.metadata.failed_files` — failures accumulated on the GET side (classify + download)\n- `msg.payload`               — Rayvn-formatted entry with files = entry.files\n\n### Logic\n1. Upload files to Rayvn: uploads buffers from global context. Replaces\n   msg.payload.files with Rayvn file IDs. Upload failures are added to\n   msg.metadata.failed_files (= entry.metadata.failed_files, same object).\n2. Patch receiver text: patches msg.payload.text with a complete receiver notice\n   based on the now-complete failure picture (classify + download + upload).\n3. Format header and url + delay + HTTP POST.\n4. Return response: sets msg.result.\n5. Simple notification trigger: fires sender notification via link-call\n   if POST succeeded and attachment failures exist.\n\n### Output 1\nPOST response (msg.result set by Return response).\n\n### Notifications\nFired directly to attachment notification (System handling) via internal link-call.",
     "category": "",
     "in": [
       {
-        "x": 180,
-        "y": 300,
+        "x": 40,
+        "y": 220,
         "wires": [
           {
-            "id": "044459bc226a0ba1"
+            "id": "ca020c268287055d"
           }
         ]
       }
     ],
     "out": [
       {
-        "x": 660,
+        "x": 340,
         "y": 400,
         "wires": [
           {
-            "id": "edcc87d1f40195de",
-            "port": 0
-          }
-        ]
-      },
-      {
-        "x": 660,
-        "y": 480,
-        "wires": [
-          {
-            "id": "f8d5ca9b4e03584d",
+            "id": "5b501bc2a77d779a",
             "port": 0
           }
         ]
@@ -41,94 +31,141 @@
     "env": [],
     "meta": {},
     "color": "#AAAA66",
-    "icon": "font-awesome/fa-paper-plane"
+    "icon": "font-awesome/fa-send"
   },
   {
-    "id": "edcc87d1f40195de",
-    "type": "http request",
-    "z": "4a6a1af9b9af6b0f",
-    "name": "POST To Rayvn Entry Point",
-    "method": "POST",
-    "ret": "txt",
-    "paytoqs": "ignore",
-    "url": "",
-    "tls": "",
-    "persist": false,
-    "proxy": "",
-    "insecureHTTPParser": false,
-    "authType": "",
-    "senderr": true,
-    "headers": [],
-    "x": 400,
-    "y": 400,
-    "wires": [
-      [
-        "f8d5ca9b4e03584d"
-      ]
-    ],
-    "info": "Sends the message to Rayvn log API with POST request. This is the step that delivers the WaSOS message into the Rayvn log."
-  },
-  {
-    "id": "044459bc226a0ba1",
+    "id": "5b501bc2a77d779a",
     "type": "function",
-    "z": "4a6a1af9b9af6b0f",
-    "name": "Format header and url",
-    "func": "const target = msg.metadata.target;\n\nif (!target || !target.api_key || !target.client_specific.log_id) {\n    node.error(\"Rayvn not configured on this connection\");\n    return null;\n}\n\nmsg.url = global.get(\"parat_bridge\").base_urls.rayvn\n    + \"/logs/\" + target.client_specific.log_id + \"/entry\";\n\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + target.api_key,\n    \"Content-Type\":  \"application/json\",\n    \"Accept\":        \"application/json\"\n};\n\nreturn msg;\n",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 340,
-    "y": 300,
-    "wires": [
-      [
-        "509a0e1abbf14248"
-      ]
-    ],
-    "info": "Builds HTTP request headers and URL for Rayvn API. Sets Authorization header with Bearer token from rayvnConfig.apiKey and constructs URL to /logs/{logId}/entry endpoint. Returns null if not configured."
-  },
-  {
-    "id": "f8d5ca9b4e03584d",
-    "type": "function",
-    "z": "4a6a1af9b9af6b0f",
+    "z": "b2abcd423e9a8bc6",
     "name": "Return response",
-    "func": "msg.topic = \"response\"\n\nif (msg.statusCode == 200) {\n    msg.result = true\n} else {\n    msg.result = false\n}\n\nreturn msg;",
+    "func": "msg.topic = \"response\";\n\nif (msg.statusCode === 200) {\n    msg.result = true;\n} else {\n    msg.result = false;\n}\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 360,
-    "y": 480,
+    "x": 180,
+    "y": 360,
+    "wires": [
+      [
+        "0e316b53dbaaccb3"
+      ]
+    ]
+  },
+  {
+    "id": "ab548f3eb8dfa427",
+    "type": "link call",
+    "z": "b2abcd423e9a8bc6",
+    "name": "",
+    "links": [
+      "16d793b66e21d0b0"
+    ],
+    "linkType": "static",
+    "timeout": "30",
+    "x": 920,
+    "y": 320,
     "wires": [
       []
     ]
   },
   {
-    "id": "509a0e1abbf14248",
-    "type": "delay",
-    "z": "4a6a1af9b9af6b0f",
+    "id": "ca020c268287055d",
+    "type": "switch",
+    "z": "b2abcd423e9a8bc6",
     "name": "",
-    "pauseType": "delay",
-    "timeout": "50",
-    "timeoutUnits": "milliseconds",
-    "rate": "1",
-    "nbRateUnits": "1",
-    "rateUnits": "second",
-    "randomFirst": "1",
-    "randomLast": "5",
-    "randomUnits": "seconds",
-    "drop": false,
-    "allowrate": false,
-    "outputs": 1,
-    "x": 570,
-    "y": 300,
+    "property": "metadata.files",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "nnull"
+      },
+      {
+        "t": "else"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 2,
+    "x": 130,
+    "y": 220,
     "wires": [
       [
-        "edcc87d1f40195de"
+        "a9b67a0b8158e662"
+      ],
+      [
+        "ca703649d8df47b3"
+      ]
+    ]
+  },
+  {
+    "id": "a9b67a0b8158e662",
+    "type": "subflow:158402d297efa0f8",
+    "z": "b2abcd423e9a8bc6",
+    "name": "",
+    "x": 330,
+    "y": 140,
+    "wires": [
+      [
+        "ca703649d8df47b3"
+      ]
+    ]
+  },
+  {
+    "id": "0e316b53dbaaccb3",
+    "type": "switch",
+    "z": "b2abcd423e9a8bc6",
+    "name": "notification switch",
+    "property": "payload",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "jsonata_exp",
+        "v": "msg.result = true and $count(msg.metadata.files.failed) > 0\t",
+        "vt": "jsonata"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 1,
+    "x": 390,
+    "y": 340,
+    "wires": [
+      [
+        "17500f4407609e0d"
+      ]
+    ]
+  },
+  {
+    "id": "17500f4407609e0d",
+    "type": "function",
+    "z": "b2abcd423e9a8bc6",
+    "name": "build notification",
+    "func": "/**\n * Builds a notification payload for the source client.\n * Only reached after a successful POST when issues need reporting.\n */\nconst notification = {\n    payload: {\n        entry_id: msg.entry.id,\n        failed_files: msg.metadata.files.failed,\n        entry_author: msg.entry.author,\n        metadata: msg.metadata\n    }\n};\n\nreturn notification;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 600,
+    "y": 340,
+    "wires": [
+      [
+        "ab548f3eb8dfa427"
+      ]
+    ]
+  },
+  {
+    "id": "ca703649d8df47b3",
+    "type": "subflow:b5c88de3cb9383d5",
+    "z": "b2abcd423e9a8bc6",
+    "name": "",
+    "x": 550,
+    "y": 220,
+    "wires": [
+      [
+        "5b501bc2a77d779a"
       ]
     ]
   }

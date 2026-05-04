@@ -1,0 +1,354 @@
+/* ===== TWO-COLUMN LAYOUT ===== */
+
+#form-section {
+    flex: 1 1 0;
+    background: #fff;
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+#connections-section {
+    flex: 1 1 0;
+    background: #fff;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+#form-section {
+    border-right: 1px solid #ddd;
+}
+
+/* ===== SECTION HEADINGS ===== */
+
+#form-section h2,
+#connections-header h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 1.5rem;
+}
+
+/* ===== FORM ===== */
+
+#connection-form fieldset {
+    border: none;
+    margin-bottom: 1.5rem;
+}
+
+#connection-form legend {
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #444;
+    margin-bottom: 0.75rem;
+}
+
+.form-field {
+    margin-bottom: 1rem;
+}
+
+.form-field label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #444;
+    margin-bottom: 0.35rem;
+}
+
+.form-field input {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    font-size: 0.9rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: #fafafa;
+    color: #1a1a1a;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.form-field input:focus {
+    outline: none;
+    border-color: #0070c0;
+    box-shadow: 0 0 0 3px rgba(0, 112, 192, 0.12);
+    background: #fff;
+}
+
+.form-validated .form-field input:invalid {
+    border-color: #d44;
+}
+
+.form-validated .form-field input:invalid:focus {
+    border-color: #d44;
+    box-shadow: 0 0 0 3px rgba(221, 68, 68, 0.12);
+}
+
+/* ===== FORM ACTIONS ===== */
+
+.form-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.form-actions button {
+    padding: 0.6rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background 0.15s, box-shadow 0.15s;
+}
+
+#btn-submit {
+    background: #0070c0;
+    color: #fff;
+}
+
+#btn-submit:hover {
+    background: #005a9e;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+#btn-submit:active {
+    background: #004a85;
+}
+
+#btn-clear {
+    background: #fff0f0;
+    color: #c62828;
+    border-color: #f5c0c0;
+}
+
+#btn-clear:hover {
+    background: #fde0e0;
+}
+
+/* ===== FORM FEEDBACK ===== */
+
+#form-feedback:empty {
+    display: none;
+}
+
+#form-feedback {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+}
+
+.feedback-success {
+    background: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #a5d6a7;
+}
+
+.feedback-error {
+    background: #fbe9e7;
+    color: #c62828;
+    border: 1px solid #ef9a9a;
+}
+
+/* ===== CONNECTIONS PANEL ===== */
+
+#connections-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #eee;
+}
+
+#connections-header h2 {
+    margin-bottom: 0;
+}
+
+/* ===== CONNECTION LIST ===== */
+
+#connections-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    flex: 1 1 0;
+    overflow-y: auto;
+}
+
+/* Placeholder when no connections exist */
+#connections-list:empty::after {
+    content: "Ingen koblinger ennå";
+    display: block;
+    text-align: center;
+    color: #aaa;
+    font-size: 0.9rem;
+    padding: 3rem 0;
+}
+
+/* ===== CONNECTION CARDS ===== */
+
+.connection-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1rem;
+    background: #fafafa;
+}
+
+.connection-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.6rem;
+}
+
+.connection-client {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #1a1a1a;
+}
+
+.connection-separator {
+    color: #aaa;
+    font-size: 0.85rem;
+}
+
+.connection-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.connection-time {
+    font-size: 0.8rem;
+    color: #888;
+}
+
+/* ===== STATUS BADGES ===== */
+
+.status-badge {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.status-active {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.status-stopped {
+    background: #fbe9e7;
+    color: #c62828;
+}
+
+/* ===== CONNECTION ACTION BUTTONS ===== */
+
+.connection-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1.5rem;
+}
+
+.connection-actions .btn-action {
+    min-width: 6.5rem;
+    text-align: center;
+}
+
+@media (max-width: 480px) {
+    .connection-actions {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .connection-actions .btn-action {
+        min-width: 0;
+        flex: 1 1 45%;
+    }
+}
+
+.btn-action {
+    padding: 0.6rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: #fff;
+    color: #555;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.btn-action:hover:not(:disabled) {
+    background: #f0f0f0;
+}
+
+.btn-action:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+/* Start — green */
+.btn-start {
+    background: #43a047;
+    color: #fff;
+    border-color: transparent;
+}
+
+.btn-start:hover:not(:disabled) {
+    background: #256b29;
+}
+
+/* Stopp — amber */
+.btn-stop {
+    background: #f57c00;
+    color: #fff;
+    border-color: transparent;
+}
+
+.btn-stop:hover:not(:disabled) {
+    background: #e06800;
+}
+
+/* Detaljer — blue */
+.btn-details {
+    background: #0070c0;
+    color: #fff;
+    border-color: transparent;
+}
+
+.btn-details:hover:not(:disabled) {
+    background: #005a9e;
+}
+
+/* Fjern — red */
+.btn-remove {
+    background: #e53935;
+    color: #fff;
+    border-color: transparent;
+}
+
+.btn-remove:hover:not(:disabled) {
+    background: #a52222;
+}
+
+/* ===== BULK ACTIONS BAR ===== */
+
+#connections-bulk-actions {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 0.75rem;
+    border-top: 1px solid #eee;
+    flex-shrink: 0;
+}
+
+#connections-bulk-actions.hidden {
+    display: none;
+}
