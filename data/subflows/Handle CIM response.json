@@ -1,0 +1,32 @@
+[
+  {
+    "id": "c10c1f1900a03001",
+    "type": "subflow",
+    "name": "Handle CIM response",
+    "info": "**Placeholder pass-through** between `Get CIM entries` and `Client to bridge entry`.\n\nAdd per-case enrichment, transformation, or filtering logic here without modifying the core GET pipeline.\n\n### Input\n`msg.payload` — single raw CIM case object (already sorted, cursor-advanced, and bridge-loop-filtered by `Get CIM entries`):\n\n```js\n{\n  global: { case_id, display_id, instance_id, case_created, case_created_by, status, latitude, longitude, ... },\n  registration: { source, subject, description, category_text, cause, reported_date, ... },\n  processing: { subject, ... },\n  link, link_display_id\n}\n```\n\n`msg.metadata = { source, target, connection_name }` — same as everywhere else in the bridge.\n\n### Output\nA case object in the same shape — `Client to bridge entry` consumes `msg.payload` and maps it to the canonical bridge entry.\n\n### Safe extension pattern\n\nThe subflow ships as pure pass-through (no nodes between `in` and `out`). To add behaviour, **never** route every message through your logic — gate it with a switch so non-applicable cases bypass untouched:\n\n```\n[ in ] --> [ switch on condition ] --> branch 1: [ your logic ] --+\n                                   --> branch 2 (otherwise): ----+--> [ out ]\n```\n\nSwitch settings:\n- `checkall: true`\n- the last rule is `otherwise`, wired straight to the subflow `out`\n- your branch ends at the same `out`\n\nThat way:\n- matching cases hit your transformation\n- non-matching cases flow through unchanged\n\n### Things to avoid\n\n- **Don't return `null` carelessly.** That silently drops the case (no bridge entry emitted, no error). Only do it if the case must not be bridged, and prefer filtering in `Get CIM entries` if the condition is generic.\n- **Don't mutate `msg.metadata.source.client_system`.** Downstream `Client to bridge entry` switches on it — changing it breaks routing.\n- **Don't reshape `msg.payload` into the canonical bridge format here.** That's `Cim to Bridge Log`'s job. Keep this subflow operating on raw CIM case objects.\n\n### Typical use cases\n\n- Filter cases by `registration.category_text` or `global.status`\n- Inject computed fields onto `msg.payload` for `Cim to Bridge Log` to read\n- Drop cases below a severity threshold (return null on the matched branch only)",
+    "category": "",
+    "in": [
+      {
+        "x": 60,
+        "y": 80,
+        "wires": []
+      }
+    ],
+    "out": [
+      {
+        "x": 380,
+        "y": 80,
+        "wires": [
+          {
+            "id": "c10c1f1900a03001",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#C0DEED",
+    "icon": "font-awesome/fa-gears"
+  }
+]

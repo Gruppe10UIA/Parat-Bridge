@@ -1,0 +1,46 @@
+[
+  {
+    "id": "c10c1f1900a04001",
+    "type": "subflow",
+    "name": "Handle CIM request",
+    "info": "**Placeholder pass-through** between `Bridge to CIM` (in `Bridge entry to client`) and `POST to CIM`.\n\nAdd last-mile transformation of the outbound CIM payload here — set extra registration fields, build a primary_marker, customise subject/category — without touching the core POST pipeline.\n\n### Input\n`msg.payload` — CIM case-creation body produced by `Bridge to CIM`:\n\n```js\n{\n  subject:       \"[parat_bridge: <conn>] <author>\",\n  description:   \"<bridge entry text>\",\n  source:        \"Parat Bridge\",\n  reported_date: \"YYYY-MM-DD HH:mm\"   // Norwegian local time\n}\n```\n\n`msg.metadata` — entry metadata (`source`, `target`, `connection_name`).\n`msg.entry`    — the canonical bridge entry the payload was built from (id, text, timestamp, author, files, labels, metadata).\n\n### Output\nSame shape. The body sent to CIM **must conform to the registration schema**:\n- `additionalProperties: false` — only known schema keys allowed; CIM rejects unknown keys with HTTP 400\n- Flat structure (no wrapper objects like `registration: {...}`)\n- `subject` is required, 1–200 chars\n- See `cim-api-findings.md` for the full schema (`source`, `description`, `category_text`, `cause`, `reported_date`, `org_id`, `responsible_id`, `primary_marker`, …)\n\n### Safe extension pattern\n\nThe subflow ships as pure pass-through (no nodes between `in` and `out`). To add behaviour, **never** route every message through your logic — gate it with a switch so non-applicable messages bypass untouched:\n\n```\n[ in ] --> [ switch on condition ] --> branch 1: [ your logic ] --+\n                                   --> branch 2 (otherwise): ----+--> [ out ]\n```\n\nSwitch settings:\n- `checkall: true`\n- the last rule is `otherwise`, wired straight to the subflow `out`\n- your branch ends at the same `out`\n\nThat way:\n- matching messages get your transformation\n- non-matching messages flow through with the default `Bridge to CIM` payload\n\n### Things to avoid\n\n- **Don't introduce keys outside the registration schema.** CIM strictly rejects unknown properties with HTTP 400. Allowed keys: `subject`, `status`, `source`, `description`, `category_text`, `cause`, `reported_date`, `case_created` (POST only), `org_id`, `location`, `responsible_id`, `user`, `primary_marker`. Anything else fails the request.\n- **Don't mutate `msg.metadata.target.client_system`.** The upstream `POST entries` switch already routed on it; changing it here only confuses debugging.\n- **Don't return `null` unless you intend to drop the message.** Returning null here cancels the POST silently (the queue entry will eventually retry and drop after MAX_RETRIES).\n- **Don't put coordinates anywhere except `primary_marker`.** Lat/long must live inside `{ lat, long, markerName }` per the schema.\n\n### Typical use cases\n\n- Set `category_text`, `cause`, or `org_id` based on `msg.entry.labels` or `msg.metadata.source.client_system`\n- Build `primary_marker` from coordinates parsed out of `entry.text`\n- Append extra context to `subject` (with truncation — max 200 chars)\n- Override `reported_date` formatting (still must be `YYYY-MM-DD HH:mm` Norwegian local — use `utils.format_cim_timestamp`)",
+    "category": "",
+    "in": [
+      {
+        "x": 60,
+        "y": 80,
+        "wires": [
+          {
+            "id": "c10c1f1900a04010"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 380,
+        "y": 80,
+        "wires": [
+          {
+            "id": "c10c1f1900a04010",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#C0DEED",
+    "icon": "font-awesome/fa-filter"
+  },
+  {
+    "id": "c10c1f1900a04010",
+    "type": "junction",
+    "z": "c10c1f1900a04001",
+    "x": 220,
+    "y": 80,
+    "wires": [
+      []
+    ]
+  }
+]
