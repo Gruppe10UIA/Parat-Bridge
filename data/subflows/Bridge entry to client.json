@@ -28,6 +28,10 @@
           {
             "id": "8af9b5c36f7ba556",
             "port": 0
+          },
+          {
+            "id": "c1c11dc7e0a02001",
+            "port": 0
           }
         ]
       }
@@ -73,7 +77,9 @@
       [
         "8af9b5c36f7ba556"
       ],
-      []
+      [
+        "c1c11dc7e0a02001"
+      ]
     ]
   },
   {
@@ -90,6 +96,24 @@
     "libs": [],
     "x": 420,
     "y": 80,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "c1c11dc7e0a02001",
+    "type": "function",
+    "z": "41215cf9ced60b7f",
+    "name": "Bridge to CIM",
+    "func": "const entry  = msg.entry;\nconst source = entry.metadata.source;\nconst utils  = global.get(\"utils\");\n\n// Subject is required (1-200 chars). Truncate to keep CIM happy.\nconst subject = `${utils.build_callsign(source)} ${entry.author}`.slice(0, 200);\n\n// Internal canonical is UTC ms; CIM expects Norwegian local time as \"YYYY-MM-DD HH:mm\".\n// Convert at the boundary via the reciprocal helper.\nconst reported_date = utils.format_cim_timestamp(entry.timestamp || Date.now());\n\nmsg.metadata = entry.metadata;\nmsg.payload = {\n    subject:       subject,\n    description:   entry.text || \"\",\n    source:        \"Parat Bridge\",\n    reported_date: reported_date\n};\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 420,
+    "y": 160,
     "wires": [
       []
     ]

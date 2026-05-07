@@ -1,0 +1,151 @@
+[
+  {
+    "id": "c10c1f1900a02001",
+    "type": "subflow",
+    "name": "POST to CIM",
+    "info": "Creates a new CIM case from a bridge entry.\n\n### Input\nMsg after Bridge to CIM:\n- `msg.metadata` — entry metadata (source/target/connection_name)\n- `msg.payload`  — `{ subject, description, source, reported_date }` (registration schema, flat).\n\n### Logic\n1. Build URL `{base_url}/cases` and Bearer headers from `target.client_specific`.\n2. POST JSON body. Body must conform to the registration schema (additionalProperties:false, only `subject` is required).\n3. Return response: `msg.result = true` on 200/201, else `false`.\n\n### Output\nPOST response (msg.result set by Return response).",
+    "category": "",
+    "in": [
+      {
+        "x": 60,
+        "y": 80,
+        "wires": [
+          {
+            "id": "c10c1f1900a02010"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 1100,
+        "y": 80,
+        "wires": [
+          {
+            "id": "c10c1f1900a02013",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#AAAA66",
+    "icon": "font-awesome/fa-send"
+  },
+  {
+    "id": "c10c1f1900a02010",
+    "type": "function",
+    "z": "c10c1f1900a02001",
+    "name": "Format header and url",
+    "func": "const target = msg.metadata && msg.metadata.target;\n\nif (!target ||\n    !target.client_specific ||\n    !target.client_specific.api_key ||\n    !target.client_specific.base_url) {\n    node.error(\"CIM not configured on this connection\");\n    return null;\n}\n\nmsg.url = target.client_specific.base_url + \"/cases\";\n\nmsg.headers = {\n    \"Authorization\": \"Bearer \" + target.client_specific.api_key,\n    \"Content-Type\":  \"application/json\",\n    \"Accept\":        \"application/json\"\n};\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 250,
+    "y": 80,
+    "wires": [
+      [
+        "c10c1f1900a02011"
+      ]
+    ]
+  },
+  {
+    "id": "c10c1f1900a02011",
+    "type": "delay",
+    "z": "c10c1f1900a02001",
+    "name": "",
+    "pauseType": "delay",
+    "timeout": "50",
+    "timeoutUnits": "milliseconds",
+    "rate": "1",
+    "nbRateUnits": "1",
+    "rateUnits": "second",
+    "randomFirst": "1",
+    "randomLast": "5",
+    "randomUnits": "seconds",
+    "drop": false,
+    "allowrate": false,
+    "outputs": 1,
+    "x": 470,
+    "y": 80,
+    "wires": [
+      [
+        "c10c1f1900a02012"
+      ]
+    ]
+  },
+  {
+    "id": "c10c1f1900a02012",
+    "type": "http request",
+    "z": "c10c1f1900a02001",
+    "name": "POST CIM log entry",
+    "method": "POST",
+    "ret": "txt",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": true,
+    "headers": [],
+    "x": 680,
+    "y": 80,
+    "wires": [
+      [
+        "c10c1f1900a02013"
+      ]
+    ]
+  },
+  {
+    "id": "c10c1f1900a02013",
+    "type": "function",
+    "z": "c10c1f1900a02001",
+    "name": "Return response",
+    "func": "msg.topic = \"response\";\nmsg.result = (msg.statusCode === 200 || msg.statusCode === 201);\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 920,
+    "y": 80,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "c10c1f1900a02014",
+    "type": "catch",
+    "z": "c10c1f1900a02001",
+    "name": "",
+    "scope": null,
+    "uncaught": false,
+    "x": 560,
+    "y": 200,
+    "wires": [
+      [
+        "c10c1f1900a02015"
+      ]
+    ],
+    "info": "Catches all errors from nodes in this subflow and forwards them to the centralized Error Handler subflow."
+  },
+  {
+    "id": "c10c1f1900a02015",
+    "type": "subflow:7cecb563cf8b234a",
+    "z": "c10c1f1900a02001",
+    "name": "",
+    "x": 730,
+    "y": 200,
+    "wires": [
+      []
+    ],
+    "info": "Centralized error handler for this subflow."
+  }
+]

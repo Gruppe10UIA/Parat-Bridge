@@ -46,23 +46,21 @@
                     <legend>Rayvn</legend>
 
                     <div class="form-field">
-                        <label for="rayvn_api_key">API-nøkkel:<sup>*</sup></label>
+                        <label for="rayvn_api_key">API-nøkkel:</label>
                         <input
                             type="text"
                             id="rayvn_api_key"
                             name="rayvn_api_key"
-                            required
                             autocomplete="off"
                         >
                     </div>
 
                     <div class="form-field">
-                        <label for="rayvn_log_name">Loggnavn:<sup>*</sup></label>
+                        <label for="rayvn_log_name">Loggnavn:</label>
                         <input
                             type="text"
                             id="rayvn_log_name"
                             name="rayvn_log_name"
-                            required
                             autocomplete="off"
                         >
                     </div>
@@ -83,33 +81,30 @@
                     <legend>WaSOS</legend>
 
                     <div class="form-field">
-                        <label for="wasos_username">Brukernavn:<sup>*</sup></label>
+                        <label for="wasos_username">Brukernavn:</label>
                         <input
                             type="text"
                             id="wasos_username"
                             name="wasos_username"
-                            required
                             autocomplete="off"
                         >
                     </div>
 
                     <div class="form-field">
-                        <label for="wasos_password">Passord:<sup>*</sup></label>
+                        <label for="wasos_password">Passord:</label>
                         <input
                             type="password"
                             id="wasos_password"
                             name="wasos_password"
-                            required
                         >
                     </div>
 
                     <div class="form-field">
-                        <label for="wasos_chatroom_name">Chatrom:<sup>*</sup></label>
+                        <label for="wasos_chatroom_name">Chatrom:</label>
                         <input
                             type="text"
                             id="wasos_chatroom_name"
                             name="wasos_chatroom_name"
-                            required
                             autocomplete="off"
                         >
                     </div>
@@ -124,6 +119,33 @@
                         >
                     </div>
                 </fieldset>
+
+                <!-- CIM credentials -->
+                <fieldset id="cim-fields">
+                    <legend>CIM</legend>
+
+                    <div class="form-field">
+                        <label for="cim_api_key">API-nøkkel (Bearer JWT):</label>
+                        <input
+                            type="text"
+                            id="cim_api_key"
+                            name="cim_api_key"
+                            autocomplete="off"
+                        >
+                    </div>
+
+                    <div class="form-field">
+                        <label for="cim_sender_name">Avsender (valgfritt felt):</label>
+                        <input
+                            type="text"
+                            id="cim_sender_name"
+                            name="cim_sender_name"
+                            autocomplete="off"
+                        >
+                    </div>
+                </fieldset>
+
+                <p class="form-help">Fyll ut nøyaktig to systemer for å opprette en kobling.</p>
 
                 <div class="form-actions">
                     <button type="submit" id="btn-submit">Legg til kobling</button>

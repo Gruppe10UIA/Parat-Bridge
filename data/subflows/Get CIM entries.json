@@ -1,0 +1,166 @@
+[
+  {
+    "id": "c10ce71900a00001",
+    "type": "subflow",
+    "name": "Get CIM entries",
+    "info": "Polls CIM for new cases on the configured instance.\n\n### Input\n`msg.metadata = { source: <CIM client>, target, connection_name }`\n\n### Logic\n1. Build GET `{base_url}/cases?limit=50` with Bearer token\n2. HTTP request\n3. Sort cases ascending by `global.case_created`\n4. Filter: drop entries before cursor, drop bridged messages (subject/description/created_by)\n5. Advance cursor on the source client\n\n### Output\n`msg.payload` = filtered array of raw CIM case objects (split downstream).",
+    "category": "",
+    "in": [
+      {
+        "x": 60,
+        "y": 80,
+        "wires": [
+          {
+            "id": "c10ce71900a00010"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 1300,
+        "y": 80,
+        "wires": [
+          {
+            "id": "c10ce71900a00016",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#E9967A",
+    "icon": "font-awesome/fa-envelope-o"
+  },
+  {
+    "id": "c10ce71900a00010",
+    "type": "function",
+    "z": "c10ce71900a00001",
+    "name": "Build CIM entry request",
+    "func": "const c = msg.metadata.source.client_specific;\nconst LIMIT = 50;\n\nmsg.url = c.base_url + \"/cases?limit=\" + LIMIT;\nmsg.headers = { \"Authorization\": \"Bearer \" + c.api_key };\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 250,
+    "y": 80,
+    "wires": [
+      [
+        "c10ce71900a00011"
+      ]
+    ]
+  },
+  {
+    "id": "c10ce71900a00011",
+    "type": "http request",
+    "z": "c10ce71900a00001",
+    "name": "Get CIM Entries",
+    "method": "GET",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": true,
+    "headers": [],
+    "x": 500,
+    "y": 80,
+    "wires": [
+      [
+        "c10ce71900a00012"
+      ]
+    ]
+  },
+  {
+    "id": "c10ce71900a00012",
+    "type": "function",
+    "z": "c10ce71900a00001",
+    "name": "Sort & extract cases",
+    "func": "// CIM returns { cases: [...] }. Sort oldest-first so the cursor advances correctly.\nconst cases = (msg.payload && msg.payload.cases) ? msg.payload.cases.slice() : [];\nif (cases.length === 0) return null;\n\nconst parse = global.get(\"utils\").parse_cim_timestamp;\ncases.sort((a, b) => parse(a.global.case_created) - parse(b.global.case_created));\n\nmsg.payload = cases;\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 730,
+    "y": 80,
+    "wires": [
+      [
+        "c10ce71900a00013"
+      ]
+    ]
+  },
+  {
+    "id": "c10ce71900a00013",
+    "type": "function",
+    "z": "c10ce71900a00001",
+    "name": "Filter & advance cursor",
+    "func": "const cursor_ts  = msg.metadata.source.timestamp;\nconst utils      = global.get(\"utils\");\nconst connection = msg.metadata.connection_name;\nconst source_id  = msg.metadata.source.identifier;\n\nmsg.payload = msg.payload.filter(c => {\n    const reg = c.registration || {};\n    const g   = c.global || {};\n    const ts  = utils.parse_cim_timestamp(g.case_created);\n    if (cursor_ts && ts <= cursor_ts) return false;\n    if (reg.subject     && utils.is_bridge_message(reg.subject))     return false;\n    if (reg.description && utils.is_bridge_message(reg.description)) return false;\n    if (g.case_created_by && utils.is_bridge_message(g.case_created_by)) return false;\n    return true;\n});\n\nif (msg.payload.length === 0) return null;\n\n// Cursor advance \\u2014 last case is newest (sorted ascending in previous step).\nconst last_ts = utils.parse_cim_timestamp(msg.payload[msg.payload.length - 1].global.case_created);\nglobal.set(\n    `parat_bridge.connections.${connection}.clients.${source_id}.timestamp`,\n    last_ts\n);\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 950,
+    "y": 80,
+    "wires": [
+      [
+        "c10ce71900a00016"
+      ]
+    ]
+  },
+  {
+    "id": "c10ce71900a00016",
+    "type": "split",
+    "z": "c10ce71900a00001",
+    "name": "",
+    "splt": "\\n",
+    "spltType": "str",
+    "arraySplt": 1,
+    "arraySpltType": "len",
+    "stream": false,
+    "addname": "",
+    "property": "payload",
+    "x": 1150,
+    "y": 80,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "c10ce71900a00014",
+    "type": "catch",
+    "z": "c10ce71900a00001",
+    "name": "",
+    "scope": null,
+    "uncaught": false,
+    "x": 560,
+    "y": 200,
+    "wires": [
+      [
+        "c10ce71900a00015"
+      ]
+    ],
+    "info": "Catches all errors from nodes in this subflow and forwards them to the centralized Error Handler subflow."
+  },
+  {
+    "id": "c10ce71900a00015",
+    "type": "subflow:7cecb563cf8b234a",
+    "z": "c10ce71900a00001",
+    "name": "",
+    "x": 730,
+    "y": 200,
+    "wires": [
+      []
+    ],
+    "info": "Centralized error handler for this subflow."
+  }
+]

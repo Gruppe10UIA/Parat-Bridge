@@ -1,0 +1,222 @@
+[
+  {
+    "id": "c10c1f1900a00001",
+    "type": "subflow",
+    "name": "Configure CIM",
+    "info": "Validates a CIM JWT API key and builds a standard Client object scoped to the whole CIM instance.\n\n### Input\n`msg.payload = { cim_api_key, cim_sender_name? }`\n\n### Logic\n1. Verify api_key is non-empty\n2. Decode JWT payload (middle segment) to extract `iss` and `instanceId`; build `base_url = iss + \"/_webservices/case_management/rest/1.0\"`\n3. GET `{base_url}/cases?limit=1` as a connectivity check\n4. Build Client object with `client_system: \"cim\"`, `identifier = String(instance_id)`, per-connection `base_url` in `client_specific`\n5. Verify required fields (identifier, api_key, base_url, instance_id)\n\n### Output\n`msg.payload` = CIM Client object, `msg.topic = \"cim\"`",
+    "category": "",
+    "in": [
+      {
+        "x": 140,
+        "y": 260,
+        "wires": [
+          {
+            "id": "c10c1f1900a00010"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 1100,
+        "y": 380,
+        "wires": [
+          {
+            "id": "c10c1f1900a00015",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [],
+    "meta": {},
+    "color": "#C0C0C0",
+    "icon": "font-awesome/fa-gears"
+  },
+  {
+    "id": "c10c1f1900a00010",
+    "type": "function",
+    "z": "c10c1f1900a00001",
+    "name": "verify input",
+    "func": "const p = msg.payload || {};\nif ((p.cim_api_key || \"\").length === 0) {\n    node.error(\"missing CIM api key in msg.payload\", msg);\n    return null;\n}\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 270,
+    "y": 260,
+    "wires": [
+      [
+        "c10c1f1900a00011",
+        "61f28da3af0a66e4"
+      ]
+    ]
+  },
+  {
+    "id": "c10c1f1900a00011",
+    "type": "function",
+    "z": "c10c1f1900a00001",
+    "name": "Decode JWT and build verify request",
+    "func": "// Stash form input for the post-HTTP step\nmsg.config_variables = msg.payload;\n\n// Decode JWT payload (middle segment, base64url-encoded JSON).\n// JWT carries `iss` (issuer URL, the CIM tenant root) and `instanceId`.\ntry {\n    const parts = (msg.payload.cim_api_key || \"\").split(\".\");\n    if (parts.length < 2) throw new Error(\"not a JWT\");\n    const b64 = parts[1].replace(/-/g, \"+\").replace(/_/g, \"/\");\n    const padded = b64 + \"=\".repeat((4 - b64.length % 4) % 4);\n    const decoded = JSON.parse(Buffer.from(padded, \"base64\").toString(\"utf8\"));\n    if (!decoded.iss || decoded.instanceId === undefined) {\n        throw new Error(\"missing iss or instanceId\");\n    }\n    msg.config_variables.cim_iss = decoded.iss;\n    msg.config_variables.cim_instance_id = decoded.instanceId;\n    msg.config_variables.cim_base_url = decoded.iss.replace(/\\/+$/, \"\") + \"/_webservices/case_management/rest/1.0\";\n} catch (err) {\n    node.error(\"Invalid CIM api key (JWT decode failed): \" + err.message, msg);\n    return null;\n}\n\nmsg.headers = { \"Authorization\": \"Bearer \" + msg.config_variables.cim_api_key };\nmsg.url = msg.config_variables.cim_base_url + \"/cases?limit=1\";\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": "",
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 500,
+    "y": 260,
+    "wires": [
+      [
+        "c10c1f1900a00012"
+      ]
+    ]
+  },
+  {
+    "id": "c10c1f1900a00012",
+    "type": "http request",
+    "z": "c10c1f1900a00001",
+    "name": "GET to fetch cases",
+    "method": "GET",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": true,
+    "headers": [],
+    "x": 750,
+    "y": 260,
+    "wires": [
+      [
+        "c10c1f1900a00013",
+        "7822a546d994f687"
+      ]
+    ]
+  },
+  {
+    "id": "c10c1f1900a00013",
+    "type": "function",
+    "z": "c10c1f1900a00001",
+    "name": "Verify cases response",
+    "func": "// Connectivity probe \\u2014 the API key is valid if /cases returns a cases array.\nif (!msg.payload || !Array.isArray(msg.payload.cases)) {\n    node.error(\"CIM /cases endpoint did not return a cases array \\u2014 invalid api key or instance unreachable\", msg);\n    return null;\n}\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 230,
+    "y": 380,
+    "wires": [
+      [
+        "c10c1f1900a00014"
+      ]
+    ]
+  },
+  {
+    "id": "c10c1f1900a00014",
+    "type": "function",
+    "z": "c10c1f1900a00001",
+    "name": "Build CIM config",
+    "func": "const v = msg.config_variables;\nconst sender_override = (v.cim_sender_name || \"\").trim() || null;\nconst instance_id = v.cim_instance_id;\n\nmsg.payload = {\n    // Standard client contract fields\n    client_system: \"cim\",\n    api_key:    v.cim_api_key,\n    identifier: String(instance_id),\n    name:       sender_override || (\"CIM \" + instance_id),\n    timestamp:  Date.now(),\n    client_specific: {\n        // CIM-specific fields\n        api_key:     v.cim_api_key,\n        base_url:    v.cim_base_url,\n        iss:         v.cim_iss,\n        instance_id: instance_id,\n        sender_override: sender_override\n    }\n};\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 470,
+    "y": 380,
+    "wires": [
+      [
+        "c10c1f1900a00015"
+      ]
+    ]
+  },
+  {
+    "id": "c10c1f1900a00015",
+    "type": "function",
+    "z": "c10c1f1900a00001",
+    "name": "Verify CIM config",
+    "func": "const config = msg.payload;\n\nmsg.topic = config.client_system;\n\nif (config.identifier &&\n    config.client_specific.api_key &&\n    config.client_specific.base_url &&\n    config.client_specific.instance_id !== undefined) {\n    return msg;\n}\nnode.error(\"CIM config not correctly configured\", config);\nreturn null;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 910,
+    "y": 380,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "c10c1f1900a00016",
+    "type": "catch",
+    "z": "c10c1f1900a00001",
+    "name": "",
+    "scope": null,
+    "uncaught": false,
+    "x": 940,
+    "y": 220,
+    "wires": [
+      [
+        "c10c1f1900a00017"
+      ]
+    ],
+    "info": "Catches all errors from nodes in this subflow and forwards them to the centralized Error Handler subflow."
+  },
+  {
+    "id": "c10c1f1900a00017",
+    "type": "subflow:7cecb563cf8b234a",
+    "z": "c10c1f1900a00001",
+    "name": "",
+    "x": 1110,
+    "y": 220,
+    "wires": [
+      []
+    ],
+    "info": "Centralized error handler for this subflow."
+  },
+  {
+    "id": "61f28da3af0a66e4",
+    "type": "debug",
+    "z": "c10c1f1900a00001",
+    "name": "verify input",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 270,
+    "y": 220,
+    "wires": []
+  },
+  {
+    "id": "7822a546d994f687",
+    "type": "debug",
+    "z": "c10c1f1900a00001",
+    "name": "cim fetch logs response",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 770,
+    "y": 220,
+    "wires": []
+  }
+]
