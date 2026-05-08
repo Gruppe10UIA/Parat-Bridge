@@ -37,12 +37,13 @@
     },
     "nodes": [
       "c742e6faf67ffe65",
-      "cd2019698fb7440a"
+      "cd2019698fb7440a",
+      "3b0207d4338d410b"
     ],
     "x": 334,
-    "y": 439,
+    "y": 399,
     "w": 712,
-    "h": 82
+    "h": 122
   },
   {
     "id": "df3ce13d4cb1f110",
@@ -198,7 +199,8 @@
     "y": 480,
     "wires": [
       [
-        "cd2019698fb7440a"
+        "cd2019698fb7440a",
+        "3b0207d4338d410b"
       ]
     ]
   },
@@ -331,5 +333,23 @@
     "wires": [
       []
     ]
+  },
+  {
+    "id": "3b0207d4338d410b",
+    "type": "debug",
+    "z": "7613a77a1b834225",
+    "g": "5851956660723990",
+    "name": "bridge entry",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 530,
+    "y": 440,
+    "wires": []
   }
 ]
