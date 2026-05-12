@@ -9,7 +9,11 @@
       {
         "x": 60,
         "y": 80,
-        "wires": []
+        "wires": [
+          {
+            "id": "67822507e08eb472"
+          }
+        ]
       }
     ],
     "out": [
@@ -28,5 +32,22 @@
     "meta": {},
     "color": "#C0DEED",
     "icon": "font-awesome/fa-gears"
+  },
+  {
+    "id": "67822507e08eb472",
+    "type": "debug",
+    "z": "c10c1f1900a03001",
+    "name": "debug 1",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 280,
+    "y": 40,
+    "wires": []
   }
 ]
