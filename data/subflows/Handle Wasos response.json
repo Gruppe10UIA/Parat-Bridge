@@ -42,7 +42,7 @@
     "type": "function",
     "z": "f0eb857d54dfb4ac",
     "name": "Filter",
-    "func": "const cursor_ts = msg.metadata.source.timestamp;\nconst utils = global.get(\"utils\");\nconst connection = msg.metadata.connection_name;\nconst source = msg.metadata.source.identifier;\n\n\n// Filter conditions\nmsg.payload = msg.payload.filter(entry => {\n    if (new Date(entry.createdAt).getTime() <= cursor_ts) return false;\n    if (entry.content && utils.is_bridge_message(entry.content)) return false;\n    if (entry.username && utils.is_bridge_message(entry.username)) return false;\n    return true;\n});\n\nif (msg.payload.length === 0) return null;\n\n// Update timestamp\nglobal.set(\n    `parat_bridge.connections.${connection}.clients.${source}.timestamp`,\n    new Date(msg.payload[msg.payload.length - 1].createdAt).getTime()\n);\n\nreturn msg;\n",
+    "func": "const cursor_ts = msg.metadata.source.timestamp;\nconst utils = global.get(\"utils\");\nconst connection = msg.metadata.connection_name;\nconst source = msg.metadata.source.identifier;\n\n// Filter conditions\nmsg.payload = msg.payload.filter(entry => {\n    if (new Date(entry.createdAt).getTime() <= cursor_ts) return false;\n    if (entry.content && utils.is_bridge_message(entry.content)) return false;\n    if (entry.username && utils.is_bridge_message(entry.username)) return false;\n    return true;\n});\n\nif (msg.payload.length === 0) return null;\n\n// Update timestamp\nglobal.set(\n    `parat_bridge.connections.${connection}.clients.${source}.timestamp`,\n    new Date(msg.payload[msg.payload.length - 1].createdAt).getTime()\n);\n\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
