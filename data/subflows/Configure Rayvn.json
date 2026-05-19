@@ -104,7 +104,7 @@
     "type": "function",
     "z": "5da162b98b7b6b86",
     "name": "Build Rayvn config",
-    "func": "// resolved from log name in previous node\nconst log_id = msg.payload;\nconst sender_override = (msg.config_variables.rayvn_sender_name || \"\").trim() || null;\nconst log_name = msg.config_variables.rayvn_log_name;\n\nconst rayvn_config = {\n    // Standard client contract fields\n    client_system: \"rayvn\",\n    api_key: msg.config_variables.rayvn_api_key,\n    identifier: log_id,\n    name: sender_override || log_name,\n    timestamp: Date.now(),\n    client_specific: {\n        // Rayvn-specific fields\n        api_key: msg.config_variables.rayvn_api_key,\n        log_name: log_name,\n        log_id: log_id,\n        sender_override: sender_override\n    }\n};\n\nmsg.payload = rayvn_config;\nreturn msg;",
+    "func": "// resolved from log name in previous node\nconst log_id = msg.payload;\nconst sender_override = (msg.config_variables.rayvn_sender_name || \"\").trim() || null;\nconst log_name = msg.config_variables.rayvn_log_name;\n\nconst rayvn_config = {\n    // Standard client contract fields\n    client_system: \"rayvn\",\n    api_key: msg.config_variables.rayvn_api_key,\n    identifier: log_id,\n    name: sender_override || log_name,\n    timestamp: 0,\n    client_specific: {\n        // Rayvn-specific fields\n        api_key: msg.config_variables.rayvn_api_key,\n        log_name: log_name,\n        log_id: log_id,\n        sender_override: sender_override\n    }\n};\n\nmsg.payload = rayvn_config;\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
