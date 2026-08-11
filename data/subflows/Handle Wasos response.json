@@ -167,11 +167,11 @@
     "type": "switch",
     "z": "f0eb857d54dfb4ac",
     "name": "Location?",
-    "property": "payload.location",
+    "property": "payload.data.geometry",
     "propertyType": "msg",
     "rules": [
       {
-        "t": "true"
+        "t": "nnull"
       },
       {
         "t": "else"
@@ -196,7 +196,7 @@
     "type": "function",
     "z": "f0eb857d54dfb4ac",
     "name": "Attach image to entry",
-    "func": "if (msg.mapImage) {\n    const file = {\n        name: msg.mapImage.name,\n        type: msg.mapImage.type,\n        size: msg.mapImage.buffer.length,\n        _buffer: msg.mapImage.buffer\n    };\n\n    msg.payload.files = (msg.payload.files || []).concat(file);\n    delete msg.mapImage;\n}\n\n// Extract description and coordinates from GeoJSON\nconst geo = JSON.parse(msg.payload.content);\nconst [lng, lat] = geo.geometry.coordinates;\nconst description = geo.properties.description || \"\";\nconst mapsLink = \"Klikk her for å åpne i Google Maps:\\nhttps://www.google.com/maps?q=\" + lat + \"%2C\" + lng;\nmsg.payload.content = description ? description + \"\\n\\n\" + mapsLink : mapsLink;\n\ndelete msg.isLocation;\n\nreturn msg;\n",
+    "func": "if (msg.mapImage) {\n    const file = {\n        name: msg.mapImage.name,\n        type: msg.mapImage.type,\n        size: msg.mapImage.buffer.length,\n        _buffer: msg.mapImage.buffer\n    };\n\n    msg.payload.files = (msg.payload.files || []).concat(file);\n    delete msg.mapImage;\n}\n\n// Extract description and coordinates from GeoJSON\nconst data = msg.payload.data;\nconst [lng, lat] = data.geometry.coordinates;\nconst description = data.properties.description || \"\";\nconst mapsLink = \"Klikk her for å åpne i Google Maps:\\nhttps://www.google.com/maps?q=\" + lat + \"%2C\" + lng;\nmsg.payload.content = description ? description + \"\\n\\n\" + mapsLink : mapsLink;\n\ndelete msg.isLocation;\n\nreturn msg;\n",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
@@ -237,5 +237,56 @@
       ],
       []
     ]
+  },
+  {
+    "id": "9f43d29b2138d99c",
+    "type": "debug",
+    "z": "f0eb857d54dfb4ac",
+    "name": "new wasos message",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 450,
+    "y": 100,
+    "wires": []
+  },
+  {
+    "id": "ee7f702c23e7e1cc",
+    "type": "debug",
+    "z": "f0eb857d54dfb4ac",
+    "name": "no map message",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 730,
+    "y": 340,
+    "wires": []
+  },
+  {
+    "id": "024a2ac6de8198fe",
+    "type": "debug",
+    "z": "f0eb857d54dfb4ac",
+    "name": "attach image out",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 490,
+    "y": 140,
+    "wires": []
   }
 ]
