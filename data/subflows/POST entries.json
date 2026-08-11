@@ -71,7 +71,8 @@
         "1a1bc306925cf0a6"
       ],
       [
-        "6dd72aa23c2737b5"
+        "6dd72aa23c2737b5",
+        "d235ad5e7794122f"
       ],
       []
     ]
@@ -130,5 +131,22 @@
     "wires": [
       []
     ]
+  },
+  {
+    "id": "d235ad5e7794122f",
+    "type": "debug",
+    "z": "32cf505a4efbb214",
+    "name": "post to rayvn",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 830,
+    "y": 220,
+    "wires": []
   }
 ]
